@@ -2,7 +2,10 @@
   "description": "SY希腊蔚蓝海岸 · 微信小程序",
   "packOptions": {
     "ignore": [
-      { "type": "folder", "value": "scripts" }
+      {
+        "value": "scripts",
+        "type": "folder"
+      }
     ],
     "include": []
   },
@@ -39,11 +42,18 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "compileWorklet": false,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false
   },
   "compileType": "miniprogram",
   "libVersion": "3.4.10",
-  "appid": "touristappid",
+  "appid": "wxe494b50fdb4eed64",
   "projectname": "sy-greece-miniprogram",
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
 }
