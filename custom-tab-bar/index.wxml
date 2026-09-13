@@ -1,0 +1,43 @@
+<view class="tabbar">
+  <view class="tabbar-inner">
+    <block wx:for="{{list}}" wx:key="pagePath">
+      <!-- 中间凸起「立即联系」主按钮 -->
+      <view
+        wx:if="{{index === 1}}"
+        class="tab-item tab-center"
+        data-path="{{item.pagePath}}"
+        data-index="{{index}}"
+        bindtap="switchTab"
+      >
+        <view class="center-btn">
+          <view class="center-icon">
+            <view class="icon-chat"></view>
+          </view>
+          <text class="center-text">{{item.text}}</text>
+        </view>
+      </view>
+      <!-- 普通 tab -->
+      <view
+        wx:else
+        class="tab-item {{selected === index ? 'active' : ''}}"
+        data-path="{{item.pagePath}}"
+        data-index="{{index}}"
+        bindtap="switchTab"
+      >
+        <view class="tab-icon">
+          <!-- 首页 -->
+          <view wx:if="{{item.icon === 'home'}}" class="icon-home">
+            <view class="icon-home-roof"></view>
+            <view class="icon-home-body"></view>
+          </view>
+          <!-- 我的 -->
+          <view wx:elif="{{item.icon === 'user'}}" class="icon-user">
+            <view class="icon-user-head"></view>
+            <view class="icon-user-body"></view>
+          </view>
+        </view>
+        <text class="tab-text">{{item.text}}</text>
+      </view>
+    </block>
+  </view>
+</view>

@@ -1,0 +1,177 @@
+<view class="page">
+
+  <!-- ===== 1. 品牌头图轮播（沉浸式） ===== -->
+  <view class="hero">
+    <swiper
+      class="hero-swiper"
+      autoplay
+      circular
+      interval="4500"
+      duration="600"
+      bindchange="onHeroChange"
+    >
+      <swiper-item wx:for="{{heroList}}" wx:key="img">
+        <image class="hero-img" src="{{item.img}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+    <!-- 深海蓝渐变遮罩（62%） -->
+    <view class="hero-mask"></view>
+
+    <!-- 状态栏占位 + 毛玻璃搜索栏 -->
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="hero-search" bindtap="onSearchTap">
+      <view class="hero-search-icon"></view>
+      <text class="hero-search-text">搜索路线 / 景点 / 定制需求</text>
+    </view>
+
+    <!-- 品牌名 + 定位语（压左下 1/3） -->
+    <view class="hero-brand">
+      <view class="hero-brand-en eyebrow">{{heroList[heroCurrent].en}}</view>
+      <view class="hero-brand-name serif">{{heroList[heroCurrent].title}}</view>
+      <view class="hero-brand-slogan">深耕希腊本土 · 中高端私人定制地接服务商</view>
+    </view>
+
+    <!-- 轮播指示点 -->
+    <view class="hero-dots">
+      <view
+        wx:for="{{heroList}}"
+        wx:key="img"
+        class="hero-dot {{heroCurrent === index ? 'hero-dot-active' : ''}}"
+      ></view>
+    </view>
+  </view>
+
+  <!-- ===== 2. 核心功能入口（四大金刚） ===== -->
+  <view class="entries card">
+    <view
+      class="entry-item"
+      wx:for="{{entries}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onEntryTap"
+    >
+      <view class="entry-icon entry-icon-{{item.key}}">
+        <!-- 蔚蓝海岸：波浪 -->
+        <view wx:if="{{item.key === 'coast'}}" class="i-wave">
+          <view class="i-wave-line l1"></view>
+          <view class="i-wave-line l2"></view>
+          <view class="i-wave-sun"></view>
+        </view>
+        <!-- 私人定制：笔尺 -->
+        <view wx:elif="{{item.key === 'custom'}}" class="i-pen">
+          <view class="i-pen-body"></view>
+          <view class="i-pen-tip"></view>
+        </view>
+        <!-- 专属用车：汽车 -->
+        <view wx:elif="{{item.key === 'car'}}" class="i-car">
+          <view class="i-car-body"></view>
+          <view class="i-car-window"></view>
+          <view class="i-car-wheel w1"></view>
+          <view class="i-car-wheel w2"></view>
+        </view>
+        <!-- 旅行工具：指南针 -->
+        <view wx:else class="i-compass">
+          <view class="i-compass-ring"></view>
+          <view class="i-compass-needle"></view>
+        </view>
+      </view>
+      <view class="entry-label">{{item.label}}</view>
+      <view class="entry-desc">{{item.desc}}</view>
+    </view>
+  </view>
+
+  <!-- ===== 3. 甄选路线 ===== -->
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="eyebrow">SELECTED ROUTES</view>
+        <view class="section-title serif">甄选路线</view>
+      </view>
+      <view class="section-more" bindtap="onInquiryTap">全部路线 ›</view>
+    </view>
+
+    <view class="route-card card" wx:for="{{routes}}" wx:key="id" bindtap="onInquiryTap">
+      <view class="route-img-wrap">
+        <image class="route-img" src="{{item.img}}" mode="aspectFill" />
+        <view class="route-tag">{{item.tag}}</view>
+      </view>
+      <view class="route-body">
+        <view class="route-name ellipsis">{{item.name}}</view>
+        <view class="route-highlights ellipsis">{{item.highlights}}</view>
+        <view class="route-foot">
+          <view class="btn-inquiry">价格电询 · 一对一报价</view>
+          <view class="route-crowd">{{item.crowd}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 4. 奢享体验 ===== -->
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="eyebrow">LUXURY EXPERIENCE</view>
+        <view class="section-title serif">奢享体验</view>
+      </view>
+    </view>
+    <view class="lux-row">
+      <view class="lux-card card" wx:for="{{luxuries}}" wx:key="id" bindtap="onInquiryTap">
+        <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
+        <view class="lux-mask"></view>
+        <view class="lux-corner">高端定制</view>
+        <view class="lux-body">
+          <view class="lux-name serif">{{item.name}}</view>
+          <view class="lux-desc">{{item.desc}}</view>
+          <view class="lux-cta">定制咨询 ›</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 5. 精选目的地 ===== -->
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="eyebrow">DESTINATIONS</view>
+        <view class="section-title serif">精选目的地</view>
+      </view>
+    </view>
+
+    <!-- 双分类切换 -->
+    <view class="dest-tabs">
+      <view
+        class="dest-tab {{destTab === index ? 'dest-tab-active' : ''}}"
+        wx:for="{{destTabs}}"
+        wx:key="*this"
+        data-index="{{index}}"
+        bindtap="onDestTab"
+      >{{item}}</view>
+    </view>
+
+    <block wx:for="{{destinations}}" wx:key="tab" wx:for-item="group" wx:for-index="gi">
+      <view wx:if="{{destTab === gi}}">
+        <view class="dest-grid">
+          <view class="dest-tile" wx:for="{{group.tiles}}" wx:key="name" bindtap="onDestTap">
+            <image class="dest-img" src="{{item.img}}" mode="aspectFill" />
+            <view class="dest-mask"></view>
+            <view class="dest-info">
+              <view class="dest-en eyebrow">{{item.en}}</view>
+              <view class="dest-name">{{item.name}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="dest-chips">
+          <view class="dest-chip" wx:for="{{group.chips}}" wx:key="*this" bindtap="onDestTap">{{item}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- ===== 6. 品牌页脚 ===== -->
+  <view class="footer">
+    <view class="footer-line"></view>
+    <view class="footer-site" bindtap="onSiteTap">sy-greece.com</view>
+    <view class="footer-slogan">雅典在地团队 · 一对一中文定制师 · 全程管家式服务</view>
+  </view>
+
+</view>

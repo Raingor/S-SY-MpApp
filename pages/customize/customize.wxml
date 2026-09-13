@@ -1,0 +1,141 @@
+<view class="page">
+
+  <!-- ===== 深蓝引导横幅 ===== -->
+  <view class="banner">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="banner-inner">
+      <view class="eyebrow banner-en">TELL US YOUR PLAN</view>
+      <view class="banner-title serif">告诉我你的想法，希腊交给我们</view>
+      <view class="banner-sub">1v1 中文定制师 · 24 小时内出首版方案</view>
+    </view>
+  </view>
+
+  <!-- ===== 留资表单 ===== -->
+  <view class="form card">
+    <!-- 出行目的地 -->
+    <view class="field">
+      <view class="field-label">出行目的地 <text class="req">*</text></view>
+      <input
+        class="field-input"
+        placeholder="如：圣托里尼 + 雅典"
+        placeholder-class="ph"
+        value="{{form.destination}}"
+        data-field="destination"
+        bindinput="onInput"
+      />
+    </view>
+
+    <!-- 出行时间 -->
+    <view class="field">
+      <view class="field-label">出行时间</view>
+      <picker mode="date" start="2026-09-14" bindchange="onDateChange">
+        <view class="field-input {{form.date ? '' : 'ph'}}">
+          {{form.date || '选择出发日期'}}
+        </view>
+      </picker>
+    </view>
+
+    <!-- 出行天数 -->
+    <view class="field">
+      <view class="field-label">出行天数</view>
+      <picker range="{{daysOptions}}" bindchange="onPickerChange" data-field="days" data-options="daysOptions">
+        <view class="field-input {{form.days ? '' : 'ph'}}">
+          {{form.days || '选择天数范围'}}<text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 出行人数 -->
+    <view class="field">
+      <view class="field-label">出行人数</view>
+      <picker range="{{peopleOptions}}" bindchange="onPickerChange" data-field="people" data-options="peopleOptions">
+        <view class="field-input {{form.people ? '' : 'ph'}}">
+          {{form.people || '选择出行人数'}}<text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 人均预算 -->
+    <view class="field">
+      <view class="field-label">人均预算</view>
+      <picker range="{{budgetOptions}}" bindchange="onPickerChange" data-field="budget" data-options="budgetOptions">
+        <view class="field-input {{form.budget ? '' : 'ph'}}">
+          {{form.budget || '选择预算区间'}}<text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 旅行主题（多选） -->
+    <view class="field">
+      <view class="field-label">旅行主题 <text class="hint">（可多选）</text></view>
+      <view class="theme-wrap">
+        <view
+          class="theme-chip {{form.themes.includes(item) ? 'theme-chip-on' : ''}}"
+          wx:for="{{themes}}"
+          wx:key="*this"
+          data-theme="{{item}}"
+          bindtap="onThemeToggle"
+        >{{item}}</view>
+      </view>
+    </view>
+
+    <!-- 需求描述 -->
+    <view class="field">
+      <view class="field-label">需求描述</view>
+      <textarea
+        class="field-textarea"
+        placeholder="说说你对这趟旅程的期待：酒店偏好、玩法、特别的日子…"
+        placeholder-class="ph"
+        maxlength="300"
+        value="{{form.desc}}"
+        data-field="desc"
+        bindinput="onInput"
+      ></textarea>
+    </view>
+
+    <!-- 联系电话 -->
+    <view class="field field-last">
+      <view class="field-label">联系电话 <text class="req">*</text></view>
+      <input
+        class="field-input"
+        type="number"
+        maxlength="11"
+        placeholder="定制师将在24小时内联系您"
+        placeholder-class="ph"
+        value="{{form.phone}}"
+        data-field="phone"
+        bindinput="onInput"
+      />
+    </view>
+  </view>
+
+  <!-- 主 CTA（页面唯一） -->
+  <view class="cta-wrap">
+    <button class="btn-primary" bindtap="onSubmit" disabled="{{submitting}}">
+      {{submitting ? '提交中…' : '提交需求 · 免费获取定制方案'}}
+    </button>
+  </view>
+
+  <!-- ===== 定制师微信卡片（第二留资通道） ===== -->
+  <view class="consultant card">
+    <view class="consultant-top" bindtap="onCopyWechat">
+      <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
+      <view class="consultant-info">
+        <view class="consultant-name">{{consultant.name}}</view>
+        <view class="consultant-slogan">{{consultant.slogan}}</view>
+        <view class="consultant-wechat">微信号：{{consultant.wechat}}（点击复制）</view>
+      </view>
+    </view>
+    <view class="consultant-qr" bindtap="onPreviewQr">
+      <image class="qr-img" src="{{consultant.qr}}" mode="aspectFit" />
+      <view class="qr-tip">长按识别 / 点击放大</view>
+    </view>
+  </view>
+
+  <!-- 电话辅助 -->
+  <view class="phone-row" bindtap="onCallPhone">
+    <text>雅典办公室 · 中希双语客服</text>
+    <text class="phone-arrow">电话咨询 ›</text>
+  </view>
+
+</view>

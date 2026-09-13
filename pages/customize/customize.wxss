@@ -1,0 +1,236 @@
+/* ============ P2 私人定制留资页 ============ */
+.page {
+  padding: 0 32rpx 240rpx;
+}
+
+/* ===== 深蓝引导横幅 ===== */
+.banner {
+  margin: 0 -32rpx;
+  background: linear-gradient(150deg, #0B3C5D 0%, #1567A8 78%, #1E7BC0 100%);
+  color: #FFFFFF;
+  padding-bottom: 56rpx;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 波纹装饰 */
+.banner::after {
+  content: '';
+  position: absolute;
+  right: -80rpx;
+  top: 30rpx;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 60rpx rgba(255, 255, 255, 0.05), 0 0 0 120rpx rgba(255, 255, 255, 0.03);
+}
+
+.banner-inner {
+  position: relative;
+  padding: 24rpx 40rpx 0;
+  z-index: 1;
+}
+
+.banner-en {
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 6rpx;
+}
+
+.banner-title {
+  margin-top: 12rpx;
+  font-size: 44rpx;
+  letter-spacing: 2rpx;
+}
+
+.banner-sub {
+  margin-top: 14rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 1rpx;
+}
+
+/* ===== 表单卡片 ===== */
+.form {
+  margin-top: -36rpx;
+  position: relative;
+  z-index: 2;
+  padding: 8rpx 32rpx;
+}
+
+.field {
+  padding: 28rpx 0;
+  border-bottom: 2rpx solid #EEF3F7;
+}
+
+.field-last {
+  border-bottom: none;
+}
+
+.field-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 16rpx;
+}
+
+.req {
+  color: #D65A5A;
+}
+
+.hint {
+  font-weight: 400;
+  font-size: 22rpx;
+  color: var(--c-weak);
+}
+
+.field-input {
+  height: 80rpx;
+  line-height: 80rpx;
+  padding: 0 28rpx;
+  border-radius: 20rpx;
+  background: #F4F7FA;
+  font-size: 28rpx;
+  color: var(--c-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ph {
+  color: var(--c-weak);
+}
+
+.arrow {
+  color: var(--c-weak);
+  font-size: 30rpx;
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+.field-textarea {
+  width: auto;
+  min-height: 180rpx;
+  padding: 20rpx 28rpx;
+  border-radius: 20rpx;
+  background: #F4F7FA;
+  font-size: 28rpx;
+  color: var(--c-text);
+  line-height: 1.6;
+}
+
+/* 旅行主题多选 */
+.theme-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
+}
+
+.theme-chip {
+  padding: 14rpx 32rpx;
+  border-radius: 36rpx;
+  background: #F4F7FA;
+  font-size: 26rpx;
+  color: var(--c-sub);
+  border: 2rpx solid #E1E9F0;
+  transition: all 0.2s;
+}
+
+.theme-chip-on {
+  background: rgba(21, 103, 168, 0.08);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+/* ===== 主 CTA ===== */
+.cta-wrap {
+  margin-top: 36rpx;
+}
+
+.cta-wrap .btn-primary {
+  width: 100%;
+}
+
+/* ===== 定制师微信卡片 ===== */
+.consultant {
+  margin-top: 40rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.consultant-top {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-width: 0;
+}
+
+.consultant-avatar {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 4rpx solid #EAF1F7;
+}
+
+.consultant-info {
+  min-width: 0;
+}
+
+.consultant-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.consultant-slogan {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--c-sub);
+}
+
+.consultant-wechat {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--c-primary);
+}
+
+.consultant-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.qr-img {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid #EEF3F7;
+}
+
+.qr-tip {
+  margin-top: 8rpx;
+  font-size: 18rpx;
+  color: var(--c-weak);
+}
+
+/* ===== 电话辅助 ===== */
+.phone-row {
+  margin-top: 28rpx;
+  display: flex;
+  justify-content: space-between;
+  font-size: 24rpx;
+  color: var(--c-sub);
+  padding: 0 12rpx;
+}
+
+.phone-arrow {
+  color: var(--c-primary);
+  font-weight: 600;
+}

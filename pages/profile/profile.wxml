@@ -1,0 +1,82 @@
+<view class="page">
+
+  <!-- ===== 渐变头部 ===== -->
+  <view class="head">
+    <view style="height: {{statusBarHeight + 8}}px;"></view>
+    <view class="head-inner">
+      <view class="head-row">
+        <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
+        <view class="head-info">
+          <view class="nick-row">
+            <text class="nick">{{user.nickname}}</text>
+            <view class="member-badge">✦ {{user.member}}</view>
+          </view>
+          <view class="verified">已认证出行人</view>
+        </view>
+      </view>
+
+      <!-- 数据行 -->
+      <view class="stats">
+        <view class="stat" wx:for="{{stats}}" wx:key="label">
+          <view class="stat-value">{{item.value}}</view>
+          <view class="stat-label">{{item.label}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 服务单元格卡 ===== -->
+  <view class="panel card">
+    <view
+      class="cell"
+      wx:for="{{services}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onServiceTap"
+    >
+      <view class="cell-icon cell-icon-{{item.key}}">
+        <!-- 订单 -->
+        <view wx:if="{{item.key === 'orders'}}" class="i-order">
+          <view class="i-order-line l1"></view>
+          <view class="i-order-line l2"></view>
+        </view>
+        <!-- 行程 -->
+        <view wx:elif="{{item.key === 'trips'}}" class="i-trip">
+          <view class="i-trip-pin"></view>
+          <view class="i-trip-line"></view>
+        </view>
+        <!-- 优惠券 -->
+        <view wx:else class="i-coupon">
+          <view class="i-coupon-body"></view>
+          <view class="i-coupon-hole h1"></view>
+          <view class="i-coupon-hole h2"></view>
+        </view>
+      </view>
+      <view class="cell-label">{{item.label}}</view>
+      <view wx:if="{{item.badge}}" class="cell-badge">{{item.badge}}</view>
+      <view class="cell-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- ===== 资料与帮助卡 ===== -->
+  <view class="panel card">
+    <view
+      class="cell"
+      wx:for="{{helps}}"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onHelpTap"
+    >
+      <view class="cell-dot dot-{{item.key}}"></view>
+      <view class="cell-label">{{item.label}}</view>
+      <view class="cell-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 品牌署名 -->
+  <view class="foot-brand">
+    <view class="foot-en eyebrow">GREECE BLUE COAST</view>
+    <view class="foot-site">sy-greece.com</view>
+  </view>
+
+</view>

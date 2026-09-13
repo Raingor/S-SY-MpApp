@@ -1,0 +1,101 @@
+/* ============================================
+   SY希腊蔚蓝海岸 · 全局样式（设计系统）
+   色彩：爱琴海主蓝 #1567A8 / 深海蓝 #0B3C5D
+        页面底 #F4F7FA / 卡片白 #FFFFFF / 沙金 #C6A15B
+   正文 #16283A / 次要 #5B6B7A / 弱 #8AA3B5
+   ============================================ */
+
+page {
+  --c-primary: #1567A8;
+  --c-deep: #0B3C5D;
+  --c-bg: #F4F7FA;
+  --c-card: #FFFFFF;
+  --c-gold: #C6A15B;
+  --c-text: #16283A;
+  --c-sub: #5B6B7A;
+  --c-weak: #8AA3B5;
+
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC',
+    'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+/* 衬线品牌标题 */
+.serif {
+  font-family: 'Source Han Serif CN', 'Songti SC', 'Noto Serif SC',
+    Georgia, serif;
+  font-weight: 600;
+}
+
+/* 英文小标（大写字距） */
+.eyebrow {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 20rpx;
+  letter-spacing: 3rpx;
+  text-transform: uppercase;
+  color: var(--c-weak);
+}
+
+/* 通用卡片 */
+.card {
+  background: var(--c-card);
+  border-radius: 32rpx;
+  box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+}
+
+/* 单行省略 */
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 沙金「价格电询」按钮 */
+.btn-inquiry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #D8B878 0%, #C6A15B 60%, #B08D45 100%);
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  box-shadow: 0 8rpx 20rpx rgba(198, 161, 91, 0.35);
+}
+
+.btn-inquiry::after {
+  border: none;
+}
+
+/* 主按钮 */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #1E7BC0 0%, #1567A8 55%, #0F5488 100%);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  box-shadow: 0 14rpx 30rpx rgba(21, 103, 168, 0.35);
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
