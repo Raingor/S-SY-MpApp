@@ -1,6 +1,7 @@
 // P3 我的页面：微信登录 / 手机号绑定 / 会员信息 / 服务单元格
 const auth = require('../../utils/auth');
 const { buildShareCard } = require('../../utils/share');
+const app = getApp();
 
 Page({
   data: {
