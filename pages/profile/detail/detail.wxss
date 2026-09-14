@@ -67,10 +67,34 @@
 }
 
 .record-list,
+.coupon-list,
 .saved-list {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+}
+
+.coupon {
+  padding: 28rpx;
+  border-left: 8rpx solid var(--c-gold);
+}
+
+.coupon-title {
+  color: var(--c-text);
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.coupon-desc,
+.coupon-expiry {
+  margin-top: 12rpx;
+  color: var(--c-sub);
+  font-size: 23rpx;
+}
+
+.coupon-expiry {
+  color: var(--c-primary);
+  font-size: 21rpx;
 }
 
 .record {

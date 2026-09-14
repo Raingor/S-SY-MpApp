@@ -172,27 +172,69 @@ function getUserState(callback) {
   fetchMe((ok, user) => callback(ok, user));
 }
 
-function fetchMyLeads(options, callback) {
+function requestAuth(path, method, data, callback) {
   const token = getAccessToken();
   const apiBase = getApiBase();
-  if (!token || !apiBase) return callback(false, [], '请先微信登录');
+  if (!token || !apiBase) return callback(false, null, '请先微信登录');
+  wx.request({
+    url: `${apiBase}${path}`,
+    method,
+    timeout: 15000,
+    header: {
+      'content-type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    data,
+    success: (res) => {
+      if (res.statusCode >= 200 && res.statusCode < 300) return callback(true, res.data || {}, '');
+      callback(false, res.data || null, (res.data && res.data.error) || '请求失败');
+    },
+    fail: () => callback(false, null, '网络异常，请稍后重试')
+  });
+}
+
+function fetchProfile(callback) {
+  requestAuth('/api/miniprogram/profile', 'GET', null, (ok, data, message) => {
+    if (ok && data.user && data.stats) return callback(true, data, '');
+    callback(false, null, message || '暂时无法加载个人资料');
+  });
+}
+
+function fetchMyLeads(options, callback) {
   const query = options || {};
   const params = Object.keys(query)
     .filter((key) => query[key])
     .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`)
     .join('&');
-  wx.request({
-    url: `${apiBase}/api/miniprogram/leads${params ? `?${params}` : ''}`,
-    method: 'GET',
-    timeout: 15000,
-    header: { Authorization: `Bearer ${token}` },
-    success: (res) => {
-      if (res.statusCode >= 200 && res.statusCode < 300 && res.data && Array.isArray(res.data.items)) {
-        return callback(true, res.data.items);
-      }
-      callback(false, [], '暂时无法加载记录');
-    },
-    fail: () => callback(false, [], '网络异常，请稍后重试')
+  requestAuth(`/api/miniprogram/leads${params ? `?${params}` : ''}`, 'GET', null, (ok, data, message) => {
+    if (ok && Array.isArray(data.items)) return callback(true, data.items, '');
+    callback(false, [], message || '暂时无法加载记录');
+  });
+}
+
+function fetchMyCollection(collection, callback) {
+  requestAuth(`/api/miniprogram/${collection}`, 'GET', null, (ok, data, message) => {
+    if (ok && Array.isArray(data.items)) return callback(true, data.items, '');
+    callback(false, [], message || '暂时无法加载资料');
+  });
+}
+
+function createMyItem(collection, payload, callback) {
+  requestAuth(`/api/miniprogram/${collection}`, 'POST', payload, callback);
+}
+
+function updateMyItem(collection, itemId, payload, callback) {
+  requestAuth(`/api/miniprogram/${collection}/${encodeURIComponent(itemId)}`, 'PATCH', payload, callback);
+}
+
+function deleteMyItem(collection, itemId, callback) {
+  requestAuth(`/api/miniprogram/${collection}/${encodeURIComponent(itemId)}`, 'DELETE', null, callback);
+}
+
+function fetchMyCoupons(callback) {
+  requestAuth('/api/miniprogram/coupons', 'GET', null, (ok, data, message) => {
+    if (ok && Array.isArray(data.items)) return callback(true, data.items, '');
+    callback(false, [], message || '暂时无法加载优惠券');
   });
 }
 
@@ -204,7 +246,13 @@ module.exports = {
   bindPhone,
   ensurePhoneBound,
   getUserState,
+  fetchProfile,
   fetchMyLeads,
+  fetchMyCollection,
+  createMyItem,
+  updateMyItem,
+  deleteMyItem,
+  fetchMyCoupons,
   clearSession,
   getAppState
 };

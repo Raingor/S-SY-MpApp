@@ -26,15 +26,24 @@
   </view>
 
   <view wx:elif="{{mode === 'coupons'}}" class="content">
-    <view class="empty card">
+    <view wx:if="{{loading}}" class="state">正在加载优惠券…</view>
+    <view wx:elif="{{!items.length}}" class="empty card">
       <view class="empty-icon">✦</view>
       <view class="empty-title">{{empty}}</view>
       <view class="empty-desc">如有适用权益，顾问会在确认咨询时为您说明</view>
     </view>
+    <view wx:else class="coupon-list">
+      <view class="coupon card" wx:for="{{items}}" wx:key="id">
+        <view class="coupon-title">{{item.displayTitle}}</view>
+        <view class="coupon-desc">{{item.displayDesc}}</view>
+        <view class="coupon-expiry">{{item.displayExpiry}}</view>
+      </view>
+    </view>
   </view>
 
   <view wx:elif="{{mode === 'traveler' || mode === 'document'}}" class="content">
-    <view class="privacy-note">资料仅保存在当前设备，并按当前微信账号隔离。</view>
+    <view wx:if="{{loading}}" class="state">正在加载资料…</view>
+    <view class="privacy-note">资料由服务端按当前微信账号隔离保存，仅用于后续服务沟通。</view>
     <view class="form card">
       <view class="field">
         <view class="field-label">姓名或称呼 <text class="required">*</text></view>
@@ -56,11 +65,11 @@
         <view class="field-label">签证备注</view>
         <input class="input" placeholder="例如：已持申根签 / 待确认" value="{{form.visaStatus}}" data-field="visaStatus" bindinput="onInput" />
       </view>
-      <button class="save-button" bindtap="onSaveLocal">{{editingIndex >= 0 ? '保存修改' : '添加资料'}}</button>
+      <button class="save-button" bindtap="onSaveProfile" loading="{{saving}}" disabled="{{saving}}">{{editingIndex >= 0 ? '保存修改' : '添加资料'}}</button>
     </view>
 
-    <view wx:if="{{items.length}}" class="saved-list">
-      <view class="saved-card card" wx:for="{{items}}" wx:key="updatedAt">
+    <view wx:if="{{!loading && items.length}}" class="saved-list">
+      <view class="saved-card card" wx:for="{{items}}" wx:key="id">
         <view class="saved-main">
           <view class="saved-name">{{item.name}}</view>
           <view wx:if="{{item.relation}}" class="saved-meta">{{item.relation}}</view>
@@ -69,8 +78,8 @@
           <view wx:if="{{item.visaStatus}}" class="saved-meta">签证：{{item.visaStatus}}</view>
         </view>
         <view class="saved-actions">
-          <text data-index="{{index}}" bindtap="onEditLocal">编辑</text>
-          <text data-index="{{index}}" bindtap="onDeleteLocal">删除</text>
+          <text data-index="{{index}}" bindtap="onEditProfile">编辑</text>
+          <text data-index="{{index}}" bindtap="onDeleteProfile">删除</text>
         </view>
       </view>
     </view>

@@ -6,12 +6,8 @@ const TYPE_CONFIG = {
   trips: { title: '我的行程', mode: 'trips', empty: '暂未安排导游陪同行程' },
   coupons: { title: '优惠券', mode: 'coupons', empty: '当前没有可使用的优惠券' },
   travelers: { title: '常用出行人', mode: 'traveler', empty: '添加常用出行人，填写表单时更方便' },
-  visa: { title: '护照签证资料', mode: 'document', empty: '添加资料后可在本机快速查看' }
+  visa: { title: '护照签证资料', mode: 'document', empty: '添加资料后可在预约时快速查看' }
 };
-
-function storageKey(userId, type) {
-  return `sy_profile_${userId}_${type}`;
-}
 
 function formatDate(value) {
   if (!value) return '时间待确认';
@@ -42,6 +38,7 @@ Page({
     mode: 'leads',
     empty: '还没有提交过预约或咨询',
     loading: false,
+    saving: false,
     items: [],
     form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' },
     editingIndex: -1,
@@ -60,12 +57,16 @@ Page({
       }
       this.setData({ userId: user.id });
       if (config.mode === 'leads' || config.mode === 'trips') this.loadLeads();
-      else this.loadLocalItems();
+      else if (config.mode === 'coupons') this.loadCoupons();
+      else this.loadProfileItems();
     });
   },
 
   onShow() {
-    if (this.data.userId && (this.data.mode === 'traveler' || this.data.mode === 'document')) this.loadLocalItems();
+    if (!this.data.userId) return;
+    if (this.data.mode === 'leads' || this.data.mode === 'trips') this.loadLeads();
+    else if (this.data.mode === 'coupons') this.loadCoupons();
+    else this.loadProfileItems();
   },
 
   onBack() {
@@ -95,47 +96,80 @@ Page({
     });
   },
 
-  loadLocalItems() {
-    const items = wx.getStorageSync(storageKey(this.data.userId, `${this.data.mode}s`)) || [];
-    this.setData({ items });
+  loadCoupons() {
+    this.setData({ loading: true });
+    auth.fetchMyCoupons((ok, items, message) => {
+      if (!ok) {
+        this.setData({ loading: false });
+        return wx.showToast({ title: message || '优惠券加载失败', icon: 'none' });
+      }
+      this.setData({ loading: false, items: items.map((item) => ({
+        ...item,
+        displayTitle: item.title || item.name || '专属权益',
+        displayDesc: item.description || item.desc || '使用规则请以顾问说明为准',
+        displayExpiry: item.expiresAt ? `有效期至 ${formatDate(item.expiresAt)}` : '有效期以券面为准'
+      })) });
+    });
+  },
+
+  loadProfileItems() {
+    const collection = this.data.mode === 'traveler' ? 'travelers' : 'documents';
+    this.setData({ loading: true });
+    auth.fetchMyCollection(collection, (ok, items, message) => {
+      if (!ok) {
+        this.setData({ loading: false });
+        return wx.showToast({ title: message || '资料加载失败', icon: 'none' });
+      }
+      this.setData({ loading: false, items });
+    });
   },
 
   onInput(e) {
     this.setData({ [`form.${e.currentTarget.dataset.field}`]: e.detail.value });
   },
 
-  onSaveLocal() {
+  onSaveProfile() {
     const form = this.data.form;
     if (!form.name.trim()) return wx.showToast({ title: '请填写姓名或称呼', icon: 'none' });
-    const storageType = `${this.data.mode}s`;
-    const items = (wx.getStorageSync(storageKey(this.data.userId, storageType)) || []).slice();
-    const item = { ...form, name: form.name.trim(), updatedAt: new Date().toISOString() };
-    if (this.data.editingIndex >= 0) items.splice(this.data.editingIndex, 1, item);
-    else items.push(item);
-    wx.setStorageSync(storageKey(this.data.userId, storageType), items);
-    this.setData({ items, form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' }, editingIndex: -1 });
-    wx.showToast({ title: '已保存到本机', icon: 'success' });
+    const collection = this.data.mode === 'traveler' ? 'travelers' : 'documents';
+    const payload = this.data.mode === 'traveler'
+      ? { name: form.name.trim(), relation: form.relation.trim(), passportNo: form.passportNo.trim() }
+      : { name: form.name.trim(), passportNo: form.passportNo.trim(), expiry: form.expiry.trim(), visaStatus: form.visaStatus.trim() };
+    const current = this.data.items[this.data.editingIndex];
+    this.setData({ saving: true });
+    const done = (ok, item, message) => {
+      this.setData({ saving: false });
+      if (!ok) return wx.showToast({ title: message || '保存失败', icon: 'none' });
+      this.setData({ form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' }, editingIndex: -1 });
+      this.loadProfileItems();
+      wx.showToast({ title: '已保存', icon: 'success' });
+    };
+    if (current && current.id) auth.updateMyItem(collection, current.id, payload, done);
+    else auth.createMyItem(collection, payload, done);
   },
 
-  onEditLocal(e) {
+  onEditProfile(e) {
     const index = Number(e.currentTarget.dataset.index);
     this.setData({ form: { ...this.data.items[index] }, editingIndex: index });
     wx.pageScrollTo({ scrollTop: 0, duration: 240 });
   },
 
-  onDeleteLocal(e) {
+  onDeleteProfile(e) {
     const index = Number(e.currentTarget.dataset.index);
+    const item = this.data.items[index];
+    if (!item || !item.id) return wx.showToast({ title: '资料编号无效，请刷新后重试', icon: 'none' });
+    const collection = this.data.mode === 'traveler' ? 'travelers' : 'documents';
     wx.showModal({
       title: '删除这条资料？',
       content: '删除后无法恢复，请确认。',
       confirmText: '删除',
       success: (res) => {
         if (!res.confirm) return;
-        const storageType = `${this.data.mode}s`;
-        const items = (wx.getStorageSync(storageKey(this.data.userId, storageType)) || []).slice();
-        items.splice(index, 1);
-        wx.setStorageSync(storageKey(this.data.userId, storageType), items);
-        this.setData({ items });
+        auth.deleteMyItem(collection, item.id, (ok, unused, message) => {
+          if (!ok) return wx.showToast({ title: message || '删除失败', icon: 'none' });
+          this.loadProfileItems();
+          wx.showToast({ title: '已删除', icon: 'success' });
+        });
       }
     });
   }

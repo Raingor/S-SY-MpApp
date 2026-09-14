@@ -68,7 +68,7 @@ MpApp/
 ### P3 我的页面 `pages/profile/profile`
 - 微信登录、微信昵称头像展示、手机号绑定与真实预约/行程/资料数量统计。
 - 我的预约、我的行程、优惠券均可进入详情；预约与行程读取当前用户自己的服务记录，优惠券展示真实权益空状态。
-- 常用出行人、护照签证资料支持按微信用户隔离的本机添加、编辑和删除；联系客服进入咨询页，关于我们支持复制官网地址。
+- 常用出行人、护照签证资料通过接口按微信用户隔离保存，支持添加、编辑和删除；联系客服进入咨询页，关于我们支持复制官网地址。
 
 ### P4 名人导游页 `pages/guide/guide`
 - Richard 李人物头部、教育/履历/驾照三项背书与第一人称人物故事。
@@ -101,6 +101,7 @@ MpApp/
 - `app.js` 的 `globalData.apiBase` 默认为生产地址 `https://sy-greece.com`，本地联调时可替换为测试环境地址。
 - P2、Richard 预约、用车咨询、商旅咨询均向 `${apiBase}/api/leads` 发起 JSON `POST`，需将接口域名加入微信开发者工具的 request 合法域名。
 - 小程序登录接口约定为 `POST /api/miniprogram/auth/wx-login`（请求 `{code}`）、`GET /api/miniprogram/auth/me`、`POST /api/miniprogram/auth/phone`（请求 `{code}`）；登录 token 保存在本地缓存并通过 `Authorization: Bearer <accessToken>` 发送。
+- 个人中心接口包括 `GET /api/miniprogram/profile`、`GET /api/miniprogram/leads`、`GET /api/miniprogram/coupons`，以及出行人/签证资料的 `GET/POST/PATCH/DELETE /api/miniprogram/travelers[/:id]`、`/documents[/:id]`；服务端按 token 用户持久化并隔离数据。
 - 所有表单提交前都会向 `/auth/me` 确认登录状态和手机号绑定状态；未登录或未绑定时引导用户进入【我的】完成操作，服务端也必须对 `/api/leads` 做 401/403 校验。
 - `leadType` 分类为：`customization`、`guide-booking`、`vehicle-consultation`、`knowledge-base`、`business-travel`。
 - 通用字段包括 `source`、`platform`、`destination`、`bookingDate`、`duration`、`travelers` / `people`、`route`、`contactType`、`contact`；各服务表单会附带对应的主题、车型或商务需求字段。

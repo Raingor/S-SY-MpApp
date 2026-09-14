@@ -54,26 +54,23 @@ Page({
   },
 
   refreshStats() {
-    auth.fetchMyLeads({}, (ok, items) => {
+    auth.fetchProfile((ok, profile) => {
       if (!ok) return;
-      const tripCount = items.filter((item) => item.leadType === 'guide-booking').length;
+      const user = profile.user || {};
       this.setData({
+        user: {
+          ...this.data.user,
+          ...user,
+          avatar: user.avatar || user.avatarUrl || this.data.user.avatar
+        },
         stats: [
-          { label: '预约', value: items.length },
-          { label: '行程', value: tripCount },
-          { label: '优惠券', value: 0 },
-          { label: '资料', value: this.getProfileDataCount() }
+          { label: '预约', value: Number(profile.stats.appointments) || 0 },
+          { label: '行程', value: Number(profile.stats.trips) || 0 },
+          { label: '优惠券', value: Number(profile.stats.coupons) || 0 },
+          { label: '资料', value: Number(profile.stats.profiles) || 0 }
         ]
       });
     });
-  },
-
-  getProfileDataCount() {
-    const user = auth.getCachedUser();
-    if (!user || !user.id) return 0;
-    const travelers = wx.getStorageSync(`sy_profile_${user.id}_travelers`) || [];
-    const documents = wx.getStorageSync(`sy_profile_${user.id}_documents`) || [];
-    return travelers.length + documents.length;
   },
 
   onWechatLogin() {
