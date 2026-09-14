@@ -181,14 +181,18 @@
 }
 
 .save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 72rpx;
   margin: 24rpx 0 0;
+  padding: 0;
   border: none;
   border-radius: 36rpx;
   background: var(--c-primary);
   color: #FFFFFF;
   font-size: 26rpx;
-  line-height: 72rpx;
+  line-height: 1;
 }
 
 .save-button::after {

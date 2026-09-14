@@ -737,6 +737,9 @@
 }
 
 .submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 76rpx;
   margin-top: 30rpx;
@@ -748,7 +751,7 @@
   font-size: 24rpx;
   font-weight: 600;
   letter-spacing: 1rpx;
-  line-height: 76rpx;
+  line-height: 1;
 }
 
 .submit-button::after {

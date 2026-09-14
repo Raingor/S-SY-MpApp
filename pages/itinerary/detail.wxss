@@ -135,12 +135,16 @@
 .itd-share { margin-top: 22rpx; }
 
 .itd-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 72rpx;
+  padding: 0;
   border-radius: 36rpx;
   background: linear-gradient(135deg, #1E7BC0 0%, #1567A8 55%, #0F5488 100%);
   color: #FFFFFF;
   font-size: 24rpx;
-  line-height: 72rpx;
+  line-height: 1;
   text-align: center;
 }
 

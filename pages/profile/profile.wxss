@@ -57,6 +57,9 @@
 }
 
 .login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 320rpx;
   height: 72rpx;
   margin: 28rpx 0 0;
@@ -66,7 +69,7 @@
   background: #FFFFFF;
   color: var(--c-primary);
   font-size: 26rpx;
-  line-height: 72rpx;
+  line-height: 1;
 }
 
 .login-button::after,
@@ -99,6 +102,9 @@
 }
 
 .bind-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   margin: 0;
   padding: 0 22rpx;
@@ -108,7 +114,7 @@
   background: var(--c-primary);
   color: #FFFFFF;
   font-size: 23rpx;
-  line-height: 64rpx;
+  line-height: 1;
 }
 
 .avatar {
