@@ -17,7 +17,7 @@
       <view class="field-label">咨询目的地 <text class="req">*</text></view>
       <input
         class="field-input"
-        placeholder="如：圣托里尼 + 雅典"
+        placeholder="如：圣岛 + 雅典"
         placeholder-class="ph"
         value="{{form.destination}}"
         data-field="destination"
@@ -123,7 +123,7 @@
         class="field-input"
         type="number"
         maxlength="11"
-        placeholder="顾问将在24小时内联系您"
+        placeholder="24小时内联系您"
         placeholder-class="ph"
         value="{{form.phone}}"
         data-field="phone"

@@ -85,6 +85,9 @@
 }
 
 .field-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   height: 80rpx;
   line-height: 80rpx;
   padding: 0 28rpx;
@@ -98,7 +101,11 @@
 }
 
 .ph {
+  overflow: hidden;
   color: var(--c-weak);
+  font-size: 25rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .arrow {
@@ -232,6 +239,7 @@
 /* ===== 电话辅助 ===== */
 .phone-row {
   margin-top: 28rpx;
+  margin-bottom: 180rpx;
   display: flex;
   justify-content: space-between;
   font-size: 24rpx;
