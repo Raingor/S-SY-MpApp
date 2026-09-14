@@ -9,60 +9,33 @@
     <view class="knowledge-hero-body">
       <view class="knowledge-kicker">ATTRACTIONS &amp; KNOWLEDGE</view>
       <view class="knowledge-title serif">希腊景点</view>
-      <view class="knowledge-subtitle">从卫城到梅黛奥拉，把每一次参访变成真正看懂的现场。先看亮点与参观指南，再深入了解历史、神话与建筑。</view>
-      <view class="knowledge-pills"><text>必看亮点</text><text>参观指南</text><text>深度讲解</text></view>
+      <view class="knowledge-subtitle">从卫城到梅黛奥拉，把每一次参访变成真正看懂的现场。选择一座城市，开启导览讲解。</view>
+      <view class="knowledge-pills"><text>城市导览</text><text>必看亮点</text><text>参观指南</text><text>深度讲解</text></view>
     </view>
   </view>
 
-  <!-- 精选城市 -->
+  <!-- 精选城市（封面图 + 名称 + 统计摘要） -->
   <view class="knowledge-catalog">
     <view class="knowledge-section-kicker">01 · CITIES</view>
     <view class="knowledge-heading serif">精选城市</view>
-    <scroll-view class="city-scroll" scroll-x>
-      <view
-        class="city-tab {{activeCity === 'all' ? 'city-tab-on' : ''}}"
-        data-id="all"
-        bindtap="onCityTap"
-      >
-        <image src="/assets/images/hero/hero-acropolis.jpg" mode="aspectFill" />
-        <view>全部</view>
-        <text>{{spots.length}} 个景点</text>
-      </view>
-      <view
-        wx:for="{{cities}}"
-        wx:key="id"
-        class="city-tab {{activeCity === item.id ? 'city-tab-on' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onCityTap"
-      >
-        <image src="{{item.cover}}" mode="aspectFill" />
-        <view>{{item.name}}</view>
-        <text>{{item.count}} 个景点</text>
-      </view>
-    </scroll-view>
-  </view>
 
-  <!-- 景点列表（封面图 + 名称） -->
-  <view class="spot-list-wrap">
-    <view class="knowledge-section-kicker">02 · ATTRACTIONS</view>
-    <view class="knowledge-heading serif">{{activeCity === 'all' ? '全部景点' : '本城景点'}}</view>
-
-    <view class="spot-grid">
-      <view class="spot-item card" wx:for="{{spots}}" wx:key="id" data-id="{{item.id}}" bindtap="onSpotTap">
-        <image class="spot-item-img" src="{{item.image}}" mode="aspectFill" />
-        <view class="spot-item-body">
-          <view class="spot-item-name serif">{{item.name}}</view>
-          <view class="spot-item-cat">{{item.cityName}} · {{item.category}}</view>
-          <view class="spot-item-intro ellipsis-2">{{item.summary}}</view>
-          <view class="spot-item-cta">查看亮点 / 参观指南 <text>›</text></view>
+    <view class="city-grid">
+      <view class="city-card card" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap">
+        <image class="city-card-img" src="{{item.cover}}" mode="aspectFill" />
+        <view class="city-card-mask"></view>
+        <view class="city-card-info">
+          <view class="city-card-name serif">{{item.name}}</view>
+          <view class="city-card-sub">{{item.subtitle}}</view>
+          <view class="city-card-stats">{{item.museumCount}} 座博物馆 · {{item.guidePointCount}} 个讲解点</view>
         </view>
+        <view class="city-card-arrow">›</view>
       </view>
     </view>
   </view>
 
   <!-- 关联参考行程 -->
   <view class="trip-section">
-    <view class="knowledge-section-kicker">03 · ITINERARIES</view>
+    <view class="knowledge-section-kicker">02 · ITINERARIES</view>
     <view class="knowledge-heading serif">包含这些景点的行程</view>
     <view class="trip-row card" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
       <image class="trip-thumb" src="{{item.img}}" mode="aspectFill" />

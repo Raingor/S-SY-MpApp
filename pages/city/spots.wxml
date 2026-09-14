@@ -1,0 +1,30 @@
+<view class="spots-page" wx:if="{{city}}">
+  <!-- 顶部导航 -->
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="spots-nav">
+    <view class="spots-back" bindtap="onBack">‹</view>
+    <view class="spots-title">{{city.name}}</view>
+    <view class="spots-buy" bindtap="onBuy">购买</view>
+  </view>
+
+  <!-- 景点卡片列表 -->
+  <view class="spots-list">
+    <view class="spot-card" wx:for="{{spots}}" wx:key="id" data-id="{{item.id}}" bindtap="onSpotTap">
+      <view class="spot-card-img-wrap">
+        <image class="spot-card-img" src="{{item.image}}" mode="aspectFill" />
+        <view class="spot-card-mask"></view>
+        <view class="spot-size-label {{item.sizeLabel === '超大型' ? 'size-xl' : (item.sizeLabel === '大型' ? 'size-lg' : 'size-md')}}">{{item.sizeLabel}}</view>
+      </view>
+      <view class="spot-card-body">
+        <image class="spot-logo" src="{{item.logoSrc}}" mode="aspectFill" />
+        <view class="spot-info">
+          <view class="spot-name-cn">{{item.name}}</view>
+          <view class="spot-name-orig">{{item.originalName}}</view>
+          <view class="spot-summary">{{item.summary}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="spots-footer">只为一生美好回忆</view>
+</view>

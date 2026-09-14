@@ -1,0 +1,45 @@
+<view class="city-page" wx:if="{{city}}">
+  <!-- 顶部导航 -->
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="city-nav">
+    <view class="city-back" bindtap="onBack">‹</view>
+    <view class="city-mark">✦</view>
+  </view>
+
+  <!-- 拼贴 Mosaic 主视觉 + 暗色遮罩 + 大字标题 -->
+  <view class="city-mosaic">
+    <view class="mosaic-grid">
+      <view class="mosaic-cell" wx:for="{{city.mosaic}}" wx:key="*this">
+        <image src="{{item}}" mode="aspectFill" />
+      </view>
+    </view>
+    <view class="mosaic-mask"></view>
+    <view class="mosaic-title-wrap">
+      <view class="mosaic-title serif">{{city.name}}</view>
+      <view class="mosaic-subtitle">{{city.subtitle}}</view>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="city-stats">
+    <view class="stat" wx:for="{{stats}}" wx:key="label">
+      <view class="stat-value">{{item.value}}</view>
+      <view class="stat-label">{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 说明入口 -->
+  <view class="city-about" bindtap="onAboutGuide">💡 了解「SY 蔚蓝海岸」导览讲解的不同之处</view>
+
+  <!-- 深色内容区（占位说明） -->
+  <view class="city-note">
+    <view class="city-note-kicker">WHAT'S INSIDE</view>
+    <view class="city-note-text">专业编写的图文与语音讲解，按景点逐层展开：先看必看亮点，再看参观指南，最后深入历史、神话与建筑。</view>
+  </view>
+
+  <!-- 底部双 CTA -->
+  <view class="city-cta">
+    <view class="cta-buy" bindtap="onBuy">购买</view>
+    <view class="cta-view" bindtap="onView">查看</view>
+  </view>
+</view>

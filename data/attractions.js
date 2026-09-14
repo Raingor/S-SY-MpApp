@@ -2,19 +2,97 @@
 // guide = 参观指南；highlights = 必看亮点；deep = 深度文史讲解（免费预览 + 付费解锁）
 
 const cities = [
-  { id: 'athens', cover: '/assets/images/dest/dest-athens.jpg', name: '雅典', en: 'ATHENS' },
-  { id: 'santorini', cover: '/assets/images/dest/dest-santorini.jpg', name: '圣托里尼', en: 'SANTORINI' },
-  { id: 'delphi', cover: '/assets/images/dest/dest-delphi.jpg', name: '德尔斐', en: 'DELPHI' },
-  { id: 'meteora', cover: '/assets/images/dest/dest-meteora.jpg', name: '梅黛奥拉', en: 'METEORA' },
-  { id: 'crete', cover: '/assets/images/dest/dest-crete.jpg', name: '克里特', en: 'CRETE' },
-  { id: 'peloponnese', cover: '/assets/images/dest/dest-peloponnese.jpg', name: '伯罗奔尼撒', en: 'PELOPONNESE' }
+  {
+    id: 'athens', cover: '/assets/images/dest/dest-athens.jpg', name: '雅典', en: 'ATHENS',
+    subtitle: '希腊',
+    museumCount: 13, guidePointCount: 1303, audioMinutes: 2133,
+    price: '€12.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/hero/hero-acropolis.jpg',
+      '/assets/images/dest/dest-athens.jpg',
+      '/assets/images/route/route-athens.jpg',
+      '/assets/images/dest/dest-delphi.jpg',
+      '/assets/images/hero/hero-santorini.jpg',
+      '/assets/images/dest/dest-meteora.jpg'
+    ]
+  },
+  {
+    id: 'santorini', cover: '/assets/images/dest/dest-santorini.jpg', name: '圣托里尼', en: 'SANTORINI',
+    subtitle: '基克拉泽斯群岛',
+    museumCount: 6, guidePointCount: 612, audioMinutes: 986,
+    price: '€9.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/hero/hero-santorini.jpg',
+      '/assets/images/dest/dest-santorini.jpg',
+      '/assets/images/route/route-santorini.jpg',
+      '/assets/images/dest/dest-mykonos.jpg',
+      '/assets/images/lux/lux-yacht.jpg',
+      '/assets/images/hero/hero-couple.jpg'
+    ]
+  },
+  {
+    id: 'delphi', cover: '/assets/images/dest/dest-delphi.jpg', name: '德尔斐', en: 'DELPHI',
+    subtitle: '中希腊大区',
+    museumCount: 3, guidePointCount: 287, audioMinutes: 452,
+    price: '€6.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/dest/dest-delphi.jpg',
+      '/assets/images/route/route-heritage.jpg',
+      '/assets/images/dest/dest-peloponnese.jpg',
+      '/assets/images/hero/hero-acropolis.jpg'
+    ]
+  },
+  {
+    id: 'meteora', cover: '/assets/images/dest/dest-meteora.jpg', name: '梅黛奥拉', en: 'METEORA',
+    subtitle: '色萨利大区',
+    museumCount: 4, guidePointCount: 326, audioMinutes: 518,
+    price: '€6.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/dest/dest-meteora.jpg',
+      '/assets/images/route/route-heritage.jpg',
+      '/assets/images/hero/hero-acropolis.jpg',
+      '/assets/images/dest/dest-delphi.jpg'
+    ]
+  },
+  {
+    id: 'crete', cover: '/assets/images/dest/dest-crete.jpg', name: '克里特', en: 'CRETE',
+    subtitle: '克里特大区',
+    museumCount: 5, guidePointCount: 548, audioMinutes: 874,
+    price: '€8.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/dest/dest-crete.jpg',
+      '/assets/images/dest/dest-santorini.jpg',
+      '/assets/images/route/route-heritage.jpg',
+      '/assets/images/dest/dest-mykonos.jpg'
+    ]
+  },
+  {
+    id: 'nafplio', cover: '/assets/images/dest/dest-nafplion.jpg', name: '纳夫普利翁', en: 'NAFPLIO',
+    subtitle: '伯罗奔尼撒 · 希腊南部',
+    museumCount: 7, guidePointCount: 694, audioMinutes: 1105,
+    price: '€9.99',
+    purchaseNote: '城市导览讲解包 · 含全部景点深度讲解',
+    mosaic: [
+      '/assets/images/dest/dest-peloponnese.jpg',
+      '/assets/images/route/route-peloponnese.jpg',
+      '/assets/images/dest/dest-nafplion.jpg',
+      '/assets/images/dest/dest-delphi.jpg'
+    ]
+  }
 ];
 
-const CITY_NAMES = { athens: '雅典', santorini: '圣托里尼', delphi: '德尔斐', meteora: '梅黛奥拉', crete: '克里特', peloponnese: '伯罗奔尼撒' };
+const CITY_NAMES = { athens: '雅典', santorini: '圣托里尼', delphi: '德尔斐', meteora: '梅黛奥拉', crete: '克里特', nafplio: '纳夫普利翁' };
 
 const attractions = [
   {
     id: 'acropolis',
+    sizeLabel: '超大型',
+    originalName: 'Ακρόπολη Αθηνών',
     city: 'athens', cityName: '雅典',
     name: '雅典卫城',
     en: 'ACROPOLIS',
@@ -49,6 +127,8 @@ const attractions = [
   },
   {
     id: 'athens-landmarks',
+    sizeLabel: '大型',
+    originalName: 'Σύνταγμα & Κέντρο Αθηνών',
     city: 'athens', cityName: '雅典',
     name: '雅典地标巡礼',
     en: 'SYNTAGMA & CITY LANDMARKS',
@@ -82,6 +162,8 @@ const attractions = [
   },
   {
     id: 'likavitos',
+    sizeLabel: '中型',
+    originalName: 'Λυκαβηττός',
     city: 'athens', cityName: '雅典',
     name: '利卡维多斯山',
     en: 'LIKAVITOS HILL',
@@ -114,9 +196,46 @@ const attractions = [
     }
   },
   {
-    id: 'national-museum',
+    id: 'benaki-museum',
+    sizeLabel: '大型',
+    originalName: 'Μουσείο Μπενάκη',
     city: 'athens', cityName: '雅典',
-    name: '国家考古博物馆',
+    name: '贝纳基博物馆',
+    en: 'BENAKI MUSEUM',
+    category: '博物馆',
+    image: '/assets/images/dest/dest-athens.jpg',
+    summary: '为纪念马其顿·贝纳基斯而建，藏品涵盖从史前时期到现代希腊的艺术、伊斯兰艺术、亚洲艺术以及欧洲装饰艺术。',
+    highlights: [
+      { name: '希腊历史长廊', desc: '从史前到现代希腊的完整叙事，一部可以行走的希腊通史。' },
+      { name: '伊斯兰艺术馆藏', desc: '世界顶级的伊斯兰艺术收藏之一，青铜器与陶瓷精品荟萃。' },
+      { name: '亚洲艺术与中国瓷器', desc: '远东艺术馆藏，含中国古代瓷器与绘画精品。' },
+      { name: '新古典主义宅邸', desc: '博物馆本身就是雅典最优雅的新古典主义建筑之一。' }
+    ],
+    guide: {
+      hours: '周三与周日约 10:00–18:00，周四至周六延长至 22:00（部分展厅），周一/周二闭馆，以官网公示为准。',
+      tickets: '主馆约 €15（旺季以现场为准），特定群体减免；周四晚间部分时段免费。',
+      transport: '位于 Kolonaki 区 Vassilissis Sofias 大道，地铁 Evangelismos 站步行约 8 分钟。',
+      worth: '顶层咖啡馆的卫城视角露台是隐藏彩蛋；配合国家考古博物馆形成一日双馆动线。',
+      services: '馆内咖啡厅、纪念品商店与顶层露台餐厅；大型背包需寄存。',
+      family: '中国瓷器与兵器展厅对孩子最友好；展线紧凑，1.5–2 小时可看完。',
+      map: '',
+      shop: '',
+      accessibility: '',
+      exhibitions: '',
+      faq: '馆内禁止使用闪光灯；临展与常设展可能分开售票。',
+      notices: ''
+    },
+    deepDive: {
+      preview: '一座私人宅邸如何长成国家级博物馆？1 分钟免费预览讲它的故事。',
+      locked: ['贝纳基斯家族与藏品源流', '希腊现代史的物证阅读', '双馆动线与时段安排']
+    }
+  },
+  {
+    id: 'national-museum',
+    sizeLabel: '超大型',
+    originalName: 'Εθνικό Αρχαιολογικό Μουσείο',
+    city: 'athens', cityName: '雅典',
+    name: '雅典国家考古博物馆',
     en: 'NATIONAL ARCHAEOLOGICAL MUSEUM',
     category: '博物馆',
     image: '/assets/images/dest/dest-athens.jpg',
@@ -149,6 +268,8 @@ const attractions = [
   },
   {
     id: 'oia',
+    sizeLabel: '大型',
+    originalName: 'Οία',
     city: 'santorini', cityName: '圣托里尼',
     name: '伊亚小镇',
     en: 'OIA',
@@ -182,6 +303,8 @@ const attractions = [
   },
   {
     id: 'fira',
+    sizeLabel: '中型',
+    originalName: 'Φηρά',
     city: 'santorini', cityName: '圣托里尼',
     name: '费拉小镇',
     en: 'FIRA',
@@ -215,6 +338,8 @@ const attractions = [
   },
   {
     id: 'pyrgos',
+    sizeLabel: '中型',
+    originalName: 'Πύργος Καλλίστης',
     city: 'santorini', cityName: '圣托里尼',
     name: '皮尔戈斯山城小镇',
     en: 'PYRGOS KALLISTIS',
@@ -248,6 +373,8 @@ const attractions = [
   },
   {
     id: 'black-beach',
+    sizeLabel: '中型',
+    originalName: 'Παραλία Περίσσας',
     city: 'santorini', cityName: '圣托里尼',
     name: '圣托里尼黑沙滩',
     en: 'PERISSA BLACK BEACH',
@@ -281,6 +408,8 @@ const attractions = [
   },
   {
     id: 'delphi',
+    sizeLabel: '大型',
+    originalName: 'Δελφοί',
     city: 'delphi', cityName: '德尔斐',
     name: '德尔斐考古遗址',
     en: 'DELPHI',
@@ -315,6 +444,8 @@ const attractions = [
   },
   {
     id: 'meteora',
+    sizeLabel: '超大型',
+    originalName: 'Μετέωρα',
     city: 'meteora', cityName: '梅黛奥拉',
     name: '梅黛奥拉修道院群',
     en: 'METEORA',
@@ -348,6 +479,8 @@ const attractions = [
   },
   {
     id: 'knossos',
+    sizeLabel: '大型',
+    originalName: 'Κνωσός',
     city: 'crete', cityName: '克里特',
     name: '克诺索斯王宫',
     en: 'KNOSSOS PALACE',
@@ -381,7 +514,9 @@ const attractions = [
   },
   {
     id: 'nafplio',
-    city: 'peloponnese', cityName: '伯罗奔尼撒',
+    sizeLabel: '中型',
+    originalName: 'Ναύπλιο',
+    city: 'nafplio', cityName: '纳夫普利翁',
     name: '纳夫普利翁',
     en: 'NAFPLIO',
     category: '海滨老城',
@@ -414,7 +549,9 @@ const attractions = [
   },
   {
     id: 'epidaurus',
-    city: 'peloponnese', cityName: '伯罗奔尼撒',
+    sizeLabel: '大型',
+    originalName: 'Αρχαίο Θέατρο Επιδαύρου',
+    city: 'nafplio', cityName: '纳夫普利翁',
     name: '埃皮达鲁斯古剧场',
     en: 'EPIDAURUS THEATRE',
     category: '世界文化遗产',

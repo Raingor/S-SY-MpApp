@@ -169,7 +169,7 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 目的地瓷贴 → 景点区
+  // 目的地瓷贴 → 景点区（城市选择）
   onDestTap() {
     wx.navigateTo({ url: '/pages/knowledge/knowledge' });
   },

@@ -1,0 +1,176 @@
+/* ============ 城市介绍页（深色 + 拼贴 Mosaic + 双 CTA） ============ */
+page { background: #10131A; }
+
+.city-page {
+  min-height: 100vh;
+  padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
+  background: #10131A;
+  color: #FFFFFF;
+}
+
+.city-nav {
+  height: 82rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+}
+
+.city-back {
+  width: 56rpx;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: Georgia, serif;
+  font-size: 52rpx;
+}
+
+.city-mark {
+  color: #C6A15B;
+  font-size: 26rpx;
+}
+
+/* ===== 拼贴 Mosaic ===== */
+.city-mosaic {
+  position: relative;
+  margin: 8rpx 24rpx 0;
+  overflow: hidden;
+  border-radius: 28rpx;
+}
+
+.mosaic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.mosaic-cell {
+  width: calc((100% - 20rpx) / 3);
+  height: 250rpx;
+}
+
+.mosaic-cell:nth-child(1) { width: calc((100% - 20rpx) / 3 * 2); height: 510rpx; }
+.mosaic-cell:nth-child(4) { width: calc((100% - 20rpx) / 3 * 2); }
+
+.mosaic-cell image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 暗色渐变遮罩 */
+.mosaic-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(16, 19, 26, 0.18) 0%, rgba(16, 19, 26, 0.42) 55%, rgba(16, 19, 26, 0.9) 100%);
+}
+
+.mosaic-title-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 34rpx;
+  z-index: 1;
+  text-align: center;
+}
+
+.mosaic-title {
+  font-size: 88rpx;
+  line-height: 1.15;
+  text-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.6);
+}
+
+.mosaic-subtitle {
+  margin-top: 8rpx;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 28rpx;
+  letter-spacing: 6rpx;
+}
+
+/* ===== 统计 ===== */
+.city-stats {
+  display: flex;
+  margin: 52rpx 32rpx 0;
+}
+
+.stat { flex: 1; text-align: center; }
+
+.stat + .stat { border-left: 1rpx solid rgba(255, 255, 255, 0.1); }
+
+.stat-value {
+  color: #FFFFFF;
+  font-family: Georgia, serif;
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-label {
+  margin-top: 6rpx;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 20rpx;
+}
+
+/* ===== 说明入口 ===== */
+.city-about {
+  margin: 44rpx 32rpx 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 23rpx;
+  text-align: center;
+  text-decoration: underline;
+}
+
+/* ===== 内容说明 ===== */
+.city-note {
+  margin: 52rpx 40rpx 0;
+  padding: 30rpx 32rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  border-radius: 24rpx;
+}
+
+.city-note-kicker {
+  color: #C6A15B;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+}
+
+.city-note-text {
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 24rpx;
+  line-height: 1.85;
+}
+
+/* ===== 底部双 CTA ===== */
+.city-cta {
+  display: flex;
+  gap: 20rpx;
+  margin: 64rpx 32rpx 0;
+}
+
+.cta-buy {
+  flex: 1;
+  height: 96rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #1E7BC0 0%, #1567A8 55%, #0F5488 100%);
+  box-shadow: 0 12rpx 26rpx rgba(21, 103, 168, 0.4);
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  line-height: 96rpx;
+  text-align: center;
+}
+
+.cta-view {
+  flex: 1;
+  height: 96rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.34);
+  border-radius: 48rpx;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  line-height: 96rpx;
+  text-align: center;
+}

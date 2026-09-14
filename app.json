@@ -11,7 +11,9 @@
     "pages/profile/edit/edit",
     "pages/itinerary/index",
     "pages/itinerary/detail",
-    "pages/attraction/detail"
+    "pages/attraction/detail",
+    "pages/city/index",
+    "pages/city/spots"
   ],
   "window": {
     "navigationStyle": "custom",
