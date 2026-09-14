@@ -51,33 +51,7 @@
       bindtap="onEntryTap"
     >
       <view class="entry-icon entry-icon-{{item.key}}">
-        <!-- 行程定制：笔尺 -->
-        <view wx:if="{{item.key === 'customization'}}" class="i-pen">
-          <view class="i-pen-body"></view>
-          <view class="i-pen-tip"></view>
-        </view>
-        <!-- 古迹讲解：柱式图标 -->
-        <view wx:elif="{{item.key === 'guide'}}" class="i-column">
-          <view class="i-column-top"></view>
-          <view class="i-column-body"></view>
-        </view>
-        <!-- 在地用车：汽车 -->
-        <view wx:elif="{{item.key === 'vehicle'}}" class="i-car">
-          <view class="i-car-body"></view>
-          <view class="i-car-window"></view>
-          <view class="i-car-wheel w1"></view>
-          <view class="i-car-wheel w2"></view>
-        </view>
-        <!-- 文史知识库：指南针 -->
-        <view wx:elif="{{item.key === 'knowledge'}}" class="i-compass">
-          <view class="i-compass-ring"></view>
-          <view class="i-compass-needle"></view>
-        </view>
-        <!-- 商旅服务：公文包 -->
-        <view wx:else class="i-briefcase">
-          <view class="i-briefcase-body"></view>
-          <view class="i-briefcase-handle"></view>
-        </view>
+        <image class="entry-icon-img" src="/assets/images/icons/entry-{{item.key}}.png" mode="aspectFit" />
       </view>
       <view class="entry-label">{{item.label}}</view>
       <view class="entry-desc">{{item.desc}}</view>
