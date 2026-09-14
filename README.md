@@ -43,7 +43,7 @@ MpApp/
 3. **甄选路线** — 4 条路线资讯卡（3天雅典 / 5天圣岛 / 7天伯罗奔尼撒 / 9天全遗产），引导一对一咨询
 4. **奢享体验** — 私人包机 / 游艇出海双竖卡，金色「高端定制」角标
 5. **精选目的地** — 文明溯源 / 海岛度假双分类，瓷贴 + 文字标签
-6. **品牌页脚** — sy-greece.com + 在地团队文案
+6. **品牌页脚** — sy-greece.com + 「只为一生美好回忆」
 7. **底部 Tab** — 胶囊式，中间「立即联系」凸起直达转化
 
 ### P2 行程资讯咨询页 `pages/customize/customize`
@@ -68,7 +68,7 @@ MpApp/
 ### P3 我的页面 `pages/profile/profile`
 - 微信登录、微信昵称头像展示、手机号绑定与真实预约/行程/资料数量统计。
 - 我的预约、我的行程、优惠券均可进入详情；预约与行程读取当前用户自己的服务记录，优惠券展示真实权益空状态。
-- 常用出行人、护照签证资料通过接口按微信用户隔离保存，支持添加、编辑和删除；联系客服进入咨询页，关于我们支持复制官网地址。
+- 常用出行人、护照签证资料通过接口按微信用户隔离保存，支持添加、编辑和删除；关于我们展示「只为一生美好回忆」并支持复制官网地址。
 
 ### P4 名人导游页 `pages/guide/guide`
 - Richard 李人物头部、教育/履历/驾照三项背书与第一人称人物故事。
@@ -102,6 +102,7 @@ MpApp/
 - P2、Richard 预约、用车咨询、商旅咨询均向 `${apiBase}/api/leads` 发起 JSON `POST`，需将接口域名加入微信开发者工具的 request 合法域名。
 - 小程序登录接口约定为 `POST /api/miniprogram/auth/wx-login`（请求 `{code}`）、`GET /api/miniprogram/auth/me`、`POST /api/miniprogram/auth/phone`（请求 `{code}`）；登录 token 保存在本地缓存并通过 `Authorization: Bearer <accessToken>` 发送。
 - 个人中心接口包括 `GET /api/miniprogram/profile`、`GET /api/miniprogram/leads`、`GET /api/miniprogram/coupons`，以及出行人/签证资料的 `GET/POST/PATCH/DELETE /api/miniprogram/travelers[/:id]`、`/documents[/:id]`；服务端按 token 用户持久化并隔离数据。
+- 所有页面分享卡片统一使用品牌 slogan「只为一生美好回忆」，并指向对应页面或首页。
 - 所有表单提交前都会向 `/auth/me` 确认登录状态和手机号绑定状态；未登录或未绑定时引导用户进入【我的】完成操作，服务端也必须对 `/api/leads` 做 401/403 校验。
 - `leadType` 分类为：`customization`、`guide-booking`、`vehicle-consultation`、`knowledge-base`、`business-travel`。
 - 通用字段包括 `source`、`platform`、`destination`、`bookingDate`、`duration`、`travelers` / `people`、`route`、`contactType`、`contact`；各服务表单会附带对应的主题、车型或商务需求字段。

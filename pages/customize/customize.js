@@ -2,6 +2,7 @@
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
+const { buildShareCard } = require('../../utils/share');
 
 // 行程资讯咨询主题多选
 const THEMES = ['历史文明', '海滩海岛', '餐厅偏好', '特别安排', '体育活动', '高端私旅', '商务', '司导', '翻译'];
@@ -32,9 +33,13 @@ Page({
       avatar: '/assets/images/misc/consultant-avatar.png',
       name: 'Elena · 希腊行程顾问',
       wechat: 'SY-Greece-Service',
-      slogan: '添加微信直接沟通 · 平均3分钟回复',
+      slogan: '只为一生美好回忆',
       qr: '/assets/images/misc/wechat-qr.png'
     }
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/customize/customize');
   },
 
   onLoad(options) {

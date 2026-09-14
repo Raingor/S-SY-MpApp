@@ -46,7 +46,7 @@
   <!-- ===== 核心背书 ===== -->
   <view class="light-section credentials-section">
     <view class="section-kicker">02 · THE CREDENTIALS</view>
-    <view class="section-title serif">三项背书，足够放心把旅程交给他</view>
+    <view class="section-title serif">三项背书，足够放心与他一起探索希腊</view>
     <view class="credential-row">
       <view class="credential-card" wx:for="{{credentials}}" wx:key="index">
         <view class="credential-index">{{item.index}}</view>
@@ -88,7 +88,7 @@
   <!-- ===== 预约模块 ===== -->
   <view class="booking-section" id="booking">
     <view class="section-kicker">05 · RESERVE YOUR TIME</view>
-    <view class="section-title serif">选一个日期，开始一段专属旅程</view>
+    <view class="section-title serif">选一个日期，开始一次专属探索</view>
     <view class="booking-sub">日历中的蓝色日期可预约，提交后由 Richard 确认时间。</view>
 
     <view class="calendar-card card">

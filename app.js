@@ -19,7 +19,7 @@ App({
     consultant: {
       name: 'Elena · 希腊行程顾问',
       wechat: 'SY-Greece-Service',
-      slogan: '添加微信直接沟通 · 平均3分钟回复'
+      slogan: '只为一生美好回忆'
     }
   }
 });

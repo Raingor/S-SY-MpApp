@@ -24,11 +24,11 @@
       <text class="hero-search-text">搜索路线 / 景点 / 资讯咨询</text>
     </view>
 
-    <!-- 品牌名 + 定位语（压左下 1/3） -->
+    <!-- 品牌名 + 品牌 slogan（压左下 1/3） -->
     <view class="hero-brand">
       <view class="hero-brand-en eyebrow">{{heroList[heroCurrent].en}}</view>
       <view class="hero-brand-name serif">{{heroList[heroCurrent].title}}</view>
-      <view class="hero-brand-slogan">深耕希腊本土 · 人文与行程资讯咨询服务</view>
+      <view class="hero-brand-slogan">只为一生美好回忆</view>
     </view>
 
     <!-- 轮播指示点 -->
@@ -189,7 +189,7 @@
   <view class="footer">
     <view class="footer-line"></view>
     <view class="footer-site" bindtap="onSiteTap">sy-greece.com</view>
-    <view class="footer-slogan">行程资讯咨询 · 知识付费 · 商务语言陪同咨询</view>
+    <view class="footer-slogan">只为一生美好回忆</view>
   </view>
 
 </view>

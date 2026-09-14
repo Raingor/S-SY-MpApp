@@ -67,5 +67,5 @@
     <button class="consult-submit" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交商旅咨询'}}</button>
     <view class="consult-note">仅提供商务陪同咨询、行程策划与语言翻译对接；交通、场地、劳务由客户直接与希腊本土主体签约。</view>
   </view>
-  <view class="consult-footer">行程资讯咨询 · 知识付费 · 商务语言陪同咨询</view>
+  <view class="consult-footer">只为一生美好回忆</view>
 </view>

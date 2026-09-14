@@ -1,5 +1,6 @@
 // P3 我的页面：微信登录 / 手机号绑定 / 会员信息 / 服务单元格
 const auth = require('../../utils/auth');
+const { buildShareCard } = require('../../utils/share');
 
 Page({
   data: {
@@ -29,8 +30,12 @@ Page({
       { key: 'travelers', label: '常用出行人' },
       { key: 'visa', label: '护照签证资料' },
       { key: 'service', label: '联系客服' },
-      { key: 'about', label: '关于我们 · sy-greece.com' }
+      { key: 'about', label: '关于我们 · 只为一生美好回忆' }
     ]
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/profile/profile');
   },
 
   onLoad() {
@@ -131,9 +136,18 @@ Page({
     }
     if (key === 'service') return wx.switchTab({ url: '/pages/customize/customize' });
     if (key === 'about') {
-      wx.setClipboardData({
-        data: 'sy-greece.com',
-        success: () => wx.showToast({ title: '域名已复制', icon: 'success' })
+      wx.showModal({
+        title: '关于 SY 希腊蔚蓝海岸',
+        content: '只为一生美好回忆\nsy-greece.com',
+        confirmText: '复制官网',
+        cancelText: '关闭',
+        success: (res) => {
+          if (!res.confirm) return;
+          wx.setClipboardData({
+            data: 'sy-greece.com',
+            success: () => wx.showToast({ title: '官网已复制', icon: 'success' })
+          });
+        }
       });
     }
   }

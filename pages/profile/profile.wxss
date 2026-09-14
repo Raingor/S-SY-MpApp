@@ -331,3 +331,10 @@
   color: var(--c-primary);
   letter-spacing: 2rpx;
 }
+
+.foot-slogan {
+  margin-top: 8rpx;
+  color: var(--c-weak);
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
+}

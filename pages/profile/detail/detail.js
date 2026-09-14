@@ -1,5 +1,6 @@
 // 我的资料详情：预约、行程、优惠券、常用出行人与护照签证资料
 const auth = require('../../../utils/auth');
+const { buildShareCard } = require('../../../utils/share');
 
 const TYPE_CONFIG = {
   orders: { title: '我的预约', mode: 'leads', empty: '还没有提交过预约或咨询' },
@@ -43,6 +44,10 @@ Page({
     form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' },
     editingIndex: -1,
     userId: ''
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/index/index');
   },
 
   onLoad(options) {

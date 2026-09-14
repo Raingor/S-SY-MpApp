@@ -1,5 +1,6 @@
 // P1 首页：品牌头图轮播 / 五大服务入口 / 甄选路线 / 奢享体验 / 精选目的地 / 品牌页脚
 const app = getApp();
+const { buildShareCard } = require('../../utils/share');
 
 Page({
   data: {
@@ -102,6 +103,10 @@ Page({
         chips: ['科孚岛', '埃伊纳岛', '帕罗斯', '米洛斯']
       }
     ]
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/index/index');
   },
 
   onLoad() {

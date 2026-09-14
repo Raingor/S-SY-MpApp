@@ -1,5 +1,6 @@
 // 服务4：景点付费文史知识库（目录、免费预览与付费解锁占位）
 const app = getApp();
+const { buildShareCard } = require('../../utils/share');
 
 Page({
   data: {
@@ -11,6 +12,10 @@ Page({
       { name: '克里特王宫', en: 'KNOSSOS', category: '神话与考古', image: '/assets/images/dest/dest-crete.jpg', intro: '米诺斯文明留下迷宫般的宫殿，也留下欧洲最早的城市想象。', preview: '从一只陶片开始，认识克里特王宫中被时间保留下来的生活线索。', locked: ['米诺斯文明时间线', '迷宫神话的考古线索', '壁画、仪式与王宫空间'] },
       { name: '梅黛奥拉', en: 'METEORA', category: '建筑与信仰', image: '/assets/images/dest/dest-meteora.jpg', intro: '修道院悬于岩柱之上，人与自然、信仰与时间共同完成了这幅景观。', preview: '为什么修道院要建在高耸岩柱之上？用 1 分钟了解梅黛奥拉的第一层答案。', locked: ['岩柱地质与修道院选址', '东正教壁画阅读提示', '拍摄时段与参访礼仪'] }
     ]
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/knowledge/knowledge');
   },
 
   onLoad() {

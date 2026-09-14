@@ -2,6 +2,7 @@
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SY-Greece-Service';
+const { buildShareCard } = require('../../utils/share');
 const TODAY_KEY = '2026-09-14';
 const CALENDAR_MONTHS = [
   { year: 2026, month: 8, label: '2026年8月' },
@@ -54,7 +55,7 @@ Page({
       name: 'Richard 李',
       role: '名人导游 · 欧洲精品文旅金牌从业者',
       location: 'SIGNATURE GUIDE  /  ATHENS · GREECE',
-      intro: '懂希腊历史，也懂一段旅程该如何被记住。',
+      intro: '只为一生美好回忆',
       wechat: GUIDE_WECHAT
     },
     credentials: [
@@ -63,7 +64,7 @@ Page({
       { index: '03', title: '在地资质', desc: '欧盟 · 美国 · 中国\n驾照兼备' }
     ],
     directions: [
-      { key: 'history', index: '01', title: '雅典文明', subtitle: '历史与建筑讲解', desc: '从卫城到古市集，把课本里的文明讲成一段有温度的旅程。', suitable: '适合：第一次到访 / 亲子家庭', duration: '半日 · 1日' },
+      { key: 'history', index: '01', title: '雅典文明', subtitle: '历史与建筑讲解', desc: '从卫城到古市集，把课本里的文明讲成一次有温度的探索。', suitable: '适合：第一次到访 / 亲子家庭', duration: '半日 · 1日' },
       { key: 'culture', index: '02', title: '圣地人文', subtitle: '信仰与建筑', desc: '深入德尔斐、梅黛奥拉等圣地，读懂石头背后的信仰与时间。', suitable: '适合：深度文化 / 摄影爱好者', duration: '1日 · 多日' },
       { key: 'coast', index: '03', title: '小众秘境', subtitle: '海岸线与岛屿', desc: '避开人潮，沿着海岸线去看当地人才知道的蓝与风。', suitable: '适合：情侣蜜月 / 朋友出行', duration: '1日 · 多日' },
       { key: 'photo', index: '04', title: '私人摄影', subtitle: '路线规划与记录', desc: '把光线、节奏和路线交给我，留下自然、不摆拍的旅行影像。', suitable: '适合：纪念日 / 家庭旅拍', duration: '半日 · 1日' }
@@ -92,6 +93,10 @@ Page({
       contact: ''
     },
     submitting: false
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/guide/guide');
   },
 
   onLoad() {

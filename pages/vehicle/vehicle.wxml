@@ -67,5 +67,5 @@
     <button class="consult-submit" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交用车咨询'}}</button>
     <view class="consult-note">仅提供用车信息咨询与预约对接，车辆及司导劳务由客户直接与希腊本土主体签约结算。</view>
   </view>
-  <view class="consult-footer">行程资讯咨询 · 知识付费 · 商务语言陪同咨询</view>
+  <view class="consult-footer">只为一生美好回忆</view>
 </view>

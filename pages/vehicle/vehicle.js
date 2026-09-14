@@ -2,6 +2,7 @@
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
+const { buildShareCard } = require('../../utils/share');
 
 Page({
   data: {
@@ -19,6 +20,10 @@ Page({
       contact: ''
     },
     submitting: false
+  },
+
+  onShareAppMessage() {
+    return buildShareCard('/pages/vehicle/vehicle');
   },
 
   onLoad() {
