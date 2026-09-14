@@ -623,7 +623,7 @@
 .footer {
   margin-top: 64rpx;
   /* 预留自定义 TabBar 及中间凸起按钮的安全区 */
-  padding: 0 32rpx 220rpx;
+  padding: 0 32rpx 80rpx;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -243,7 +243,7 @@
 /* ===== 品牌署名 ===== */
 .foot-brand {
   margin-top: 56rpx;
-  padding-bottom: 180rpx;
+  padding-bottom: 80rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
