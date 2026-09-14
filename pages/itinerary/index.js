@@ -1,5 +1,5 @@
 // 参考行程列表页（页面直接展示的简单版行程）
-const { getReferenceList } = require('../../data/itineraries');
+const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 
 Page({
@@ -12,7 +12,10 @@ Page({
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
-      list: getReferenceList()
+      list: content.getReferenceList()
+    });
+    content.loadContent(() => {
+      this.setData({ list: content.getReferenceList() });
     });
   },
 

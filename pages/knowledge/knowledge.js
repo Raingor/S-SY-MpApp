@@ -1,7 +1,7 @@
 // 服务4：景点区（城市选择层 → 城市介绍页 → 城市景点列表 → 景点详情）
+// 数据：优先后端 /api/content，失败回退本地镜像（data/content.js）
 const app = getApp();
-const { getCities } = require('../../data/attractions');
-const { getReferenceList } = require('../../data/itineraries');
+const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 
 Page({
@@ -19,8 +19,15 @@ Page({
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
-      cities: getCities(),
-      sampleTrips: getReferenceList()
+      cities: content.getCities(),
+      sampleTrips: content.getReferenceList()
+    });
+    // 异步拉取后端数据，成功后刷新（失败静默回退本地镜像）
+    content.loadContent((data) => {
+      this.setData({
+        cities: content.getCities(),
+        sampleTrips: content.getReferenceList()
+      });
     });
   },
 

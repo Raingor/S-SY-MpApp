@@ -1,6 +1,6 @@
 // 景点详情页（参考博物旅人：中英文名 / 必看亮点 / 参观指南 / 深度文史讲解）
 const app = getApp();
-const { getAttraction } = require('../../data/attractions');
+const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 
 // guide 12 键 -> 中文标签（空键不展示）
@@ -21,7 +21,7 @@ Page({
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const spot = getAttraction(options.id || '');
+    const spot = content.getAttraction(options.id || '');
     if (!spot) {
       wx.showToast({ title: '未找到该景点', icon: 'none' });
       return setTimeout(() => wx.navigateBack({ delta: 1 }), 800);

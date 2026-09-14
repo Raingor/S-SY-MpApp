@@ -1,6 +1,6 @@
 // 城市介绍页（截图2：深色背景 + 拼贴 Mosaic + 统计 + 购买/查看双 CTA）
 const app = getApp();
-const { cities } = require('../../data/attractions');
+const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 
 Page({
@@ -12,14 +12,24 @@ Page({
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
+    this.applyCity(city, sys.statusBarHeight || 20);
+    content.loadContent(() => {
+      const fresh = content.getCities();
+      const updated = fresh.find((item) => item.id === (this.data.city && this.data.city.id)) || fresh[0];
+      if (updated) this.applyCity(updated);
+    });
+  },
+
+  applyCity(city, statusBarHeight) {
     this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
+      statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       city,
       stats: [
-        { value: city.museumCount, label: '座博物馆' },
-        { value: city.guidePointCount.toLocaleString(), label: '个讲解点' },
-        { value: city.audioMinutes.toLocaleString(), label: '分钟语音' }
+        { value: String(city.museumCount), label: '座博物馆' },
+        { value: Number(city.guidePointCount).toLocaleString(), label: '个讲解点' },
+        { value: Number(city.audioMinutes).toLocaleString(), label: '分钟语音' }
       ]
     });
   },
