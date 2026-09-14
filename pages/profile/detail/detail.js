@@ -40,6 +40,7 @@ Page({
     empty: '还没有提交过预约或咨询',
     loading: false,
     saving: false,
+    statusBarHeight: 20,
     items: [],
     form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' },
     editingIndex: -1,
@@ -51,9 +52,16 @@ Page({
   },
 
   onLoad(options) {
+    const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const type = options && TYPE_CONFIG[options.type] ? options.type : 'orders';
     const config = TYPE_CONFIG[type];
-    this.setData({ type, title: config.title, mode: config.mode, empty: config.empty });
+    this.setData({
+      statusBarHeight: sys.statusBarHeight || 20,
+      type,
+      title: config.title,
+      mode: config.mode,
+      empty: config.empty
+    });
     wx.setNavigationBarTitle({ title: config.title });
     auth.getUserState((loggedIn, user) => {
       if (!loggedIn || !user || !user.id) {
