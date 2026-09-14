@@ -86,12 +86,14 @@
 
   <!-- ===== 3. 名人导游推荐 ===== -->
   <view class="guide-entry card" bindtap="onGuideTap">
-    <image class="guide-entry-avatar" src="{{guide.avatar}}" mode="aspectFill" />
-    <view class="guide-entry-info">
-      <view class="guide-entry-kicker eyebrow">{{guide.eyebrow}}</view>
-      <view class="guide-entry-name serif">{{guide.name}}</view>
-      <view class="guide-entry-role">{{guide.role}}</view>
-      <view class="guide-entry-proof">{{guide.proof}}</view>
+    <view class="guide-entry-main">
+      <image class="guide-entry-avatar" src="{{guide.avatar}}" mode="aspectFill" />
+      <view class="guide-entry-info">
+        <view class="guide-entry-kicker eyebrow">{{guide.eyebrow}}</view>
+        <view class="guide-entry-name serif">{{guide.name}}</view>
+        <view class="guide-entry-role">{{guide.role}}</view>
+        <view class="guide-entry-proof">{{guide.proof}}</view>
+      </view>
     </view>
     <view class="guide-entry-cta">查看档案 / 预约时间 <text>›</text></view>
   </view>

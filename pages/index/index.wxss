@@ -306,8 +306,8 @@
 .guide-entry {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 20rpx;
+  flex-direction: column;
+  align-items: stretch;
   margin: 26rpx 32rpx 0;
   padding: 24rpx 24rpx;
   box-sizing: border-box;
@@ -327,6 +327,13 @@
   border-radius: 50%;
   box-shadow: 0 0 0 24rpx rgba(255, 255, 255, 0.03);
   pointer-events: none;
+}
+
+.guide-entry-main {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-width: 0;
 }
 
 .guide-entry-avatar {
@@ -373,10 +380,11 @@
 }
 
 .guide-entry-cta {
-  position: absolute;
-  right: 22rpx;
-  bottom: 18rpx;
+  position: relative;
   z-index: 1;
+  align-self: flex-end;
+  margin-top: 16rpx;
+  padding-right: 2rpx;
   color: #E2C47F;
   font-size: 17rpx;
 }
