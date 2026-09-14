@@ -136,6 +136,14 @@
   letter-spacing: 1rpx;
 }
 
+.edit-profile {
+  padding: 4rpx 14rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.58);
+  border-radius: 20rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 21rpx;
+}
+
 /* 沙金会员标 */
 .member-badge {
   padding: 6rpx 18rpx;

@@ -221,6 +221,14 @@
   margin-bottom: 14rpx;
 }
 
+.guide-full-image {
+  display: block;
+  width: 100%;
+  margin-top: 28rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 16rpx 34rpx rgba(11, 60, 93, 0.14);
+}
+
 .story-note {
   margin-top: 34rpx;
   padding: 28rpx 28rpx 24rpx;

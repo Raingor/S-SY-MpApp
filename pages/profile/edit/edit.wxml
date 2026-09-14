@@ -1,0 +1,30 @@
+<view class="page">
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="topbar">
+    <text class="back" bindtap="onBack">‹</text>
+    <text class="title">修改个人资料</text>
+    <view class="topbar-space"></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state">正在加载个人资料…</view>
+  <view wx:elif="{{loggedIn}}" class="content">
+    <view class="profile-card card">
+      <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+      <view class="avatar-note">头像沿用微信授权信息</view>
+    </view>
+
+    <view class="form card">
+      <view class="field">
+        <view class="field-label">昵称</view>
+        <input class="input" value="{{nickname}}" maxlength="20" placeholder="请输入昵称" bindinput="onInput" />
+        <view class="field-note">昵称仅在本页面修改，返回其他页面不会自动变化。</view>
+      </view>
+      <view class="field field-last">
+        <view class="field-label">手机号</view>
+        <view class="readonly">{{phoneMasked || '未绑定手机号'}}</view>
+        <view class="field-note">手机号用于顾问确认需求，如需更换请重新进行微信手机号授权。</view>
+      </view>
+      <button class="save-button" bindtap="onSave" loading="{{saving}}" disabled="{{saving}}">保存修改</button>
+    </view>
+  </view>
+</view>

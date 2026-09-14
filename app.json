@@ -7,7 +7,8 @@
     "pages/knowledge/knowledge",
     "pages/business/business",
     "pages/profile/profile",
-    "pages/profile/detail/detail"
+    "pages/profile/detail/detail",
+    "pages/profile/edit/edit"
   ],
   "window": {
     "navigationStyle": "custom",

@@ -52,6 +52,7 @@ Page({
     statusBarHeight: 20,
     guide: {
       avatar: '/assets/images/guide/richard-avatar.jpg',
+      fullImage: '/assets/images/guide/richard-full.jpg',
       name: 'Richard 李',
       role: '名人导游 · 欧洲精品文旅金牌从业者',
       location: 'SIGNATURE GUIDE  /  ATHENS · GREECE',

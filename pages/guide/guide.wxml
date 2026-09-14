@@ -40,6 +40,7 @@
       <text>旅居欧美多年，我一直把希腊当成一座可以慢慢读的博物馆。历史、人文、秘境与镜头感，交给真正生活在这里的人。</text>
       <text>我不负责把行程塞满，而是希望你离开时，仍记得某一束光、某一段海岸，以及途中那些没有被攻略写下的细节。</text>
     </view>
+    <image class="guide-full-image" src="{{guide.fullImage}}" mode="widthFix" />
     <view class="story-note">“旅行最珍贵的，不是走过多少地方，<br />而是终于有人替你读懂沿途的故事。”<text>— Richard 李 / SIGNATURE GUIDE</text></view>
   </view>
 

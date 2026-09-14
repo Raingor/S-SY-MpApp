@@ -36,10 +36,19 @@ function fallbackNickname() {
   return `用户${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-function resolveNickname(serverNickname, profileNickname) {
-  const nickname = String(serverNickname || profileNickname || '').trim();
-  // 开发者工具和部分旧接口会返回通用占位名，不能当成用户真实昵称展示。
-  return nickname && nickname !== '微信用户' ? nickname : fallbackNickname();
+function usableNickname(value) {
+  const nickname = String(value || '').trim();
+  return nickname && nickname !== '微信用户' ? nickname : '';
+}
+
+function resolveNickname(serverNickname, cachedNickname) {
+  // 本地已保存的昵称优先，避免每次刷新遇到旧接口的“微信用户”时重新随机。
+  return usableNickname(cachedNickname) || usableNickname(serverNickname) || fallbackNickname();
+}
+
+function persistNicknameIfNeeded(serverNickname, nickname, done) {
+  if (usableNickname(serverNickname) === nickname) return done();
+  requestAuth('/api/miniprogram/profile', 'PATCH', { nickname }, () => done());
 }
 
 function clearSession() {
@@ -53,6 +62,8 @@ function clearSession() {
 function login(callback, profile) {
   const apiBase = getApiBase();
   if (!apiBase) return callback(false, null, '登录接口尚未配置');
+  const cached = getCachedUser();
+  const loginNickname = resolveNickname('', cached && cached.nickname);
   wx.login({
     success: (loginResult) => {
       if (!loginResult.code) return callback(false, null, '微信登录凭证获取失败');
@@ -63,14 +74,14 @@ function login(callback, profile) {
         header: { 'content-type': 'application/json' },
         data: {
           code: loginResult.code,
-          ...(profile && profile.nickName ? { nickname: profile.nickName } : {}),
+          nickname: loginNickname,
           ...(profile && profile.avatarUrl ? { avatarUrl: profile.avatarUrl } : {})
         },
         success: (res) => {
           if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.accessToken && res.data.user) {
             const user = {
               ...res.data.user,
-              nickname: resolveNickname(res.data.user.nickname, profile && profile.nickName),
+              nickname: resolveNickname(res.data.user.nickname, cached && cached.nickname),
               ...(profile && profile.avatarUrl ? { avatarUrl: profile.avatarUrl, avatar: profile.avatarUrl } : {})
             };
             const savedUser = saveSession(res.data.accessToken, user);
@@ -103,7 +114,7 @@ function fetchMe(callback) {
           ...(res.data.user.avatarUrl ? { avatar: res.data.user.avatarUrl } : {})
         };
         const savedUser = saveSession(token, user);
-        return callback(true, savedUser);
+        return persistNicknameIfNeeded(res.data.user.nickname, user.nickname, () => callback(true, savedUser));
       }
       clearSession();
       callback(false, null, '登录状态已失效');
@@ -135,7 +146,7 @@ function bindPhone(code, callback) {
           ...(res.data.user.avatarUrl ? { avatar: res.data.user.avatarUrl } : {})
         };
         const savedUser = saveSession(token, user);
-        return callback(true, savedUser);
+        return persistNicknameIfNeeded(res.data.user.nickname, user.nickname, () => callback(true, savedUser));
       }
       callback(false, null, '手机号绑定失败，请稍后重试');
     },
@@ -211,6 +222,15 @@ function requestAuth(path, method, data, callback) {
   });
 }
 
+function updateProfile(payload, callback) {
+  const token = getAccessToken();
+  requestAuth('/api/miniprogram/profile', 'PATCH', payload, (ok, data, message) => {
+    if (!ok || !data.user) return callback(false, null, message || '个人资料保存失败');
+    const savedUser = saveSession(token, data.user);
+    callback(true, savedUser, '');
+  });
+}
+
 function fetchProfile(callback) {
   requestAuth('/api/miniprogram/profile', 'GET', null, (ok, data, message) => {
     if (ok && data.user && data.stats) {
@@ -220,8 +240,8 @@ function fetchProfile(callback) {
         nickname: resolveNickname(data.user.nickname, cached && cached.nickname),
         ...(data.user.avatarUrl ? { avatar: data.user.avatarUrl } : {})
       };
-      saveSession(getAccessToken(), user);
-      return callback(true, { ...data, user }, '');
+      const savedUser = saveSession(getAccessToken(), user);
+      return persistNicknameIfNeeded(data.user.nickname, user.nickname, () => callback(true, { ...data, user: savedUser }, ''));
     }
     callback(false, null, message || '暂时无法加载个人资料');
   });
@@ -274,6 +294,7 @@ module.exports = {
   ensurePhoneBound,
   getUserState,
   fetchProfile,
+  updateProfile,
   fetchMyLeads,
   fetchMyCollection,
   createMyItem,

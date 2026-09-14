@@ -11,6 +11,7 @@
             <view class="nick-row">
               <text class="nick">{{user.nickname}}</text>
               <view wx:if="{{user.member}}" class="member-badge">✦ {{user.member}}</view>
+              <text class="edit-profile" bindtap="onEditProfile">修改</text>
             </view>
             <view class="verified">{{phoneBound ? '已绑定手机号' : '请绑定手机号后预约服务'}}</view>
           </view>

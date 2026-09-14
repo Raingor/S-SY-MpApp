@@ -104,6 +104,11 @@ Page({
     }
   },
 
+  onEditProfile() {
+    if (!this.data.loggedIn) return this.onWechatLogin();
+    wx.navigateTo({ url: '/pages/profile/edit/edit' });
+  },
+
   onGetPhoneNumber(e) {
     const code = e.detail && e.detail.code;
     if (!code || !/^getPhoneNumber:ok/.test(e.detail.errMsg || '')) {
