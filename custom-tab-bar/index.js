@@ -12,6 +12,9 @@ Component({
     switchTab(e) {
       const path = e.currentTarget.dataset.path;
       const index = e.currentTarget.dataset.index;
+      // 标记本次为 tab 切换：目标页 onShow 据此回到顶部
+      const app = getApp();
+      if (app && app.globalData) app.globalData.pendingTabReset = true;
       wx.switchTab({ url: path });
       this.setData({ selected: index });
     }

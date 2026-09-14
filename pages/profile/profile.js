@@ -47,6 +47,11 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 });
     }
+    // tab 切换进入时回到顶部（从子页返回不触发）
+    if (app.globalData.pendingTabReset) {
+      app.globalData.pendingTabReset = false;
+      wx.pageScrollTo({ scrollTop: 0, duration: 0 });
+    }
     auth.getUserState((loggedIn, user) => {
       if (!this || !this.setData) return;
       this.setData({

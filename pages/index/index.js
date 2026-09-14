@@ -118,6 +118,11 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
     }
+    // tab 切换进入时回到顶部（从子页返回不触发）
+    if (app.globalData.pendingTabReset) {
+      app.globalData.pendingTabReset = false;
+      wx.pageScrollTo({ scrollTop: 0, duration: 0 });
+    }
   },
 
   // 轮播切换
