@@ -6,7 +6,8 @@
     "pages/vehicle/vehicle",
     "pages/knowledge/knowledge",
     "pages/business/business",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/profile/detail/detail"
   ],
   "window": {
     "navigationStyle": "custom",

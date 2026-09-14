@@ -172,6 +172,30 @@ function getUserState(callback) {
   fetchMe((ok, user) => callback(ok, user));
 }
 
+function fetchMyLeads(options, callback) {
+  const token = getAccessToken();
+  const apiBase = getApiBase();
+  if (!token || !apiBase) return callback(false, [], '请先微信登录');
+  const query = options || {};
+  const params = Object.keys(query)
+    .filter((key) => query[key])
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`)
+    .join('&');
+  wx.request({
+    url: `${apiBase}/api/miniprogram/leads${params ? `?${params}` : ''}`,
+    method: 'GET',
+    timeout: 15000,
+    header: { Authorization: `Bearer ${token}` },
+    success: (res) => {
+      if (res.statusCode >= 200 && res.statusCode < 300 && res.data && Array.isArray(res.data.items)) {
+        return callback(true, res.data.items);
+      }
+      callback(false, [], '暂时无法加载记录');
+    },
+    fail: () => callback(false, [], '网络异常，请稍后重试')
+  });
+}
+
 module.exports = {
   getAccessToken,
   getCachedUser,
@@ -180,6 +204,7 @@ module.exports = {
   bindPhone,
   ensurePhoneBound,
   getUserState,
+  fetchMyLeads,
   clearSession,
   getAppState
 };

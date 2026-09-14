@@ -13,16 +13,16 @@ Page({
       member: 'SY 尊享会员'
     },
     stats: [
-      { label: '行程', value: 2 },
-      { label: '收藏', value: 12 },
-      { label: '优惠券', value: 3 },
-      { label: '积分', value: 580 }
+      { label: '预约', value: 0 },
+      { label: '行程', value: 0 },
+      { label: '优惠券', value: 0 },
+      { label: '资料', value: 0 }
     ],
     // 服务单元格卡
     services: [
-      { key: 'orders', label: '我的订单', badge: '' },
-      { key: 'trips', label: '我的行程', badge: '进行中 1' },
-      { key: 'coupons', label: '优惠券', badge: '3 张可用' }
+      { key: 'orders', label: '我的预约', badge: '' },
+      { key: 'trips', label: '我的行程', badge: '' },
+      { key: 'coupons', label: '优惠券', badge: '' }
     ],
     // 资料与帮助卡
     helps: [
@@ -49,7 +49,31 @@ Page({
         phoneBound: Boolean(user && user.phoneBound),
         ...(loggedIn && user ? { user: { ...this.data.user, ...user } } : {})
       });
+      if (loggedIn) this.refreshStats();
     });
+  },
+
+  refreshStats() {
+    auth.fetchMyLeads({}, (ok, items) => {
+      if (!ok) return;
+      const tripCount = items.filter((item) => item.leadType === 'guide-booking').length;
+      this.setData({
+        stats: [
+          { label: '预约', value: items.length },
+          { label: '行程', value: tripCount },
+          { label: '优惠券', value: 0 },
+          { label: '资料', value: this.getProfileDataCount() }
+        ]
+      });
+    });
+  },
+
+  getProfileDataCount() {
+    const user = auth.getCachedUser();
+    if (!user || !user.id) return 0;
+    const travelers = wx.getStorageSync(`sy_profile_${user.id}_travelers`) || [];
+    const documents = wx.getStorageSync(`sy_profile_${user.id}_documents`) || [];
+    return travelers.length + documents.length;
   },
 
   onWechatLogin() {
@@ -97,37 +121,23 @@ Page({
 
   onServiceTap(e) {
     const key = e.currentTarget.dataset.key;
-    switch (key) {
-      case 'orders':
-        wx.showToast({ title: '订单功能开发中', icon: 'none' });
-        break;
-      case 'trips':
-        wx.showToast({ title: '行程功能开发中', icon: 'none' });
-        break;
-      case 'coupons':
-        wx.showToast({ title: '暂无新优惠券', icon: 'none' });
-        break;
-    }
+    if (!this.data.loggedIn) return this.onWechatLogin();
+    const type = key === 'orders' ? 'orders' : key === 'trips' ? 'trips' : 'coupons';
+    wx.navigateTo({ url: `/pages/profile/detail/detail?type=${type}` });
   },
 
   onHelpTap(e) {
     const key = e.currentTarget.dataset.key;
-    switch (key) {
-      case 'travelers':
-        wx.showToast({ title: '出行人资料开发中', icon: 'none' });
-        break;
-      case 'visa':
-        wx.showToast({ title: '签证指引开发中', icon: 'none' });
-        break;
-      case 'service':
-        wx.switchTab({ url: '/pages/customize/customize' });
-        break;
-      case 'about':
-        wx.setClipboardData({
-          data: 'sy-greece.com',
-          success: () => wx.showToast({ title: '域名已复制', icon: 'success' })
-        });
-        break;
+    if (key === 'travelers' || key === 'visa') {
+      if (!this.data.loggedIn) return this.onWechatLogin();
+      return wx.navigateTo({ url: `/pages/profile/detail/detail?type=${key}` });
+    }
+    if (key === 'service') return wx.switchTab({ url: '/pages/customize/customize' });
+    if (key === 'about') {
+      wx.setClipboardData({
+        data: 'sy-greece.com',
+        success: () => wx.showToast({ title: '域名已复制', icon: 'success' })
+      });
     }
   }
 });
