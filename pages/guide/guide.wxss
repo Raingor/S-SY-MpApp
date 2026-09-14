@@ -755,6 +755,7 @@
 }
 
 .closing-section {
+  margin-top: 32rpx;
   padding: 70rpx 32rpx 46rpx;
   background: #C6A15B;
   color: #09253A;
