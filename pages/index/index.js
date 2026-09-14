@@ -28,10 +28,10 @@ Page({
       role: '名人导游 · 欧洲精品文旅金牌从业者',
       proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照'
     },
-    // 甄选路线（id 对应 sampleItineraries，点击进入简版参考行程页）
+    // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
       {
-        id: 'ref-athens-3d',
+        id: 'sample-athens-3d',
         img: '/assets/images/route/route-athens.jpg',
         name: '3天2晚 · 雅典市区精华',
         tag: '短途 · 中转',
@@ -39,23 +39,23 @@ Page({
         crowd: '适合：中转停留 / 商务出行'
       },
       {
-        id: 'ref-athens-santorini-5d',
+        id: 'sample-ae-5d',
         img: '/assets/images/route/route-santorini.jpg',
         name: '5天4晚 · 雅典+圣托里尼',
         tag: '蜜月 · 情侣',
-        highlights: '伊亚落日 / 蓝顶教堂 / 私人游艇出海',
+        highlights: '伊亚落日 / 蓝顶教堂 / 悬崖海景餐厅',
         crowd: '适合：蜜月婚礼 / 浪漫之旅'
       },
       {
-        id: 'ref-peloponnese-7d',
+        id: 'sample-family-7d',
         img: '/assets/images/route/route-peloponnese.jpg',
-        name: '7天6晚 · 伯罗奔尼撒半岛',
+        name: '7天6晚 · 经典三城家庭游',
         tag: '亲子 · 家庭',
         highlights: '纳夫普利翁小镇 / 埃皮达鲁斯古剧场 / 科林斯运河',
         crowd: '适合：亲子家庭 / 轻松度假'
       },
       {
-        id: 'ref-heritage-9d',
+        id: 'sample-heritage-9d',
         img: '/assets/images/route/route-heritage.jpg',
         name: '9天8晚 · 全遗产环游',
         tag: '深度 · 定制',

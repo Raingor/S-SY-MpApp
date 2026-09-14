@@ -1,5 +1,4 @@
 // 行程数据库
-// reference = 页面直接展示的参考行程（简单版）
 // custom    = 提交需求表后单独发送给客户的定制行程链接（详细版，参数对齐定制旅程表）
 //
 // schedule 服务标记字段 services 对应：接送/陪同/讲解/酒店/门票/机票/船票（★）
@@ -7,225 +6,268 @@
 
 const SERVICE_KEYS = ['接送', '陪同', '讲解', '酒店', '门票', '机票', '船票'];
 
+// 参考行程（镜像，与后端 sampleItineraries 对齐：6 条 sample-* id 体系）
+// 数据源：S-SY-Website/data/site-data.json（commit 164d1ec），本地图片映射为小程序素材
 const reference = [
   {
-    id: 'ref-athens-3d',
+    id: "sample-athens-3d",
     type: 'reference',
-    title: '3天2晚 · 雅典市区精华',
-    img: '/assets/images/route/route-athens.jpg',
-    tag: '短途 · 中转',
+    title: "雅典经典三日",
+    img: "/assets/images/route/route-athens.jpg",
+    tag: "短途 · 中转",
     days: 3,
-    highlights: '卫城日出 / 普拉卡老城漫步 / 国家考古博物馆',
-    crowd: '适合：中转停留 / 商务出行',
+    highlights: "卫城、博物馆与老城的黄金组合，适合转机、商务间隙或首次到访。",
+    crowd: "适合：中转停留 / 商务出行",
     schedule: [
       {
-        day: 1, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典国际机场接机，入住市区酒店休整', attractionIds: [] },
-          { period: '下午', text: '宪法广场、议会大厦、无名英雄纪念碑与第一届现代奥运会体育场地标巡礼，观赏整点换岗仪式', attractionIds: ['athens-landmarks'] },
-          { period: '晚上', text: '登利卡维多斯山俯瞰雅典夜景，山顶晚餐后送回酒店', attractionIds: ['likavitos'] }
-        ]
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 普拉卡老城漫步\n专人接机入住后，傍晚漫步普拉卡石板巷与阿纳菲奥提卡彩色小屋区，屋顶晚餐远眺卫城夜景。", attractionIds: [] } ]
       },
       {
-        day: 2, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典卫城与卫城博物馆，看懂西方文明的起点', attractionIds: ['acropolis'] },
-          { period: '下午', text: '普拉卡老城午餐漫步，国家考古博物馆读一部古代文明史', attractionIds: ['national-archaeological-museum'] },
-          { period: '晚上', text: '普拉卡老城特色晚餐，自由漫步' }
-        ]
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "雅典卫城 · 卫城博物馆\n清晨避开人流登卫城，东出口直接衔接卫城博物馆；下午宪法广场看换岗，黄昏登利卡维多斯山看日落。", attractionIds: ["acropolis", "acropolis-museum"] } ]
       },
       {
-        day: 3, city: '雅典',
-        entries: [
-          { period: '上午', text: '依据航班时间周边漫步或补眠，专车送机', attractionIds: [] }
-        ]
-      }
+        day: 3,
+        city: "雅典",
+        entries: [ { period: '', text: "国家考古博物馆 · 送机\n上午在国家考古博物馆看阿伽门农黄金面具，中午逛蒙纳斯提拉奇跳蚤市场，专车送机。", attractionIds: ["national-archaeological-museum"] } ]
+      },
     ]
   },
   {
-    id: 'ref-athens-santorini-5d',
+    id: "sample-ae-6d",
     type: 'reference',
-    title: '5天4晚 · 雅典+圣托里尼',
-    img: '/assets/images/route/route-santorini.jpg',
-    tag: '蜜月 · 情侣',
-    days: 5,
-    highlights: '伊亚落日 / 蓝顶教堂 / 悬崖海景餐厅',
-    crowd: '适合：蜜月婚礼 / 浪漫之旅',
+    title: "雅典 + 圣托里尼六日",
+    img: "/assets/images/route/route-santorini.jpg",
+    tag: "经典 · 双城",
+    days: 6,
+    highlights: "经典蓝白组合：两天雅典看文明，三天圣岛住悬崖酒店看日落，节奏从容。",
+    crowd: "适合：首次到访 / 轻松节奏",
     schedule: [
       {
-        day: 1, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典国际机场接机，入住市区酒店休整', attractionIds: [] },
-          { period: '下午', text: '雅典地标巡礼：宪法广场换岗仪式、皇家花园、泛雅典娜体育场', attractionIds: ['athens-landmarks'] }
-        ]
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 地标巡礼\n接机入住后游览宪法广场、议会大厦与无名英雄纪念碑，傍晚登利卡维多斯山看夜景晚餐。", attractionIds: [] } ]
       },
       {
-        day: 2, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典卫城深度游览（以实际购票时间为准）', attractionIds: ['acropolis'] },
-          { period: '下午', text: '普拉卡老城与国家考古博物馆', attractionIds: ['national-archaeological-museum'] },
-          { period: '晚上', text: 'Lake Vouliagmeni 天然温泉湖畔餐厅晚餐（须预订）' }
-        ]
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "雅典卫城深度游\n下午前往卫城，世界文化遗产与 3000 年文明现场；晚上温泉湖畔景观餐厅。", attractionIds: ["acropolis"] } ]
       },
       {
-        day: 3, city: '圣托里尼',
-        entries: [
-          { period: '上午', text: '飞往圣托里尼，入住伊亚悬崖酒店', attractionIds: [] },
-          { period: '下午', text: '酒店休整或悬崖步道漫步', attractionIds: [] },
-          { period: '晚上', text: '悬崖海景餐厅晚餐，静享爱琴海暮色' }
-        ]
+        day: 3,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "飞抵圣托里尼 · 伊亚悬崖酒店\n内陆航班 45 分钟直达，入住伊亚悬崖酒店开启蓝白假期，晚上悬崖海景餐厅晚餐。", attractionIds: ["oia"] } ]
       },
       {
-        day: 4, city: '圣托里尼',
-        entries: [
-          { period: '上午', text: '伊亚小镇：蓝顶教堂、风车观景台与悬崖步道', attractionIds: ['oia'] },
-          { period: '下午', text: '费拉小镇：主教堂、三钟教堂与悬崖咖啡馆', attractionIds: ['fira'] },
-          { period: '晚上', text: '知名悬崖餐厅晚餐（须预订）' }
-        ]
+        day: 4,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "伊亚 · 费拉小镇\n上午伊亚蓝顶教堂与风车观景台，下午费拉小镇悬崖咖啡馆与艺术画廊，晚上悬崖餐厅晚餐。", attractionIds: ["oia"] } ]
       },
       {
-        day: 5, city: '雅典',
-        entries: [
-          { period: '上午', text: '圣托里尼机场返回雅典，转乘回国航班', attractionIds: [] }
-        ]
-      }
+        day: 5,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "皮尔戈斯 · 黑沙滩\n上午中世纪山城小镇与城堡俯瞰，下午黑沙滩海滩休闲，晚上日落海鲜餐厅收官。", attractionIds: ["pyrgos"] } ]
+      },
+      {
+        day: 6,
+        city: "雅典",
+        entries: [ { period: '', text: "返回雅典 · 回国\n上午航班返回雅典，值机协助后启程回国。", attractionIds: [] } ]
+      },
     ]
   },
   {
-    id: 'ref-peloponnese-7d',
+    id: "sample-heritage-7d",
     type: 'reference',
-    title: '7天6晚 · 伯罗奔尼撒半岛',
-    img: '/assets/images/route/route-peloponnese.jpg',
-    tag: '亲子 · 家庭',
+    title: "文明溯源七日",
+    img: "/assets/images/route/route-heritage.jpg",
+    tag: "文明 · 溯源",
     days: 7,
-    highlights: '纳夫普利翁小镇 / 埃皮达鲁斯古剧场 / 科林斯运河',
-    crowd: '适合：亲子家庭 / 轻松度假',
+    highlights: "雅典、德尔斐、梅黛奥拉三大世界遗产连线，中文向导随行把神话讲成故事。",
+    crowd: "适合：世遗深度 / 人文爱好者",
     schedule: [
       {
-        day: 1, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典国际机场接机，入住市区酒店休整', attractionIds: [] },
-          { period: '下午', text: '雅典地标巡礼与换岗仪式', attractionIds: ['athens-landmarks'] }
-        ]
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 老城欢迎晚宴\n接机入住，傍晚普拉卡老城漫步与屋顶餐厅晚宴。", attractionIds: [] } ]
       },
       {
-        day: 2, city: '纳夫普利翁',
-        entries: [
-          { period: '上午', text: '科林斯运河观景，进入伯罗奔尼撒半岛', attractionIds: [] },
-          { period: '下午', text: '纳夫普利翁老城入住，石板巷与滨海大道漫步', attractionIds: ['nafplio'] }
-        ]
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "雅典考古核心日\n卫城、卫城博物馆与古代市集，梳理古典雅典的城市脉络。", attractionIds: ["acropolis", "acropolis-museum"] } ]
       },
       {
-        day: 3, city: '纳夫普利翁',
-        entries: [
-          { period: '上午', text: '埃皮达鲁斯古剧场，体验 2,400 年前的声学奇迹', attractionIds: ['epidaurus'] },
-          { period: '下午', text: '帕拉米迪堡垒登高，俯瞰阿尔戈利斯湾', attractionIds: ['nafplio'] }
-        ]
+        day: 3,
+        city: "德尔斐",
+        entries: [ { period: '', text: "德尔斐 · 阿拉霍瓦\n驱车前往「世界中心」，阿波罗神庙与古剧场，傍晚宿山脚小镇阿拉霍瓦。", attractionIds: ["delphi"] } ]
       },
       {
-        day: 4, city: '纳夫普利翁',
-        entries: [
-          { period: '上午', text: '奥林匹亚古遗址：古代奥运会诞生地', attractionIds: [] },
-          { period: '晚上', text: '返回纳夫普利翁，老城海鲜晚餐', attractionIds: [] }
-        ]
+        day: 4,
+        city: "卡兰巴卡",
+        entries: [ { period: '', text: "梅黛奥拉修道院（上）\n大梅黛奥拉与瓦尔拉姆两座修道院，黄昏观景台看石柱群光影。", attractionIds: ["meteora"] } ]
       },
       {
-        day: 5, city: '雅典',
-        entries: [
-          { period: '上午', text: '迈锡尼狮子门与阿伽门农墓圈', attractionIds: [] },
-          { period: '下午', text: '返回雅典，途中自由休整', attractionIds: [] }
-        ]
+        day: 5,
+        city: "雅典",
+        entries: [ { period: '', text: "梅黛奥拉（下）· 返回雅典\n清晨再访圣三一修道院，午后返回雅典自由休整。", attractionIds: ["meteora"] } ]
       },
       {
-        day: 6, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典卫城深度游览', attractionIds: ['acropolis'] },
-          { period: '下午', text: '国家考古博物馆看阿伽门农黄金面具', attractionIds: ['national-archaeological-museum'] }
-        ]
+        day: 6,
+        city: "雅典",
+        entries: [ { period: '', text: "国家考古博物馆 · 苏尼翁角日落\n上午博物馆精讲，黄昏驱车阿提加最南端波塞冬神庙看爱琴海日落。", attractionIds: ["national-archaeological-museum"] } ]
       },
       {
-        day: 7, city: '雅典',
-        entries: [
-          { period: '上午', text: '依据航班时间自由活动，专车送机回国', attractionIds: [] }
-        ]
-      }
+        day: 7,
+        city: "雅典",
+        entries: [ { period: '', text: "自由活动 · 送机\n根据航班时间自由活动或补购手信，专车送机返程。", attractionIds: [] } ]
+      },
     ]
   },
   {
-    id: 'ref-heritage-9d',
+    id: "sample-family-7d",
     type: 'reference',
-    title: '9天8晚 · 全遗产环游',
-    img: '/assets/images/route/route-heritage.jpg',
-    tag: '深度 · 定制',
-    days: 9,
-    highlights: '德尔斐神庙 / 梅黛奥拉修道院 / 克里特王宫',
-    crowd: '适合：深度文化 / 沉浸体验',
+    title: "经典三城家庭游",
+    img: "/assets/images/route/route-peloponnese.jpg",
+    tag: "亲子 · 家庭",
+    days: 7,
+    highlights: "雅典、纳夫普利翁与伯罗奔尼撒的神话遗迹连成一线，每天车程控制在两小时内，节奏松紧由家庭自己定。",
+    crowd: "适合：亲子家庭 / 轻松度假",
     schedule: [
       {
-        day: 1, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典国际机场接机，入住市区酒店休整', attractionIds: [] },
-          { period: '下午', text: '雅典地标巡礼，傍晚利卡维多斯山夜景', attractionIds: ['athens-landmarks'] }
-        ]
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 适应时差\n接机入住适合家庭的公寓式酒店，傍晚宪法广场看换岗、国家花园散步，早睡倒时差。", attractionIds: ["athens-landmarks"] } ]
       },
       {
-        day: 2, city: '雅典',
-        entries: [
-          { period: '上午', text: '雅典卫城深度游览', attractionIds: ['acropolis'] },
-          { period: '下午', text: '国家考古博物馆', attractionIds: ['national-archaeological-museum'] }
-        ]
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "卫城亲子寻宝 · 普拉卡\n上午深度游览卫城与卫城博物馆，下午普拉卡老城亲子寻宝游戏，晚餐希腊烤肉家庭餐。", attractionIds: ["acropolis", "acropolis-museum"] } ]
       },
       {
-        day: 3, city: '卡兰巴卡',
-        entries: [
-          { period: '上午', text: '前往德尔斐：阿波罗神庙与"世界之脐"', attractionIds: ['delphi'] },
-          { period: '晚上', text: '穿越山脉抵达卡兰巴卡小镇入住', attractionIds: [] }
-        ]
+        day: 3,
+        city: "纳夫普利翁",
+        entries: [ { period: '', text: "科林斯运河 · 纳夫普利翁\n跨越科林斯运河抵达海边老城，帕拉米迪城堡俯瞰海湾，傍晚老城漫步与冰淇淋时间。", attractionIds: ["nafplio"] } ]
       },
       {
-        day: 4, city: '雅典',
-        entries: [
-          { period: '上午', text: '梅黛奥拉修道院群：悬于岩柱之巅的信仰奇观', attractionIds: ['meteora'] },
-          { period: '晚上', text: '返回雅典休整', attractionIds: [] }
-        ]
+        day: 4,
+        city: "纳夫普利翁",
+        entries: [ { period: '', text: "迈锡尼 · 埃皮达鲁斯古剧场\n上午探秘狮子门与阿伽门农墓（神话现场课），下午古剧场测试 2400 年前的传声奇迹，孩子可在剧场中心朗读体验。", attractionIds: ["epidaurus"] } ]
       },
       {
-        day: 5, city: '圣托里尼',
-        entries: [
-          { period: '上午', text: '飞往圣托里尼，入住悬崖酒店', attractionIds: [] },
-          { period: '下午', text: '伊亚小镇蓝顶教堂与风车观景台', attractionIds: ['oia'] }
-        ]
+        day: 5,
+        city: "纳夫普利翁",
+        entries: [ { period: '', text: "波罗斯岛跳岛 · 海滩下午\n乘船登波罗斯岛，钟楼与柠檬林漫步，海鲜午餐后海滩自由活动与游泳。", attractionIds: [] } ]
       },
       {
-        day: 6, city: '圣托里尼',
-        entries: [
-          { period: '上午', text: '皮尔戈斯山城小镇与 Kasteli 城堡', attractionIds: ['pyrgos'] },
-          { period: '下午', text: '黑沙滩海滩休闲与水上活动', attractionIds: ['black-beach'] }
-        ]
+        day: 6,
+        city: "雅典",
+        entries: [ { period: '', text: "返回雅典 · 告别晚宴\n上午返回雅典，下午利卡维多斯山看全城日落，晚上普拉卡告别晚宴与民俗歌舞。", attractionIds: ["likavitos"] } ]
       },
       {
-        day: 7, city: '克里特',
-        entries: [
-          { period: '上午', text: '飞往克里特岛，探访克诺索斯王宫迷宫', attractionIds: ['knossos'] },
-          { period: '下午', text: '伊拉克利翁考古博物馆', attractionIds: [] }
-        ]
+        day: 7,
+        city: "雅典",
+        entries: [ { period: '', text: "国家考古博物馆 · 送机\n上午看阿伽门农黄金面具（衔接迈锡尼行程），专车送机返程。", attractionIds: ["national-archaeological-museum"] } ]
       },
-      {
-        day: 8, city: '克里特',
-        entries: [
-          { period: '上午', text: '干尼亚老城威尼斯港漫步', attractionIds: [] },
-          { period: '晚上', text: '海滨晚餐后返回酒店', attractionIds: [] }
-        ]
-      },
-      {
-        day: 9, city: '雅典',
-        entries: [
-          { period: '上午', text: '返回雅典，专车送机回国', attractionIds: [] }
-        ]
-      }
     ]
-  }
+  },
+  {
+    id: "sample-ae-5d",
+    type: 'reference',
+    title: "雅典 + 圣托里尼五日",
+    img: "/assets/images/route/route-santorini.jpg",
+    tag: "蜜月 · 情侣",
+    days: 5,
+    highlights: "蜜月经典：两天雅典看文明，两天圣岛住悬崖酒店看日落，节奏从容。",
+    crowd: "适合：蜜月婚礼 / 浪漫之旅",
+    schedule: [
+      {
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 地标巡礼\n上午·雅典国际机场接机，入住市区酒店休整；下午·雅典地标巡礼：宪法广场换岗仪式、皇家花园、泛雅典娜体育场", attractionIds: ["athens-landmarks"] } ]
+      },
+      {
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "卫城深度 · 温泉湖晚餐\n上午·雅典卫城深度游览（以实际购票时间为准）；下午·普拉卡老城与国家考古博物馆；晚上·Lake Vouliagmeni 天然温泉湖畔餐厅晚餐（须预订）", attractionIds: ["acropolis", "national-archaeological-museum"] } ]
+      },
+      {
+        day: 3,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "飞抵圣托里尼 · 悬崖酒店\n上午·飞往圣托里尼，入住伊亚悬崖酒店；下午·酒店休整或悬崖步道漫步；晚上·悬崖海景餐厅晚餐，静享爱琴海暮色", attractionIds: [] } ]
+      },
+      {
+        day: 4,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "伊亚 · 费拉小镇\n上午·伊亚小镇：蓝顶教堂、风车观景台与悬崖步道；下午·费拉小镇：主教堂、三钟教堂与悬崖咖啡馆；晚上·知名悬崖餐厅晚餐（须预订）", attractionIds: ["fira", "oia"] } ]
+      },
+      {
+        day: 5,
+        city: "雅典",
+        entries: [ { period: '', text: "返回雅典 · 回国\n上午·圣托里尼机场返回雅典，转乘回国航班", attractionIds: [] } ]
+      },
+    ]
+  },
+  {
+    id: "sample-heritage-9d",
+    type: 'reference',
+    title: "全遗产环游九日",
+    img: "/assets/images/route/route-heritage.jpg",
+    tag: "深度 · 定制",
+    days: 9,
+    highlights: "雅典、德尔斐、梅黛奥拉、圣托里尼与克里特连线，全希腊世界遗产一次走完。",
+    crowd: "适合：深度文化 / 沉浸体验",
+    schedule: [
+      {
+        day: 1,
+        city: "雅典",
+        entries: [ { period: '', text: "抵达雅典 · 地标与夜景\n上午·雅典国际机场接机，入住市区酒店休整；下午·雅典地标巡礼，傍晚利卡维多斯山夜景", attractionIds: ["athens-landmarks"] } ]
+      },
+      {
+        day: 2,
+        city: "雅典",
+        entries: [ { period: '', text: "雅典考古核心\n上午·雅典卫城深度游览；下午·国家考古博物馆", attractionIds: ["acropolis", "national-archaeological-museum"] } ]
+      },
+      {
+        day: 3,
+        city: "卡兰巴卡",
+        entries: [ { period: '', text: "德尔斐 · 卡兰巴卡\n上午·前往德尔斐：阿波罗神庙与\"世界之脐\"；晚上·穿越山脉抵达卡兰巴卡小镇入住", attractionIds: ["delphi"] } ]
+      },
+      {
+        day: 4,
+        city: "雅典",
+        entries: [ { period: '', text: "梅黛奥拉修道院\n上午·梅黛奥拉修道院群：悬于岩柱之巅的信仰奇观；晚上·返回雅典休整", attractionIds: ["meteora"] } ]
+      },
+      {
+        day: 5,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "飞抵圣托里尼 · 伊亚\n上午·飞往圣托里尼，入住悬崖酒店；下午·伊亚小镇蓝顶教堂与风车观景台", attractionIds: ["oia"] } ]
+      },
+      {
+        day: 6,
+        city: "圣托里尼",
+        entries: [ { period: '', text: "皮尔戈斯 · 黑沙滩\n上午·皮尔戈斯山城小镇与 Kasteli 城堡；下午·黑沙滩海滩休闲与水上活动", attractionIds: ["black-beach", "pyrgos"] } ]
+      },
+      {
+        day: 7,
+        city: "克里特",
+        entries: [ { period: '', text: "克里特 · 克诺索斯王宫\n上午·飞往克里特岛，探访克诺索斯王宫迷宫；下午·伊拉克利翁考古博物馆", attractionIds: ["knossos"] } ]
+      },
+      {
+        day: 8,
+        city: "克里特",
+        entries: [ { period: '', text: "干尼亚威尼斯老港\n上午·干尼亚老城威尼斯港漫步；晚上·海滨晚餐后返回酒店", attractionIds: [] } ]
+      },
+      {
+        day: 9,
+        city: "雅典",
+        entries: [ { period: '', text: "返回雅典 · 送机\n上午·返回雅典，专车送机回国", attractionIds: [] } ]
+      },
+    ]
+  },
 ];
+
 
 // 定制行程：提交需求表后，顾问一对一制作，以行程链接形式单独发送给客户
 const custom = [
