@@ -28,10 +28,10 @@ Page({
       role: '名人导游 · 欧洲精品文旅金牌从业者',
       proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照'
     },
-    // 甄选路线
+    // 甄选路线（id 对应 sampleItineraries，点击进入简版参考行程页）
     routes: [
       {
-        id: 'r1',
+        id: 'ref-athens-3d',
         img: '/assets/images/route/route-athens.jpg',
         name: '3天2晚 · 雅典市区精华',
         tag: '短途 · 中转',
@@ -39,7 +39,7 @@ Page({
         crowd: '适合：中转停留 / 商务出行'
       },
       {
-        id: 'r2',
+        id: 'ref-athens-santorini-5d',
         img: '/assets/images/route/route-santorini.jpg',
         name: '5天4晚 · 雅典+圣托里尼',
         tag: '蜜月 · 情侣',
@@ -47,7 +47,7 @@ Page({
         crowd: '适合：蜜月婚礼 / 浪漫之旅'
       },
       {
-        id: 'r3',
+        id: 'ref-peloponnese-7d',
         img: '/assets/images/route/route-peloponnese.jpg',
         name: '7天6晚 · 伯罗奔尼撒半岛',
         tag: '亲子 · 家庭',
@@ -55,7 +55,7 @@ Page({
         crowd: '适合：亲子家庭 / 轻松度假'
       },
       {
-        id: 'r4',
+        id: 'ref-heritage-9d',
         img: '/assets/images/route/route-heritage.jpg',
         name: '9天8晚 · 全遗产环游',
         tag: '深度 · 定制',
@@ -143,7 +143,7 @@ Page({
     if (routes[key]) routes[key]();
   },
 
-    // 路线卡 → 参考行程详情；查看更多 → 参考行程列表
+    // 路线卡 → 简版参考行程页（按天展示核心地点+简短描述）；查看更多 → 参考行程列表
   onRouteTap(e) {
     const id = e.currentTarget.dataset.id;
     if (id) wx.navigateTo({ url: '/pages/itinerary/detail?id=' + id });
@@ -152,6 +152,11 @@ Page({
 
   onMoreRoutes() {
     wx.navigateTo({ url: '/pages/itinerary/index' });
+  },
+
+  // 定制行程入口：填写需求，获取专属方案
+  onCustomTripTap() {
+    wx.switchTab({ url: '/pages/customize/customize' });
   },
 
   // 路线卡 / 奢享卡：电询

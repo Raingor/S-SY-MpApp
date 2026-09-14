@@ -659,3 +659,39 @@
   color: var(--c-weak);
   letter-spacing: 1rpx;
 }
+
+/* ===== 定制行程入口（路线区底部） ===== */
+.custom-trip-entry {
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 30rpx 28rpx;
+  background: linear-gradient(135deg, #0B3C5D 0%, #1567A8 100%);
+}
+
+.custom-trip-main { flex: 1; min-width: 0; }
+
+.custom-trip-kicker {
+  color: #D8B878;
+}
+
+.custom-trip-title {
+  margin-top: 10rpx;
+  color: #FFFFFF;
+  font-size: 32rpx;
+}
+
+.custom-trip-desc {
+  margin-top: 10rpx;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 21rpx;
+  line-height: 1.7;
+}
+
+.custom-trip-arrow {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: Georgia, serif;
+  font-size: 44rpx;
+}

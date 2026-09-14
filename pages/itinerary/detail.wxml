@@ -114,7 +114,7 @@
   <view class="itd-cta card" bindtap="onCtaTap">
     <view>
       <view class="itd-cta-kicker">{{isCustom ? 'ANY CHANGES?' : 'CUSTOMIZE THIS ROUTE'}}</view>
-      <view class="itd-cta-title serif">{{isCustom ? '需要调整行程？' : '按我的想法定制'}}</view>
+      <view class="itd-cta-title serif">{{isCustom ? '需要调整行程？' : '定制行程 · 填写需求，获取专属方案'}}</view>
       <view class="itd-cta-copy">{{isCustom ? '行程顺序与安排可按实际沟通调整，请联系你的专属顾问。' : '提交需求表，顾问一对一为你制作专属定制行程。'}}</view>
     </view>
     <view class="itd-cta-arrow">›</view>

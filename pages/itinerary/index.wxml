@@ -35,7 +35,7 @@
   <view class="iti-consult card" bindtap="onConsult">
     <view>
       <view class="iti-consult-kicker">CUSTOM ITINERARY</view>
-      <view class="iti-consult-title serif">想要一份专属定制行程？</view>
+      <view class="iti-consult-title serif">定制行程 · 填写需求，获取专属方案</view>
       <view class="iti-consult-copy">提交需求表，顾问将按你的日期、人数与偏好定制详细行程，并以行程链接单独发送给你。</view>
     </view>
     <view class="iti-consult-arrow">›</view>

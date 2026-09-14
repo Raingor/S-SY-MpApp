@@ -122,6 +122,16 @@
         </view>
       </view>
     </view>
+
+    <!-- 定制行程入口（与路线区同屏，明显位置） -->
+    <view class="custom-trip-entry card" bindtap="onCustomTripTap">
+      <view class="custom-trip-main">
+        <view class="eyebrow custom-trip-kicker">CUSTOM ITINERARY</view>
+        <view class="custom-trip-title serif">定制行程 · 填写需求，获取专属方案</view>
+        <view class="custom-trip-desc">以上路线仅作参考，告诉我们你的日期、人数与偏好，顾问一对一为你定制专属行程</view>
+      </view>
+      <view class="custom-trip-arrow">›</view>
+    </view>
   </view>
 
   <!-- ===== 4. 奢享体验 ===== -->
