@@ -143,6 +143,17 @@ Page({
     if (routes[key]) routes[key]();
   },
 
+    // 路线卡 → 参考行程详情；查看更多 → 参考行程列表
+  onRouteTap(e) {
+    const id = e.currentTarget.dataset.id;
+    if (id) wx.navigateTo({ url: '/pages/itinerary/detail?id=' + id });
+    else wx.navigateTo({ url: '/pages/itinerary/index' });
+  },
+
+  onMoreRoutes() {
+    wx.navigateTo({ url: '/pages/itinerary/index' });
+  },
+
   // 路线卡 / 奢享卡：电询
   onInquiryTap() {
     wx.switchTab({ url: '/pages/customize/customize' });
@@ -158,9 +169,9 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 目的地瓷贴
+  // 目的地瓷贴 → 景点区
   onDestTap() {
-    wx.switchTab({ url: '/pages/customize/customize' });
+    wx.navigateTo({ url: '/pages/knowledge/knowledge' });
   },
 
   // 页脚官网（复制域名）

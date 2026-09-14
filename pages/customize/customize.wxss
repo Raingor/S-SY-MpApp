@@ -258,3 +258,104 @@
   color: var(--c-primary);
   font-weight: 600;
 }
+
+/* ===== 定制行程链接说明卡 ===== */
+.trip-link {
+  margin-top: 28rpx;
+  padding: 28rpx;
+}
+
+.trip-link-kicker {
+  color: var(--c-gold);
+}
+
+.trip-link-title {
+  margin-top: 10rpx;
+  color: var(--c-deep);
+  font-size: 32rpx;
+}
+
+.trip-link-flow {
+  display: flex;
+  align-items: stretch;
+  margin-top: 24rpx;
+}
+
+.flow-step {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.flow-no {
+  width: 44rpx;
+  height: 44rpx;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #EAF4F9;
+  color: var(--c-primary);
+  font-family: Georgia, serif;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 44rpx;
+}
+
+.flow-name {
+  margin-top: 12rpx;
+  color: var(--c-deep);
+  font-size: 21rpx;
+  font-weight: 600;
+}
+
+.flow-desc {
+  margin-top: 4rpx;
+  color: var(--c-weak);
+  font-size: 17rpx;
+  line-height: 1.5;
+}
+
+.flow-arrow {
+  align-self: center;
+  margin: 0 8rpx;
+  color: var(--c-weak);
+  font-family: Georgia, serif;
+  font-size: 30rpx;
+}
+
+.trip-link-sample {
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 16rpx;
+  border-radius: 16rpx;
+  background: #F4F7FA;
+}
+
+.trip-link-img {
+  flex-shrink: 0;
+  width: 108rpx;
+  height: 82rpx;
+  margin-right: 18rpx;
+  border-radius: 12rpx;
+}
+
+.trip-link-info { flex: 1; min-width: 0; }
+
+.trip-link-name {
+  color: var(--c-deep);
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.trip-link-copy {
+  margin-top: 4rpx;
+  color: var(--c-weak);
+  font-size: 18rpx;
+}
+
+.trip-link-arrow {
+  margin-left: 12rpx;
+  color: var(--c-weak);
+  font-family: Georgia, serif;
+  font-size: 32rpx;
+}

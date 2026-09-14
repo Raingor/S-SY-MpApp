@@ -1,0 +1,95 @@
+<view class="spot-page" wx:if="{{spot}}">
+  <!-- 头图 -->
+  <view class="spot-hero">
+    <image class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" />
+    <view class="spot-hero-mask"></view>
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="spot-nav">
+      <view class="spot-back" bindtap="onBack">‹</view>
+      <view class="spot-brand">SY 希腊蔚蓝海岸</view>
+      <view class="spot-mark">✦</view>
+    </view>
+    <view class="spot-hero-body">
+      <view class="spot-cat">{{spot.category}}</view>
+      <view class="spot-title serif">{{spot.name}}</view>
+      <view class="spot-en">{{spot.en}}</view>
+    </view>
+  </view>
+
+  <!-- 简介 -->
+  <view class="spot-section card">
+    <view class="spot-kicker">ABOUT</view>
+    <view class="spot-heading serif">景点概览</view>
+    <view class="spot-intro">{{spot.summary}}</view>
+  </view>
+
+  <!-- 必看亮点 -->
+  <view class="spot-section card">
+    <view class="spot-kicker">HIGHLIGHTS</view>
+    <view class="spot-heading serif">必看亮点</view>
+    <view class="highlight-list">
+      <block wx:for="{{spot.highlights}}" wx:key="name">
+        <view wx:if="{{showAllHighlights || index < 3}}" class="highlight-item">
+          <image class="highlight-img" src="{{spot.image}}" mode="aspectFill" />
+          <view class="highlight-body">
+            <view class="highlight-name">{{item.name}}</view>
+            <view class="highlight-desc">{{item.desc}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+    <view class="highlight-more" bindtap="onToggleHighlights">
+      {{showAllHighlights ? '收起亮点' : '查看全部' + spot.highlights.length + '个亮点'}} <text>›</text>
+    </view>
+  </view>
+
+  <!-- 参观指南 -->
+  <view class="spot-section card">
+    <view class="spot-kicker">VISITOR GUIDE</view>
+    <view class="spot-heading serif">参观指南</view>
+    <scroll-view class="guide-scroll" scroll-x>
+      <view
+        wx:for="{{guideTabs}}"
+        wx:key="key"
+        class="guide-tab {{guideIndex === index ? 'guide-tab-on' : ''}}"
+        data-index="{{index}}"
+        bindtap="onGuideTap"
+      >{{item.label}}</view>
+    </scroll-view>
+    <view class="guide-panel">
+      <view class="guide-label">{{guideTabs[guideIndex].label}}</view>
+      <view class="guide-text">{{guideTabs[guideIndex].text}}</view>
+    </view>
+  </view>
+
+  <!-- 深度讲解 -->
+  <view class="spot-section card">
+    <view class="spot-kicker">DEEP DIVE</view>
+    <view class="spot-heading serif">深度文史讲解</view>
+    <view class="preview-label"><text>FREE PREVIEW</text> 免费文字预览</view>
+    <view class="preview-copy">{{spot.deepDive.preview}}</view>
+    <view class="preview-audio" bindtap="onPreviewAudio">
+      <view class="play-icon">▶</view>
+      <view><view>1分钟试听片段</view><text>点击试听 · 内容上传占位</text></view>
+      <view class="preview-arrow">›</view>
+    </view>
+
+    <view class="locked-label"><text>PAID CONTENT</text> 付费解锁内容</view>
+    <view class="locked-list">
+      <view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">锁定</text></view>
+    </view>
+    <view class="unlock-button" bindtap="onUnlock">付费解锁（功能开发中）</view>
+  </view>
+
+  <!-- 咨询入口 -->
+  <view class="spot-consult card" bindtap="onConsult">
+    <view>
+      <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
+      <view class="consult-title serif">想把景点读得更深？</view>
+      <view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view>
+    </view>
+    <view class="consult-arrow">›</view>
+  </view>
+
+  <view class="spot-footer">只为一生美好回忆</view>
+</view>

@@ -1,0 +1,45 @@
+<view class="iti-page">
+  <view class="iti-hero">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="iti-nav">
+      <view class="iti-back" bindtap="onBack">‹</view>
+      <view class="iti-brand">SY 希腊蔚蓝海岸</view>
+      <view class="iti-mark">✦</view>
+    </view>
+    <view class="iti-hero-body">
+      <view class="iti-kicker">REFERENCE ITINERARIES</view>
+      <view class="iti-title serif">参考行程</view>
+      <view class="iti-subtitle">甄选路线的参考日程，供你快速想象旅程的形状；提交需求后，顾问将为你一对一制作专属定制行程。</view>
+      <view class="iti-pills"><text>结构参考</text><text>景点关联</text><text>一对一定制</text></view>
+    </view>
+  </view>
+
+  <view class="iti-list">
+    <view class="iti-card card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
+      <view class="iti-img-wrap">
+        <image class="iti-img" src="{{item.img}}" mode="aspectFill" />
+        <view class="iti-tag">{{item.tag}}</view>
+        <view class="iti-days">{{item.days}}天{{item.days - 1}}晚</view>
+      </view>
+      <view class="iti-body">
+        <view class="iti-name serif">{{item.title}}</view>
+        <view class="iti-highlights ellipsis">{{item.highlights}}</view>
+        <view class="iti-foot">
+          <view class="iti-cta">查看参考行程</view>
+          <view class="iti-crowd">{{item.crowd}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="iti-consult card" bindtap="onConsult">
+    <view>
+      <view class="iti-consult-kicker">CUSTOM ITINERARY</view>
+      <view class="iti-consult-title serif">想要一份专属定制行程？</view>
+      <view class="iti-consult-copy">提交需求表，顾问将按你的日期、人数与偏好定制详细行程，并以行程链接单独发送给你。</view>
+    </view>
+    <view class="iti-consult-arrow">›</view>
+  </view>
+
+  <view class="iti-footer">只为一生美好回忆</view>
+</view>

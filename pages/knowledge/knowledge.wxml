@@ -7,47 +7,82 @@
       <view class="knowledge-mark">✦</view>
     </view>
     <view class="knowledge-hero-body">
-      <view class="knowledge-kicker">HUMANITIES KNOWLEDGE BASE</view>
-      <view class="knowledge-title serif">景点文史<br />知识库</view>
-      <view class="knowledge-subtitle">先免费预览，再按需要深入了解历史、神话与建筑。把每一次参访，变成真正看懂的现场。</view>
-      <view class="knowledge-pills"><text>图文手册</text><text>音频讲解</text><text>一对一咨询</text></view>
+      <view class="knowledge-kicker">ATTRACTIONS &amp; KNOWLEDGE</view>
+      <view class="knowledge-title serif">希腊景点</view>
+      <view class="knowledge-subtitle">从卫城到梅黛奥拉，把每一次参访变成真正看懂的现场。先看亮点与参观指南，再深入了解历史、神话与建筑。</view>
+      <view class="knowledge-pills"><text>必看亮点</text><text>参观指南</text><text>深度讲解</text></view>
     </view>
   </view>
 
+  <!-- 精选城市 -->
   <view class="knowledge-catalog">
-    <view class="knowledge-section-kicker">01 · CATALOG</view>
-    <view class="knowledge-heading serif">选择一个景点开始阅读</view>
-    <scroll-view class="spot-scroll" scroll-x>
-      <view wx:for="{{spots}}" wx:key="name" class="spot-tab {{activeIndex === index ? 'spot-tab-on' : ''}}" data-index="{{index}}" bindtap="onSpotTap">
-        <image src="{{item.image}}" mode="aspectFill" />
+    <view class="knowledge-section-kicker">01 · CITIES</view>
+    <view class="knowledge-heading serif">精选城市</view>
+    <scroll-view class="city-scroll" scroll-x>
+      <view
+        class="city-tab {{activeCity === 'all' ? 'city-tab-on' : ''}}"
+        data-id="all"
+        bindtap="onCityTap"
+      >
+        <image src="/assets/images/hero/hero-acropolis.jpg" mode="aspectFill" />
+        <view>全部</view>
+        <text>{{spots.length}} 个景点</text>
+      </view>
+      <view
+        wx:for="{{cities}}"
+        wx:key="id"
+        class="city-tab {{activeCity === item.id ? 'city-tab-on' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onCityTap"
+      >
+        <image src="{{item.cover}}" mode="aspectFill" />
         <view>{{item.name}}</view>
-        <text>{{item.category}}</text>
+        <text>{{item.count}} 个景点</text>
       </view>
     </scroll-view>
+  </view>
 
-    <view class="spot-detail card">
-      <image class="spot-cover" src="{{spots[activeIndex].image}}" mode="aspectFill" />
-      <view class="spot-detail-body">
-        <view class="spot-en">{{spots[activeIndex].en}}</view>
-        <view class="spot-name serif">{{spots[activeIndex].name}}</view>
-        <view class="spot-intro">{{spots[activeIndex].intro}}</view>
+  <!-- 景点列表（封面图 + 名称） -->
+  <view class="spot-list-wrap">
+    <view class="knowledge-section-kicker">02 · ATTRACTIONS</view>
+    <view class="knowledge-heading serif">{{activeCity === 'all' ? '全部景点' : '本城景点'}}</view>
 
-        <view class="preview-label"><text>FREE PREVIEW</text> 免费文字预览</view>
-        <view class="preview-copy">{{spots[activeIndex].preview}}</view>
-        <view class="preview-audio" bindtap="onPreviewAudio"><view class="play-icon">▶</view><view><view>1分钟试听片段</view><text>点击试听 · 内容上传占位</text></view><view class="preview-arrow">›</view></view>
-
-        <view class="locked-label"><text>PAID CONTENT</text> 付费解锁内容</view>
-        <view class="locked-list">
-          <view wx:for="{{spots[activeIndex].locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">锁定</text></view>
+    <view class="spot-grid">
+      <view class="spot-item card" wx:for="{{spots}}" wx:key="id" data-id="{{item.id}}" bindtap="onSpotTap">
+        <image class="spot-item-img" src="{{item.image}}" mode="aspectFill" />
+        <view class="spot-item-body">
+          <view class="spot-item-name serif">{{item.name}}</view>
+          <view class="spot-item-cat">{{item.cityName}} · {{item.category}}</view>
+          <view class="spot-item-intro ellipsis-2">{{item.summary}}</view>
+          <view class="spot-item-cta">查看亮点 / 参观指南 <text>›</text></view>
         </view>
-        <view class="unlock-button" bindtap="onUnlock">付费解锁（功能开发中）</view>
       </view>
     </view>
+  </view>
 
-    <view class="knowledge-consult card" bindtap="onConsult">
-      <view><view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view><view class="consult-title serif">想把景点读得更深？</view><view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view></view>
-      <view class="consult-arrow">›</view>
+  <!-- 关联参考行程 -->
+  <view class="trip-section">
+    <view class="knowledge-section-kicker">03 · ITINERARIES</view>
+    <view class="knowledge-heading serif">包含这些景点的行程</view>
+    <view class="trip-row card" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
+      <image class="trip-thumb" src="{{item.img}}" mode="aspectFill" />
+      <view class="trip-info">
+        <view class="trip-name ellipsis">{{item.title}}</view>
+        <view class="trip-highlights ellipsis">{{item.highlights}}</view>
+        <view class="trip-days">{{item.days}}天{{item.days - 1}}晚 · {{item.tag}}</view>
+      </view>
+      <view class="trip-arrow">›</view>
     </view>
+    <view class="trip-more" bindtap="onMoreTrips">查看全部参考行程 ›</view>
+  </view>
+
+  <view class="knowledge-consult card" bindtap="onConsult">
+    <view>
+      <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
+      <view class="consult-title serif">想把景点读得更深？</view>
+      <view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view>
+    </view>
+    <view class="consult-arrow">›</view>
   </view>
 
   <view class="knowledge-footer">只为一生美好回忆</view>

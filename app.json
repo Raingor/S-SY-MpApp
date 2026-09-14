@@ -8,7 +8,10 @@
     "pages/business/business",
     "pages/profile/profile",
     "pages/profile/detail/detail",
-    "pages/profile/edit/edit"
+    "pages/profile/edit/edit",
+    "pages/itinerary/index",
+    "pages/itinerary/detail",
+    "pages/attraction/detail"
   ],
   "window": {
     "navigationStyle": "custom",

@@ -186,6 +186,11 @@ Page({
     }, () => this.setData({ submitting: false }));
   },
 
+  /* ---------- 定制行程样例链接 ---------- */
+  onViewSampleTrip() {
+    wx.navigateTo({ url: '/pages/itinerary/detail?id=PT202610-08' });
+  },
+
   /* ---------- 定制师微信卡片 ---------- */
   onCopyWechat() {
     wx.setClipboardData({

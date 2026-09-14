@@ -1,4 +1,4 @@
-/* ============ 服务4：景点文史知识库 ============ */
+/* ============ 服务4：景点区（博物旅人风格） ============ */
 .knowledge-page {
   min-height: 100vh;
   padding-bottom: 70rpx;
@@ -48,7 +48,6 @@
 
 .knowledge-kicker,
 .knowledge-section-kicker,
-.spot-en,
 .consult-kicker {
   color: #C6A15B;
   font-family: Inter, -apple-system, sans-serif;
@@ -70,11 +69,7 @@
   line-height: 1.8;
 }
 
-.knowledge-pills {
-  display: flex;
-  gap: 12rpx;
-  margin-top: 28rpx;
-}
+.knowledge-pills { display: flex; gap: 12rpx; margin-top: 28rpx; }
 
 .knowledge-pills text {
   padding: 8rpx 18rpx;
@@ -84,8 +79,10 @@
   font-size: 18rpx;
 }
 
-.knowledge-catalog {
-  padding: 68rpx 32rpx 0;
+.knowledge-catalog,
+.spot-list-wrap,
+.trip-section {
+  padding: 56rpx 32rpx 0;
 }
 
 .knowledge-heading {
@@ -94,195 +91,159 @@
   font-size: 38rpx;
 }
 
-.spot-scroll {
-  width: 100%;
-  margin-top: 28rpx;
-  white-space: nowrap;
-}
-
-.spot-tab {
-  display: inline-block;
-  width: 148rpx;
-  margin-right: 14rpx;
-  padding-bottom: 14rpx;
-  color: #5B6B7A;
-  font-size: 21rpx;
-  text-align: center;
-  vertical-align: top;
-}
-
-.spot-tab image {
-  width: 148rpx;
-  height: 118rpx;
-  display: block;
-  margin-bottom: 10rpx;
-  border-radius: 14rpx;
-  opacity: 0.7;
-}
-
-.spot-tab text {
-  display: block;
-  margin-top: 3rpx;
-  color: #8AA3B5;
-  font-size: 16rpx;
-}
-
-.spot-tab-on {
-  color: #1567A8;
-  font-weight: 600;
-}
-
-.spot-tab-on image {
-  opacity: 1;
-  box-shadow: 0 0 0 4rpx #C6A15B;
-}
-
 .card {
   background: #FFFFFF;
   border-radius: 24rpx;
   box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
 }
 
-.spot-detail {
-  margin-top: 22rpx;
+/* 精选城市横滑 */
+.city-scroll {
+  width: 100%;
+  margin-top: 28rpx;
+  white-space: nowrap;
+}
+
+.city-tab {
+  display: inline-block;
+  width: 176rpx;
+  margin-right: 16rpx;
+  padding-bottom: 14rpx;
+  color: #5B6B7A;
+  font-size: 22rpx;
+  text-align: center;
+  vertical-align: top;
+}
+
+.city-tab image {
+  width: 176rpx;
+  height: 132rpx;
+  display: block;
+  margin-bottom: 10rpx;
+  border-radius: 16rpx;
+  opacity: 0.72;
+}
+
+.city-tab text {
+  display: block;
+  margin-top: 3rpx;
+  color: #8AA3B5;
+  font-size: 16rpx;
+}
+
+.city-tab-on { color: #1567A8; font-weight: 600; }
+
+.city-tab-on image {
+  opacity: 1;
+  box-shadow: 0 0 0 4rpx #C6A15B;
+}
+
+/* 景点列表（封面图 + 名称） */
+.spot-grid { margin-top: 26rpx; }
+
+.spot-item {
+  display: flex;
+  margin-bottom: 22rpx;
   overflow: hidden;
 }
 
-.spot-cover {
-  width: 100%;
-  height: 300rpx;
-  display: block;
+.spot-item-img {
+  flex-shrink: 0;
+  width: 220rpx;
+  height: 100%;
+  min-height: 240rpx;
 }
 
-.spot-detail-body {
-  padding: 28rpx;
+.spot-item-body {
+  flex: 1;
+  min-width: 0;
+  padding: 22rpx 24rpx;
 }
 
-.spot-en {
-  color: #2E75A0;
-  font-size: 17rpx;
-}
+.spot-item-name { color: #0B3C5D; font-size: 30rpx; }
 
-.spot-name {
-  margin-top: 5rpx;
-  color: #0B3C5D;
-  font-size: 36rpx;
-}
-
-.spot-intro,
-.preview-copy {
-  color: #5B6B7A;
-  font-size: 23rpx;
-  line-height: 1.8;
-}
-
-.spot-intro { margin-top: 18rpx; }
-
-.preview-label,
-.locked-label {
-  margin-top: 28rpx;
-  color: #16283A;
-  font-size: 21rpx;
-  font-weight: 600;
-}
-
-.preview-label text,
-.locked-label text {
-  margin-right: 10rpx;
+.spot-item-cat {
+  margin-top: 6rpx;
   color: #1567A8;
-  font-family: Georgia, serif;
-  font-size: 16rpx;
-  letter-spacing: 1rpx;
+  font-size: 18rpx;
 }
 
-.preview-copy {
+.spot-item-intro {
   margin-top: 10rpx;
   color: #5B6B7A;
+  font-size: 20rpx;
+  line-height: 1.7;
 }
 
-.preview-audio {
-  display: flex;
-  align-items: center;
-  margin-top: 18rpx;
-  padding: 18rpx 20rpx;
-  border: 1rpx solid #DCE8ED;
-  border-radius: 16rpx;
-  color: #1567A8;
-  font-size: 21rpx;
-}
-
-.play-icon {
-  width: 50rpx;
-  height: 50rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 16rpx;
-  border-radius: 50%;
-  background: #EAF4F9;
+.spot-item-cta {
+  margin-top: 12rpx;
+  color: #C6A15B;
   font-size: 19rpx;
 }
 
-.preview-audio text {
-  display: block;
-  margin-top: 2rpx;
-  color: #8AA3B5;
-  font-size: 17rpx;
+.spot-item-cta text { font-family: Georgia, serif; }
+
+/* 关联参考行程 */
+.trip-section { padding-top: 56rpx; }
+
+.trip-row {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 18rpx;
 }
 
-.preview-arrow,
-.consult-arrow {
-  margin-left: auto;
+.trip-thumb {
+  flex-shrink: 0;
+  width: 132rpx;
+  height: 100rpx;
+  margin-right: 20rpx;
+  border-radius: 14rpx;
+}
+
+.trip-info { flex: 1; min-width: 0; }
+
+.trip-name { color: #0B3C5D; font-size: 25rpx; font-weight: 600; }
+
+.trip-highlights {
+  margin-top: 4rpx;
+  color: #5B6B7A;
+  font-size: 19rpx;
+}
+
+.trip-days { margin-top: 4rpx; color: #8AA3B5; font-size: 17rpx; }
+
+.trip-arrow {
+  margin-left: 12rpx;
   color: #8AA3B5;
   font-family: Georgia, serif;
   font-size: 34rpx;
 }
 
-.locked-label { color: #16283A; }
-.locked-label text { color: #C6A15B; }
-
-.locked-list {
-  margin-top: 10rpx;
-  padding: 14rpx 18rpx;
-  border-radius: 14rpx;
-  background: #F4F7FA;
-  color: #5B6B7A;
-  font-size: 20rpx;
-  line-height: 2.2;
-}
-
-.locked-list > view { display: flex; align-items: center; }
-.locked-list > view > text:first-child { margin-right: 8rpx; color: #C6A15B; }
-.lock-mark { margin-left: auto; color: #A7B8C1; font-size: 17rpx; }
-
-.unlock-button {
-  height: 70rpx;
+.trip-more {
   margin-top: 22rpx;
-  border-radius: 36rpx;
-  background: #0B3C5D;
-  color: #FFFFFF;
+  color: #1567A8;
   font-size: 22rpx;
-  line-height: 70rpx;
   text-align: center;
 }
 
+/* 咨询入口 */
 .knowledge-consult {
   display: flex;
   align-items: center;
-  margin-top: 24rpx;
+  margin: 44rpx 32rpx 0;
   padding: 26rpx 24rpx;
 }
 
-.consult-title {
-  margin-top: 8rpx;
-  color: #0B3C5D;
-  font-size: 28rpx;
-}
+.consult-title { margin-top: 8rpx; color: #0B3C5D; font-size: 28rpx; }
 
-.consult-copy {
-  margin-top: 4rpx;
+.consult-copy { margin-top: 4rpx; color: #8AA3B5; font-size: 18rpx; }
+
+.consult-arrow {
+  margin-left: auto;
   color: #8AA3B5;
-  font-size: 18rpx;
+  font-family: Georgia, serif;
+  font-size: 34rpx;
 }
 
 .knowledge-footer {

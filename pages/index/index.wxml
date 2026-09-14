@@ -105,10 +105,10 @@
         <view class="eyebrow">SELECTED ROUTES</view>
         <view class="section-title serif">甄选路线</view>
       </view>
-      <view class="section-more" bindtap="onInquiryTap">查看更多路线 ›</view>
+      <view class="section-more" bindtap="onMoreRoutes">查看全部参考行程 ›</view>
     </view>
 
-    <view class="route-card card" wx:for="{{routes}}" wx:key="id" bindtap="onInquiryTap">
+    <view class="route-card card" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
       <view class="route-img-wrap">
         <image class="route-img" src="{{item.img}}" mode="aspectFill" />
         <view class="route-tag">{{item.tag}}</view>
@@ -117,7 +117,7 @@
         <view class="route-name ellipsis">{{item.name}}</view>
         <view class="route-highlights ellipsis">{{item.highlights}}</view>
         <view class="route-foot">
-          <view class="btn-inquiry">路线资讯咨询 · 一对一沟通</view>
+          <view class="btn-inquiry">查看参考行程</view>
           <view class="route-crowd">{{item.crowd}}</view>
         </view>
       </view>

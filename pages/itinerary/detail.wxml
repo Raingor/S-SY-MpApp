@@ -1,0 +1,124 @@
+<view class="itd-page" wx:if="{{itinerary}}">
+  <!-- 头图 -->
+  <view class="itd-hero">
+    <image class="itd-hero-img" src="{{itinerary.img}}" mode="aspectFill" />
+    <view class="itd-hero-mask"></view>
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="itd-nav">
+      <view class="itd-back" bindtap="onBack">‹</view>
+      <view class="itd-brand">SY 希腊蔚蓝海岸</view>
+      <view class="itd-mark">✦</view>
+    </view>
+    <view class="itd-hero-body">
+      <view class="itd-tag" wx:if="{{isCustom}}">专属定制行程</view>
+      <view class="itd-tag itd-tag-ref" wx:else>参考行程</view>
+      <view class="itd-title serif">{{itinerary.title}}</view>
+      <view class="itd-meta">
+        <text wx:if="{{isCustom}}">{{itinerary.period}}</text>
+        <text>{{itinerary.days}}天{{itinerary.days - 1}}晚</text>
+        <text wx:if="{{itinerary.tag}}">{{itinerary.tag}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 定制行程：订单信息 ===== -->
+  <view class="itd-section card" wx:if="{{isCustom}}">
+    <view class="itd-kicker">ITINERARY DETAILS</view>
+    <view class="itd-heading serif">行程信息</view>
+    <view class="itd-info">
+      <view class="itd-info-row" wx:for="{{itinerary.header}}" wx:key="label">
+        <view class="itd-info-label">{{item.label}}</view>
+        <view class="itd-info-value">{{item.value}}</view>
+      </view>
+      <view class="itd-info-row itd-info-fee">
+        <view class="itd-info-label">服务费总额 / TOTAL SERVICE FEE</view>
+        <view class="itd-info-value itd-fee">{{itinerary.fee}}</view>
+      </view>
+    </view>
+    <view class="itd-share">
+      <button class="itd-share-btn" open-type="share">转发此行程给同行家人</button>
+    </view>
+  </view>
+
+  <!-- ===== 参考行程：概览 ===== -->
+  <view class="itd-section card" wx:else>
+    <view class="itd-kicker">OVERVIEW</view>
+    <view class="itd-heading serif">行程概览</view>
+    <view class="itd-overview">
+      <view class="itd-ov-row"><text>亮点</text><view>{{itinerary.highlights}}</view></view>
+      <view class="itd-ov-row"><text>适合</text><view>{{itinerary.crowd}}</view></view>
+    </view>
+  </view>
+
+  <!-- ===== 服务图例（定制） ===== -->
+  <view class="itd-legend card" wx:if="{{isCustom}}">
+    <view class="itd-legend-title">服务包含图例</view>
+    <view class="itd-legend-list">
+      <text wx:for="{{serviceKeys}}" wx:key="*this"><text class="star">★</text> {{item}}</text>
+    </view>
+  </view>
+
+  <!-- ===== 每日行程 ===== -->
+  <view class="itd-days">
+    <view class="itd-days-head">
+      <view class="itd-kicker">DAILY ITINERARY</view>
+      <view class="itd-heading serif">每日行程</view>
+    </view>
+
+    <view class="itd-day card" wx:for="{{itinerary.schedule}}" wx:for-item="day" wx:key="key">
+      <view class="itd-day-head">
+        <view class="itd-day-no">
+          <text class="itd-day-num">{{isCustom ? day.no : day.day}}</text>
+          <text class="itd-day-unit">DAY</text>
+        </view>
+        <view class="itd-day-info">
+          <view class="itd-day-date">{{isCustom ? day.date : '第' + day.day + '天'}}</view>
+          <view class="itd-day-stay" wx:if="{{day.stay}}">夜宿 · {{day.stay}}</view>
+          <view class="itd-day-stay" wx:elif="{{day.city}}">停留 · {{day.city}}</view>
+        </view>
+      </view>
+
+      <view class="itd-entry" wx:for="{{day.entries}}" wx:for-item="entry" wx:key="period">
+        <view class="itd-entry-period">{{entry.period}}</view>
+        <view class="itd-entry-body">
+          <text class="itd-entry-text">{{entry.text}}</text>
+          <view class="itd-entry-services" wx:if="{{entry.services.length}}">
+            <text wx:for="{{entry.services}}" wx:for-item="svc" wx:key="*this" class="svc-chip"><text class="star">★</text>{{svc}}</text>
+          </view>
+          <view class="itd-entry-spots" wx:if="{{entry.spots.length}}">
+            <view
+              wx:for="{{entry.spots}}"
+              wx:for-item="spot"
+              wx:key="id"
+              class="spot-chip"
+              data-id="{{spot.id}}"
+              bindtap="onSpotTap"
+            >{{spot.name}} <text>›</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 定制行程：服务须知 ===== -->
+  <view class="itd-section card itd-notices" wx:if="{{isCustom}}">
+    <view class="itd-kicker">NOTICES</view>
+    <view class="itd-heading serif">服务须知</view>
+    <view class="itd-notice-group" wx:for="{{itinerary.notices}}" wx:for-item="group" wx:key="title">
+      <view class="itd-notice-title">{{group.title}}</view>
+      <view class="itd-notice-item" wx:for="{{group.items}}" wx:for-item="note" wx:key="*this"><text>·</text>{{note}}</view>
+    </view>
+  </view>
+
+  <!-- ===== CTA ===== -->
+  <view class="itd-cta card" bindtap="onCtaTap">
+    <view>
+      <view class="itd-cta-kicker">{{isCustom ? 'ANY CHANGES?' : 'CUSTOMIZE THIS ROUTE'}}</view>
+      <view class="itd-cta-title serif">{{isCustom ? '需要调整行程？' : '按我的想法定制'}}</view>
+      <view class="itd-cta-copy">{{isCustom ? '行程顺序与安排可按实际沟通调整，请联系你的专属顾问。' : '提交需求表，顾问一对一为你制作专属定制行程。'}}</view>
+    </view>
+    <view class="itd-cta-arrow">›</view>
+  </view>
+
+  <view class="itd-footer">只为一生美好回忆</view>
+</view>

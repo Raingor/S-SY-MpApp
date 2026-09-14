@@ -141,6 +141,41 @@
     </button>
   </view>
 
+  <!-- ===== 定制行程链接说明 ===== -->
+  <view class="trip-link card">
+    <view class="trip-link-head">
+      <view class="eyebrow trip-link-kicker">YOUR CUSTOM ITINERARY</view>
+      <view class="trip-link-title serif">提交后你会得到什么</view>
+    </view>
+    <view class="trip-link-flow">
+      <view class="flow-step">
+        <view class="flow-no">1</view>
+        <view class="flow-name">提交需求表</view>
+        <view class="flow-desc">目的地 / 日期 / 人数 / 偏好</view>
+      </view>
+      <view class="flow-arrow">›</view>
+      <view class="flow-step">
+        <view class="flow-no">2</view>
+        <view class="flow-name">顾问一对一定制</view>
+        <view class="flow-desc">24 小时内回复行程方案</view>
+      </view>
+      <view class="flow-arrow">›</view>
+      <view class="flow-step">
+        <view class="flow-no">3</view>
+        <view class="flow-name">专属行程链接</view>
+        <view class="flow-desc">逐日安排 / 服务包含 / 关联景点</view>
+      </view>
+    </view>
+    <view class="trip-link-sample" bindtap="onViewSampleTrip">
+      <image class="trip-link-img" src="/assets/images/hero/hero-santorini.jpg" mode="aspectFill" />
+      <view class="trip-link-info">
+        <view class="trip-link-name">看看定制行程长什么样</view>
+        <view class="trip-link-copy">希腊精品定制旅程样例 · 6天5晚 · 雅典+圣托里尼</view>
+      </view>
+      <view class="trip-link-arrow">›</view>
+    </view>
+  </view>
+
   <!-- ===== 中文顾问微信卡片（第二咨询通道） ===== -->
   <view class="consultant card">
     <view class="consultant-top" bindtap="onCopyWechat">

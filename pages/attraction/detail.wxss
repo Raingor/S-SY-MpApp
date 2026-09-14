@@ -1,0 +1,325 @@
+/* ============ 景点详情页 ============ */
+.spot-page {
+  min-height: 100vh;
+  padding-bottom: 70rpx;
+  background: #F4F7FA;
+  color: #16283A;
+}
+
+.spot-hero {
+  position: relative;
+  height: 620rpx;
+  overflow: hidden;
+  color: #FFFFFF;
+}
+
+.spot-hero-img {
+  width: 100%;
+  height: 100%;
+}
+
+.spot-hero-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7, 31, 52, 0.42) 0%, rgba(7, 31, 52, 0.05) 40%, rgba(7, 31, 52, 0.78) 100%);
+}
+
+.spot-nav {
+  position: relative;
+  z-index: 1;
+  height: 82rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.spot-back {
+  width: 56rpx;
+  font-family: Georgia, serif;
+  font-size: 48rpx;
+}
+
+.spot-brand {
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+}
+
+.spot-mark {
+  color: #D8B878;
+  font-size: 26rpx;
+}
+
+.spot-hero-body {
+  position: absolute;
+  left: 32rpx;
+  right: 32rpx;
+  bottom: 44rpx;
+  z-index: 1;
+}
+
+.spot-cat {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.42);
+  border-radius: 20rpx;
+  background: rgba(11, 60, 93, 0.34);
+  font-size: 18rpx;
+  letter-spacing: 1rpx;
+}
+
+.spot-title {
+  margin-top: 16rpx;
+  font-size: 56rpx;
+  line-height: 1.25;
+  text-shadow: 0 4rpx 16rpx rgba(7, 31, 52, 0.45);
+}
+
+.spot-en {
+  margin-top: 8rpx;
+  color: #C6A15B;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 20rpx;
+  letter-spacing: 3rpx;
+}
+
+.spot-section {
+  margin: 24rpx 32rpx 0;
+  padding: 30rpx 28rpx;
+}
+
+.spot-kicker {
+  color: #C6A15B;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+}
+
+.spot-heading {
+  margin-top: 10rpx;
+  color: #0B3C5D;
+  font-size: 34rpx;
+}
+
+.spot-intro {
+  margin-top: 16rpx;
+  color: #5B6B7A;
+  font-size: 24rpx;
+  line-height: 1.9;
+}
+
+/* 必看亮点 */
+.highlight-list {
+  margin-top: 20rpx;
+}
+
+.highlight-item {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.highlight-img {
+  flex-shrink: 0;
+  width: 128rpx;
+  height: 128rpx;
+  margin-right: 20rpx;
+  border-radius: 16rpx;
+}
+
+.highlight-body { flex: 1; min-width: 0; }
+
+.highlight-name {
+  color: #0B3C5D;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.highlight-desc {
+  margin-top: 6rpx;
+  color: #5B6B7A;
+  font-size: 21rpx;
+  line-height: 1.7;
+}
+
+.highlight-more {
+  padding: 14rpx 0 4rpx;
+  border-top: 1rpx solid #DCE8ED;
+  color: #1567A8;
+  font-size: 22rpx;
+  text-align: center;
+}
+
+.highlight-more text {
+  font-family: Georgia, serif;
+}
+
+/* 参观指南 */
+.guide-scroll {
+  width: 100%;
+  margin-top: 20rpx;
+  white-space: nowrap;
+}
+
+.guide-tab {
+  display: inline-block;
+  margin-right: 14rpx;
+  padding: 10rpx 24rpx;
+  border: 1rpx solid #DCE8ED;
+  border-radius: 28rpx;
+  color: #5B6B7A;
+  font-size: 21rpx;
+}
+
+.guide-tab-on {
+  border-color: #1567A8;
+  background: #EAF4F9;
+  color: #1567A8;
+  font-weight: 600;
+}
+
+.guide-panel {
+  margin-top: 22rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 16rpx;
+  background: #F4F7FA;
+}
+
+.guide-label {
+  color: #1567A8;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.guide-text {
+  margin-top: 8rpx;
+  color: #5B6B7A;
+  font-size: 22rpx;
+  line-height: 1.8;
+}
+
+/* 深度讲解 */
+.preview-label,
+.locked-label {
+  margin-top: 28rpx;
+  color: #16283A;
+  font-size: 21rpx;
+  font-weight: 600;
+}
+
+.preview-label text,
+.locked-label text {
+  margin-right: 10rpx;
+  color: #1567A8;
+  font-family: Georgia, serif;
+  font-size: 16rpx;
+  letter-spacing: 1rpx;
+}
+
+.preview-copy {
+  margin-top: 10rpx;
+  color: #5B6B7A;
+  font-size: 23rpx;
+  line-height: 1.8;
+}
+
+.preview-audio {
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+  padding: 18rpx 20rpx;
+  border: 1rpx solid #DCE8ED;
+  border-radius: 16rpx;
+  color: #1567A8;
+  font-size: 21rpx;
+}
+
+.play-icon {
+  width: 50rpx;
+  height: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  background: #EAF4F9;
+  font-size: 19rpx;
+}
+
+.preview-audio text {
+  display: block;
+  margin-top: 2rpx;
+  color: #8AA3B5;
+  font-size: 17rpx;
+}
+
+.preview-arrow,
+.consult-arrow {
+  margin-left: auto;
+  color: #8AA3B5;
+  font-family: Georgia, serif;
+  font-size: 34rpx;
+}
+
+.locked-label text { color: #C6A15B; }
+
+.locked-list {
+  margin-top: 10rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 14rpx;
+  background: #F4F7FA;
+  color: #5B6B7A;
+  font-size: 20rpx;
+  line-height: 2.2;
+}
+
+.locked-list > view { display: flex; align-items: center; }
+.locked-list > view > text:first-child { margin-right: 8rpx; color: #C6A15B; }
+.lock-mark { margin-left: auto; color: #A7B8C1; font-size: 17rpx; }
+
+.unlock-button {
+  height: 70rpx;
+  margin-top: 22rpx;
+  border-radius: 36rpx;
+  background: #0B3C5D;
+  color: #FFFFFF;
+  font-size: 22rpx;
+  line-height: 70rpx;
+  text-align: center;
+}
+
+/* 咨询入口 */
+.spot-consult {
+  display: flex;
+  align-items: center;
+  margin: 24rpx 32rpx 0;
+  padding: 26rpx 24rpx;
+}
+
+.consult-kicker {
+  color: #C6A15B;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 18rpx;
+  letter-spacing: 3rpx;
+}
+
+.consult-title {
+  margin-top: 8rpx;
+  color: #0B3C5D;
+  font-size: 28rpx;
+}
+
+.consult-copy {
+  margin-top: 4rpx;
+  color: #8AA3B5;
+  font-size: 18rpx;
+}
+
+.spot-footer {
+  margin: 56rpx 32rpx 0;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #DCE8ED;
+  color: #8AA3B5;
+  font-size: 18rpx;
+  line-height: 1.7;
+  text-align: center;
+}
