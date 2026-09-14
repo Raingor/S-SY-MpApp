@@ -486,9 +486,33 @@
 }
 
 .calendar-arrows {
-  color: #8AA3B5;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.calendar-arrow {
+  width: 52rpx;
+  height: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #DCE8ED;
+  border-radius: 50%;
+  color: #1567A8;
   font-family: Georgia, serif;
-  font-size: 32rpx;
+  font-size: 34rpx;
+  line-height: 1;
+}
+
+.calendar-arrow:active {
+  background: #EAF4F9;
+}
+
+.calendar-arrow-disabled {
+  border-color: #EEF3F5;
+  color: #C9D4D9;
+  pointer-events: none;
 }
 
 .week-row,
@@ -523,6 +547,11 @@
   justify-content: center;
   color: #AAB8C0;
   font-size: 22rpx;
+}
+
+.date-cell.date-past {
+  color: #C9D4D9;
+  pointer-events: none;
 }
 
 .date-cell.date-available {
@@ -585,6 +614,7 @@
 .legend-available { background: #1567A8; }
 .legend-pending { background: #C6A15B; }
 .legend-booked { background: #D8A6A0; }
+.legend-past { background: #C9D4D9; }
 
 .booking-form {
   margin-top: 24rpx;

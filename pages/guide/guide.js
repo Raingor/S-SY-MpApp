@@ -1,19 +1,41 @@
 // P4 名人导游页：Richard 李个人介绍 + 可预约日期 + 专属报价
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const GUIDE_WECHAT = 'SY-Greece-Service';
+const TODAY_KEY = '2026-09-14';
+const CALENDAR_MONTHS = [
+  { year: 2026, month: 8, label: '2026年8月' },
+  { year: 2026, month: 9, label: '2026年9月' },
+  { year: 2026, month: 10, label: '2026年10月' },
+  { year: 2026, month: 11, label: '2026年11月' },
+  { year: 2026, month: 12, label: '2026年12月' },
+  { year: 2027, month: 1, label: '2027年1月' },
+  { year: 2027, month: 2, label: '2027年2月' }
+];
+const CALENDAR_SCHEDULES = {
+  '2026-09': { 12: 'booked', 16: 'available', 17: 'available', 21: 'booked', 22: 'pending', 24: 'available', 25: 'available' },
+  '2026-10': { 8: 'available', 9: 'available', 10: 'pending', 15: 'available', 16: 'available', 17: 'booked', 22: 'available', 23: 'available' },
+  '2026-11': { 5: 'available', 6: 'available', 12: 'available', 13: 'pending', 19: 'available', 20: 'available' },
+  '2026-12': { 3: 'available', 4: 'available', 11: 'booked', 17: 'available', 18: 'available' },
+  '2027-01': { 7: 'available', 8: 'available', 14: 'pending', 21: 'available', 22: 'available' },
+  '2027-02': { 4: 'available', 5: 'available', 18: 'available', 19: 'available' }
+};
 
-function buildCalendar() {
-  const leading = (new Date(2026, 8, 1).getDay() + 6) % 7;
-  const states = {
-    3: 'available', 8: 'available', 9: 'available',
-    12: 'booked', 16: 'available', 17: 'available',
-    21: 'booked', 22: 'pending', 24: 'available', 25: 'available'
-  };
+function padMonth(month) {
+  return String(month).padStart(2, '0');
+}
+
+function buildCalendar(year, month) {
+  const monthKey = `${year}-${padMonth(month)}`;
+  const leading = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const schedules = CALENDAR_SCHEDULES[monthKey] || {};
   const days = [];
   for (let i = 0; i < leading; i += 1) days.push({ key: `blank-leading-${i}`, blank: true });
-  for (let day = 1; day <= 30; day += 1) {
-    const date = `2026-09-${String(day).padStart(2, '0')}`;
-    days.push({ key: date, day, date, state: states[day] || 'unavailable' });
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = `${monthKey}-${String(day).padStart(2, '0')}`;
+    const scheduledState = schedules[day] || 'unavailable';
+    const state = date < TODAY_KEY ? 'past' : scheduledState;
+    days.push({ key: date, day, date, state });
   }
   let trailing = 0;
   while (days.length % 7 !== 0) {
@@ -51,7 +73,12 @@ Page({
       { quote: '不赶景点，更像和一位老朋友探索希腊。小众海岸线比想象中更惊喜。', name: '广州 · M女士', meta: '海岛深度定制' }
     ],
     calendarWeeks: ['一', '二', '三', '四', '五', '六', '日'],
-    calendarDays: buildCalendar(),
+    calendarMonths: CALENDAR_MONTHS,
+    calendarIndex: 1,
+    canPrevMonth: true,
+    canNextMonth: true,
+    calendarMonthLabel: '2026年9月',
+    calendarDays: buildCalendar(2026, 9),
     selectedDate: '2026-09-16',
     selectedDateText: '9月16日（周三）',
     durationOptions: ['半日陪同', '1日陪同', '多日陪同'],
@@ -83,6 +110,29 @@ Page({
     wx.setClipboardData({
       data: this.data.guide.wechat,
       success: () => wx.showToast({ title: '微信号已复制', icon: 'success' })
+    });
+  },
+
+  onPrevMonth() {
+    this.changeCalendarMonth(-1);
+  },
+
+  onNextMonth() {
+    this.changeCalendarMonth(1);
+  },
+
+  changeCalendarMonth(step) {
+    const nextIndex = this.data.calendarIndex + step;
+    if (nextIndex < 0 || nextIndex >= this.data.calendarMonths.length) return;
+    const target = this.data.calendarMonths[nextIndex];
+    this.setData({
+      calendarIndex: nextIndex,
+      canPrevMonth: nextIndex > 0,
+      canNextMonth: nextIndex < this.data.calendarMonths.length - 1,
+      calendarMonthLabel: target.label,
+      calendarDays: buildCalendar(target.year, target.month),
+      selectedDate: '',
+      selectedDateText: '请选择可预约日期'
     });
   },
 

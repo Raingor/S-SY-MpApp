@@ -94,10 +94,13 @@
     <view class="calendar-card card">
       <view class="calendar-head">
         <view>
-          <view class="calendar-month serif">2026年9月</view>
+          <view class="calendar-month serif">{{calendarMonthLabel}}</view>
           <view class="calendar-note">选择你的希腊同行时光</view>
         </view>
-        <view class="calendar-arrows">‹ &nbsp; ›</view>
+        <view class="calendar-arrows">
+          <view class="calendar-arrow {{canPrevMonth ? '' : 'calendar-arrow-disabled'}}" bindtap="onPrevMonth">‹</view>
+          <view class="calendar-arrow {{canNextMonth ? '' : 'calendar-arrow-disabled'}}" bindtap="onNextMonth">›</view>
+        </view>
       </view>
       <view class="week-row">
         <view wx:for="{{calendarWeeks}}" wx:key="*this">{{item}}</view>
@@ -120,6 +123,7 @@
         <view><text class="legend-dot legend-available"></text>可预约</view>
         <view><text class="legend-dot legend-pending"></text>待确认</view>
         <view><text class="legend-dot legend-booked"></text>已约</view>
+        <view><text class="legend-dot legend-past"></text>不可选</view>
       </view>
     </view>
 
