@@ -1,4 +1,5 @@
 // 服务5：希腊商旅一站式随行服务
+const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const app = getApp();
 
 Page({
@@ -82,7 +83,7 @@ Page({
       header: { 'content-type': 'application/json' },
       data: payload,
       success: (res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
+        if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
             title: '商旅咨询已提交',
             content: '顾问将在24小时内联系您，确认商务周期与语言陪同需求。',

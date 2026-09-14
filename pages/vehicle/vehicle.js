@@ -1,4 +1,5 @@
 // 服务3：在地用车资源对接咨询
+const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const app = getApp();
 
 Page({
@@ -84,7 +85,7 @@ Page({
       header: { 'content-type': 'application/json' },
       data: payload,
       success: (res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
+        if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
             title: '咨询已提交',
             content: '顾问将在24小时内联系您，说明车型、路线与对接方式。',

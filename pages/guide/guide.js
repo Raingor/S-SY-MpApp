@@ -1,4 +1,5 @@
 // P4 名人导游页：Richard 李个人介绍 + 可预约日期 + 专属报价
+const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
 const GUIDE_WECHAT = 'SY-Greece-Service';
 
 function buildCalendar() {
@@ -157,7 +158,7 @@ Page({
       header: { 'content-type': 'application/json' },
       data: payload,
       success: (res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
+        if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
             title: '预约已提交',
             content: 'Richard 或顾问将在24小时内确认时间，并为您提供专属报价。',
