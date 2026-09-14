@@ -1,0 +1,103 @@
+.page {
+  min-height: 100vh;
+  padding: 0 32rpx 80rpx;
+  box-sizing: border-box;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 112rpx;
+}
+
+.back {
+  width: 64rpx;
+  color: var(--c-primary);
+  font-size: 56rpx;
+  line-height: 1;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--c-deep);
+}
+
+.topbar-space {
+  width: 64rpx;
+}
+
+.content {
+  padding-bottom: 40rpx;
+}
+
+.card {
+  background: var(--c-card);
+  border-radius: 32rpx;
+  box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+}
+
+.form {
+  padding: 8rpx 28rpx 30rpx;
+}
+
+.field {
+  padding: 26rpx 0;
+  border-bottom: 2rpx solid #EEF3F7;
+}
+
+.field-last {
+  border-bottom: none;
+}
+
+.field-label {
+  margin-bottom: 12rpx;
+  color: var(--c-text);
+  font-size: 25rpx;
+  font-weight: 600;
+}
+
+.required {
+  color: #C75D5D;
+}
+
+.input {
+  width: 100%;
+  min-height: 52rpx;
+  box-sizing: border-box;
+  color: var(--c-text);
+  font-size: 28rpx;
+  line-height: 52rpx;
+}
+
+.input::placeholder {
+  color: var(--c-weak);
+}
+
+.save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 76rpx;
+  margin: 22rpx 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 38rpx;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 27rpx;
+  line-height: 1;
+}
+
+.save-button::after {
+  border: none;
+}
+
+.privacy-note {
+  margin-top: 20rpx;
+  color: var(--c-weak);
+  font-size: 21rpx;
+  line-height: 1.5;
+  text-align: center;
+}

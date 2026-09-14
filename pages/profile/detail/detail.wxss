@@ -236,3 +236,42 @@
 .saved-actions text:last-child {
   color: #B05B5B;
 }
+
+/* ===== 列表页：添加按钮卡 ===== */
+.list-add {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 26rpx 28rpx;
+}
+
+.list-add-plus {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #EAF4F9;
+  color: var(--c-primary);
+  font-size: 40rpx;
+  font-weight: 600;
+}
+
+.list-add-text {
+  color: var(--c-primary);
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+/* 空状态里的添加入口 */
+.empty-add {
+  display: inline-block;
+  margin-top: 24rpx;
+  padding: 14rpx 36rpx;
+  border-radius: 34rpx;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 24rpx;
+}

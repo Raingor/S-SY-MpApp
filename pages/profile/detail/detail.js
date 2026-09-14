@@ -41,10 +41,7 @@ Page({
     loading: false,
     saving: false,
     statusBarHeight: 20,
-    items: [],
-    form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' },
-    editingIndex: -1,
-    userId: ''
+    items: []
   },
 
   onShareAppMessage() {
@@ -68,7 +65,6 @@ Page({
         wx.showToast({ title: '请先微信登录', icon: 'none' });
         return wx.switchTab({ url: '/pages/profile/profile' });
       }
-      this.setData({ userId: user.id });
       if (config.mode === 'leads' || config.mode === 'trips') this.loadLeads();
       else if (config.mode === 'coupons') this.loadCoupons();
       else this.loadProfileItems();
@@ -76,7 +72,6 @@ Page({
   },
 
   onShow() {
-    if (!this.data.userId) return;
     if (this.data.mode === 'leads' || this.data.mode === 'trips') this.loadLeads();
     else if (this.data.mode === 'coupons') this.loadCoupons();
     else this.loadProfileItems();
@@ -137,34 +132,16 @@ Page({
     });
   },
 
-  onInput(e) {
-    this.setData({ [`form.${e.currentTarget.dataset.field}`]: e.detail.value });
+  // 添加出行人 → 独立编辑页，保存后 onShow 自动刷新列表
+  onAddItem() {
+    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit' });
   },
 
-  onSaveProfile() {
-    const form = this.data.form;
-    if (!form.name.trim()) return wx.showToast({ title: '请填写姓名或称呼', icon: 'none' });
-    const collection = this.data.mode === 'traveler' ? 'travelers' : 'documents';
-    const payload = this.data.mode === 'traveler'
-      ? { name: form.name.trim(), relation: form.relation.trim(), passportNo: form.passportNo.trim() }
-      : { name: form.name.trim(), passportNo: form.passportNo.trim(), expiry: form.expiry.trim(), visaStatus: form.visaStatus.trim() };
-    const current = this.data.items[this.data.editingIndex];
-    this.setData({ saving: true });
-    const done = (ok, item, message) => {
-      this.setData({ saving: false });
-      if (!ok) return wx.showToast({ title: message || '保存失败', icon: 'none' });
-      this.setData({ form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' }, editingIndex: -1 });
-      this.loadProfileItems();
-      wx.showToast({ title: '已保存', icon: 'success' });
-    };
-    if (current && current.id) auth.updateMyItem(collection, current.id, payload, done);
-    else auth.createMyItem(collection, payload, done);
-  },
-
-  onEditProfile(e) {
-    const index = Number(e.currentTarget.dataset.index);
-    this.setData({ form: { ...this.data.items[index] }, editingIndex: index });
-    wx.pageScrollTo({ scrollTop: 0, duration: 240 });
+  // 编辑出行人 → 独立编辑页，保存后 onShow 自动刷新列表
+  onEditItem(e) {
+    const item = this.data.items[Number(e.currentTarget.dataset.index)];
+    if (!item || !item.id) return wx.showToast({ title: '资料编号无效，请刷新后重试', icon: 'none' });
+    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit?id=' + item.id });
   },
 
   onDeleteProfile(e) {

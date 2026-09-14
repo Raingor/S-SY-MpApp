@@ -1,0 +1,38 @@
+<view class="page">
+  <view style="height: {{statusBarHeight}}px;"></view>
+  <view class="topbar">
+    <text class="back" bindtap="onBack">‹</text>
+    <text class="title">{{isEdit ? '编辑' : '添加'}}{{type === 'travelers' ? '出行人' : '资料'}}</text>
+    <view class="topbar-space"></view>
+  </view>
+
+  <view class="content">
+    <view class="form card">
+      <view class="field">
+        <view class="field-label">姓名或称呼 <text class="required">*</text></view>
+        <input class="input" placeholder="例如：张先生 / 小朋友" value="{{form.name}}" data-field="name" bindinput="onInput" />
+      </view>
+      <view wx:if="{{type === 'travelers'}}" class="field">
+        <view class="field-label">与本人关系</view>
+        <input class="input" placeholder="例如：本人 / 配偶 / 子女" value="{{form.relation}}" data-field="relation" bindinput="onInput" />
+      </view>
+      <view class="field {{type === 'travelers' ? 'field-last' : ''}}">
+        <view class="field-label">护照号码</view>
+        <input class="input" placeholder="选填" value="{{form.passportNo}}" data-field="passportNo" bindinput="onInput" />
+      </view>
+      <block wx:if="{{type === 'visa'}}">
+        <view class="field">
+          <view class="field-label">护照有效期</view>
+          <input class="input" placeholder="例如：2030-06-30" value="{{form.expiry}}" data-field="expiry" bindinput="onInput" />
+        </view>
+        <view class="field field-last">
+          <view class="field-label">签证备注</view>
+          <input class="input" placeholder="例如：已持申根签 / 待确认" value="{{form.visaStatus}}" data-field="visaStatus" bindinput="onInput" />
+        </view>
+      </block>
+      <button class="save-button" bindtap="onSave" loading="{{saving}}" disabled="{{saving}}">保存</button>
+    </view>
+
+    <view class="privacy-note">资料由服务端按当前微信账号隔离保存，仅用于后续服务沟通。</view>
+  </view>
+</view>
