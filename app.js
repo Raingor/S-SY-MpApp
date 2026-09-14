@@ -4,10 +4,15 @@ const API_BASE = 'https://sy-greece.com';
 
 App({
   onLaunch() {
-    // 预留：登录、获取用户信息、全局配置拉取
+    this.globalData.auth.accessToken = wx.getStorageSync('sy_mp_access_token') || '';
+    this.globalData.auth.user = wx.getStorageSync('sy_mp_user') || null;
   },
   globalData: {
     apiBase: API_BASE,
+    auth: {
+      accessToken: '',
+      user: null
+    },
     pendingLeadType: '',
     brand: 'SY希腊蔚蓝海岸',
     site: 'sy-greece.com',

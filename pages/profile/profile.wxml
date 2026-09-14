@@ -4,25 +4,41 @@
   <view class="head">
     <view style="height: {{statusBarHeight + 8}}px;"></view>
     <view class="head-inner">
-      <view class="head-row">
-        <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
-        <view class="head-info">
-          <view class="nick-row">
-            <text class="nick">{{user.nickname}}</text>
-            <view class="member-badge">✦ {{user.member}}</view>
+      <view wx:if="{{loggedIn}}">
+        <view class="head-row">
+          <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
+          <view class="head-info">
+            <view class="nick-row">
+              <text class="nick">{{user.nickname}}</text>
+              <view class="member-badge">✦ {{user.member}}</view>
+            </view>
+            <view class="verified">{{phoneBound ? '已绑定手机号' : '请绑定手机号后预约服务'}}</view>
           </view>
-          <view class="verified">已认证出行人</view>
+        </view>
+
+        <!-- 数据行 -->
+        <view class="stats">
+          <view class="stat" wx:for="{{stats}}" wx:key="label">
+            <view class="stat-value">{{item.value}}</view>
+            <view class="stat-label">{{item.label}}</view>
+          </view>
         </view>
       </view>
 
-      <!-- 数据行 -->
-      <view class="stats">
-        <view class="stat" wx:for="{{stats}}" wx:key="label">
-          <view class="stat-value">{{item.value}}</view>
-          <view class="stat-label">{{item.label}}</view>
-        </view>
+      <view wx:else class="login-prompt">
+        <view class="login-title">登录 SY 希腊蔚蓝海岸</view>
+        <view class="login-desc">微信登录后，绑定手机号即可预约服务</view>
+        <button class="login-button" bindtap="onWechatLogin" loading="{{authLoading}}" disabled="{{authLoading}}">微信登录</button>
       </view>
     </view>
+  </view>
+
+  <view wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card">
+    <view class="phone-bind-copy">
+      <view class="phone-bind-title">完成手机号绑定</view>
+      <view class="phone-bind-desc">预约或提交咨询前，需要先绑定手机号</view>
+    </view>
+    <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">绑定手机号</button>
   </view>
 
   <!-- ===== 服务单元格卡 ===== -->

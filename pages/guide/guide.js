@@ -1,5 +1,6 @@
 // P4 名人导游页：Richard 李个人介绍 + 可预约日期 + 专属报价
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SY-Greece-Service';
 const TODAY_KEY = '2026-09-14';
 const CALENDAR_MONTHS = [
@@ -201,12 +202,20 @@ Page({
     };
 
     this.setData({ submitting: true });
-    wx.request({
-      url: `${apiBase}/api/leads`,
-      method: 'POST',
-      timeout: 15000,
-      header: { 'content-type': 'application/json' },
-      data: payload,
+    auth.ensurePhoneBound((ready, token) => {
+      if (!ready) {
+        this.setData({ submitting: false });
+        return;
+      }
+      wx.request({
+        url: `${apiBase}/api/leads`,
+        method: 'POST',
+        timeout: 15000,
+        header: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        data: payload,
       success: (res) => {
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
@@ -233,10 +242,11 @@ Page({
           showCancel: false
         });
       },
-      complete: () => {
-        this.setData({ submitting: false });
-      }
-    });
+        complete: () => {
+          this.setData({ submitting: false });
+        }
+      });
+    }, () => this.setData({ submitting: false }));
   },
 
 });

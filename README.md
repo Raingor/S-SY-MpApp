@@ -99,6 +99,8 @@ MpApp/
 
 - `app.js` 的 `globalData.apiBase` 默认为生产地址 `https://sy-greece.com`，本地联调时可替换为测试环境地址。
 - P2、Richard 预约、用车咨询、商旅咨询均向 `${apiBase}/api/leads` 发起 JSON `POST`，需将接口域名加入微信开发者工具的 request 合法域名。
+- 小程序登录接口约定为 `POST /api/miniprogram/auth/wx-login`（请求 `{code}`）、`GET /api/miniprogram/auth/me`、`POST /api/miniprogram/auth/phone`（请求 `{code}`）；登录 token 保存在本地缓存并通过 `Authorization: Bearer <accessToken>` 发送。
+- 所有表单提交前都会向 `/auth/me` 确认登录状态和手机号绑定状态；未登录或未绑定时引导用户进入【我的】完成操作，服务端也必须对 `/api/leads` 做 401/403 校验。
 - `leadType` 分类为：`customization`、`guide-booking`、`vehicle-consultation`、`knowledge-base`、`business-travel`。
 - 通用字段包括 `source`、`platform`、`destination`、`bookingDate`、`duration`、`travelers` / `people`、`route`、`contactType`、`contact`；各服务表单会附带对应的主题、车型或商务需求字段。
 

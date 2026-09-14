@@ -1,5 +1,6 @@
 // P2 行程资讯咨询页：深蓝引导横幅 + 结构化问卷 + 中文顾问卡片
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const auth = require('../../utils/auth');
 const app = getApp();
 
 // 行程资讯咨询主题多选
@@ -130,12 +131,20 @@ Page({
     };
 
     this.setData({ submitting: true });
-    wx.request({
-      url: `${apiBase}/api/leads`,
-      method: 'POST',
-      timeout: 15000,
-      header: { 'content-type': 'application/json' },
-      data: payload,
+    auth.ensurePhoneBound((ready, token) => {
+      if (!ready) {
+        this.setData({ submitting: false });
+        return;
+      }
+      wx.request({
+        url: `${apiBase}/api/leads`,
+        method: 'POST',
+        timeout: 15000,
+        header: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        data: payload,
       success: (res) => {
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
@@ -167,8 +176,9 @@ Page({
           showCancel: false
         });
       },
-      complete: () => this.setData({ submitting: false })
-    });
+        complete: () => this.setData({ submitting: false })
+      });
+    }, () => this.setData({ submitting: false }));
   },
 
   /* ---------- 定制师微信卡片 ---------- */

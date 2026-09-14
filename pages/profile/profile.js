@@ -1,7 +1,12 @@
-// P3 我的页面：渐变头部 / 会员信息 / 数据行 / 服务单元格 / 资料与帮助
+// P3 我的页面：微信登录 / 手机号绑定 / 会员信息 / 服务单元格
+const auth = require('../../utils/auth');
+
 Page({
   data: {
     statusBarHeight: 20,
+    loggedIn: false,
+    phoneBound: false,
+    authLoading: false,
     user: {
       nickname: '希腊旅人',
       avatar: '/assets/images/misc/consultant-avatar.png',
@@ -37,6 +42,45 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 });
     }
+    auth.getUserState((loggedIn, user) => {
+      if (!this || !this.setData) return;
+      this.setData({
+        loggedIn,
+        phoneBound: Boolean(user && user.phoneBound),
+        ...(loggedIn && user ? { user: { ...this.data.user, ...user } } : {})
+      });
+    });
+  },
+
+  onWechatLogin() {
+    if (this.data.authLoading) return;
+    this.setData({ authLoading: true });
+    auth.login((ok, user, message) => {
+      this.setData({
+        authLoading: false,
+        loggedIn: ok,
+        phoneBound: Boolean(user && user.phoneBound),
+        ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
+      });
+      if (!ok) wx.showToast({ title: message || '微信登录失败', icon: 'none' });
+    });
+  },
+
+  onGetPhoneNumber(e) {
+    const code = e.detail && e.detail.code;
+    if (!code || !/^getPhoneNumber:ok/.test(e.detail.errMsg || '')) {
+      return wx.showToast({ title: '需要授权手机号后才能提交', icon: 'none' });
+    }
+    this.setData({ authLoading: true });
+    auth.bindPhone(code, (ok, user, message) => {
+      this.setData({
+        authLoading: false,
+        loggedIn: ok || this.data.loggedIn,
+        phoneBound: Boolean(user && user.phoneBound),
+        ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
+      });
+      wx.showToast({ title: ok ? '手机号绑定成功' : (message || '绑定失败'), icon: ok ? 'success' : 'none' });
+    });
   },
 
   onServiceTap(e) {

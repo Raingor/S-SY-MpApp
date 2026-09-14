@@ -1,5 +1,6 @@
 // 服务5：希腊商旅一站式随行服务
 const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const auth = require('../../utils/auth');
 const app = getApp();
 
 Page({
@@ -76,12 +77,20 @@ Page({
     };
 
     this.setData({ submitting: true });
-    wx.request({
-      url: `${apiBase}/api/leads`,
-      method: 'POST',
-      timeout: 15000,
-      header: { 'content-type': 'application/json' },
-      data: payload,
+    auth.ensurePhoneBound((ready, token) => {
+      if (!ready) {
+        this.setData({ submitting: false });
+        return;
+      }
+      wx.request({
+        url: `${apiBase}/api/leads`,
+        method: 'POST',
+        timeout: 15000,
+        header: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        data: payload,
       success: (res) => {
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
@@ -96,7 +105,8 @@ Page({
         wx.showModal({ title: '提交失败', content: '商旅咨询未能提交，请稍后重试。', confirmText: '知道了', showCancel: false });
       },
       fail: () => wx.showModal({ title: '网络异常', content: '当前网络无法连接咨询服务，请检查网络后重试。', confirmText: '知道了', showCancel: false }),
-      complete: () => this.setData({ submitting: false })
-    });
+        complete: () => this.setData({ submitting: false })
+      });
+    }, () => this.setData({ submitting: false }));
   }
 });

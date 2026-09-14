@@ -37,6 +37,80 @@
   gap: 24rpx;
 }
 
+.login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0 8rpx;
+  color: #FFFFFF;
+}
+
+.login-title {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.login-desc {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.login-button {
+  width: 320rpx;
+  height: 72rpx;
+  margin: 28rpx 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 36rpx;
+  background: #FFFFFF;
+  color: var(--c-primary);
+  font-size: 26rpx;
+  line-height: 72rpx;
+}
+
+.login-button::after,
+.bind-button::after {
+  border: none;
+}
+
+.phone-bind-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 28rpx;
+}
+
+.phone-bind-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.phone-bind-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.phone-bind-desc {
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: var(--c-sub);
+}
+
+.bind-button {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 22rpx;
+  height: 64rpx;
+  border: none;
+  border-radius: 32rpx;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 23rpx;
+  line-height: 64rpx;
+}
+
 .avatar {
   width: 128rpx;
   height: 128rpx;
