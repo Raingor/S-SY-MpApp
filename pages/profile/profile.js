@@ -55,15 +55,27 @@ Page({
   onWechatLogin() {
     if (this.data.authLoading) return;
     this.setData({ authLoading: true });
-    auth.login((ok, user, message) => {
-      this.setData({
-        authLoading: false,
-        loggedIn: ok,
-        phoneBound: Boolean(user && user.phoneBound),
-        ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
+    const completeLogin = (profile) => {
+      auth.login((ok, user, message) => {
+        this.setData({
+          authLoading: false,
+          loggedIn: ok,
+          phoneBound: Boolean(user && user.phoneBound),
+          ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
+        });
+        if (!ok) wx.showToast({ title: message || '微信登录失败', icon: 'none' });
+      }, profile);
+    };
+    // 昵称/头像需要用户主动授权；拒绝时仍允许登录，并使用“用户+随机数”作为昵称。
+    if (wx.getUserProfile) {
+      wx.getUserProfile({
+        desc: '用于展示您的微信昵称和头像',
+        success: (res) => completeLogin(res.userInfo),
+        fail: () => completeLogin(null)
       });
-      if (!ok) wx.showToast({ title: message || '微信登录失败', icon: 'none' });
-    });
+    } else {
+      completeLogin(null);
+    }
   },
 
   onGetPhoneNumber(e) {

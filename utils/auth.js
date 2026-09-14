@@ -21,11 +21,19 @@ function getCachedUser() {
 }
 
 function saveSession(accessToken, user) {
+  // 服务端可能暂时只返回鉴权字段；同一用户的本地昵称/头像继续保留。
+  const previous = getCachedUser();
+  const nextUser = previous && previous.id === user.id ? { ...previous, ...user } : user;
   wx.setStorageSync(TOKEN_KEY, accessToken);
-  wx.setStorageSync(USER_KEY, user);
+  wx.setStorageSync(USER_KEY, nextUser);
   const state = getApp().globalData.auth;
   state.accessToken = accessToken;
-  state.user = user;
+  state.user = nextUser;
+  return nextUser;
+}
+
+function fallbackNickname() {
+  return `用户${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
 function clearSession() {
@@ -36,7 +44,7 @@ function clearSession() {
   state.user = null;
 }
 
-function login(callback) {
+function login(callback, profile) {
   const apiBase = getApiBase();
   if (!apiBase) return callback(false, null, '登录接口尚未配置');
   wx.login({
@@ -47,11 +55,20 @@ function login(callback) {
         method: 'POST',
         timeout: 15000,
         header: { 'content-type': 'application/json' },
-        data: { code: loginResult.code },
+        data: {
+          code: loginResult.code,
+          ...(profile && profile.nickName ? { nickname: profile.nickName } : {}),
+          ...(profile && profile.avatarUrl ? { avatarUrl: profile.avatarUrl } : {})
+        },
         success: (res) => {
           if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.accessToken && res.data.user) {
-            saveSession(res.data.accessToken, res.data.user);
-            return callback(true, res.data.user);
+            const user = {
+              ...res.data.user,
+              nickname: res.data.user.nickname || (profile && profile.nickName) || fallbackNickname(),
+              ...(profile && profile.avatarUrl ? { avatarUrl: profile.avatarUrl, avatar: profile.avatarUrl } : {})
+            };
+            const savedUser = saveSession(res.data.accessToken, user);
+            return callback(true, savedUser);
           }
           callback(false, null, '微信登录服务暂不可用');
         },
