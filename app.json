@@ -9,6 +9,7 @@
     "pages/profile/profile",
     "pages/profile/detail/detail",
     "pages/profile/detail-form/detail-form",
+    "pages/profile/traveler-edit/traveler-edit",
     "pages/profile/edit/edit",
     "pages/itinerary/index",
     "pages/itinerary/detail",
