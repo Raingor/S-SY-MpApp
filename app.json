@@ -2,6 +2,10 @@
   "pages": [
     "pages/index/index",
     "pages/customize/customize",
+    "pages/guide/guide",
+    "pages/vehicle/vehicle",
+    "pages/knowledge/knowledge",
+    "pages/business/business",
     "pages/profile/profile"
   ],
   "window": {

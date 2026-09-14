@@ -1,0 +1,54 @@
+<view class="knowledge-page">
+  <view class="knowledge-hero">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="knowledge-nav">
+      <view class="knowledge-back" bindtap="onBack">‹</view>
+      <view class="knowledge-brand">SY 希腊蔚蓝海岸</view>
+      <view class="knowledge-mark">✦</view>
+    </view>
+    <view class="knowledge-hero-body">
+      <view class="knowledge-kicker">HUMANITIES KNOWLEDGE BASE</view>
+      <view class="knowledge-title serif">景点文史<br />知识库</view>
+      <view class="knowledge-subtitle">先免费预览，再按需要深入了解历史、神话与建筑。把每一次参访，变成真正看懂的现场。</view>
+      <view class="knowledge-pills"><text>图文手册</text><text>音频讲解</text><text>一对一咨询</text></view>
+    </view>
+  </view>
+
+  <view class="knowledge-catalog">
+    <view class="knowledge-section-kicker">01 · CATALOG</view>
+    <view class="knowledge-heading serif">选择一个景点开始阅读</view>
+    <scroll-view class="spot-scroll" scroll-x>
+      <view wx:for="{{spots}}" wx:key="name" class="spot-tab {{activeIndex === index ? 'spot-tab-on' : ''}}" data-index="{{index}}" bindtap="onSpotTap">
+        <image src="{{item.image}}" mode="aspectFill" />
+        <view>{{item.name}}</view>
+        <text>{{item.category}}</text>
+      </view>
+    </scroll-view>
+
+    <view class="spot-detail card">
+      <image class="spot-cover" src="{{spots[activeIndex].image}}" mode="aspectFill" />
+      <view class="spot-detail-body">
+        <view class="spot-en">{{spots[activeIndex].en}}</view>
+        <view class="spot-name serif">{{spots[activeIndex].name}}</view>
+        <view class="spot-intro">{{spots[activeIndex].intro}}</view>
+
+        <view class="preview-label"><text>FREE PREVIEW</text> 免费文字预览</view>
+        <view class="preview-copy">{{spots[activeIndex].preview}}</view>
+        <view class="preview-audio" bindtap="onPreviewAudio"><view class="play-icon">▶</view><view><view>1分钟试听片段</view><text>点击试听 · 内容上传占位</text></view><view class="preview-arrow">›</view></view>
+
+        <view class="locked-label"><text>PAID CONTENT</text> 付费解锁内容</view>
+        <view class="locked-list">
+          <view wx:for="{{spots[activeIndex].locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">锁定</text></view>
+        </view>
+        <view class="unlock-button" bindtap="onUnlock">付费解锁（功能开发中）</view>
+      </view>
+    </view>
+
+    <view class="knowledge-consult card" bindtap="onConsult">
+      <view><view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view><view class="consult-title serif">想把景点读得更深？</view><view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view></view>
+      <view class="consult-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="knowledge-footer">行程资讯咨询 · 知识付费 · 商务语言陪同咨询</view>
+</view>

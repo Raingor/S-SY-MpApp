@@ -1,4 +1,4 @@
-/* ============ P2 私人定制留资页 ============ */
+/* ============ P2 行程资讯咨询页 ============ */
 .page {
   padding: 0 32rpx 240rpx;
 }
@@ -143,6 +143,15 @@
   font-weight: 600;
 }
 
+/* 合规说明 */
+.compliance-note {
+  margin: 26rpx 12rpx 0;
+  color: var(--c-weak);
+  font-size: 20rpx;
+  line-height: 1.7;
+  text-align: center;
+}
+
 /* ===== 主 CTA ===== */
 .cta-wrap {
   margin-top: 36rpx;
@@ -152,7 +161,7 @@
   width: 100%;
 }
 
-/* ===== 定制师微信卡片 ===== */
+/* ===== 中文顾问微信卡片 ===== */
 .consultant {
   margin-top: 40rpx;
   padding: 32rpx;

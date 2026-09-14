@@ -5,8 +5,8 @@
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="banner-inner">
       <view class="eyebrow banner-en">TELL US YOUR PLAN</view>
-      <view class="banner-title serif">告诉我你的想法，希腊交给我们</view>
-      <view class="banner-sub">1v1 中文定制师 · 24 小时内出首版方案</view>
+      <view class="banner-title serif">告诉我你的想法，一起读懂希腊</view>
+      <view class="banner-sub">1v1 中文顾问 · 24 小时内回复行程资讯</view>
     </view>
   </view>
 
@@ -14,7 +14,7 @@
   <view class="form card">
     <!-- 出行目的地 -->
     <view class="field">
-      <view class="field-label">出行目的地 <text class="req">*</text></view>
+      <view class="field-label">咨询目的地 <text class="req">*</text></view>
       <input
         class="field-input"
         placeholder="如：圣托里尼 + 雅典"
@@ -30,7 +30,7 @@
       <view class="field-label">出行时间</view>
       <picker mode="date" start="2026-09-14" bindchange="onDateChange">
         <view class="field-input {{form.date ? '' : 'ph'}}">
-          {{form.date || '选择出发日期'}}
+          {{form.date || '选择出行日期'}}
         </view>
       </picker>
     </view>
@@ -40,7 +40,7 @@
       <view class="field-label">出行天数</view>
       <picker range="{{daysOptions}}" bindchange="onPickerChange" data-field="days" data-options="daysOptions">
         <view class="field-input {{form.days ? '' : 'ph'}}">
-          {{form.days || '选择天数范围'}}<text class="arrow">›</text>
+          {{form.days || '选择咨询周期'}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
@@ -55,19 +55,42 @@
       </picker>
     </view>
 
+    <!-- 儿童年龄 -->
+    <view class="field">
+      <view class="field-label">儿童年龄 <text class="hint">（如无儿童可不填）</text></view>
+      <input
+        class="field-input"
+        placeholder="如：6岁、10岁"
+        placeholder-class="ph"
+        value="{{form.childAge}}"
+        data-field="childAge"
+        bindinput="onInput"
+      />
+    </view>
+
+    <!-- 单日车程上限 -->
+    <view class="field">
+      <view class="field-label">单日车程上限</view>
+      <picker range="{{carDistanceOptions}}" bindchange="onPickerChange" data-field="carDistance" data-options="carDistanceOptions">
+        <view class="field-input {{form.carDistance ? '' : 'ph'}}">
+          {{form.carDistance || '选择可接受的车程'}}<text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
     <!-- 人均预算 -->
     <view class="field">
       <view class="field-label">人均预算</view>
       <picker range="{{budgetOptions}}" bindchange="onPickerChange" data-field="budget" data-options="budgetOptions">
         <view class="field-input {{form.budget ? '' : 'ph'}}">
-          {{form.budget || '选择预算区间'}}<text class="arrow">›</text>
+          {{form.budget || '选择预算参考'}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
     <!-- 旅行主题（多选） -->
     <view class="field">
-      <view class="field-label">旅行主题 <text class="hint">（可多选）</text></view>
+      <view class="field-label">咨询主题 <text class="hint">（可多选）</text></view>
       <view class="theme-wrap">
         <view
           class="theme-chip {{form.themes.includes(item) ? 'theme-chip-on' : ''}}"
@@ -84,7 +107,7 @@
       <view class="field-label">需求描述</view>
       <textarea
         class="field-textarea"
-        placeholder="说说你对这趟旅程的期待：酒店偏好、玩法、特别的日子…"
+        placeholder="说说你对这次行程资讯咨询的期待：文化重点、餐厅偏好、特别安排…"
         placeholder-class="ph"
         maxlength="300"
         value="{{form.desc}}"
@@ -100,7 +123,7 @@
         class="field-input"
         type="number"
         maxlength="11"
-        placeholder="定制师将在24小时内联系您"
+        placeholder="顾问将在24小时内联系您"
         placeholder-class="ph"
         value="{{form.phone}}"
         data-field="phone"
@@ -109,19 +132,21 @@
     </view>
   </view>
 
+  <view class="compliance-note">仅提供目的地行程方案资讯咨询服务。</view>
+
   <!-- 主 CTA（页面唯一） -->
   <view class="cta-wrap">
     <button class="btn-primary" bindtap="onSubmit" disabled="{{submitting}}">
-      {{submitting ? '提交中…' : '提交需求 · 免费获取定制方案'}}
+      {{submitting ? '提交中…' : '提交咨询 · 获取行程方案'}}
     </button>
   </view>
 
-  <!-- ===== 定制师微信卡片（第二留资通道） ===== -->
+  <!-- ===== 中文顾问微信卡片（第二咨询通道） ===== -->
   <view class="consultant card">
     <view class="consultant-top" bindtap="onCopyWechat">
       <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
       <view class="consultant-info">
-        <view class="consultant-name">{{consultant.name}}</view>
+        <view class="consultant-name">中文行程顾问 · {{consultant.name}}</view>
         <view class="consultant-slogan">{{consultant.slogan}}</view>
         <view class="consultant-wechat">微信号：{{consultant.wechat}}（点击复制）</view>
       </view>
@@ -134,7 +159,7 @@
 
   <!-- 电话辅助 -->
   <view class="phone-row" bindtap="onCallPhone">
-    <text>雅典办公室 · 中希双语客服</text>
+    <text>雅典办公室 · 中希双语资讯顾问</text>
     <text class="phone-arrow">电话咨询 ›</text>
   </view>
 

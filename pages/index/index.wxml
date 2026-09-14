@@ -21,14 +21,14 @@
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="hero-search" bindtap="onSearchTap">
       <view class="hero-search-icon"></view>
-      <text class="hero-search-text">搜索路线 / 景点 / 定制需求</text>
+      <text class="hero-search-text">搜索路线 / 景点 / 资讯咨询</text>
     </view>
 
     <!-- 品牌名 + 定位语（压左下 1/3） -->
     <view class="hero-brand">
       <view class="hero-brand-en eyebrow">{{heroList[heroCurrent].en}}</view>
       <view class="hero-brand-name serif">{{heroList[heroCurrent].title}}</view>
-      <view class="hero-brand-slogan">深耕希腊本土 · 中高端私人定制地接服务商</view>
+      <view class="hero-brand-slogan">深耕希腊本土 · 人文与行程资讯咨询服务</view>
     </view>
 
     <!-- 轮播指示点 -->
@@ -41,7 +41,7 @@
     </view>
   </view>
 
-  <!-- ===== 2. 核心功能入口（四大金刚） ===== -->
+  <!-- ===== 2. 核心五大服务入口 ===== -->
   <view class="entries card">
     <view
       class="entry-item"
@@ -51,28 +51,32 @@
       bindtap="onEntryTap"
     >
       <view class="entry-icon entry-icon-{{item.key}}">
-        <!-- 蔚蓝海岸：波浪 -->
-        <view wx:if="{{item.key === 'coast'}}" class="i-wave">
-          <view class="i-wave-line l1"></view>
-          <view class="i-wave-line l2"></view>
-          <view class="i-wave-sun"></view>
-        </view>
-        <!-- 私人定制：笔尺 -->
-        <view wx:elif="{{item.key === 'custom'}}" class="i-pen">
+        <!-- 行程定制：笔尺 -->
+        <view wx:if="{{item.key === 'customization'}}" class="i-pen">
           <view class="i-pen-body"></view>
           <view class="i-pen-tip"></view>
         </view>
-        <!-- 专属用车：汽车 -->
-        <view wx:elif="{{item.key === 'car'}}" class="i-car">
+        <!-- 古迹讲解：柱式图标 -->
+        <view wx:elif="{{item.key === 'guide'}}" class="i-column">
+          <view class="i-column-top"></view>
+          <view class="i-column-body"></view>
+        </view>
+        <!-- 在地用车：汽车 -->
+        <view wx:elif="{{item.key === 'vehicle'}}" class="i-car">
           <view class="i-car-body"></view>
           <view class="i-car-window"></view>
           <view class="i-car-wheel w1"></view>
           <view class="i-car-wheel w2"></view>
         </view>
-        <!-- 旅行工具：指南针 -->
-        <view wx:else class="i-compass">
+        <!-- 文史知识库：指南针 -->
+        <view wx:elif="{{item.key === 'knowledge'}}" class="i-compass">
           <view class="i-compass-ring"></view>
           <view class="i-compass-needle"></view>
+        </view>
+        <!-- 商旅服务：公文包 -->
+        <view wx:else class="i-briefcase">
+          <view class="i-briefcase-body"></view>
+          <view class="i-briefcase-handle"></view>
         </view>
       </view>
       <view class="entry-label">{{item.label}}</view>
@@ -80,14 +84,26 @@
     </view>
   </view>
 
-  <!-- ===== 3. 甄选路线 ===== -->
+  <!-- ===== 3. 名人导游推荐 ===== -->
+  <view class="guide-entry card" bindtap="onGuideTap">
+    <image class="guide-entry-avatar" src="{{guide.avatar}}" mode="aspectFill" />
+    <view class="guide-entry-info">
+      <view class="guide-entry-kicker eyebrow">{{guide.eyebrow}}</view>
+      <view class="guide-entry-name serif">{{guide.name}}</view>
+      <view class="guide-entry-role">{{guide.role}}</view>
+      <view class="guide-entry-proof">{{guide.proof}}</view>
+    </view>
+    <view class="guide-entry-cta">查看档案 / 预约时间 <text>›</text></view>
+  </view>
+
+  <!-- ===== 4. 甄选路线 ===== -->
   <view class="section">
     <view class="section-head">
       <view>
         <view class="eyebrow">SELECTED ROUTES</view>
         <view class="section-title serif">甄选路线</view>
       </view>
-      <view class="section-more" bindtap="onInquiryTap">全部路线 ›</view>
+      <view class="section-more" bindtap="onInquiryTap">查看更多路线 ›</view>
     </view>
 
     <view class="route-card card" wx:for="{{routes}}" wx:key="id" bindtap="onInquiryTap">
@@ -99,7 +115,7 @@
         <view class="route-name ellipsis">{{item.name}}</view>
         <view class="route-highlights ellipsis">{{item.highlights}}</view>
         <view class="route-foot">
-          <view class="btn-inquiry">价格电询 · 一对一报价</view>
+          <view class="btn-inquiry">路线资讯咨询 · 一对一沟通</view>
           <view class="route-crowd">{{item.crowd}}</view>
         </view>
       </view>
@@ -171,7 +187,7 @@
   <view class="footer">
     <view class="footer-line"></view>
     <view class="footer-site" bindtap="onSiteTap">sy-greece.com</view>
-    <view class="footer-slogan">雅典在地团队 · 一对一中文定制师 · 全程管家式服务</view>
+    <view class="footer-slogan">行程资讯咨询 · 知识付费 · 商务语言陪同咨询</view>
   </view>
 
 </view>

@@ -1,4 +1,4 @@
-// P1 首页：品牌头图轮播 / 四大金刚 / 甄选路线 / 奢享体验 / 精选目的地 / 品牌页脚
+// P1 首页：品牌头图轮播 / 五大服务入口 / 甄选路线 / 奢享体验 / 精选目的地 / 品牌页脚
 const app = getApp();
 
 Page({
@@ -11,13 +11,22 @@ Page({
       { img: '/assets/images/hero/hero-couple.jpg', title: 'SY 希腊蔚蓝海岸', en: 'GREECE BLUE COAST' }
     ],
     heroCurrent: 0,
-    // 四大金刚
+    // 五大服务入口
     entries: [
-      { key: 'coast', label: '蔚蓝海岸', desc: '爱琴海秘境' },
-      { key: 'custom', label: '私人定制', desc: '1v1 方案' },
-      { key: 'car', label: '专属用车', desc: '中文司导' },
-      { key: 'tools', label: '旅行工具', desc: '签证·汇率' }
+      { key: 'customization', label: '行程定制', desc: '资讯咨询' },
+      { key: 'guide', label: '古迹讲解', desc: '预约咨询' },
+      { key: 'vehicle', label: '在地用车', desc: '资源对接' },
+      { key: 'knowledge', label: '文史知识库', desc: '免费预览' },
+      { key: 'business', label: '希腊商旅', desc: '随行咨询' }
     ],
+    // 名人导游推荐
+    guide: {
+      avatar: '/assets/images/guide/richard-avatar.jpg',
+      eyebrow: 'SIGNATURE GUIDE',
+      name: 'Richard 李',
+      role: '名人导游 · 欧洲精品文旅金牌从业者',
+      proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照'
+    },
     // 甄选路线
     routes: [
       {
@@ -116,20 +125,27 @@ Page({
     wx.navigateTo({ url: '/pages/customize/customize?from=search' });
   },
 
-  // 四大金刚
+  // 五大服务入口
   onEntryTap(e) {
     const key = e.currentTarget.dataset.key;
-    if (key === 'custom') {
-      wx.switchTab({ url: '/pages/customize/customize' });
-    } else {
-      // 其余入口暂引导至定制咨询（后续迭代详情页）
-      wx.switchTab({ url: '/pages/customize/customize' });
-    }
+    const routes = {
+      customization: () => wx.switchTab({ url: '/pages/customize/customize' }),
+      guide: () => wx.navigateTo({ url: '/pages/guide/guide' }),
+      vehicle: () => wx.navigateTo({ url: '/pages/vehicle/vehicle' }),
+      knowledge: () => wx.navigateTo({ url: '/pages/knowledge/knowledge' }),
+      business: () => wx.navigateTo({ url: '/pages/business/business' })
+    };
+    if (routes[key]) routes[key]();
   },
 
   // 路线卡 / 奢享卡：电询
   onInquiryTap() {
     wx.switchTab({ url: '/pages/customize/customize' });
+  },
+
+  // 名人导游页
+  onGuideTap() {
+    wx.navigateTo({ url: '/pages/guide/guide' });
   },
 
   // 目的地分类切换

@@ -1,0 +1,5 @@
+@import '../../styles/consultation.wxss';
+
+.business-hero {
+  background: linear-gradient(145deg, #071F34, #123C58 64%, #725A34);
+}
