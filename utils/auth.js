@@ -36,6 +36,12 @@ function fallbackNickname() {
   return `用户${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
+function resolveNickname(serverNickname, profileNickname) {
+  const nickname = String(serverNickname || profileNickname || '').trim();
+  // 开发者工具和部分旧接口会返回通用占位名，不能当成用户真实昵称展示。
+  return nickname && nickname !== '微信用户' ? nickname : fallbackNickname();
+}
+
 function clearSession() {
   wx.removeStorageSync(TOKEN_KEY);
   wx.removeStorageSync(USER_KEY);
@@ -64,7 +70,7 @@ function login(callback, profile) {
           if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.accessToken && res.data.user) {
             const user = {
               ...res.data.user,
-              nickname: res.data.user.nickname || (profile && profile.nickName) || fallbackNickname(),
+              nickname: resolveNickname(res.data.user.nickname, profile && profile.nickName),
               ...(profile && profile.avatarUrl ? { avatarUrl: profile.avatarUrl, avatar: profile.avatarUrl } : {})
             };
             const savedUser = saveSession(res.data.accessToken, user);
@@ -90,8 +96,14 @@ function fetchMe(callback) {
     header: { Authorization: `Bearer ${token}` },
     success: (res) => {
       if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.user) {
-        saveSession(token, res.data.user);
-        return callback(true, res.data.user);
+        const cached = getCachedUser();
+        const user = {
+          ...res.data.user,
+          nickname: resolveNickname(res.data.user.nickname, cached && cached.nickname),
+          ...(res.data.user.avatarUrl ? { avatar: res.data.user.avatarUrl } : {})
+        };
+        const savedUser = saveSession(token, user);
+        return callback(true, savedUser);
       }
       clearSession();
       callback(false, null, '登录状态已失效');
@@ -116,8 +128,14 @@ function bindPhone(code, callback) {
     data: { code },
     success: (res) => {
       if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.user) {
-        saveSession(token, res.data.user);
-        return callback(true, res.data.user);
+        const cached = getCachedUser();
+        const user = {
+          ...res.data.user,
+          nickname: resolveNickname(res.data.user.nickname, cached && cached.nickname),
+          ...(res.data.user.avatarUrl ? { avatar: res.data.user.avatarUrl } : {})
+        };
+        const savedUser = saveSession(token, user);
+        return callback(true, savedUser);
       }
       callback(false, null, '手机号绑定失败，请稍后重试');
     },
@@ -195,7 +213,16 @@ function requestAuth(path, method, data, callback) {
 
 function fetchProfile(callback) {
   requestAuth('/api/miniprogram/profile', 'GET', null, (ok, data, message) => {
-    if (ok && data.user && data.stats) return callback(true, data, '');
+    if (ok && data.user && data.stats) {
+      const cached = getCachedUser();
+      const user = {
+        ...data.user,
+        nickname: resolveNickname(data.user.nickname, cached && cached.nickname),
+        ...(data.user.avatarUrl ? { avatar: data.user.avatarUrl } : {})
+      };
+      saveSession(getAccessToken(), user);
+      return callback(true, { ...data, user }, '');
+    }
     callback(false, null, message || '暂时无法加载个人资料');
   });
 }

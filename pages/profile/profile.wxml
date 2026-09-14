@@ -10,7 +10,7 @@
           <view class="head-info">
             <view class="nick-row">
               <text class="nick">{{user.nickname}}</text>
-              <view class="member-badge">✦ {{user.member}}</view>
+              <view wx:if="{{user.member}}" class="member-badge">✦ {{user.member}}</view>
             </view>
             <view class="verified">{{phoneBound ? '已绑定手机号' : '请绑定手机号后预约服务'}}</view>
           </view>

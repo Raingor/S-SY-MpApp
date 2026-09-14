@@ -10,7 +10,7 @@ Page({
     user: {
       nickname: '希腊旅人',
       avatar: '/assets/images/misc/consultant-avatar.png',
-      member: 'SY 尊享会员'
+      member: ''
     },
     stats: [
       { label: '预约', value: 0 },
