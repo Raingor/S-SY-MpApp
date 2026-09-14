@@ -46,7 +46,11 @@ function resolveNickname(serverNickname, cachedNickname) {
   return usableNickname(cachedNickname) || usableNickname(serverNickname) || fallbackNickname();
 }
 
+// 仅当昵称是用户真实设置（非 fallback 随机名）且与服务端不同步时才回传；
+// 「用户XXXX」随机名是本地展示兑底，服务端会拒绝（422 INVALID_NICKNAME）。
 function persistNicknameIfNeeded(serverNickname, nickname, done) {
+  const isFallback = /^用户\d{4}$/.test(String(nickname || ''));
+  if (isFallback) return done();
   if (usableNickname(serverNickname) === nickname) return done();
   requestAuth('/api/miniprogram/profile', 'PATCH', { nickname }, () => done());
 }
