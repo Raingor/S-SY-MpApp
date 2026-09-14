@@ -30,7 +30,7 @@ const reference = [
         day: 2, city: '雅典',
         entries: [
           { period: '上午', text: '雅典卫城与卫城博物馆，看懂西方文明的起点', attractionIds: ['acropolis'] },
-          { period: '下午', text: '普拉卡老城午餐漫步，国家考古博物馆读一部古代文明史', attractionIds: ['national-museum'] },
+          { period: '下午', text: '普拉卡老城午餐漫步，国家考古博物馆读一部古代文明史', attractionIds: ['national-archaeological-museum'] },
           { period: '晚上', text: '普拉卡老城特色晚餐，自由漫步' }
         ]
       },
@@ -63,7 +63,7 @@ const reference = [
         day: 2, city: '雅典',
         entries: [
           { period: '上午', text: '雅典卫城深度游览（以实际购票时间为准）', attractionIds: ['acropolis'] },
-          { period: '下午', text: '普拉卡老城与国家考古博物馆', attractionIds: ['national-museum'] },
+          { period: '下午', text: '普拉卡老城与国家考古博物馆', attractionIds: ['national-archaeological-museum'] },
           { period: '晚上', text: 'Lake Vouliagmeni 天然温泉湖畔餐厅晚餐（须预订）' }
         ]
       },
@@ -140,7 +140,7 @@ const reference = [
         day: 6, city: '雅典',
         entries: [
           { period: '上午', text: '雅典卫城深度游览', attractionIds: ['acropolis'] },
-          { period: '下午', text: '国家考古博物馆看阿伽门农黄金面具', attractionIds: ['national-museum'] }
+          { period: '下午', text: '国家考古博物馆看阿伽门农黄金面具', attractionIds: ['national-archaeological-museum'] }
         ]
       },
       {
@@ -172,7 +172,7 @@ const reference = [
         day: 2, city: '雅典',
         entries: [
           { period: '上午', text: '雅典卫城深度游览', attractionIds: ['acropolis'] },
-          { period: '下午', text: '国家考古博物馆', attractionIds: ['national-museum'] }
+          { period: '下午', text: '国家考古博物馆', attractionIds: ['national-archaeological-museum'] }
         ]
       },
       {
