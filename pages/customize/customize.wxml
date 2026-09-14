@@ -159,7 +159,7 @@
 
   <!-- 电话辅助 -->
   <view class="phone-row" bindtap="onCallPhone">
-    <text>雅典办公室 · 中希双语资讯顾问</text>
+    <text>雅典办公室 · 中文顾问</text>
     <text class="phone-arrow">电话咨询 ›</text>
   </view>
 

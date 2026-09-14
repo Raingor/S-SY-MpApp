@@ -247,7 +247,14 @@
   padding: 0 12rpx;
 }
 
+.phone-row > text:first-child {
+  max-width: 250rpx;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .phone-arrow {
+  flex-shrink: 0;
   color: var(--c-primary);
   font-weight: 600;
 }
