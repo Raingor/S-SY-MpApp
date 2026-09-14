@@ -90,3 +90,11 @@
 .save-button::after {
   border: none;
 }
+
+.privacy-note {
+  margin-top: 20rpx;
+  color: var(--c-weak);
+  font-size: 21rpx;
+  line-height: 1.5;
+  text-align: center;
+}

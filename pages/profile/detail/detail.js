@@ -134,14 +134,16 @@ Page({
 
   // 添加出行人 → 独立编辑页，保存后 onShow 自动刷新列表
   onAddItem() {
-    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit' });
+    const type = this.data.mode === 'traveler' ? 'travelers' : 'visa';
+    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit?type=' + type });
   },
 
   // 编辑出行人 → 独立编辑页，保存后 onShow 自动刷新列表
   onEditItem(e) {
     const item = this.data.items[Number(e.currentTarget.dataset.index)];
     if (!item || !item.id) return wx.showToast({ title: '资料编号无效，请刷新后重试', icon: 'none' });
-    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit?id=' + item.id });
+    const type = this.data.mode === 'traveler' ? 'travelers' : 'visa';
+    wx.navigateTo({ url: '/pages/profile/traveler-edit/traveler-edit?type=' + type + '&id=' + item.id });
   },
 
   onDeleteProfile(e) {
