@@ -1,4 +1,4 @@
-// SY希腊蔚蓝海岸 · 小程序全局逻辑
+// SY希旅人 · 小程序全局逻辑
 // 生产默认使用官网接口；本地联调时可替换为测试环境地址。
 const API_BASE = 'https://sy-greece.com';
 
@@ -14,7 +14,7 @@ App({
       user: null
     },
     pendingLeadType: '',
-    brand: 'SY希腊蔚蓝海岸',
+    brand: 'SY希旅人',
     site: 'sy-greece.com',
     consultant: {
       name: 'Elena · 希腊行程顾问',

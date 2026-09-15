@@ -27,7 +27,7 @@
       </view>
 
       <view wx:else class="login-prompt">
-        <view class="login-title">登录 SY 希腊蔚蓝海岸</view>
+        <view class="login-title">登录 SY 希旅人</view>
         <view class="login-desc">微信登录后，绑定手机号即可预约服务</view>
         <button class="login-button" bindtap="onWechatLogin" loading="{{authLoading}}" disabled="{{authLoading}}">微信登录</button>
       </view>
@@ -102,7 +102,7 @@
 
   <!-- 品牌署名 -->
   <view class="foot-brand">
-    <view class="foot-en eyebrow">GREECE BLUE COAST</view>
+    <view class="foot-en eyebrow">SY TRAVELER</view>
     <view class="foot-site">sy-greece.com</view>
     <view class="foot-slogan">只为一生美好回忆</view>
   </view>

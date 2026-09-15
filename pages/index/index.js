@@ -8,9 +8,9 @@ Page({
     statusBarHeight: 20,
     // 品牌头图轮播
     heroList: [
-      { img: '/assets/images/hero/hero-santorini.jpg', title: 'SY 希腊蔚蓝海岸', en: 'GREECE BLUE COAST' },
-      { img: '/assets/images/hero/hero-acropolis.jpg', title: 'SY 希腊蔚蓝海岸', en: 'GREECE BLUE COAST' },
-      { img: '/assets/images/hero/hero-couple.jpg', title: 'SY 希腊蔚蓝海岸', en: 'GREECE BLUE COAST' }
+      { img: '/assets/images/hero/hero-santorini.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' },
+      { img: '/assets/images/hero/hero-acropolis.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' },
+      { img: '/assets/images/hero/hero-couple.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' }
     ],
     heroCurrent: 0,
     // 六大服务入口

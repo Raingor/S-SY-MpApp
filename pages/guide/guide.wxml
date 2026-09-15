@@ -6,7 +6,7 @@
       <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
         <view class="sy-back-chevron"></view>
       </view>
-      <view class="nav-brand">SY 希腊蔚蓝海岸</view>
+      <view class="nav-brand">SY 希旅人</view>
       <view class="nav-mark">✦</view>
     </view>
 
@@ -172,7 +172,7 @@
     <view class="closing-title serif">准备好让希腊，变成你的故事了吗？</view>
     <view class="closing-copy">Richard 李 · 名字背后，是一段值得信任的在地经验</view>
     <view class="closing-button" bindtap="onBookTap">预约 Richard 的时间 <text>→</text></view>
-    <view class="closing-site">GREECE BLUE COAST · sy-greece.com</view>
+    <view class="closing-site">SY TRAVELER · sy-greece.com</view>
   </view>
 
   <view class="guide-bottom-space"></view>

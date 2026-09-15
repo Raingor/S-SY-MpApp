@@ -148,7 +148,7 @@ Page({
     if (key === 'service') return wx.switchTab({ url: '/pages/customize/customize' });
     if (key === 'about') {
       wx.showModal({
-        title: '关于 SY 希腊蔚蓝海岸',
+        title: '关于 SY 希旅人',
         content: '只为一生美好回忆\nsy-greece.com',
         confirmText: '复制官网',
         cancelText: '关闭',

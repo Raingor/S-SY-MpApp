@@ -1,4 +1,4 @@
-const SHARE_TITLE = '只为一生美好回忆';
+const SHARE_TITLE = 'SY希旅人 · 只为一生美好回忆';
 const SHARE_IMAGE = '/assets/images/hero/hero-santorini.jpg';
 
 function buildShareCard(path) {
