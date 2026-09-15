@@ -145,7 +145,7 @@ Page({
     const copy = i18n.apply(this);
     const entries = [
       { key: 'customization', label: copy.customize, desc: copy.consultation },
-      { key: 'guide', label: copy.guide, desc: copy.booking },
+      { key: 'guide', label: copy.guideService, desc: copy.booking },
       { key: 'vehicle', label: copy.vehicle, desc: copy.resources },
       { key: 'knowledge', label: copy.knowledge, desc: copy.freePreview },
       { key: 'business', label: copy.business, desc: copy.businessSupport },
