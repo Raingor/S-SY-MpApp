@@ -45,6 +45,7 @@
   <view class="entries card">
     <view
       class="entry-item"
+      hover-class="card-press"
       wx:for="{{entries}}"
       wx:key="key"
       data-key="{{item.key}}"
@@ -59,7 +60,7 @@
   </view>
 
   <!-- ===== 3. 名人导游推荐 ===== -->
-  <view class="guide-entry card" bindtap="onGuideTap">
+    <view class="guide-entry card" hover-class="card-press" bindtap="onGuideTap">
     <view class="guide-entry-main">
       <image class="guide-entry-avatar" src="{{guide.avatar}}" mode="aspectFill" />
       <view class="guide-entry-info">
@@ -82,7 +83,7 @@
       <view class="section-more" bindtap="onMoreRoutes">查看全部参考行程 ›</view>
     </view>
 
-    <view class="route-card card" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
+    <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
       <view class="route-img-wrap">
         <image class="route-img" src="{{item.img}}" mode="aspectFill" />
         <view class="route-tag">{{item.tag}}</view>
@@ -117,7 +118,7 @@
       </view>
     </view>
     <view class="lux-row">
-      <view class="lux-card card" wx:for="{{luxuries}}" wx:key="id" bindtap="onInquiryTap">
+      <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" bindtap="onInquiryTap">
         <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
         <view class="lux-mask"></view>
         <view class="lux-corner">高端定制</view>
@@ -153,7 +154,7 @@
     <block wx:for="{{destinations}}" wx:key="tab" wx:for-item="group" wx:for-index="gi">
       <view wx:if="{{destTab === gi}}">
         <view class="dest-grid">
-          <view class="dest-tile" wx:for="{{group.tiles}}" wx:key="name" bindtap="onDestTap">
+          <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="name" bindtap="onDestTap">
             <image class="dest-img" src="{{item.img}}" mode="aspectFill" />
             <view class="dest-mask"></view>
             <view class="dest-info">

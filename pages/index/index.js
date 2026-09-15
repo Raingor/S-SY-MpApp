@@ -1,5 +1,6 @@
 // P1 首页：品牌头图轮播 / 五大服务入口 / 甄选路线 / 奢享体验 / 精选目的地 / 品牌页脚
 const app = getApp();
+const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 
 Page({
@@ -112,6 +113,14 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    content.loadContent((data, state) => {
+      // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
+      if (state && state.reason === 'offline') return;
+      this.setData({
+        routes: content.getReferenceList(data).slice(0, 4),
+        destinations: content.getHomeDestinations(data)
+      });
+    });
   },
 
   onShow() {

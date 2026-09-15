@@ -2,8 +2,10 @@
   <!-- ===== 人物头部 ===== -->
   <view class="guide-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="guide-nav">
-      <view class="nav-back" bindtap="onBack">‹</view>
+    <view class="guide-nav sy-nav">
+      <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="nav-brand">SY 希腊蔚蓝海岸</view>
       <view class="nav-mark">✦</view>
     </view>
@@ -160,7 +162,7 @@
         <input class="form-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? '请输入手机号' : '请输入微信号'}}" placeholder-class="form-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
       </view>
 
-      <button class="submit-button" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交预约 · 获取专属报价'}}</button>
+      <button class="submit-button" hover-class="guide-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交预约 · 获取专属报价'}}</button>
       <view class="submit-note">提交后 24 小时内由 Richard 或顾问确认时间</view>
     </view>
   </view>
@@ -176,6 +178,6 @@
   <view class="guide-bottom-space"></view>
   <view class="guide-bottom-bar">
     <view class="bottom-bar-label">Richard 李 · 在地深度陪同</view>
-    <view class="bottom-bar-button" bindtap="onBookTap">预约时间 <text>→</text></view>
+    <view class="bottom-bar-button" hover-class="guide-bottom-button-hover" bindtap="onBookTap">预约时间 <text>→</text></view>
   </view>
 </view>

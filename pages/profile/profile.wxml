@@ -44,8 +44,13 @@
 
   <!-- ===== 服务单元格卡 ===== -->
   <view class="panel card">
+    <view class="panel-heading">
+      <view class="panel-heading-en eyebrow">MY JOURNEY</view>
+      <view class="panel-heading-title serif">我的旅程</view>
+    </view>
     <view
       class="cell"
+      hover-class="cell-press"
       wx:for="{{services}}"
       wx:key="key"
       data-key="{{item.key}}"
@@ -77,8 +82,13 @@
 
   <!-- ===== 资料与帮助卡 ===== -->
   <view class="panel card">
+    <view class="panel-heading">
+      <view class="panel-heading-en eyebrow">PROFILE &amp; HELP</view>
+      <view class="panel-heading-title serif">资料与帮助</view>
+    </view>
     <view
       class="cell"
+      hover-class="cell-press"
       wx:for="{{helps}}"
       wx:key="key"
       data-key="{{item.key}}"

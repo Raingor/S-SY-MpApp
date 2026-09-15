@@ -22,11 +22,11 @@ Page({
       cities: content.getCities(),
       sampleTrips: content.getReferenceList()
     });
-    // 异步拉取后端数据，成功后刷新（失败静默回退本地镜像）
+    // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
     content.loadContent((data) => {
       this.setData({
-        cities: content.getCities(),
-        sampleTrips: content.getReferenceList()
+        cities: content.getCities(data),
+        sampleTrips: content.getReferenceList(data)
       });
     });
   },

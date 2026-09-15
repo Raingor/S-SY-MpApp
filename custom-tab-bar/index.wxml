@@ -5,6 +5,7 @@
       <view
         wx:if="{{index === 1}}"
         class="tab-item tab-center"
+        hover-class="tab-item-hover"
         data-path="{{item.pagePath}}"
         data-index="{{index}}"
         bindtap="switchTab"
@@ -20,6 +21,7 @@
       <view
         wx:else
         class="tab-item {{selected === index ? 'active' : ''}}"
+        hover-class="tab-item-hover"
         data-path="{{item.pagePath}}"
         data-index="{{index}}"
         bindtap="switchTab"

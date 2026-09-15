@@ -12,6 +12,7 @@
 
   <!-- ===== 留资表单 ===== -->
   <view class="form card">
+    <view class="form-section-label">01 · 行程概况</view>
     <!-- 出行目的地 -->
     <view class="field">
       <view class="field-label">咨询目的地 <text class="req">*</text></view>
@@ -89,6 +90,7 @@
     </view>
 
     <!-- 旅行主题（多选） -->
+    <view class="form-section-label form-section-label-spaced">02 · 旅行偏好</view>
     <view class="field">
       <view class="field-label">咨询主题 <text class="hint">（可多选）</text></view>
       <view class="theme-wrap">
@@ -103,6 +105,7 @@
     </view>
 
     <!-- 需求描述 -->
+    <view class="form-section-label form-section-label-spaced">03 · 需求与联系</view>
     <view class="field">
       <view class="field-label">需求描述</view>
       <textarea
@@ -136,7 +139,7 @@
 
   <!-- 主 CTA（页面唯一） -->
   <view class="cta-wrap">
-    <button class="btn-primary" bindtap="onSubmit" disabled="{{submitting}}">
+    <button class="btn-primary" hover-class="btn-primary-hover" bindtap="onSubmit" disabled="{{submitting}}">
       {{submitting ? '提交中…' : '提交咨询 · 获取行程方案'}}
     </button>
   </view>

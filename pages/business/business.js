@@ -1,5 +1,5 @@
 // 服务5：希腊商旅一站式随行服务
-const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
@@ -107,7 +107,7 @@ Page({
           });
           return;
         }
-        wx.showModal({ title: '提交失败', content: '商旅咨询未能提交，请稍后重试。', confirmText: '知道了', showCancel: false });
+        wx.showModal({ title: '提交失败', content: leadErrorMessage(res), confirmText: '知道了', showCancel: false });
       },
       fail: () => wx.showModal({ title: '网络异常', content: '当前网络无法连接咨询服务，请检查网络后重试。', confirmText: '知道了', showCancel: false }),
         complete: () => this.setData({ submitting: false })

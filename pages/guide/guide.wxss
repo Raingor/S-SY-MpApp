@@ -46,16 +46,6 @@
   color: rgba(255, 255, 255, 0.78);
 }
 
-.nav-back {
-  width: 54rpx;
-  height: 54rpx;
-  display: flex;
-  align-items: center;
-  font-size: 48rpx;
-  font-family: Georgia, serif;
-  font-weight: 300;
-}
-
 .nav-brand {
   font-size: 20rpx;
   letter-spacing: 2rpx;
@@ -467,8 +457,8 @@
 
 .card {
   background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
 .calendar-card {
@@ -758,6 +748,11 @@
   border: 0;
 }
 
+.guide-submit-hover {
+  opacity: 0.9;
+  transform: translateY(2rpx) scale(0.99);
+}
+
 .submit-note {
   margin-top: 14rpx;
   text-align: center;
@@ -843,4 +838,9 @@
   color: #FFFFFF;
   font-size: 22rpx;
   font-weight: 600;
+}
+
+.guide-bottom-button-hover {
+  opacity: 0.88;
+  transform: scale(0.97);
 }

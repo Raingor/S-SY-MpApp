@@ -14,8 +14,8 @@ Page({
       statusBarHeight: sys.statusBarHeight || 20,
       list: content.getReferenceList()
     });
-    content.loadContent(() => {
-      this.setData({ list: content.getReferenceList() });
+    content.loadContent((data) => {
+      this.setData({ list: content.getReferenceList(data) });
     });
   },
 

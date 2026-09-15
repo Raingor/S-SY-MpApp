@@ -1,5 +1,5 @@
 // P2 行程资讯咨询页：深蓝引导横幅 + 结构化问卷 + 中文顾问卡片
-const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
@@ -173,7 +173,7 @@ Page({
         }
         wx.showModal({
           title: '提交失败',
-          content: '咨询未能提交成功，请稍后重试或直接添加微信联系顾问。',
+          content: leadErrorMessage(res),
           confirmText: '知道了',
           showCancel: false
         });

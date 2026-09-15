@@ -14,18 +14,19 @@ Page({
     const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
     this.applyCity(city, sys.statusBarHeight || 20);
-    content.loadContent(() => {
-      const fresh = content.getCities();
+    content.loadContent((data) => {
+      const fresh = content.getCities(data);
       const updated = fresh.find((item) => item.id === (this.data.city && this.data.city.id)) || fresh[0];
-      if (updated) this.applyCity(updated);
+      if (updated) this.applyCity(updated, undefined, data);
+      else this.setData({ city: null, spots: [] });
     });
   },
 
-  applyCity(city, statusBarHeight) {
+  applyCity(city, statusBarHeight, source) {
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       city,
-      spots: content.getAttractionsByCity(city.id).map((spot) => ({
+      spots: content.getAttractionsByCity(city.id, source).map((spot) => ({
         ...spot,
         // 馆徽兜底：无独立 logo 时用景点封面
         logoSrc: spot.logo || spot.image

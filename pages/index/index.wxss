@@ -1,12 +1,12 @@
 /* ============ P1 首页 ============ */
 .page {
-  padding-bottom: 220rpx; /* 给悬浮 TabBar 留空间 */
+  padding-bottom: var(--tabbar-safe-bottom); /* 给悬浮 TabBar 留空间 */
 }
 
 /* ===== 1. 品牌头图轮播 ===== */
 .hero {
   position: relative;
-  height: 940rpx;
+  height: 900rpx;
 }
 
 .hero-swiper,
@@ -121,14 +121,19 @@
 .entries {
   position: relative;
   margin: -70rpx 32rpx 0;
-  padding: 36rpx 12rpx 28rpx;
+  padding: 28rpx 16rpx 24rpx;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 22rpx;
   z-index: 5;
 }
 
 .entry-item {
-  flex: 1 1 20%;
+  flex: 0 0 33.3333%;
+  box-sizing: border-box;
   min-width: 0;
+  min-height: 164rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -136,9 +141,9 @@
 }
 
 .entry-icon {
-  width: 96rpx;
-  height: 96rpx;
-  border-radius: 32rpx;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 28rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -159,11 +164,14 @@
   font-size: 26rpx;
   font-weight: 600;
   color: var(--c-text);
+  text-align: center;
 }
 
 .entry-desc {
   font-size: 20rpx;
   color: var(--c-weak);
+  line-height: 1.35;
+  text-align: center;
 }
 
 /* 图标：波浪+太阳 */

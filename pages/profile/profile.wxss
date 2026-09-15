@@ -1,6 +1,6 @@
 /* ============ P3 我的页面 ============ */
 .page {
-  padding: 0 32rpx 240rpx;
+  padding: 0 32rpx var(--tabbar-safe-bottom);
 }
 
 /* ===== 渐变头部 ===== */
@@ -207,7 +207,23 @@
 /* ===== 单元格卡 ===== */
 .panel {
   margin-top: 32rpx;
-  padding: 8rpx 32rpx;
+  padding: 0 32rpx 8rpx;
+}
+
+.panel-heading {
+  padding: 26rpx 0 10rpx;
+}
+
+.panel-heading-en {
+  color: var(--c-gold);
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.panel-heading-title {
+  margin-top: 4rpx;
+  color: var(--c-deep);
+  font-size: 28rpx;
 }
 
 .cell {
@@ -215,6 +231,11 @@
   align-items: center;
   padding: 30rpx 0;
   border-bottom: 2rpx solid #EEF3F7;
+}
+
+.cell-press {
+  opacity: 0.72;
+  transform: translateX(4rpx);
 }
 
 .cell:last-child {

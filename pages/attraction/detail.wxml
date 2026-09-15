@@ -4,8 +4,10 @@
     <image class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" />
     <view class="spot-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="spot-nav">
-      <view class="spot-back" bindtap="onBack">‹</view>
+    <view class="spot-nav sy-nav">
+      <view class="spot-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="spot-brand">SY 希腊蔚蓝海岸</view>
       <view class="spot-mark">✦</view>
     </view>

@@ -15,10 +15,11 @@ Page({
     const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
     this.applyCity(city, sys.statusBarHeight || 20);
-    content.loadContent(() => {
-      const fresh = content.getCities();
+    content.loadContent((data) => {
+      const fresh = content.getCities(data);
       const updated = fresh.find((item) => item.id === (this.data.city && this.data.city.id)) || fresh[0];
       if (updated) this.applyCity(updated);
+      else this.setData({ city: null, stats: [] });
     });
   },
 

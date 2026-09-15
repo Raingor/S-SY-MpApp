@@ -1,7 +1,9 @@
 <view class="page">
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="topbar">
-    <text class="back" bindtap="onBack">‹</text>
+    <view class="back sy-back-button sy-back-button-light" bindtap="onBack" hover-class="sy-back-button-light-hover" aria-label="返回上一页">
+      <view class="sy-back-chevron"></view>
+    </view>
     <text class="title">修改个人资料</text>
     <view class="topbar-space"></view>
   </view>

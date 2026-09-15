@@ -14,6 +14,14 @@ page {
   --c-text: #16283A;
   --c-sub: #5B6B7A;
   --c-weak: #8AA3B5;
+  --c-line: #DCE8ED;
+  --c-muted: #EEF3F7;
+  --radius-card: 28rpx;
+  --radius-control: 18rpx;
+  --shadow-card: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+  --shadow-float: 0 14rpx 34rpx rgba(11, 60, 93, 0.16);
+  --page-gutter: 32rpx;
+  --tabbar-safe-bottom: 220rpx;
 
   background: var(--c-bg);
   color: var(--c-text);
@@ -43,8 +51,69 @@ page {
 /* 通用卡片 */
 .card {
   background: var(--c-card);
-  border-radius: 32rpx;
-  box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.card-press {
+  opacity: 0.92;
+  transform: scale(0.985);
+}
+
+/* 统一页面导航：爱琴海玻璃质感 */
+.sy-nav {
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.sy-back-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 72rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.42);
+  border-radius: 22rpx;
+  background: linear-gradient(145deg, rgba(7, 31, 52, 0.34), rgba(7, 31, 52, 0.78));
+  box-shadow: 0 10rpx 24rpx rgba(7, 31, 52, 0.24), inset 0 1rpx 0 rgba(255, 255, 255, 0.16);
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.sy-back-chevron {
+  width: 18rpx;
+  height: 18rpx;
+  border-left: 4rpx solid #FFFFFF;
+  border-bottom: 4rpx solid #FFFFFF;
+  transform: translateX(3rpx) rotate(45deg);
+}
+
+.sy-back-button-hover {
+  border-color: rgba(255, 255, 255, 0.68);
+  background: linear-gradient(145deg, rgba(7, 31, 52, 0.52), rgba(7, 31, 52, 0.9));
+  transform: scale(0.96);
+}
+
+.sy-back-button-light {
+  border-color: #DCE8ED;
+  background: #FFFFFF;
+  box-shadow: 0 8rpx 20rpx rgba(11, 60, 93, 0.08);
+}
+
+.sy-back-button-light .sy-back-chevron {
+  border-color: var(--c-primary);
+}
+
+.sy-back-button-light.sy-back-button-hover {
+  border-color: #BBD8EA;
+  background: #F4F9FC;
+}
+
+.sy-back-button-light-hover {
+  border-color: #BBD8EA;
+  background: #F4F9FC;
+  transform: scale(0.96);
 }
 
 /* 单行省略 */
@@ -98,4 +167,10 @@ page {
 
 .btn-primary::after {
   border: none;
+}
+
+.btn-primary-hover {
+  opacity: 0.9;
+  transform: translateY(2rpx) scale(0.99);
+  box-shadow: 0 8rpx 20rpx rgba(21, 103, 168, 0.24);
 }

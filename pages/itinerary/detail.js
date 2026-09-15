@@ -91,16 +91,16 @@ Page({
       return;
     }
 
-    // id：先查本地镜像（含参考行程与定制样例），接口内容就绪后可再查 sampleItineraries
+    // id：先展示本地镜像避免空白，但接口内容成功后必须以服务端数据为准。
     const local = mirror.getItinerary(id);
     applyItinerary.call(this, local, statusBarHeight);
-    if (!local) {
-      // 非本地 id，尝试接口 sampleItineraries
-      content.loadContent((data) => {
-        const remote = (data.sampleItineraries || []).find((item) => item.id === id);
-        if (remote) applyItinerary.call(this, remote, statusBarHeight);
-      });
-    }
+    content.loadContent((data, state) => {
+      const remote = (data.sampleItineraries || []).find((item) => item.id === id);
+      if (remote) return applyItinerary.call(this, remote, statusBarHeight);
+      // 只有网络离线时允许继续使用本地镜像；契约错误不能伪装成正式内容。
+      if (local && state && state.reason === 'offline') return;
+      if (!local || (state && state.reason === 'contract')) applyItinerary.call(this, null, statusBarHeight);
+    });
   },
 
   fetchTripByToken(token, statusBarHeight) {
@@ -138,6 +138,15 @@ Page({
 
   onBack() {
     wx.navigateBack({ delta: 1 });
+  },
+
+  onJumpDay(e) {
+    const key = e.currentTarget.dataset.key;
+    if (key === undefined || key === null || key === '') return;
+    wx.pageScrollTo({
+      selector: '#itd-day-' + key,
+      duration: 260
+    });
   },
 
   onSpotTap(e) {

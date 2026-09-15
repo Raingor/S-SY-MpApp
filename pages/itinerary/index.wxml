@@ -1,8 +1,10 @@
 <view class="iti-page">
   <view class="iti-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="iti-nav">
-      <view class="iti-back" bindtap="onBack">‹</view>
+    <view class="iti-nav sy-nav">
+      <view class="iti-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="iti-brand">SY 希腊蔚蓝海岸</view>
       <view class="iti-mark">✦</view>
     </view>
@@ -15,7 +17,7 @@
   </view>
 
   <view class="iti-list">
-    <view class="iti-card card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
+    <view class="iti-card card" hover-class="card-press" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
       <view class="iti-img-wrap">
         <image class="iti-img" src="{{item.img}}" mode="aspectFill" />
         <view class="iti-tag">{{item.tag}}</view>

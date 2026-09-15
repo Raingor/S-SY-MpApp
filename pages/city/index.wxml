@@ -1,8 +1,10 @@
 <view class="city-page" wx:if="{{city}}">
   <!-- 顶部导航 -->
   <view style="height: {{statusBarHeight}}px;"></view>
-  <view class="city-nav">
-    <view class="city-back" bindtap="onBack">‹</view>
+  <view class="city-nav sy-nav">
+    <view class="city-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="sy-back-chevron"></view>
+    </view>
     <view class="city-mark">✦</view>
   </view>
 
@@ -39,7 +41,13 @@
 
   <!-- 底部双 CTA -->
   <view class="city-cta">
-    <view class="cta-buy" bindtap="onBuy">购买</view>
-    <view class="cta-view" bindtap="onView">查看</view>
+    <view class="cta-buy" hover-class="city-cta-press" bindtap="onBuy">
+      <view class="cta-label">购买导览包</view>
+      <view class="cta-sub">{{city.price || '€9.99'}}</view>
+    </view>
+    <view class="cta-view" hover-class="city-cta-press" bindtap="onView">
+      <view class="cta-label">先看景点</view>
+      <view class="cta-sub">免费浏览</view>
+    </view>
   </view>
 </view>

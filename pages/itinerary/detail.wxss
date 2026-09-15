@@ -34,23 +34,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 24rpx;
+  box-sizing: border-box;
   color: rgba(255, 255, 255, 0.82);
 }
 
-.itd-back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: rgba(7, 31, 52, 0.72);
-  color: #FFFFFF;
-  font-family: Georgia, serif;
-  font-size: 50rpx;
-  line-height: 1;
-  box-shadow: 0 6rpx 16rpx rgba(7, 31, 52, 0.2);
-}
 .itd-brand { font-size: 20rpx; letter-spacing: 2rpx; }
 .itd-mark { color: #D8B878; font-size: 26rpx; }
 
@@ -210,7 +198,52 @@
 
 .itd-days-head { padding: 12rpx 0 4rpx; }
 
-.itd-day { margin-top: 24rpx; padding: 26rpx 28rpx; }
+.itd-day-jump {
+  width: 100%;
+  margin-top: 18rpx;
+  white-space: nowrap;
+}
+
+.itd-day-jump-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 106rpx;
+  height: 54rpx;
+  margin-right: 12rpx;
+  padding: 0 18rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #DCE8ED;
+  border-radius: 28rpx;
+  background: #FFFFFF;
+  color: #5B6B7A;
+  font-size: 20rpx;
+}
+
+.itd-day-jump-item:active {
+  border-color: #1567A8;
+  background: #EAF4F9;
+  color: #1567A8;
+}
+
+.itd-day {
+  position: relative;
+  margin-top: 24rpx;
+  padding: 26rpx 28rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(220, 232, 237, 0.74);
+  box-shadow: 0 12rpx 26rpx rgba(11, 60, 93, 0.06);
+}
+
+.itd-day::before {
+  content: '';
+  position: absolute;
+  left: 130rpx;
+  top: 118rpx;
+  bottom: 28rpx;
+  width: 2rpx;
+  background: linear-gradient(180deg, #C6A15B 0%, #DCE8ED 76%, rgba(220, 232, 237, 0) 100%);
+}
 
 .itd-day-head {
   display: flex;
@@ -255,11 +288,14 @@
 }
 
 .itd-entry {
+  position: relative;
+  z-index: 1;
   display: flex;
   margin-top: 22rpx;
 }
 
 .itd-entry-period {
+  position: relative;
   flex-shrink: 0;
   width: 92rpx;
   margin-right: 20rpx;
@@ -267,6 +303,19 @@
   color: #1567A8;
   font-size: 21rpx;
   font-weight: 600;
+}
+
+.itd-entry-period::after {
+  content: '';
+  position: absolute;
+  right: -15rpx;
+  top: 10rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border: 3rpx solid #FFFFFF;
+  border-radius: 50%;
+  background: #1567A8;
+  box-shadow: 0 0 0 3rpx #C6A15B;
 }
 
 .itd-entry-body { flex: 1; min-width: 0; }

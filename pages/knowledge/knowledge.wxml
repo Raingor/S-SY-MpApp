@@ -1,8 +1,10 @@
 <view class="knowledge-page">
   <view class="knowledge-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="knowledge-nav">
-      <view class="knowledge-back" bindtap="onBack">‹</view>
+    <view class="knowledge-nav sy-nav">
+      <view class="knowledge-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="knowledge-brand">SY 希腊蔚蓝海岸</view>
       <view class="knowledge-mark">✦</view>
     </view>
@@ -20,7 +22,7 @@
     <view class="knowledge-heading serif">精选城市</view>
 
     <view class="city-grid">
-      <view class="city-card card" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap">
+      <view class="city-card card" hover-class="card-press" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap">
         <image class="city-card-img" src="{{item.cover}}" mode="aspectFill" />
         <view class="city-card-mask"></view>
         <view class="city-card-info">
@@ -37,7 +39,7 @@
   <view class="trip-section">
     <view class="knowledge-section-kicker">02 · ITINERARIES</view>
     <view class="knowledge-heading serif">包含这些景点的行程</view>
-    <view class="trip-row card" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
+    <view class="trip-row card" hover-class="card-press" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
       <image class="trip-thumb" src="{{item.img}}" mode="aspectFill" />
       <view class="trip-info">
         <view class="trip-name ellipsis">{{item.title}}</view>

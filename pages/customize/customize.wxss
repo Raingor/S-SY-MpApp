@@ -1,6 +1,6 @@
 /* ============ P2 行程资讯咨询页 ============ */
 .page {
-  padding: 0 32rpx 240rpx;
+  padding: 0 32rpx var(--tabbar-safe-bottom);
 }
 
 /* ===== 深蓝引导横幅 ===== */
@@ -56,6 +56,19 @@
   position: relative;
   z-index: 2;
   padding: 8rpx 32rpx;
+}
+
+.form-section-label {
+  padding: 22rpx 0 2rpx;
+  color: var(--c-gold);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 17rpx;
+  letter-spacing: 3rpx;
+}
+
+.form-section-label-spaced {
+  margin-top: 12rpx;
+  border-top: 1rpx solid var(--c-line);
 }
 
 .field {

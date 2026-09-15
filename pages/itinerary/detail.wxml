@@ -4,8 +4,10 @@
     <image class="itd-hero-img" src="{{itinerary.img}}" mode="aspectFill" />
     <view class="itd-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="itd-nav">
-      <view class="itd-back" bindtap="onBack">‹</view>
+    <view class="itd-nav sy-nav">
+      <view class="itd-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="itd-brand">SY 希腊蔚蓝海岸</view>
       <view class="itd-mark">✦</view>
     </view>
@@ -65,7 +67,18 @@
       <view class="itd-heading serif">每日行程</view>
     </view>
 
-    <view class="itd-day card" wx:for="{{itinerary.schedule}}" wx:for-item="day" wx:key="key">
+    <scroll-view class="itd-day-jump" scroll-x enable-flex>
+      <view
+        wx:for="{{itinerary.schedule}}"
+        wx:for-item="jumpDay"
+        wx:key="key"
+        class="itd-day-jump-item"
+        data-key="{{jumpDay.key}}"
+        bindtap="onJumpDay"
+      >第{{isCustom ? jumpDay.no : jumpDay.day}}天</view>
+    </scroll-view>
+
+    <view class="itd-day card" wx:for="{{itinerary.schedule}}" wx:for-item="day" wx:key="key" id="itd-day-{{day.key}}">
       <view class="itd-day-head">
         <view class="itd-day-no">
           <text class="itd-day-num">{{isCustom ? day.no : day.day}}</text>

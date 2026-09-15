@@ -1,5 +1,5 @@
 // P4 名人导游页：Richard 李个人介绍 + 可预约日期 + 专属报价
-const { isSuccessfulLeadResponse } = require('../../utils/lead-api');
+const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SY-Greece-Service';
 const { buildShareCard } = require('../../utils/share');
@@ -235,7 +235,7 @@ Page({
         }
         wx.showModal({
           title: '提交失败',
-          content: '预约未能提交成功，请稍后重试或直接添加微信联系顾问。',
+          content: leadErrorMessage(res),
           confirmText: '知道了',
           showCancel: false
         });

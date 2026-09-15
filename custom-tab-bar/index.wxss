@@ -5,7 +5,7 @@
   right: 0;
   bottom: 0;
   z-index: 999;
-  padding: 0 32rpx calc(env(safe-area-inset-bottom) + 16rpx);
+  padding: 0 24rpx calc(env(safe-area-inset-bottom) + 20rpx);
   pointer-events: none;
 }
 
@@ -13,8 +13,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  height: 120rpx;
-  padding: 0 20rpx;
+  height: 112rpx;
+  padding: 0 14rpx;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20rpx);
   border-radius: 60rpx;
@@ -23,13 +23,20 @@
 }
 
 .tab-item {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 18rpx;
-  padding-bottom: 12rpx;
+  padding-top: 14rpx;
+  padding-bottom: 10rpx;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.tab-item-hover {
+  transform: scale(0.96);
+  opacity: 0.78;
 }
 
 .tab-text {
@@ -42,6 +49,18 @@
 .tab-item.active .tab-text {
   color: #1567A8;
   font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 4rpx;
+  width: 10rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: #C6A15B;
+  transform: translateX(-50%);
 }
 
 .tab-item.active .tab-icon {
@@ -136,18 +155,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateY(-34rpx);
+  transform: translateY(-28rpx);
 }
 
 .center-icon {
-  width: 108rpx;
-  height: 108rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
   background: linear-gradient(140deg, #1E7BC0 0%, #1567A8 50%, #0F5488 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 14rpx 30rpx rgba(21, 103, 168, 0.45), 0 0 0 10rpx rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12rpx 26rpx rgba(21, 103, 168, 0.4), 0 0 0 8rpx rgba(255, 255, 255, 0.92);
 }
 
 /* 对话气泡图标 */
@@ -181,7 +200,7 @@
 }
 
 .center-text {
-  margin-top: 8rpx;
+  margin-top: 6rpx;
   font-size: 22rpx;
   font-weight: 600;
   color: #0B3C5D;

@@ -12,13 +12,6 @@
   height: 112rpx;
 }
 
-.back {
-  width: 64rpx;
-  color: var(--c-primary);
-  font-size: 56rpx;
-  line-height: 1;
-}
-
 .title {
   color: var(--c-deep);
   font-size: 36rpx;
@@ -26,7 +19,7 @@
 }
 
 .topbar-space {
-  width: 64rpx;
+  width: 72rpx;
 }
 
 .content {

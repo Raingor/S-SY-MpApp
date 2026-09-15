@@ -1,8 +1,10 @@
 <view class="consult-page">
   <view class="consult-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="consult-nav">
-      <view class="consult-back" bindtap="onBack">‹</view>
+    <view class="consult-nav sy-nav">
+      <view class="consult-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
       <view class="consult-brand">SY 希腊蔚蓝海岸</view>
       <view class="consult-mark">✦</view>
     </view>
@@ -64,7 +66,7 @@
       <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? '请输入手机号' : '请输入微信号'}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
     </view>
 
-    <button class="consult-submit" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交用车咨询'}}</button>
+    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交用车咨询'}}</button>
     <view class="consult-note">仅提供用车信息咨询与预约对接，车辆及司导劳务由客户直接与希腊本土主体签约结算。</view>
   </view>
   <view class="consult-footer">只为一生美好回忆</view>

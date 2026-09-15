@@ -36,12 +36,6 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.consult-back {
-  width: 56rpx;
-  font-family: Georgia, serif;
-  font-size: 48rpx;
-}
-
 .consult-brand {
   font-size: 20rpx;
   letter-spacing: 2rpx;
@@ -103,8 +97,19 @@
   margin: -38rpx 32rpx 0;
   padding: 30rpx 28rpx;
   background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow: 0 14rpx 32rpx rgba(11, 60, 93, 0.1);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-float);
+}
+
+.consult-card::before {
+  content: '';
+  position: absolute;
+  left: 28rpx;
+  top: 0;
+  width: 72rpx;
+  height: 5rpx;
+  border-radius: 0 0 5rpx 5rpx;
+  background: var(--c-gold);
 }
 
 .consult-card-title {
@@ -139,8 +144,8 @@
 .consult-textarea {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 14rpx;
-  background: #F1F6F8;
+  border-radius: var(--radius-control);
+  background: var(--c-muted);
   color: var(--c-text);
   font-size: 22rpx;
 }
@@ -198,6 +203,7 @@
   background: #EAF4F9;
   color: var(--c-primary);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1rpx rgba(21, 103, 168, 0.16);
 }
 
 .consult-contact-switch {
@@ -244,6 +250,11 @@
 
 .consult-submit::after {
   border: 0;
+}
+
+.consult-submit-hover {
+  opacity: 0.9;
+  transform: translateY(2rpx) scale(0.99);
 }
 
 .consult-note {

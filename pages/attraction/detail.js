@@ -21,16 +21,26 @@ Page({
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const spot = content.getAttraction(options.id || '');
-    if (!spot) {
-      wx.showToast({ title: '未找到该景点', icon: 'none' });
-      return setTimeout(() => wx.navigateBack({ delta: 1 }), 800);
-    }
+    const spotId = options.id || '';
+    const spot = content.getAttraction(spotId);
+    if (spot) this.applySpot(spot, sys.statusBarHeight || 20);
+    content.loadContent((data) => {
+      const fresh = content.getAttraction(spotId, data);
+      if (fresh) this.applySpot(fresh);
+      else {
+        this.setData({ spot: null, guideTabs: [] });
+        wx.showToast({ title: '未找到该景点', icon: 'none' });
+        setTimeout(() => wx.navigateBack({ delta: 1 }), 800);
+      }
+    });
+  },
+
+  applySpot(spot, statusBarHeight) {
     const guideTabs = Object.keys(spot.guide || {})
       .filter((key) => spot.guide[key])
       .map((key) => ({ key, label: GUIDE_LABELS[key] || key, text: spot.guide[key] }));
     this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
+      statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       spot,
       guideTabs,
       guideIndex: 0,

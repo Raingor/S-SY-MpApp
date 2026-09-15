@@ -34,12 +34,6 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.spot-back {
-  width: 56rpx;
-  font-family: Georgia, serif;
-  font-size: 48rpx;
-}
-
 .spot-brand {
   font-size: 20rpx;
   letter-spacing: 2rpx;
