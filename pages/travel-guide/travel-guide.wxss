@@ -111,6 +111,41 @@
   line-height: 1.7;
 }
 
+.travel-section {
+  margin-top: 48rpx;
+}
+
+.travel-section:first-of-type {
+  margin-top: 36rpx;
+}
+
+.travel-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.travel-subheading {
+  margin-top: 8rpx;
+  color: #0B3C5D;
+  font-size: 32rpx;
+}
+
+.travel-section-line {
+  width: 130rpx;
+  height: 1rpx;
+  margin-bottom: 12rpx;
+  background: #D8B878;
+  opacity: 0.7;
+}
+
+.travel-section-intro {
+  margin-top: 10rpx;
+  color: #6B7C8B;
+  font-size: 24rpx;
+  line-height: 1.65;
+}
+
 .travel-grid {
   display: flex;
   flex-wrap: wrap;
@@ -120,9 +155,16 @@
 
 .travel-card {
   width: calc((100% - 20rpx) / 2);
-  min-height: 296rpx;
+  min-height: 390rpx;
   box-sizing: border-box;
-  padding: 24rpx 22rpx 22rpx;
+  padding: 24rpx 22rpx 24rpx;
+}
+
+.travel-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10rpx;
 }
 
 .travel-icon {
@@ -146,6 +188,24 @@
 .travel-icon-daily { background: #E8F3EC; color: #2E7D5B; }
 .travel-icon-etiquette { background: #F3EAF7; color: #7B579B; }
 
+.travel-icon-packing { background: #F4EDE2; color: #A37537; }
+.travel-icon-outfit { background: #F7EAF0; color: #A05A77; }
+.travel-icon-food { background: #FFF0DE; color: #B8753D; }
+.travel-icon-photo { background: #E9F2F6; color: #37778E; }
+.travel-icon-athens { background: #EAF0F8; color: #38678F; }
+.travel-icon-mythology { background: #F2ECF8; color: #795A98; }
+.travel-icon-destinations { background: #E8F3EC; color: #39765B; }
+
+.travel-card-source {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8rpx;
+  color: #9A7B43;
+  font-size: 17rpx;
+  line-height: 1.35;
+  text-align: right;
+}
+
 .travel-card-title {
   margin-top: 20rpx;
   color: #0B3C5D;
@@ -161,17 +221,62 @@
   line-height: 1.65;
 }
 
-.travel-card-more {
-  margin-top: 14rpx;
-  color: #1567A8;
-  font-size: 22rpx;
-  font-weight: 600;
+.travel-points {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #E8EEF1;
 }
 
-.travel-card-more text {
-  margin-left: 4rpx;
+.travel-point {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+  color: #6B7C8B;
+  font-size: 20rpx;
+  line-height: 1.45;
+}
+
+.travel-point:first-child {
+  margin-top: 0;
+}
+
+.travel-point-dot {
+  width: 8rpx;
+  height: 8rpx;
+  flex: 0 0 8rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  background: #D8B878;
+}
+
+.travel-note {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 42rpx;
+  padding: 20rpx;
+  border: 1rpx solid #DCE8ED;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.travel-note-mark {
+  width: 30rpx;
+  height: 30rpx;
+  flex: 0 0 30rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background: #EAF4F9;
+  color: #1567A8;
   font-family: Georgia, serif;
-  font-size: 28rpx;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  text-align: center;
+}
+
+.travel-note-copy {
+  color: #7B8E9D;
+  font-size: 21rpx;
+  line-height: 1.6;
 }
 
 .travel-consult {
