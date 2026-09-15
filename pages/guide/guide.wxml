@@ -6,7 +6,7 @@
       <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
-      <view class="nav-brand">SY 希旅人</view>
+      <view class="nav-brand">{{i18n.brand}}</view>
       <view class="nav-mark">✦</view>
     </view>
 
@@ -172,7 +172,7 @@
     <view class="closing-title serif">{{i18n.guide.closingTitle}}</view>
     <view class="closing-copy">{{i18n.guide.closingCopy}}</view>
     <view class="closing-button" bindtap="onBookTap">{{i18n.forms.reserve}} <text>→</text></view>
-    <view class="closing-site">SY TRAVELER · sy-greece.com</view>
+    <view class="closing-site">{{i18n.brandEn}} · sy-greece.com</view>
   </view>
 
   <view class="guide-bottom-space"></view>

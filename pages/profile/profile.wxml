@@ -116,7 +116,7 @@
 
   <!-- 品牌署名 -->
   <view class="foot-brand">
-    <view class="foot-en eyebrow">SY TRAVELER</view>
+    <view class="foot-en eyebrow">{{i18n.brandEn}}</view>
     <view class="foot-site">sy-greece.com</view>
     <view class="foot-slogan">{{i18n.commonSlogan}}</view>
   </view>

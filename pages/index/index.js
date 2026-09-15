@@ -11,9 +11,9 @@ Page({
     i18n: i18n.getMessages(),
     // 品牌头图轮播
     heroList: [
-      { img: '/assets/images/hero/hero-santorini.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' },
-      { img: '/assets/images/hero/hero-acropolis.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' },
-      { img: '/assets/images/hero/hero-couple.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' }
+      { img: '/assets/images/hero/hero-santorini.jpg' },
+      { img: '/assets/images/hero/hero-acropolis.jpg' },
+      { img: '/assets/images/hero/hero-couple.jpg' }
     ],
     heroCurrent: 0,
     // 六大服务入口

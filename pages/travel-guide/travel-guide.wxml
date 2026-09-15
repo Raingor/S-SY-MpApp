@@ -5,7 +5,7 @@
       <view class="travel-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
-      <view class="travel-brand">SY 希旅人</view>
+      <view class="travel-brand">{{i18n.brand}}</view>
       <view class="travel-mark">✦</view>
     </view>
     <view class="travel-hero-body">
@@ -64,5 +64,5 @@
     <view class="travel-consult-arrow">›</view>
   </view>
 
-  <view class="travel-footer">{{i18n.commonSlogan}}</view>
+  <view class="travel-footer">{{i18n.brandEn}} · {{i18n.commonSlogan}}</view>
 </view>

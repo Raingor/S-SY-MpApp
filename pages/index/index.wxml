@@ -26,8 +26,8 @@
 
     <!-- 品牌名 + 品牌 slogan（压左下 1/3） -->
     <view class="hero-brand">
-      <view class="hero-brand-en eyebrow">{{heroList[heroCurrent].en}}</view>
-      <view class="hero-brand-name serif">{{heroList[heroCurrent].title}}</view>
+      <view class="hero-brand-en eyebrow">{{i18n.brandEn}}</view>
+      <view class="hero-brand-name serif">{{i18n.brand}}</view>
       <view class="hero-brand-slogan">{{i18n.homeSlogan}}</view>
     </view>
 

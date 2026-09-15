@@ -5,7 +5,7 @@
       <view class="knowledge-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
-      <view class="knowledge-brand">SY 希旅人</view>
+      <view class="knowledge-brand">{{i18n.brand}}</view>
       <view class="knowledge-mark">✦</view>
     </view>
     <view class="knowledge-hero-body">

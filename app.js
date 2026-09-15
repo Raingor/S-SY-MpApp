@@ -1,4 +1,4 @@
-// SY希旅人 · 小程序全局逻辑
+// 希腊旅行管家 · 小程序全局逻辑
 // 生产默认使用官网接口；本地联调时可替换为测试环境地址。
 const API_BASE = 'https://sy-greece.com';
 const i18n = require('./utils/i18n');
@@ -17,7 +17,8 @@ App({
     },
     pendingLeadType: '',
     locale: 'zh-CN',
-    brand: 'SY希旅人',
+    brand: '希腊旅行管家',
+    brandEn: 'Greece Travel Butler',
     site: 'sy-greece.com',
     consultant: {
       name: 'Elena · 希腊行程顾问',
