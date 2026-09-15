@@ -78,6 +78,7 @@
 }
 
 .phone-bind-card {
+  margin-top: 24rpx;
   display: flex;
   align-items: center;
   gap: 20rpx;
