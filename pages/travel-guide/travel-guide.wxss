@@ -154,10 +154,10 @@
 }
 
 .travel-card {
-  width: calc((100% - 20rpx) / 2);
-  min-height: 390rpx;
+  width: 100%;
+  min-height: 0;
   box-sizing: border-box;
-  padding: 24rpx 22rpx 24rpx;
+  padding: 26rpx 24rpx 24rpx;
 }
 
 .travel-card-top {
