@@ -159,6 +159,49 @@
 .entry-icon-vehicle { background: linear-gradient(140deg, #FBF3E3, #F3E5CB); }
 .entry-icon-knowledge { background: linear-gradient(140deg, #E8F3EC, #D9EBDF); }
 .entry-icon-business { background: linear-gradient(140deg, #F3EAF7, #E5D9EF); }
+.entry-icon-travel-guide { background: linear-gradient(140deg, #F7F0E2, #EEDDB7); }
+
+.entry-compass {
+  position: relative;
+  width: 48rpx;
+  height: 48rpx;
+  box-sizing: border-box;
+  border: 4rpx solid #B08D45;
+  border-radius: 50%;
+}
+
+.entry-compass::before,
+.entry-compass::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #B08D45;
+  transform: translate(-50%, -50%);
+}
+
+.entry-compass::before {
+  width: 4rpx;
+  height: 60rpx;
+}
+
+.entry-compass::after {
+  width: 60rpx;
+  height: 4rpx;
+}
+
+.entry-compass-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 14rpx;
+  height: 14rpx;
+  border: 4rpx solid #B08D45;
+  border-radius: 50%;
+  background: #F7F0E2;
+  transform: translate(-50%, -50%);
+}
 
 .entry-label {
   font-size: 26rpx;

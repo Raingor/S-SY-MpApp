@@ -52,7 +52,10 @@
       bindtap="onEntryTap"
     >
       <view class="entry-icon entry-icon-{{item.key}}">
-        <image class="entry-icon-img" src="/assets/images/icons/entry-{{item.key}}.png" mode="aspectFit" />
+        <view wx:if="{{item.key === 'travel-guide'}}" class="entry-compass" aria-label="出行指南图标">
+          <view class="entry-compass-needle"></view>
+        </view>
+        <image wx:else class="entry-icon-img" src="/assets/images/icons/entry-{{item.key}}.png" mode="aspectFit" />
       </view>
       <view class="entry-label">{{item.label}}</view>
       <view class="entry-desc">{{item.desc}}</view>

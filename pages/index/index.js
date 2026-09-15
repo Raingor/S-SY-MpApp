@@ -13,13 +13,14 @@ Page({
       { img: '/assets/images/hero/hero-couple.jpg', title: 'SY 希腊蔚蓝海岸', en: 'GREECE BLUE COAST' }
     ],
     heroCurrent: 0,
-    // 五大服务入口
+    // 六大服务入口
     entries: [
       { key: 'customization', label: '行程定制', desc: '资讯咨询' },
       { key: 'guide', label: '古迹讲解', desc: '预约咨询' },
       { key: 'vehicle', label: '在地用车', desc: '资源对接' },
       { key: 'knowledge', label: '文史知识库', desc: '免费预览' },
-      { key: 'business', label: '希腊商旅', desc: '随行咨询' }
+      { key: 'business', label: '希腊商旅', desc: '随行咨询' },
+      { key: 'travel-guide', label: '出行指南', desc: '实用攻略' }
     ],
     // 名人导游推荐
     guide: {
@@ -144,7 +145,7 @@ Page({
     wx.navigateTo({ url: '/pages/customize/customize?from=search' });
   },
 
-  // 五大服务入口
+  // 六大服务入口
   onEntryTap(e) {
     const key = e.currentTarget.dataset.key;
     const routes = {
@@ -152,7 +153,8 @@ Page({
       guide: () => wx.navigateTo({ url: '/pages/guide/guide' }),
       vehicle: () => wx.navigateTo({ url: '/pages/vehicle/vehicle' }),
       knowledge: () => wx.navigateTo({ url: '/pages/knowledge/knowledge' }),
-      business: () => wx.navigateTo({ url: '/pages/business/business' })
+      business: () => wx.navigateTo({ url: '/pages/business/business' }),
+      'travel-guide': () => wx.navigateTo({ url: '/pages/knowledge/knowledge' })
     };
     if (routes[key]) routes[key]();
   },
