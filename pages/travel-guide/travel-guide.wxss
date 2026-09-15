@@ -76,7 +76,7 @@
   max-width: 620rpx;
   margin-top: 18rpx;
   color: rgba(255, 255, 255, 0.78);
-  font-size: 27rpx;
+  font-size: 29rpx;
   line-height: 1.8;
 }
 
@@ -91,7 +91,7 @@
   border: 1rpx solid rgba(255, 255, 255, 0.28);
   border-radius: 22rpx;
   color: rgba(255, 255, 255, 0.86);
-  font-size: 22rpx;
+  font-size: 23rpx;
 }
 
 .travel-content {
@@ -107,7 +107,7 @@
 .travel-intro {
   margin-top: 10rpx;
   color: #5B6B7A;
-  font-size: 25rpx;
+  font-size: 27rpx;
   line-height: 1.7;
 }
 
@@ -142,7 +142,7 @@
 .travel-section-intro {
   margin-top: 10rpx;
   color: #6B7C8B;
-  font-size: 24rpx;
+  font-size: 26rpx;
   line-height: 1.65;
 }
 
@@ -201,7 +201,7 @@
   min-width: 0;
   padding-top: 8rpx;
   color: #9A7B43;
-  font-size: 17rpx;
+  font-size: 19rpx;
   line-height: 1.35;
   text-align: right;
 }
@@ -209,7 +209,7 @@
 .travel-card-title {
   margin-top: 20rpx;
   color: #0B3C5D;
-  font-size: 27rpx;
+  font-size: 30rpx;
   font-weight: 600;
   line-height: 1.35;
 }
@@ -217,7 +217,7 @@
 .travel-card-desc {
   margin-top: 10rpx;
   color: #5B6B7A;
-  font-size: 22rpx;
+  font-size: 25rpx;
   line-height: 1.65;
 }
 
@@ -232,7 +232,7 @@
   align-items: center;
   margin-top: 8rpx;
   color: #6B7C8B;
-  font-size: 20rpx;
+  font-size: 23rpx;
   line-height: 1.45;
 }
 
@@ -275,7 +275,7 @@
 
 .travel-note-copy {
   color: #7B8E9D;
-  font-size: 21rpx;
+  font-size: 22rpx;
   line-height: 1.6;
 }
 
@@ -297,7 +297,7 @@
 .travel-consult-desc {
   margin-top: 6rpx;
   color: #8AA3B5;
-  font-size: 23rpx;
+  font-size: 24rpx;
   line-height: 1.6;
 }
 
