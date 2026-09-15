@@ -30,7 +30,7 @@ Page({
     carDistanceOptions: ['不限车程', '单日不超过2小时', '单日不超过4小时', '单日不超过6小时'],
     submitting: false,
     consultant: {
-      avatar: '/assets/images/misc/jenny-avatar.png',
+      avatar: '/assets/images/misc/jenny-avatar.jpg',
       name: 'Jenny',
       title: '希腊行程规划师',
       wechat: 'SYGJ1130',
