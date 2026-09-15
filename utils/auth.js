@@ -1,4 +1,5 @@
 // 微信用户登录与手机号绑定；微信 AppSecret 只应保存在 Website 服务端。
+const i18n = require('./i18n');
 const TOKEN_KEY = 'sy_mp_access_token';
 const USER_KEY = 'sy_mp_user';
 
@@ -64,13 +65,14 @@ function clearSession() {
 }
 
 function login(callback, profile) {
+  const copy = i18n.getMessages();
   const apiBase = getApiBase();
-  if (!apiBase) return callback(false, null, '登录接口尚未配置');
+  if (!apiBase) return callback(false, null, copy.validation.notConfigured);
   const cached = getCachedUser();
   const loginNickname = resolveNickname('', cached && cached.nickname);
   wx.login({
     success: (loginResult) => {
-      if (!loginResult.code) return callback(false, null, '微信登录凭证获取失败');
+      if (!loginResult.code) return callback(false, null, copy.networkError);
       wx.request({
         url: `${apiBase}/api/miniprogram/auth/wx-login`,
         method: 'POST',
@@ -91,19 +93,20 @@ function login(callback, profile) {
             const savedUser = saveSession(res.data.accessToken, user);
             return callback(true, savedUser);
           }
-          callback(false, null, '微信登录服务暂不可用');
+          callback(false, null, copy.networkError);
         },
-        fail: () => callback(false, null, '网络异常，请稍后重试')
+        fail: () => callback(false, null, copy.networkError)
       });
     },
-    fail: () => callback(false, null, '微信登录凭证获取失败')
+    fail: () => callback(false, null, copy.networkError)
   });
 }
 
 function fetchMe(callback) {
+  const copy = i18n.getMessages();
   const token = getAccessToken();
   const apiBase = getApiBase();
-  if (!token || !apiBase) return callback(false, null, '登录状态已失效');
+  if (!token || !apiBase) return callback(false, null, copy.validation.loginRequired);
   wx.request({
     url: `${apiBase}/api/miniprogram/auth/me`,
     method: 'GET',
@@ -121,17 +124,18 @@ function fetchMe(callback) {
         return persistNicknameIfNeeded(res.data.user.nickname, user.nickname, () => callback(true, savedUser));
       }
       clearSession();
-      callback(false, null, '登录状态已失效');
+      callback(false, null, copy.validation.loginRequired);
     },
-    fail: () => callback(false, null, '网络异常，请稍后重试')
+    fail: () => callback(false, null, copy.networkError)
   });
 }
 
 function bindPhone(code, callback) {
+  const copy = i18n.getMessages();
   const token = getAccessToken();
   const apiBase = getApiBase();
-  if (!token) return callback(false, null, '请先完成微信登录');
-  if (!apiBase) return callback(false, null, '绑定接口尚未配置');
+  if (!token) return callback(false, null, copy.validation.loginRequired);
+  if (!apiBase) return callback(false, null, copy.validation.notConfigured);
   wx.request({
     url: `${apiBase}/api/miniprogram/auth/phone`,
     method: 'POST',
@@ -152,18 +156,19 @@ function bindPhone(code, callback) {
         const savedUser = saveSession(token, user);
         return persistNicknameIfNeeded(res.data.user.nickname, user.nickname, () => callback(true, savedUser));
       }
-      callback(false, null, '手机号绑定失败，请稍后重试');
+      callback(false, null, copy.submitFailed);
     },
-    fail: () => callback(false, null, '网络异常，请稍后重试')
+    fail: () => callback(false, null, copy.networkError)
   });
 }
 
 function promptLogin(callback) {
+  const copy = i18n.getMessages();
   wx.showModal({
-    title: '请先微信登录',
-    content: '登录后才能继续使用预约和咨询服务。',
-    confirmText: '去登录',
-    cancelText: '稍后',
+    title: copy.validation.loginRequired,
+    content: copy.profile.loginDesc,
+    confirmText: copy.profile.wechatLogin,
+    cancelText: copy.know,
     success: (res) => {
       if (res.confirm) wx.switchTab({ url: '/pages/profile/profile' });
       callback(false);
@@ -173,11 +178,12 @@ function promptLogin(callback) {
 }
 
 function promptBindPhone(callback) {
+  const copy = i18n.getMessages();
   wx.showModal({
-    title: '请先绑定手机号',
-    content: '为便于顾问确认需求，提交预约或咨询前需要绑定手机号。',
-    confirmText: '去绑定',
-    cancelText: '稍后',
+    title: copy.profile.bindPhone,
+    content: copy.profile.bindPhoneDesc,
+    confirmText: copy.profile.bind,
+    cancelText: copy.know,
     success: (res) => {
       if (res.confirm) wx.switchTab({ url: '/pages/profile/profile' });
       callback(false);
@@ -206,9 +212,10 @@ function getUserState(callback) {
 }
 
 function requestAuth(path, method, data, callback) {
+  const copy = i18n.getMessages();
   const token = getAccessToken();
   const apiBase = getApiBase();
-  if (!token || !apiBase) return callback(false, null, '请先微信登录');
+  if (!token || !apiBase) return callback(false, null, copy.validation.loginRequired);
   wx.request({
     url: `${apiBase}${path}`,
     method,
@@ -220,9 +227,9 @@ function requestAuth(path, method, data, callback) {
     data,
     success: (res) => {
       if (res.statusCode >= 200 && res.statusCode < 300) return callback(true, res.data || {}, '');
-      callback(false, res.data || null, (res.data && res.data.error) || '请求失败');
+      callback(false, res.data || null, (res.data && res.data.error) || copy.submitFailed);
     },
-    fail: () => callback(false, null, '网络异常，请稍后重试')
+    fail: () => callback(false, null, copy.networkError)
   });
 }
 
@@ -236,10 +243,11 @@ function updateProfile(payload, callback) {
 }
 
 function uploadAvatar(filePath, callback) {
+  const copy = i18n.getMessages();
   const token = getAccessToken();
   const apiBase = getApiBase();
-  if (!token || !apiBase) return callback(false, null, '请先微信登录');
-  if (!filePath) return callback(false, null, '请选择头像');
+  if (!token || !apiBase) return callback(false, null, copy.validation.loginRequired);
+  if (!filePath) return callback(false, null, copy.profile.avatarChange);
   wx.uploadFile({
     url: `${apiBase}/api/miniprogram/profile/avatar`,
     filePath,
@@ -256,9 +264,9 @@ function uploadAvatar(filePath, callback) {
         });
         return callback(true, savedUser, '');
       }
-      callback(false, null, (data && data.error) || '头像上传失败');
+      callback(false, null, (data && data.error) || copy.submitFailed);
     },
-    fail: () => callback(false, null, '网络异常，请稍后重试')
+    fail: () => callback(false, null, copy.networkError)
   });
 }
 
