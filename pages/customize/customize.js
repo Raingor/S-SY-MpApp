@@ -31,10 +31,12 @@ Page({
     submitting: false,
     consultant: {
       avatar: '/assets/images/misc/consultant-avatar.png',
-      name: 'Elena · 希腊行程顾问',
-      wechat: 'SY-Greece-Service',
+      name: 'Jenny',
+      title: '希腊行程规划师',
+      wechat: 'SYGJ1130',
       slogan: '只为一生美好回忆',
-      qr: '/assets/images/misc/wechat-qr.png'
+      phone: '15071465661',
+      qr: '/assets/images/misc/jenny-wechat-qr.png'
     }
   },
 
@@ -212,7 +214,7 @@ Page({
 
   onCallPhone() {
     wx.makePhoneCall({
-      phoneNumber: '00302100000000' // 雅典办公室电话（占位）
+      phoneNumber: this.data.consultant.phone
     });
   }
 });

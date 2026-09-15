@@ -185,6 +185,7 @@
       <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
       <view class="consultant-info">
         <view class="consultant-name">中文行程顾问 · {{consultant.name}}</view>
+        <view class="consultant-title">{{consultant.title}}</view>
         <view class="consultant-slogan">{{consultant.slogan}}</view>
         <view class="consultant-wechat">微信号：{{consultant.wechat}}（点击复制）</view>
       </view>
@@ -197,8 +198,8 @@
 
   <!-- 电话辅助 -->
   <view class="phone-row" bindtap="onCallPhone">
-    <text>雅典办公室 · 中文顾问</text>
-    <text class="phone-arrow">电话咨询 ›</text>
+    <text>联系电话：{{consultant.phone}}</text>
+    <text class="phone-arrow">拨打电话 ›</text>
   </view>
 
 </view>
