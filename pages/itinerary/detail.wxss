@@ -121,14 +121,14 @@
   max-width: 46%;
   margin-right: 20rpx;
   color: #8AA3B5;
-  font-size: 20rpx;
+  font-size: 22rpx;
   line-height: 1.6;
 }
 
 .itd-info-value {
   flex: 1;
   color: #16283A;
-  font-size: 22rpx;
+  font-size: 25rpx;
   font-weight: 500;
   line-height: 1.6;
   text-align: right;
@@ -162,7 +162,7 @@
 .itd-ov-row {
   display: flex;
   margin-bottom: 14rpx;
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.8;
 }
 
@@ -188,7 +188,7 @@
   gap: 14rpx 26rpx;
   margin-top: 16rpx;
   color: #5B6B7A;
-  font-size: 21rpx;
+  font-size: 24rpx;
 }
 
 .star { color: #C6A15B; margin-right: 4rpx; }
@@ -217,7 +217,7 @@
   border-radius: 28rpx;
   background: #FFFFFF;
   color: #5B6B7A;
-  font-size: 20rpx;
+  font-size: 23rpx;
 }
 
 .itd-day-jump-item:active {
@@ -284,7 +284,7 @@
   border-radius: 16rpx;
   background: #EAF4F9;
   color: #1567A8;
-  font-size: 18rpx;
+  font-size: 21rpx;
 }
 
 .itd-entry {
@@ -301,7 +301,7 @@
   margin-right: 20rpx;
   padding-top: 4rpx;
   color: #1567A8;
-  font-size: 21rpx;
+  font-size: 24rpx;
   font-weight: 600;
 }
 
@@ -323,7 +323,7 @@
 .itd-entry-text {
   display: block;
   color: #5B6B7A;
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.8;
   white-space: pre-line;
 }
@@ -358,7 +358,7 @@
   border-radius: 26rpx;
   background: #EAF4F9;
   color: #1567A8;
-  font-size: 20rpx;
+  font-size: 23rpx;
 }
 
 .spot-chip text { font-family: Georgia, serif; }
@@ -378,7 +378,7 @@
   display: flex;
   margin-top: 10rpx;
   color: #5B6B7A;
-  font-size: 21rpx;
+  font-size: 24rpx;
   line-height: 1.75;
 }
 
@@ -407,7 +407,7 @@
   max-width: 540rpx;
   margin-top: 6rpx;
   color: #8AA3B5;
-  font-size: 19rpx;
+  font-size: 22rpx;
   line-height: 1.7;
 }
 
@@ -423,6 +423,6 @@
   padding-top: 24rpx;
   border-top: 1rpx solid #DCE8ED;
   color: #8AA3B5;
-  font-size: 18rpx;
+  font-size: 21rpx;
   text-align: center;
 }

@@ -29,7 +29,7 @@
 .state {
   padding: 100rpx 0;
   color: var(--c-sub);
-  font-size: 26rpx;
+  font-size: 29rpx;
   text-align: center;
 }
 
@@ -57,7 +57,7 @@
 .avatar-note,
 .field-note {
   color: var(--c-weak);
-  font-size: 22rpx;
+  font-size: 25rpx;
 }
 
 .avatar-note {
@@ -81,7 +81,7 @@
 .field-label {
   margin-bottom: 12rpx;
   color: var(--c-text);
-  font-size: 25rpx;
+  font-size: 28rpx;
   font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
   min-height: 52rpx;
   box-sizing: border-box;
   color: var(--c-text);
-  font-size: 28rpx;
+  font-size: 30rpx;
   line-height: 52rpx;
 }
 

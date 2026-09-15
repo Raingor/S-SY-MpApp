@@ -33,7 +33,7 @@
 .state {
   padding: 80rpx 0;
   color: var(--c-sub);
-  font-size: 26rpx;
+  font-size: 29rpx;
 }
 
 .empty {
@@ -55,7 +55,7 @@
 .empty-desc {
   margin-top: 14rpx;
   color: var(--c-sub);
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.6;
 }
 
@@ -82,12 +82,12 @@
 .coupon-expiry {
   margin-top: 12rpx;
   color: var(--c-sub);
-  font-size: 23rpx;
+  font-size: 26rpx;
 }
 
 .coupon-expiry {
   color: var(--c-primary);
-  font-size: 21rpx;
+  font-size: 24rpx;
 }
 
 .record {
@@ -113,14 +113,14 @@
   border-radius: 20rpx;
   background: rgba(21, 103, 168, 0.1);
   color: var(--c-primary);
-  font-size: 21rpx;
+  font-size: 24rpx;
 }
 
 .record-line,
 .record-route {
   margin-top: 16rpx;
   color: var(--c-sub);
-  font-size: 23rpx;
+  font-size: 26rpx;
 }
 
 .record-route {
@@ -133,7 +133,7 @@
 .privacy-note {
   margin-bottom: 20rpx;
   color: var(--c-weak);
-  font-size: 21rpx;
+  font-size: 24rpx;
   line-height: 1.5;
   text-align: center;
 }
@@ -154,7 +154,7 @@
 .field-label {
   margin-bottom: 12rpx;
   color: var(--c-text);
-  font-size: 24rpx;
+  font-size: 27rpx;
   font-weight: 600;
 }
 
@@ -166,7 +166,7 @@
   width: 100%;
   min-height: 48rpx;
   color: var(--c-text);
-  font-size: 26rpx;
+  font-size: 29rpx;
 }
 
 .input::placeholder {
@@ -206,14 +206,14 @@
 
 .saved-name {
   color: var(--c-text);
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 600;
 }
 
 .saved-meta {
   margin-top: 8rpx;
   color: var(--c-sub);
-  font-size: 22rpx;
+  font-size: 25rpx;
 }
 
 .saved-actions {
@@ -222,7 +222,7 @@
   gap: 16rpx;
   flex-shrink: 0;
   color: var(--c-primary);
-  font-size: 22rpx;
+  font-size: 25rpx;
   text-align: right;
 }
 

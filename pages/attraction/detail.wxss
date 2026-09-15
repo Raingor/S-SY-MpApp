@@ -98,7 +98,7 @@
 .spot-intro {
   margin-top: 16rpx;
   color: #5B6B7A;
-  font-size: 24rpx;
+  font-size: 27rpx;
   line-height: 1.9;
 }
 
@@ -131,7 +131,7 @@
 .highlight-desc {
   margin-top: 6rpx;
   color: #5B6B7A;
-  font-size: 21rpx;
+  font-size: 24rpx;
   line-height: 1.7;
 }
 
@@ -139,7 +139,7 @@
   padding: 14rpx 0 4rpx;
   border-top: 1rpx solid #DCE8ED;
   color: #1567A8;
-  font-size: 22rpx;
+  font-size: 25rpx;
   text-align: center;
 }
 
@@ -161,7 +161,7 @@
   border: 1rpx solid #DCE8ED;
   border-radius: 28rpx;
   color: #5B6B7A;
-  font-size: 21rpx;
+  font-size: 24rpx;
 }
 
 .guide-tab-on {
@@ -180,14 +180,14 @@
 
 .guide-label {
   color: #1567A8;
-  font-size: 22rpx;
+  font-size: 25rpx;
   font-weight: 600;
 }
 
 .guide-text {
   margin-top: 8rpx;
   color: #5B6B7A;
-  font-size: 22rpx;
+  font-size: 25rpx;
   line-height: 1.8;
 }
 
@@ -196,7 +196,7 @@
 .locked-label {
   margin-top: 28rpx;
   color: #16283A;
-  font-size: 21rpx;
+  font-size: 24rpx;
   font-weight: 600;
 }
 
@@ -212,7 +212,7 @@
 .preview-copy {
   margin-top: 10rpx;
   color: #5B6B7A;
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.8;
 }
 
@@ -224,7 +224,7 @@
   border: 1rpx solid #DCE8ED;
   border-radius: 16rpx;
   color: #1567A8;
-  font-size: 21rpx;
+  font-size: 24rpx;
 }
 
 .play-icon {
@@ -262,7 +262,7 @@
   border-radius: 14rpx;
   background: #F4F7FA;
   color: #5B6B7A;
-  font-size: 20rpx;
+  font-size: 23rpx;
   line-height: 2.2;
 }
 
@@ -305,7 +305,7 @@
 .consult-copy {
   margin-top: 4rpx;
   color: #8AA3B5;
-  font-size: 18rpx;
+  font-size: 21rpx;
 }
 
 .spot-footer {
@@ -313,7 +313,7 @@
   padding-top: 24rpx;
   border-top: 1rpx solid #DCE8ED;
   color: #8AA3B5;
-  font-size: 18rpx;
+  font-size: 21rpx;
   line-height: 1.7;
   text-align: center;
 }

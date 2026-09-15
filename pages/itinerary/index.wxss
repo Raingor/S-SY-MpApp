@@ -54,7 +54,7 @@
   max-width: 600rpx;
   margin-top: 18rpx;
   color: rgba(255, 255, 255, 0.76);
-  font-size: 24rpx;
+  font-size: 27rpx;
   line-height: 1.8;
 }
 
@@ -106,7 +106,7 @@
 .iti-highlights {
   margin-top: 10rpx;
   color: #5B6B7A;
-  font-size: 22rpx;
+  font-size: 25rpx;
 }
 
 .iti-foot {
@@ -125,7 +125,7 @@
   font-weight: 600;
 }
 
-.iti-crowd { color: #8AA3B5; font-size: 18rpx; }
+.iti-crowd { color: #8AA3B5; font-size: 21rpx; }
 
 .iti-consult {
   display: flex;
@@ -147,7 +147,7 @@
   max-width: 560rpx;
   margin-top: 6rpx;
   color: #8AA3B5;
-  font-size: 19rpx;
+  font-size: 22rpx;
   line-height: 1.7;
 }
 
@@ -163,6 +163,6 @@
   padding-top: 24rpx;
   border-top: 1rpx solid #DCE8ED;
   color: #8AA3B5;
-  font-size: 18rpx;
+  font-size: 21rpx;
   text-align: center;
 }

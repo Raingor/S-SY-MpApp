@@ -27,8 +27,9 @@ page {
   color: var(--c-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans SC',
     'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 28rpx;
-  line-height: 1.6;
+  /* 正文默认字号提升；标题与按钮由各自组件保留独立层级 */
+  font-size: 30rpx;
+  line-height: 1.65;
 }
 
 /* 衬线品牌标题 */
