@@ -154,7 +154,7 @@ Page({
       vehicle: () => wx.navigateTo({ url: '/pages/vehicle/vehicle' }),
       knowledge: () => wx.navigateTo({ url: '/pages/knowledge/knowledge' }),
       business: () => wx.navigateTo({ url: '/pages/business/business' }),
-      'travel-guide': () => wx.navigateTo({ url: '/pages/knowledge/knowledge' })
+      'travel-guide': () => wx.navigateTo({ url: '/pages/travel-guide/travel-guide' })
     };
     if (routes[key]) routes[key]();
   },

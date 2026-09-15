@@ -1,0 +1,44 @@
+<view class="travel-guide-page">
+  <view class="travel-hero">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="travel-nav sy-nav">
+      <view class="travel-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+        <view class="sy-back-chevron"></view>
+      </view>
+      <view class="travel-brand">SY 希腊蔚蓝海岸</view>
+      <view class="travel-mark">✦</view>
+    </view>
+    <view class="travel-hero-body">
+      <view class="travel-kicker">TRAVEL GUIDE</view>
+      <view class="travel-title serif">希腊出行指南</view>
+      <view class="travel-subtitle">把出发前的疑问变成一份清晰的准备清单，轻松开启雅典与爱琴海之旅。</view>
+      <view class="travel-promise"><text>实用攻略</text><text>出发前收藏</text><text>随时可查</text></view>
+    </view>
+  </view>
+
+  <view class="travel-content">
+    <view class="travel-section-kicker">BEFORE YOU GO</view>
+    <view class="travel-heading serif">出发前先看这六件事</view>
+    <view class="travel-intro">从签证入境到当地礼仪，提前了解关键细节，行程会更顺畅。</view>
+
+    <view class="travel-grid">
+      <view class="travel-card card" wx:for="{{guides}}" wx:key="key">
+        <view class="travel-icon travel-icon-{{item.key}}">{{item.mark}}</view>
+        <view class="travel-card-title">{{item.title}}</view>
+        <view class="travel-card-desc">{{item.desc}}</view>
+        <view class="travel-card-more">查看要点 <text>›</text></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="travel-consult card" bindtap="onConsult">
+    <view class="travel-consult-copy">
+      <view class="travel-consult-kicker">NEED A CUSTOM PLAN?</view>
+      <view class="travel-consult-title serif">还有具体问题？</view>
+      <view class="travel-consult-desc">告诉我们你的日期、人数与偏好，顾问帮你把攻略落到行程里。</view>
+    </view>
+    <view class="travel-consult-arrow">›</view>
+  </view>
+
+  <view class="travel-footer">只为一生美好回忆</view>
+</view>
