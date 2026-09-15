@@ -85,11 +85,14 @@ function adaptSampleTrips(remoteTrips) {
   return (remoteTrips || []).map((trip) => ({
     id: trip.id,
     type: 'reference',
-    title: trip.title,
+    title: trip.title || trip.name,
+    // 首页卡片使用 name；兼容 Website 现有的 title 字段。
+    name: trip.name || trip.title,
     img: mapImage(trip.cover),
     days: trip.days,
     highlights: trip.summary,
-    crowd: '',
+    tag: trip.tag || (Array.isArray(trip.tags) ? trip.tags.join(' · ') : trip.tags) || '',
+    crowd: trip.crowd || '',
     schedule: (trip.itinerary || []).map((day) => ({
       day: day.day,
       city: day.city,
