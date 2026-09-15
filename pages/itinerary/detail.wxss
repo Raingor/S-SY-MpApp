@@ -14,7 +14,12 @@
   color: #FFFFFF;
 }
 
-.itd-hero-img { width: 100%; height: 100%; }
+.itd-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 
 .itd-hero-mask {
   position: absolute;
@@ -32,7 +37,20 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-.itd-back { width: 56rpx; font-family: Georgia, serif; font-size: 48rpx; }
+.itd-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(7, 31, 52, 0.72);
+  color: #FFFFFF;
+  font-family: Georgia, serif;
+  font-size: 50rpx;
+  line-height: 1;
+  box-shadow: 0 6rpx 16rpx rgba(7, 31, 52, 0.2);
+}
 .itd-brand { font-size: 20rpx; letter-spacing: 2rpx; }
 .itd-mark { color: #D8B878; font-size: 26rpx; }
 
