@@ -37,8 +37,13 @@
 }
 
 .consult-brand {
-  font-size: 20rpx;
-  letter-spacing: 2rpx;
+  max-width: 360rpx;
+  overflow: hidden;
+  font-size: 26rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .consult-mark {
