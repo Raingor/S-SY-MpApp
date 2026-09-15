@@ -1,16 +1,20 @@
 // 城市景点列表页（截图1：深色卡片 + 规模标签 + 馆徽 + 中文名/希腊原名/简介）
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     city: null,
     spots: []
   },
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    i18n.apply(this);
     const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
     this.applyCity(city, sys.statusBarHeight || 20);
@@ -20,6 +24,10 @@ Page({
       if (updated) this.applyCity(updated, undefined, data);
       else this.setData({ city: null, spots: [] });
     });
+  },
+
+  onShow() {
+    i18n.apply(this);
   },
 
   applyCity(city, statusBarHeight, source) {
@@ -37,7 +45,7 @@ Page({
   onShareAppMessage() {
     const city = this.data.city;
     return {
-      title: (city ? city.name + ' · ' : '') + '只为一生美好回忆',
+      title: (city ? city.name + ' · ' : '') + this.data.i18n.commonSlogan,
       path: '/pages/city/spots?id=' + (city ? city.id : ''),
       imageUrl: city ? city.cover : undefined
     };

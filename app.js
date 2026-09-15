@@ -1,9 +1,11 @@
 // SY希旅人 · 小程序全局逻辑
 // 生产默认使用官网接口；本地联调时可替换为测试环境地址。
 const API_BASE = 'https://sy-greece.com';
+const i18n = require('./utils/i18n');
 
 App({
   onLaunch() {
+    this.globalData.locale = i18n.getLocale();
     this.globalData.auth.accessToken = wx.getStorageSync('sy_mp_access_token') || '';
     this.globalData.auth.user = wx.getStorageSync('sy_mp_user') || null;
   },
@@ -14,6 +16,7 @@ App({
       user: null
     },
     pendingLeadType: '',
+    locale: 'zh-CN',
     brand: 'SY希旅人',
     site: 'sy-greece.com',
     consultant: {

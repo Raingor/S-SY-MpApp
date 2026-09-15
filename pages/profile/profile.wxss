@@ -161,6 +161,40 @@
   color: #FFFFFF;
 }
 
+.language-panel {
+  padding-bottom: 28rpx;
+}
+
+.language-hint {
+  margin: -8rpx 28rpx 18rpx;
+  color: var(--c-weak);
+  font-size: 22rpx;
+}
+
+.language-options {
+  display: flex;
+  gap: 14rpx;
+  padding: 0 28rpx;
+}
+
+.language-option {
+  flex: 1;
+  padding: 16rpx 8rpx;
+  border: 1rpx solid #DDE7EE;
+  border-radius: 18rpx;
+  color: var(--c-sub);
+  font-size: 22rpx;
+  text-align: center;
+  background: #FFFFFF;
+}
+
+.language-option-on {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  background: #EEF6FB;
+  font-weight: 600;
+}
+
 .nick-row {
   display: flex;
   align-items: center;

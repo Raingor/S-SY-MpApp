@@ -2,7 +2,7 @@
   <view class="knowledge-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="knowledge-nav sy-nav">
-      <view class="knowledge-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="knowledge-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="knowledge-brand">SY 希旅人</view>
@@ -10,16 +10,16 @@
     </view>
     <view class="knowledge-hero-body">
       <view class="knowledge-kicker">ATTRACTIONS &amp; KNOWLEDGE</view>
-      <view class="knowledge-title serif">希腊景点</view>
-      <view class="knowledge-subtitle">从卫城到梅黛奥拉，把每一次参访变成真正看懂的现场。选择一座城市，开启导览讲解。</view>
-      <view class="knowledge-pills"><text>城市导览</text><text>必看亮点</text><text>参观指南</text><text>深度讲解</text></view>
+      <view class="knowledge-title serif">{{i18n.knowledgePage.title}}</view>
+      <view class="knowledge-subtitle">{{i18n.knowledgePage.subtitle}}</view>
+      <view class="knowledge-pills"><text>{{i18n.knowledgePage.pill1}}</text><text>{{i18n.knowledgePage.pill2}}</text><text>{{i18n.knowledgePage.pill3}}</text><text>{{i18n.knowledgePage.pill4}}</text></view>
     </view>
   </view>
 
   <!-- 精选城市（封面图 + 名称 + 统计摘要） -->
   <view class="knowledge-catalog">
     <view class="knowledge-section-kicker">01 · CITIES</view>
-    <view class="knowledge-heading serif">精选城市</view>
+    <view class="knowledge-heading serif">{{i18n.knowledgePage.cities}}</view>
 
     <view class="city-grid">
       <view class="city-card card" hover-class="card-press" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap">
@@ -28,7 +28,7 @@
         <view class="city-card-info">
           <view class="city-card-name serif">{{item.name}}</view>
           <view class="city-card-sub">{{item.subtitle}}</view>
-          <view class="city-card-stats">{{item.museumCount}} 座博物馆 · {{item.guidePointCount}} 个讲解点</view>
+          <view class="city-card-stats">{{item.museumCount}} {{locale === 'en' ? 'museums' : (locale === 'zh-TW' ? '座博物館' : '座博物馆')}} · {{item.guidePointCount}} {{locale === 'en' ? 'guide points' : (locale === 'zh-TW' ? '個講解點' : '个讲解点')}}</view>
         </view>
         <view class="city-card-arrow">›</view>
       </view>
@@ -38,27 +38,27 @@
   <!-- 关联参考行程 -->
   <view class="trip-section">
     <view class="knowledge-section-kicker">02 · ITINERARIES</view>
-    <view class="knowledge-heading serif">包含这些景点的行程</view>
+    <view class="knowledge-heading serif">{{i18n.knowledgePage.trips}}</view>
     <view class="trip-row card" hover-class="card-press" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
       <image class="trip-thumb" src="{{item.img}}" mode="aspectFill" />
       <view class="trip-info">
         <view class="trip-name ellipsis">{{item.title}}</view>
         <view class="trip-highlights ellipsis">{{item.highlights}}</view>
-        <view class="trip-days">{{item.days}}天{{item.days - 1}}晚 · {{item.tag}}</view>
+        <view class="trip-days">{{item.days}}{{locale === 'en' ? ' days ' : '天'}}{{item.days - 1}}{{locale === 'en' ? ' nights' : '晚'}} · {{item.tag}}</view>
       </view>
       <view class="trip-arrow">›</view>
     </view>
-    <view class="trip-more" bindtap="onMoreTrips">查看全部参考行程 ›</view>
+    <view class="trip-more" bindtap="onMoreTrips">{{i18n.knowledgePage.viewTrips}} ›</view>
   </view>
 
   <view class="knowledge-consult card" bindtap="onConsult">
     <view>
       <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
-      <view class="consult-title serif">想把景点读得更深？</view>
-      <view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view>
+      <view class="consult-title serif">{{i18n.knowledgePage.consultTitle}}</view>
+      <view class="consult-copy">{{i18n.knowledgePage.consultDesc}}</view>
     </view>
     <view class="consult-arrow">›</view>
   </view>
 
-  <view class="knowledge-footer">只为一生美好回忆</view>
+  <view class="knowledge-footer">{{i18n.commonSlogan}}</view>
 </view>

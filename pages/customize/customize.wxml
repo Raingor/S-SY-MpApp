@@ -5,20 +5,20 @@
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="banner-inner">
       <view class="eyebrow banner-en">TELL US YOUR PLAN</view>
-      <view class="banner-title serif">告诉我你的想法，一起读懂希腊</view>
-      <view class="banner-sub">1v1 中文顾问 · 24 小时内回复行程资讯</view>
+      <view class="banner-title serif">{{i18n.forms.planIntro}}</view>
+      <view class="banner-sub">{{i18n.forms.planSub}}</view>
     </view>
   </view>
 
   <!-- ===== 留资表单 ===== -->
   <view class="form card">
-    <view class="form-section-label">01 · 行程概况</view>
+    <view class="form-section-label">{{i18n.forms.formOverview}}</view>
     <!-- 出行目的地 -->
     <view class="field">
-      <view class="field-label">咨询目的地 <text class="req">*</text></view>
+      <view class="field-label">{{i18n.forms.destination}} <text class="req">*</text></view>
       <input
         class="field-input"
-        placeholder="如：圣岛 + 雅典"
+        placeholder="{{i18n.forms.destinationPlaceholder}}"
         placeholder-class="ph"
         value="{{form.destination}}"
         data-field="destination"
@@ -28,40 +28,40 @@
 
     <!-- 出行时间 -->
     <view class="field">
-      <view class="field-label">出行时间</view>
+      <view class="field-label">{{i18n.forms.travelDate}}</view>
       <picker mode="date" start="2026-09-14" bindchange="onDateChange">
         <view class="field-input {{form.date ? '' : 'ph'}}">
-          {{form.date || '选择出行日期'}}
+          {{form.date || i18n.forms.chooseDate}}
         </view>
       </picker>
     </view>
 
     <!-- 出行天数 -->
     <view class="field">
-      <view class="field-label">出行天数</view>
+      <view class="field-label">{{i18n.forms.travelDays}}</view>
       <picker range="{{daysOptions}}" bindchange="onPickerChange" data-field="days" data-options="daysOptions">
         <view class="field-input {{form.days ? '' : 'ph'}}">
-          {{form.days || '选择咨询周期'}}<text class="arrow">›</text>
+          {{form.days || i18n.forms.choosePeriod}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
     <!-- 出行人数 -->
     <view class="field">
-      <view class="field-label">出行人数</view>
+      <view class="field-label">{{i18n.forms.travelers}}</view>
       <picker range="{{peopleOptions}}" bindchange="onPickerChange" data-field="people" data-options="peopleOptions">
         <view class="field-input {{form.people ? '' : 'ph'}}">
-          {{form.people || '选择出行人数'}}<text class="arrow">›</text>
+          {{form.people || i18n.forms.chooseTravelers}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
     <!-- 儿童年龄 -->
     <view class="field">
-      <view class="field-label">儿童年龄 <text class="hint">（如无儿童可不填）</text></view>
+      <view class="field-label">{{i18n.forms.childAge}} <text class="hint">{{i18n.forms.childAgeHint}}</text></view>
       <input
         class="field-input"
-        placeholder="如：6岁、10岁"
+        placeholder="{{i18n.forms.childAgePlaceholder}}"
         placeholder-class="ph"
         value="{{form.childAge}}"
         data-field="childAge"
@@ -71,28 +71,28 @@
 
     <!-- 单日车程上限 -->
     <view class="field">
-      <view class="field-label">单日车程上限</view>
+      <view class="field-label">{{i18n.forms.carDistance}}</view>
       <picker range="{{carDistanceOptions}}" bindchange="onPickerChange" data-field="carDistance" data-options="carDistanceOptions">
         <view class="field-input {{form.carDistance ? '' : 'ph'}}">
-          {{form.carDistance || '选择可接受的车程'}}<text class="arrow">›</text>
+          {{form.carDistance || i18n.forms.chooseDistance}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
     <!-- 人均预算 -->
     <view class="field">
-      <view class="field-label">人均预算</view>
+      <view class="field-label">{{i18n.forms.budget}}</view>
       <picker range="{{budgetOptions}}" bindchange="onPickerChange" data-field="budget" data-options="budgetOptions">
         <view class="field-input {{form.budget ? '' : 'ph'}}">
-          {{form.budget || '选择预算参考'}}<text class="arrow">›</text>
+          {{form.budget || i18n.forms.chooseBudget}}<text class="arrow">›</text>
         </view>
       </picker>
     </view>
 
     <!-- 旅行主题（多选） -->
-    <view class="form-section-label form-section-label-spaced">02 · 旅行偏好</view>
+    <view class="form-section-label form-section-label-spaced">{{i18n.forms.formPreferences}}</view>
     <view class="field">
-      <view class="field-label">咨询主题 <text class="hint">（可多选）</text></view>
+      <view class="field-label">{{i18n.forms.theme}} <text class="hint">{{i18n.forms.multiSelect}}</text></view>
       <view class="theme-wrap">
         <view
           class="theme-chip {{form.themes.includes(item) ? 'theme-chip-on' : ''}}"
@@ -105,12 +105,12 @@
     </view>
 
     <!-- 需求描述 -->
-    <view class="form-section-label form-section-label-spaced">03 · 需求与联系</view>
+    <view class="form-section-label form-section-label-spaced">{{i18n.forms.formContact}}</view>
     <view class="field">
-      <view class="field-label">需求描述</view>
+      <view class="field-label">{{i18n.forms.requirements}}</view>
       <textarea
         class="field-textarea"
-        placeholder="说说你对这次行程资讯咨询的期待：文化重点、餐厅偏好、特别安排…"
+        placeholder="{{i18n.forms.requirementsPlaceholder}}"
         placeholder-class="ph"
         maxlength="300"
         value="{{form.desc}}"
@@ -121,12 +121,12 @@
 
     <!-- 联系电话 -->
     <view class="field field-last">
-      <view class="field-label">联系电话 <text class="req">*</text></view>
+      <view class="field-label">{{i18n.forms.phone}} <text class="req">*</text></view>
       <input
         class="field-input"
         type="number"
         maxlength="11"
-        placeholder="24小时内联系您"
+        placeholder="{{i18n.forms.phonePlaceholder}}"
         placeholder-class="ph"
         value="{{form.phone}}"
         data-field="phone"
@@ -135,12 +135,12 @@
     </view>
   </view>
 
-  <view class="compliance-note">仅提供目的地行程方案资讯咨询服务。</view>
+  <view class="compliance-note">{{i18n.forms.compliance}}</view>
 
   <!-- 主 CTA（页面唯一） -->
   <view class="cta-wrap">
     <button class="btn-primary" hover-class="btn-primary-hover" bindtap="onSubmit" disabled="{{submitting}}">
-      {{submitting ? '提交中…' : '提交咨询 · 获取行程方案'}}
+      {{submitting ? i18n.submitting : i18n.forms.submitConsultation}}
     </button>
   </view>
 
@@ -148,32 +148,32 @@
   <view class="trip-link card">
     <view class="trip-link-head">
       <view class="eyebrow trip-link-kicker">YOUR CUSTOM ITINERARY</view>
-      <view class="trip-link-title serif">提交后你会得到什么</view>
+      <view class="trip-link-title serif">{{i18n.forms.afterSubmitTitle}}</view>
     </view>
     <view class="trip-link-flow">
       <view class="flow-step">
         <view class="flow-no">1</view>
-        <view class="flow-name">提交需求表</view>
-        <view class="flow-desc">目的地 / 日期 / 人数 / 偏好</view>
+        <view class="flow-name">{{i18n.forms.flowStep1}}</view>
+        <view class="flow-desc">{{i18n.forms.flowDesc1}}</view>
       </view>
       <view class="flow-arrow">›</view>
       <view class="flow-step">
         <view class="flow-no">2</view>
-        <view class="flow-name">顾问一对一定制</view>
-        <view class="flow-desc">24 小时内回复行程方案</view>
+        <view class="flow-name">{{i18n.forms.flowStep2}}</view>
+        <view class="flow-desc">{{i18n.forms.flowDesc2}}</view>
       </view>
       <view class="flow-arrow">›</view>
       <view class="flow-step">
         <view class="flow-no">3</view>
-        <view class="flow-name">专属行程链接</view>
-        <view class="flow-desc">逐日安排 / 服务包含 / 关联景点</view>
+        <view class="flow-name">{{i18n.forms.flowStep3}}</view>
+        <view class="flow-desc">{{i18n.forms.flowDesc3}}</view>
       </view>
     </view>
     <view class="trip-link-sample" bindtap="onViewSampleTrip">
       <image class="trip-link-img" src="/assets/images/hero/hero-santorini.jpg" mode="aspectFill" />
       <view class="trip-link-info">
-        <view class="trip-link-name">看看定制行程长什么样</view>
-        <view class="trip-link-copy">希腊精品定制旅程样例 · 6天5晚 · 雅典+圣托里尼</view>
+        <view class="trip-link-name">{{i18n.forms.sampleTripTitle}}</view>
+        <view class="trip-link-copy">{{i18n.forms.sampleTripDesc}}</view>
       </view>
       <view class="trip-link-arrow">›</view>
     </view>
@@ -184,22 +184,22 @@
     <view class="consultant-top" bindtap="onCopyWechat">
       <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
       <view class="consultant-info">
-        <view class="consultant-name">中文行程顾问 · {{consultant.name}}</view>
+        <view class="consultant-name">{{i18n.forms.consultantTitle}} · {{consultant.name}}</view>
         <view class="consultant-title">{{consultant.title}}</view>
         <view class="consultant-slogan">{{consultant.slogan}}</view>
-        <view class="consultant-wechat">微信号：{{consultant.wechat}}（点击复制）</view>
+        <view class="consultant-wechat">{{i18n.forms.wechatId}}：{{consultant.wechat}}（{{i18n.forms.tapToCopy}}）</view>
       </view>
     </view>
     <view class="consultant-qr" bindtap="onPreviewQr">
       <image class="qr-img" src="{{consultant.qr}}" mode="aspectFit" />
-      <view class="qr-tip">长按识别 / 点击放大</view>
+      <view class="qr-tip">{{i18n.forms.qrTip}}</view>
     </view>
   </view>
 
   <!-- 电话辅助 -->
   <view class="phone-row" bindtap="onCallPhone">
-    <text>联系电话：{{consultant.phone}}</text>
-    <text class="phone-arrow">拨打电话 ›</text>
+    <text>{{i18n.forms.phone}}：{{consultant.phone}}</text>
+    <text class="phone-arrow">{{i18n.forms.call}} ›</text>
   </view>
 
 </view>

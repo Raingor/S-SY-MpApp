@@ -2,8 +2,9 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
-// guide 12 键 -> 中文标签（空键不展示）
+// guide 12 键 -> 默认中文标签（空键不展示）
 const GUIDE_LABELS = {
   hours: '开放时间', tickets: '门票信息', transport: '交通信息', worth: '值得一去',
   services: '馆内服务', family: '亲子参观', map: '馆内地图', shop: '博物馆商店',
@@ -13,6 +14,8 @@ const GUIDE_LABELS = {
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     spot: null,
     showAllHighlights: false,
     guideTabs: [],
@@ -21,6 +24,7 @@ Page({
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    i18n.apply(this);
     const spotId = options.id || '';
     const spot = content.getAttraction(spotId);
     if (spot) this.applySpot(spot, sys.statusBarHeight || 20);
@@ -35,10 +39,15 @@ Page({
     });
   },
 
+  onShow() {
+    i18n.apply(this);
+  },
+
   applySpot(spot, statusBarHeight) {
+    const labels = (this.data.i18n && this.data.i18n.contentPage && this.data.i18n.contentPage.guideLabels) || GUIDE_LABELS;
     const guideTabs = Object.keys(spot.guide || {})
       .filter((key) => spot.guide[key])
-      .map((key) => ({ key, label: GUIDE_LABELS[key] || key, text: spot.guide[key] }));
+      .map((key) => ({ key, label: labels[key] || key, text: spot.guide[key] }));
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       spot,
@@ -51,7 +60,7 @@ Page({
   onShareAppMessage() {
     const spot = this.data.spot;
     return {
-      title: (spot ? spot.name + ' · ' : '') + '只为一生美好回忆',
+      title: (spot ? spot.name + ' · ' : '') + this.data.i18n.commonSlogan,
       path: '/pages/attraction/detail?id=' + (spot ? spot.id : ''),
       imageUrl: spot ? spot.image : undefined
     };

@@ -1,6 +1,7 @@
 // 修改个人资料：昵称、头像和手机号均支持用户主动更新
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
+const i18n = require('../../../utils/i18n');
 
 Page({
   data: {
@@ -8,6 +9,8 @@ Page({
     loading: true,
     saving: false,
     avatarUploading: false,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     loggedIn: false,
     nickname: '',
     avatar: '/assets/images/misc/consultant-avatar.png',
@@ -21,10 +24,11 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    i18n.apply(this);
     auth.getUserState((loggedIn, user) => {
       if (!loggedIn || !user) {
         this.setData({ loading: false });
-        wx.showToast({ title: '请先微信登录', icon: 'none' });
+        wx.showToast({ title: this.data.i18n.validation.loginRequired, icon: 'none' });
         return wx.switchTab({ url: '/pages/profile/profile' });
       }
       this.setData({
@@ -62,6 +66,7 @@ Page({
   uploadAvatarFile(filePath) {
     if (!filePath || this.data.avatarUploading) return;
     const previousAvatar = this.data.avatar;
+    const copy = this.data.i18n;
     this.setData({ avatarUploading: true, avatar: filePath });
     const upload = (path) => auth.uploadAvatar(path, (ok, user, message) => {
       this.setData({
@@ -71,7 +76,7 @@ Page({
           phoneMasked: user.phoneMasked || this.data.phoneMasked
         } : { avatar: previousAvatar })
       });
-      wx.showToast({ title: ok ? '头像已更新' : (message || '头像上传失败'), icon: ok ? 'success' : 'none' });
+      wx.showToast({ title: ok ? copy.profile.avatarUpdated : (message || copy.profile.avatarUploadFailed), icon: ok ? 'success' : 'none' });
     });
     if (wx.compressImage) {
       wx.compressImage({
@@ -86,9 +91,10 @@ Page({
   },
 
   onGetPhoneNumber(e) {
+    const copy = this.data.i18n;
     const code = e.detail && e.detail.code;
     if (!code || !/^getPhoneNumber:ok/.test(e.detail.errMsg || '')) {
-      return wx.showToast({ title: '需要授权手机号后才能修改', icon: 'none' });
+      return wx.showToast({ title: copy.profile.phoneAuthRequired, icon: 'none' });
     }
     if (this.data.saving) return;
     this.setData({ saving: true });
@@ -97,19 +103,20 @@ Page({
         saving: false,
         ...(ok && user ? { phoneMasked: user.phoneMasked || '' } : {})
       });
-      wx.showToast({ title: ok ? '手机号已更新' : (message || '手机号更新失败'), icon: ok ? 'success' : 'none' });
+      wx.showToast({ title: ok ? copy.profile.phoneUpdated : (message || copy.submitFailed), icon: ok ? 'success' : 'none' });
     });
   },
 
   onSave() {
+    const copy = this.data.i18n;
     const nickname = String(this.data.nickname || '').trim();
-    if (!nickname) return wx.showToast({ title: '请输入昵称', icon: 'none' });
-    if (nickname === '微信用户') return wx.showToast({ title: '请使用其他昵称', icon: 'none' });
+    if (!nickname) return wx.showToast({ title: copy.profile.nicknameRequired, icon: 'none' });
+    if (nickname === '微信用户') return wx.showToast({ title: copy.profile.nicknameInvalid, icon: 'none' });
     if (this.data.saving) return;
     this.setData({ saving: true });
     auth.updateProfile({ nickname }, (ok, user, message) => {
       this.setData({ saving: false });
-      if (!ok) return wx.showToast({ title: message || '保存失败', icon: 'none' });
+      if (!ok) return wx.showToast({ title: message || copy.profile.saveFailed, icon: 'none' });
       this.setData({ nickname: user.nickname || nickname });
       wx.showToast({ title: '已保存', icon: 'success' });
       setTimeout(() => wx.navigateBack({ delta: 1 }), 450);

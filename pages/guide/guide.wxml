@@ -3,7 +3,7 @@
   <view class="guide-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="guide-nav sy-nav">
-      <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="nav-brand">SY 希旅人</view>
@@ -21,35 +21,35 @@
       </view>
       <view class="hero-intro">{{guide.intro}}</view>
       <view class="hero-actions">
-        <view class="hero-button hero-button-primary" bindtap="onBookTap">预约 Richard 的时间 <text>→</text></view>
-        <view class="hero-button hero-button-ghost" bindtap="onCopyWechat">添加微信</view>
+        <view class="hero-button hero-button-primary" bindtap="onBookTap">{{i18n.forms.reserve}} <text>→</text></view>
+        <view class="hero-button hero-button-ghost" bindtap="onCopyWechat">{{i18n.forms.addWechat}}</view>
       </view>
     </view>
 
     <view class="hero-quote">
       <view class="quote-kicker">RICHARD LI</view>
-      <view class="quote-title">把一簇辉映，变成一段真正有温度的希腊经验</view>
+      <view class="quote-title">{{i18n.guide.heroQuote}}</view>
       <view class="quote-line"></view>
-      <view class="quote-foot">武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照</view>
+      <view class="quote-foot">{{i18n.guide.quoteFoot}}</view>
     </view>
   </view>
 
   <!-- ===== 人物故事 ===== -->
   <view class="light-section story-section">
     <view class="section-kicker">01 · MEET RICHARD</view>
-    <view class="section-title serif">先认识本人，再决定这次如何徐徐深入</view>
+    <view class="section-title serif">{{i18n.guide.storyTitle}}</view>
     <view class="story-copy">
-      <text>旅居欧美多年，我一直把希腊当成一座可以慢慢读的博物馆。历史、人文、秘境与镜头感，交给真正生活在这里的人。</text>
-      <text>我不负责把行程塞满，而是希望你离开时，仍记得某一束光、某一段海岸，以及途中那些没有被攻略写下的细节。</text>
+      <text>{{i18n.guide.story1}}</text>
+      <text>{{i18n.guide.story2}}</text>
     </view>
     <image class="guide-full-image" src="{{guide.fullImage}}" mode="widthFix" />
-    <view class="story-note">“旅行最珍贵的，不是走过多少地方，<br />而是终于有人替你读懂沿途的故事。”<text>— Richard 李 / SIGNATURE GUIDE</text></view>
+    <view class="story-note">“{{i18n.guide.storyNote}}”<text>— Richard 李 / SIGNATURE GUIDE</text></view>
   </view>
 
   <!-- ===== 核心背书 ===== -->
   <view class="light-section credentials-section">
     <view class="section-kicker">02 · THE CREDENTIALS</view>
-    <view class="section-title serif">三项背书，足够放心与他一起探索希腊</view>
+    <view class="section-title serif">{{i18n.guide.credentialsTitle}}</view>
     <view class="credential-row">
       <view class="credential-card" wx:for="{{credentials}}" wx:key="index">
         <view class="credential-index">{{item.index}}</view>
@@ -62,7 +62,7 @@
   <!-- ===== 擅长方向 ===== -->
   <view class="dark-section signature-section">
     <view class="section-kicker section-kicker-gold">03 · HIS SIGNATURE</view>
-    <view class="section-title section-title-light serif">他最擅长的四种希腊时光</view>
+    <view class="section-title section-title-light serif">{{i18n.guide.signatureTitle}}</view>
     <view class="direction-grid">
       <view class="direction-card" wx:for="{{directions}}" wx:key="key">
         <view class="direction-icon direction-icon-{{item.key}}"></view>
@@ -79,7 +79,7 @@
   <!-- ===== 客户评价 ===== -->
   <view class="dark-section reviews-section">
     <view class="section-kicker section-kicker-gold">04 · FROM THE GUESTBOOK</view>
-    <view class="section-title section-title-light serif">他们这样记住 Richard</view>
+    <view class="section-title section-title-light serif">{{i18n.guide.reviewsTitle}}</view>
     <view class="review-list">
       <view class="review-item" wx:for="{{reviews}}" wx:key="name">
         <view class="review-quote">“{{item.quote}}”</view>
@@ -91,14 +91,14 @@
   <!-- ===== 预约模块 ===== -->
   <view class="booking-section" id="booking">
     <view class="section-kicker">05 · RESERVE YOUR TIME</view>
-    <view class="section-title serif">选一个日期，开始一次专属探索</view>
-    <view class="booking-sub">日历中的蓝色日期可预约，提交后由 Richard 确认时间。</view>
+    <view class="section-title serif">{{i18n.guide.bookingTitle}}</view>
+    <view class="booking-sub">{{i18n.guide.bookingSub}}</view>
 
     <view class="calendar-card card">
       <view class="calendar-head">
         <view>
           <view class="calendar-month serif">{{calendarMonthLabel}}</view>
-          <view class="calendar-note">选择你的希腊同行时光</view>
+          <view class="calendar-note">{{i18n.guide.calendarNote}}</view>
         </view>
         <view class="calendar-arrows">
           <view class="calendar-arrow {{canPrevMonth ? '' : 'calendar-arrow-disabled'}}" bindtap="onPrevMonth">‹</view>
@@ -123,61 +123,61 @@
         </view>
       </view>
       <view class="calendar-legend">
-        <view><text class="legend-dot legend-available"></text>可预约</view>
-        <view><text class="legend-dot legend-pending"></text>待确认</view>
-        <view><text class="legend-dot legend-booked"></text>已约</view>
-        <view><text class="legend-dot legend-past"></text>不可选</view>
+        <view><text class="legend-dot legend-available"></text>{{i18n.guide.available}}</view>
+        <view><text class="legend-dot legend-pending"></text>{{i18n.guide.pending}}</view>
+        <view><text class="legend-dot legend-booked"></text>{{i18n.guide.booked}}</view>
+        <view><text class="legend-dot legend-past"></text>{{i18n.guide.unavailable}}</view>
       </view>
     </view>
 
     <view class="booking-form card">
-      <view class="form-heading serif">告诉 Richard 你的想法</view>
-      <view class="form-tip">已选择 {{selectedDateText}} · 请留下联系方式</view>
+      <view class="form-heading serif">{{i18n.forms.bookingTitle}}</view>
+      <view class="form-tip">{{i18n.guide.selectedPrefix}} {{selectedDateText}} · {{i18n.forms.contactMethod}}</view>
 
       <view class="form-field">
-        <view class="form-label">服务时长</view>
+        <view class="form-label">{{i18n.forms.serviceDuration}}</view>
         <view class="duration-row">
           <view wx:for="{{durationOptions}}" wx:key="*this" class="duration-option {{selectedDuration === item ? 'duration-on' : ''}}" data-value="{{item}}" bindtap="onDurationTap">{{item}}</view>
         </view>
       </view>
 
       <view class="form-field">
-        <view class="form-label">出行人数</view>
+        <view class="form-label">{{i18n.forms.travelers}}</view>
         <picker range="{{peopleOptions}}" value="0" bindchange="onPeopleChange">
           <view class="form-picker">{{form.people}}<text>⌄</text></view>
         </picker>
       </view>
 
       <view class="form-field">
-        <view class="form-label">希望路线与需求 <text>（必填）</text></view>
-        <textarea class="form-textarea" maxlength="200" placeholder="例如：雅典历史讲解，希望安排半日步行路线…" placeholder-class="form-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
+        <view class="form-label">{{i18n.forms.routeNeed}} <text>{{i18n.forms.industryRequired}}</text></view>
+        <textarea class="form-textarea" maxlength="200" placeholder="{{i18n.forms.routePlaceholder}}" placeholder-class="form-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
       </view>
 
       <view class="form-field form-field-last">
-        <view class="form-label">联系方式 <text>（二选一）</text></view>
+        <view class="form-label">{{i18n.forms.contactMethod}} <text>{{i18n.forms.contactChoose}}</text></view>
         <view class="contact-switch">
-          <view class="contact-type {{form.contactType === 'wechat' ? 'contact-type-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">微信</view>
-          <view class="contact-type {{form.contactType === 'phone' ? 'contact-type-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">手机号</view>
+          <view class="contact-type {{form.contactType === 'wechat' ? 'contact-type-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">{{i18n.forms.wechat}}</view>
+          <view class="contact-type {{form.contactType === 'phone' ? 'contact-type-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">{{i18n.profile.phone}}</view>
         </view>
-        <input class="form-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? '请输入手机号' : '请输入微信号'}}" placeholder-class="form-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
+        <input class="form-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? i18n.forms.phonePlaceholderShort : i18n.forms.wechatPlaceholder}}" placeholder-class="form-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
       </view>
 
-      <button class="submit-button" hover-class="guide-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交预约 · 获取专属报价'}}</button>
-      <view class="submit-note">提交后 24 小时内由 Richard 或顾问确认时间</view>
+      <button class="submit-button" hover-class="guide-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitBooking}}</button>
+      <view class="submit-note">{{i18n.forms.submitBookingNote}}</view>
     </view>
   </view>
 
   <!-- ===== 页面收束 ===== -->
   <view class="closing-section">
-    <view class="closing-title serif">准备好让希腊，变成你的故事了吗？</view>
-    <view class="closing-copy">Richard 李 · 名字背后，是一段值得信任的在地经验</view>
-    <view class="closing-button" bindtap="onBookTap">预约 Richard 的时间 <text>→</text></view>
+    <view class="closing-title serif">{{i18n.guide.closingTitle}}</view>
+    <view class="closing-copy">{{i18n.guide.closingCopy}}</view>
+    <view class="closing-button" bindtap="onBookTap">{{i18n.forms.reserve}} <text>→</text></view>
     <view class="closing-site">SY TRAVELER · sy-greece.com</view>
   </view>
 
   <view class="guide-bottom-space"></view>
   <view class="guide-bottom-bar">
-    <view class="bottom-bar-label">Richard 李 · 在地深度陪同</view>
-    <view class="bottom-bar-button" hover-class="guide-bottom-button-hover" bindtap="onBookTap">预约时间 <text>→</text></view>
+    <view class="bottom-bar-label">{{i18n.guide.bottomBar}}</view>
+    <view class="bottom-bar-button" hover-class="guide-bottom-button-hover" bindtap="onBookTap">{{i18n.guide.reserveShort}} <text>→</text></view>
   </view>
 </view>

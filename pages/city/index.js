@@ -2,16 +2,20 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     city: null,
     stats: []
   },
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    i18n.apply(this);
     const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
     this.applyCity(city, sys.statusBarHeight || 20);
@@ -23,14 +27,20 @@ Page({
     });
   },
 
+  onShow() {
+    i18n.apply(this);
+  },
+
   applyCity(city, statusBarHeight) {
+    const locale = this.data.locale || i18n.getLocale();
+    const labels = locale === 'en' ? ['museums', 'guide points', 'audio minutes'] : (locale === 'zh-TW' ? ['座博物館', '個講解點', '分鐘語音'] : ['座博物館', '個講解點', '分鐘語音']);
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       city,
       stats: [
-        { value: String(city.museumCount), label: '座博物馆' },
-        { value: Number(city.guidePointCount).toLocaleString(), label: '个讲解点' },
-        { value: Number(city.audioMinutes).toLocaleString(), label: '分钟语音' }
+        { value: String(city.museumCount), label: labels[0] },
+        { value: Number(city.guidePointCount).toLocaleString(), label: labels[1] },
+        { value: Number(city.audioMinutes).toLocaleString(), label: labels[2] }
       ]
     });
   },
@@ -38,7 +48,7 @@ Page({
   onShareAppMessage() {
     const city = this.data.city;
     return {
-      title: (city ? city.name + ' · ' : '') + '只为一生美好回忆',
+      title: (city ? city.name + ' · ' : '') + this.data.i18n.commonSlogan,
       path: '/pages/city/index?id=' + (city ? city.id : ''),
       imageUrl: city ? city.cover : undefined
     };

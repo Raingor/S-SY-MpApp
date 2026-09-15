@@ -2,7 +2,7 @@
   <view class="consult-hero business-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="consult-nav sy-nav">
-      <view class="consult-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="consult-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="consult-brand">SY 希旅人</view>
@@ -10,64 +10,64 @@
     </view>
     <view class="consult-hero-body">
       <view class="consult-kicker">GREECE BUSINESS COMPANION</view>
-      <view class="consult-title serif">希腊商旅<br />一站式随行服务</view>
-      <view class="consult-subtitle">Richard 李顾问提供中英双语沟通、商务行程规划与语言陪同咨询，帮助你把拜访、会议与文化体验安排得更从容。</view>
+      <view class="consult-title serif">{{i18n.businessTitle}}<br />{{i18n.businessSubtitle}}</view>
+      <view class="consult-subtitle">{{i18n.businessDescription}}</view>
       <view class="consult-tag-row">
-        <view class="consult-tag">涉外商务陪同</view>
-        <view class="consult-tag">会议口译 / 文件笔译</view>
-        <view class="consult-tag">企业拜访咨询</view>
+        <view class="consult-tag">{{i18n.businessTag1}}</view>
+        <view class="consult-tag">{{i18n.businessTag2}}</view>
+        <view class="consult-tag">{{i18n.businessTag3}}</view>
       </view>
     </view>
   </view>
 
   <view class="consult-card">
-    <view class="consult-card-title serif">告诉我们你的商务计划</view>
-    <view class="consult-card-tip">提交后，顾问将在24小时内联系你确认服务范围。</view>
+    <view class="consult-card-title serif">{{i18n.forms.businessTitle}}</view>
+    <view class="consult-card-tip">{{i18n.forms.businessTip}}</view>
 
     <view class="consult-field">
-      <view class="consult-label">商务周期</view>
+      <view class="consult-label">{{i18n.forms.businessCycle}}</view>
       <view class="consult-options">
         <view wx:for="{{cycleOptions}}" wx:key="*this" class="consult-option {{form.cycle === item ? 'consult-option-on' : ''}}" data-field="cycle" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
       </view>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">陪同时长</view>
+      <view class="consult-label">{{i18n.forms.companionDuration}}</view>
       <view class="consult-options">
         <view wx:for="{{durationOptions}}" wx:key="*this" class="consult-option {{form.duration === item ? 'consult-option-on' : ''}}" data-field="duration" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
       </view>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">语言需求</view>
+      <view class="consult-label">{{i18n.forms.languageNeeds}}</view>
       <view class="consult-options">
         <view wx:for="{{languageOptions}}" wx:key="*this" class="consult-option {{form.languageNeeds === item ? 'consult-option-on' : ''}}" data-field="languageNeeds" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
       </view>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">行业对接需求 <text>（必填）</text></view>
-      <textarea class="consult-textarea" maxlength="300" placeholder="例如：寻找某行业企业拜访、展厅参观或会议口译支持…" placeholder-class="consult-placeholder" value="{{form.industryNeeds}}" data-field="industryNeeds" bindinput="onInput"></textarea>
+      <view class="consult-label">{{i18n.forms.industryNeeds}} <text>{{i18n.forms.industryRequired}}</text></view>
+      <textarea class="consult-textarea" maxlength="300" placeholder="{{i18n.forms.industryPlaceholder}}" placeholder-class="consult-placeholder" value="{{form.industryNeeds}}" data-field="industryNeeds" bindinput="onInput"></textarea>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">随行人数</view>
+      <view class="consult-label">{{i18n.forms.people}}</view>
       <picker range="{{peopleOptions}}" value="0" bindchange="onPeopleChange">
         <view class="consult-picker">{{form.people}}<text>⌄</text></view>
       </picker>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">联系方式 <text>（二选一）</text></view>
+      <view class="consult-label">{{i18n.forms.contactMethod}} <text>{{i18n.forms.contactChoose}}</text></view>
       <view class="consult-contact-switch">
-        <view class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">微信</view>
-        <view class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">手机号</view>
+        <view class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">{{i18n.forms.wechat}}</view>
+        <view class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">{{i18n.profile.phone}}</view>
       </view>
-      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? '请输入手机号' : '请输入微信号'}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
+      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? i18n.forms.phonePlaceholderShort : i18n.forms.wechatPlaceholder}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
     </view>
 
-    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交商旅咨询'}}</button>
-    <view class="consult-note">仅提供商务陪同咨询、行程策划与语言翻译对接；交通、场地、劳务由客户直接与希腊本土主体签约。</view>
+    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitBusiness}}</button>
+    <view class="consult-note">{{i18n.businessNote}}</view>
   </view>
-  <view class="consult-footer">只为一生美好回忆</view>
+  <view class="consult-footer">{{i18n.commonSlogan}}</view>
 </view>

@@ -2,11 +2,11 @@
   <!-- 顶部导航 -->
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="spots-nav sy-nav">
-    <view class="spots-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+    <view class="spots-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
       <view class="sy-back-chevron"></view>
     </view>
     <view class="spots-title">{{city.name}}</view>
-    <view class="spots-buy" bindtap="onBuy">购买</view>
+    <view class="spots-buy" bindtap="onBuy">{{i18n.contentPage.buySpots}}</view>
   </view>
 
   <!-- 景点卡片列表 -->
@@ -28,5 +28,5 @@
     </view>
   </view>
 
-  <view class="spots-footer">只为一生美好回忆</view>
+  <view class="spots-footer">{{i18n.commonSlogan}}</view>
 </view>

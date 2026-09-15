@@ -1,38 +1,38 @@
 <view class="page">
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="topbar">
-    <view class="back sy-back-button sy-back-button-light" bindtap="onBack" hover-class="sy-back-button-light-hover" aria-label="返回上一页">
+    <view class="back sy-back-button sy-back-button-light" bindtap="onBack" hover-class="sy-back-button-light-hover" aria-label="{{i18n.back}}">
       <view class="sy-back-chevron"></view>
     </view>
-    <text class="title">修改个人资料</text>
+    <text class="title">{{i18n.profile.editProfile}}</text>
     <view class="topbar-space"></view>
   </view>
 
-  <view wx:if="{{loading}}" class="state">正在加载个人资料…</view>
+  <view wx:if="{{loading}}" class="state">{{i18n.loadingProfile}}</view>
   <view wx:elif="{{loggedIn}}" class="content">
     <view class="profile-card card">
       <view class="avatar-picker" bindtap="onAvatarTap" hover-class="avatar-picker-hover" aria-label="更换头像">
         <image class="avatar" src="{{avatar}}" mode="aspectFill" />
-        <view class="avatar-edit-badge">{{avatarUploading ? '上传中' : '更换'}}</view>
+        <view class="avatar-edit-badge">{{avatarUploading ? i18n.profile.avatarUploading : i18n.profile.avatarChange}}</view>
       </view>
-      <view class="avatar-note">点击头像，从相册或相机上传新头像</view>
+      <view class="avatar-note">{{i18n.profile.avatarNote}}</view>
     </view>
 
     <view class="form card">
       <view class="field">
-        <view class="field-label">昵称</view>
-        <input class="input" value="{{nickname}}" maxlength="20" placeholder="请输入昵称" bindinput="onInput" />
-        <view class="field-note">昵称仅在本页面修改，返回其他页面不会自动变化。</view>
+        <view class="field-label">{{i18n.profile.nickname}}</view>
+        <input class="input" value="{{nickname}}" maxlength="20" placeholder="{{i18n.profile.nicknamePlaceholder}}" bindinput="onInput" />
+        <view class="field-note">{{i18n.profile.nicknameNote}}</view>
       </view>
       <view class="field field-last">
-        <view class="field-label">手机号</view>
+        <view class="field-label">{{i18n.profile.phone}}</view>
         <view class="phone-edit-row">
-          <view class="readonly">{{phoneMasked || '未绑定手机号'}}</view>
-          <button class="rebind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{saving}}" disabled="{{saving}}">重新授权</button>
+          <view class="readonly">{{phoneMasked || i18n.profile.unboundPhone}}</view>
+          <button class="rebind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{saving}}" disabled="{{saving}}">{{i18n.profile.reauthorize}}</button>
         </view>
-        <view class="field-note">手机号用于顾问确认需求，点击“重新授权”即可更新绑定。</view>
+        <view class="field-note">{{i18n.profile.phoneNote}}</view>
       </view>
-      <button class="save-button" bindtap="onSave" loading="{{saving}}" disabled="{{saving}}">保存修改</button>
+      <button class="save-button" bindtap="onSave" loading="{{saving}}" disabled="{{saving}}">{{i18n.profile.save}}</button>
     </view>
   </view>
 </view>

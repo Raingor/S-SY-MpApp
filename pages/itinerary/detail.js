@@ -3,6 +3,7 @@
 // type=custom：定制行程链接（详细版），token 从 /api/trip/:token 拉取（后端私密链接）
 // 本地镜像兜底：接口不可用时按 id 匹配（如 PT202610-08 样例）
 const content = require('../../data/content');
+const i18n = require('../../utils/i18n');
 const mirror = require('../../data/mirror-itineraries');
 const { SERVICE_KEYS } = require('../../data/mirror-itineraries');
 const { buildShareCard } = require('../../utils/share');
@@ -64,9 +65,11 @@ function applyItinerary(itinerary, statusBarHeight) {
     wx.showToast({ title: '未找到该行程', icon: 'none' });
     return setTimeout(() => wx.navigateBack({ delta: 1 }), 800);
   }
+  const copy = this.data.i18n || i18n.getMessages();
+  const labels = [copy.contentPage.itineraryPeriod, copy.contentPage.itineraryNumber, copy.contentPage.visitors, copy.contentPage.preferredLanguages, copy.contentPage.plannedVehicle, copy.contentPage.privateGuide];
   this.setData({
     statusBarHeight: statusBarHeight || this.data.statusBarHeight,
-    itinerary: decorate(itinerary),
+    itinerary: { ...decorate(itinerary), header: (itinerary.header || []).map((item, index) => ({ ...item, label: labels[index] || item.label })) },
     isCustom: itinerary.type === 'custom'
   });
 }
@@ -76,12 +79,15 @@ Page({
     statusBarHeight: 20,
     itinerary: null,
     serviceKeys: SERVICE_KEYS,
-    isCustom: false
+    isCustom: false,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages()
   },
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const statusBarHeight = sys.statusBarHeight || 20;
+    i18n.apply(this);
     const id = (options && options.id) || '';
     const token = (options && options.token) || '';
 
@@ -101,6 +107,10 @@ Page({
       if (local && state && state.reason === 'offline') return;
       if (!local || (state && state.reason === 'contract')) applyItinerary.call(this, null, statusBarHeight);
     });
+  },
+
+  onShow() {
+    i18n.apply(this);
   },
 
   fetchTripByToken(token, statusBarHeight) {
@@ -130,7 +140,7 @@ Page({
     const it = this.data.itinerary;
     const param = it && it.token ? 'token=' + it.token : 'id=' + (it ? it.id : '');
     return {
-      title: (it ? it.title : '行程') + ' · 只为一生美好回忆',
+      title: (it ? it.title : this.data.i18n.contentPage.referenceTag) + ' · ' + this.data.i18n.commonSlogan,
       path: '/pages/itinerary/detail?' + param,
       imageUrl: it ? it.img : undefined
     };

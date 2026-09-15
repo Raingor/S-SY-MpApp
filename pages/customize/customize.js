@@ -3,13 +3,34 @@ const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead
 const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 // 行程资讯咨询主题多选
 const THEMES = ['历史文明', '海滩海岛', '餐厅偏好', '特别安排', '体育活动', '高端私旅', '商务', '司导', '翻译'];
 
+function formOptions(locale) {
+  if (locale === 'en') return {
+    themes: ['History & heritage', 'Beaches & islands', 'Restaurants', 'Special arrangements', 'Sports', 'Luxury travel', 'Business', 'Driver-guide', 'Interpreting'],
+    days: ['3–4 days', '5–6 days', '7–9 days', '10+ days'],
+    budget: ['Under ¥15k', '¥15k–25k', '¥25k–40k', 'Over ¥40k'],
+    people: ['1 person', '2 people', '3–5 people', '6+ people'],
+    carDistance: ['Any distance', 'Up to 2 hours/day', 'Up to 4 hours/day', 'Up to 6 hours/day']
+  };
+  if (locale === 'zh-TW') return {
+    themes: ['歷史文明', '海灘海島', '餐廳偏好', '特別安排', '體育活動', '高端私旅', '商務', '司導', '翻譯'],
+    days: ['3-4天', '5-6天', '7-9天', '10天以上'],
+    budget: ['1.5萬以內', '1.5-2.5萬', '2.5-4萬', '4萬以上'],
+    people: ['1人', '2人', '3-5人', '6人以上'],
+    carDistance: ['不限車程', '單日不超過2小時', '單日不超過4小時', '單日不超過6小時']
+  };
+  return { themes: THEMES, days: ['3-4天', '5-6天', '7-9天', '10天以上'], budget: ['1.5萬以內', '1.5-2.5萬', '2.5-4萬', '4萬以上'], people: ['1人', '2人', '3-5人', '6人以上'], carDistance: ['不限車程', '單日不超過2小時', '單日不超過4小時', '單日不超過6小時'] };
+}
+
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     themes: THEMES,
     form: {
       destination: '',       // 出行目的地
@@ -47,18 +68,20 @@ Page({
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.applyLocale();
     if (options && options.from === 'search') {
-      this.setData({ 'form.desc': '你好，我想了解希腊行程资讯咨询：' });
+      this.setData({ 'form.desc': this.data.i18n.forms.planIntro + '：' });
     }
     if (options && options.from === 'knowledge-base') {
       this.setData({
         leadType: 'knowledge-base',
-        'form.desc': '你好，我想咨询景点文史知识库与一对一线上人文咨询：'
+        'form.desc': this.data.i18n.forms.knowledgeLead + '：'
       });
     }
   },
 
   onShow() {
+    this.applyLocale();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1 });
     }
@@ -70,9 +93,23 @@ Page({
     const pendingLeadType = app.globalData.pendingLeadType;
     this.setData({ leadType: pendingLeadType || 'customization' });
     if (pendingLeadType) {
-      this.setData({ 'form.desc': '你好，我想咨询景点文史知识库与一对一线上人文咨询：' });
+      this.setData({ 'form.desc': this.data.i18n.forms.knowledgeLead + '：' });
       app.globalData.pendingLeadType = '';
     }
+  },
+
+  applyLocale() {
+    const copy = i18n.apply(this);
+    const locale = i18n.getLocale();
+    const options = formOptions(locale);
+    this.setData({
+      themes: options.themes,
+      daysOptions: options.days,
+      budgetOptions: options.budget,
+      peopleOptions: options.people,
+      carDistanceOptions: options.carDistance,
+      consultant: { ...this.data.consultant, title: locale === 'en' ? 'Greece Trip Planner' : (locale === 'zh-TW' ? '希臘行程規劃師' : '希腊行程规划师'), slogan: copy.commonSlogan }
+    });
   },
 
   /* ---------- 表单交互 ---------- */
@@ -105,20 +142,21 @@ Page({
 
   /* ---------- 提交 ---------- */
   onSubmit() {
+    const copy = this.data.i18n;
     const { form } = this.data;
     const destination = form.destination.trim();
     const phone = form.phone.trim();
-    if (!destination) return wx.showToast({ title: '请填写出行目的地', icon: 'none' });
-    if (!phone) return wx.showToast({ title: '请填写联系电话', icon: 'none' });
-    if (!/^1[3-9]\d{9}$/.test(phone)) return wx.showToast({ title: '联系电话格式有误', icon: 'none' });
+    if (!destination) return wx.showToast({ title: copy.validation.destination, icon: 'none' });
+    if (!phone) return wx.showToast({ title: copy.validation.phone, icon: 'none' });
+    if (!/^1[3-9]\d{9}$/.test(phone)) return wx.showToast({ title: copy.validation.phoneInvalid, icon: 'none' });
     if (this.data.submitting) return;
 
     const apiBase = (app.globalData.apiBase || '').replace(/\/$/, '');
     if (!apiBase) {
       return wx.showModal({
-        title: '暂时无法提交',
-        content: '咨询接口尚未配置，请稍后再试或直接添加微信联系顾问。',
-        confirmText: '知道了',
+        title: copy.submitFailed,
+        content: copy.validation.notConfigured,
+        confirmText: copy.know,
         showCancel: false
       });
     }
@@ -160,9 +198,9 @@ Page({
       success: (res) => {
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
-            title: '咨询已提交',
-            content: '顾问将在24小时内联系您，进一步确认需求并提供咨询方案。',
-            confirmText: '好的',
+            title: copy.feedback.submitted,
+            content: copy.feedback.consultSubmitted,
+            confirmText: copy.okay,
             showCancel: false,
             success: () => this.setData({
               form: {
@@ -174,17 +212,17 @@ Page({
           return;
         }
         wx.showModal({
-          title: '提交失败',
+          title: copy.feedback.submitError,
           content: leadErrorMessage(res),
-          confirmText: '知道了',
+          confirmText: copy.know,
           showCancel: false
         });
       },
       fail: () => {
         wx.showModal({
-          title: '网络异常',
-          content: '当前网络无法连接咨询服务，请检查网络后重试。',
-          confirmText: '知道了',
+          title: copy.networkError,
+          content: copy.feedback.networkError,
+          confirmText: copy.know,
           showCancel: false
         });
       },
@@ -202,7 +240,7 @@ Page({
   onCopyWechat() {
     wx.setClipboardData({
       data: this.data.consultant.wechat,
-      success: () => wx.showToast({ title: '微信号已复制', icon: 'success' })
+      success: () => wx.showToast({ title: this.data.i18n.copySuccess, icon: 'success' })
     });
   },
 

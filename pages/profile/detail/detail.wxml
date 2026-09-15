@@ -1,7 +1,7 @@
 <view class="page">
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="topbar">
-    <view class="back sy-back-button sy-back-button-light" bindtap="onBack" hover-class="sy-back-button-light-hover" aria-label="返回上一页">
+    <view class="back sy-back-button sy-back-button-light" bindtap="onBack" hover-class="sy-back-button-light-hover" aria-label="{{i18n.back}}">
       <view class="sy-back-chevron"></view>
     </view>
     <text class="title">{{title}}</text>
@@ -9,11 +9,11 @@
   </view>
 
   <view wx:if="{{mode === 'leads' || mode === 'trips'}}" class="content">
-    <view wx:if="{{loading}}" class="state">正在加载记录…</view>
+    <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
     <view wx:elif="{{!items.length}}" class="empty card">
       <view class="empty-icon">○</view>
       <view class="empty-title">{{empty}}</view>
-      <view class="empty-desc">提交咨询后，顾问确认的进度会显示在这里</view>
+      <view class="empty-desc">{{i18n.profileDetail.emptyDesc}}</view>
     </view>
     <view wx:else class="record-list">
       <view class="record card" wx:for="{{items}}" wx:key="id">
@@ -21,19 +21,19 @@
           <text class="record-title">{{item.displayTitle}}</text>
           <text class="record-status">{{item.displayStatus}}</text>
         </view>
-        <view class="record-line">预约日期：{{item.displayDate}}</view>
-        <view class="record-line">提交时间：{{item.displayCreated}}</view>
+        <view class="record-line">{{i18n.profileDetail.recordDate}}：{{item.displayDate}}</view>
+        <view class="record-line">{{i18n.profileDetail.createdAt}}：{{item.displayCreated}}</view>
         <view class="record-route">{{item.displayRoute}}</view>
       </view>
     </view>
   </view>
 
   <view wx:elif="{{mode === 'coupons'}}" class="content">
-    <view wx:if="{{loading}}" class="state">正在加载优惠券…</view>
+    <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
     <view wx:elif="{{!items.length}}" class="empty card">
       <view class="empty-icon">✦</view>
       <view class="empty-title">{{empty}}</view>
-      <view class="empty-desc">如有适用权益，顾问会在确认咨询时为您说明</view>
+      <view class="empty-desc">{{i18n.profileDetail.couponEmpty}}</view>
     </view>
     <view wx:else class="coupon-list">
       <view class="coupon card" wx:for="{{items}}" wx:key="id">
@@ -45,30 +45,30 @@
   </view>
 
   <view wx:elif="{{mode === 'traveler' || mode === 'document'}}" class="content">
-    <view wx:if="{{loading}}" class="state">正在加载资料…</view>
+    <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
     <view wx:elif="{{!items.length}}" class="empty card">
       <view class="empty-icon">○</view>
       <view class="empty-title">{{empty}}</view>
-      <view class="empty-desc">资料由服务端按当前微信账号隔离保存，仅用于后续服务沟通</view>
-      <view class="empty-add" bindtap="onAddItem">+ 添加{{mode === 'traveler' ? '出行人' : '资料'}}</view>
+      <view class="empty-desc">{{i18n.profileDetail.profileEmpty}}</view>
+      <view class="empty-add" bindtap="onAddItem">+ {{mode === 'traveler' ? i18n.profileDetail.addTraveler : i18n.profileDetail.addDocument}}</view>
     </view>
     <block wx:else>
       <view class="list-add card" bindtap="onAddItem">
         <view class="list-add-plus">+</view>
-        <view class="list-add-text">添加{{mode === 'traveler' ? '出行人' : '资料'}}</view>
+        <view class="list-add-text">{{mode === 'traveler' ? i18n.profileDetail.addTraveler : i18n.profileDetail.addDocument}}</view>
       </view>
       <view class="saved-list">
         <view class="saved-card card" wx:for="{{items}}" wx:key="id" data-index="{{index}}" bindtap="onEditItem">
           <view class="saved-main">
             <view class="saved-name">{{item.name}}</view>
             <view wx:if="{{item.relation}}" class="saved-meta">{{item.relation}}</view>
-            <view wx:if="{{item.passportNo}}" class="saved-meta">护照：{{item.passportNo}}</view>
-            <view wx:if="{{item.expiry}}" class="saved-meta">有效期：{{item.expiry}}</view>
-            <view wx:if="{{item.visaStatus}}" class="saved-meta">签证：{{item.visaStatus}}</view>
+            <view wx:if="{{item.passportNo}}" class="saved-meta">{{i18n.profileDetail.passport}}：{{item.passportNo}}</view>
+            <view wx:if="{{item.expiry}}" class="saved-meta">{{i18n.profileDetail.expiry}}：{{item.expiry}}</view>
+            <view wx:if="{{item.visaStatus}}" class="saved-meta">{{i18n.profileDetail.visaStatus}}：{{item.visaStatus}}</view>
           </view>
           <view class="saved-actions">
-            <text catchtap="onEditItem" data-index="{{index}}">编辑</text>
-            <text catchtap="onDeleteProfile" data-index="{{index}}">删除</text>
+            <text catchtap="onEditItem" data-index="{{index}}">{{i18n.profileDetail.edit}}</text>
+            <text catchtap="onDeleteProfile" data-index="{{index}}">{{i18n.profileDetail.delete}}</text>
           </view>
         </view>
       </view>

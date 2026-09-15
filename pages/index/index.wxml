@@ -21,14 +21,14 @@
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="hero-search" bindtap="onSearchTap">
       <view class="hero-search-icon"></view>
-      <text class="hero-search-text">搜索路线 / 景点 / 资讯咨询</text>
+      <text class="hero-search-text">{{i18n.search}}</text>
     </view>
 
     <!-- 品牌名 + 品牌 slogan（压左下 1/3） -->
     <view class="hero-brand">
       <view class="hero-brand-en eyebrow">{{heroList[heroCurrent].en}}</view>
       <view class="hero-brand-name serif">{{heroList[heroCurrent].title}}</view>
-      <view class="hero-brand-slogan">只为一生美好回忆</view>
+      <view class="hero-brand-slogan">{{i18n.homeSlogan}}</view>
     </view>
 
     <!-- 轮播指示点 -->
@@ -73,7 +73,7 @@
         <view class="guide-entry-proof">{{guide.proof}}</view>
       </view>
     </view>
-    <view class="guide-entry-cta">查看档案 / 预约时间 <text>›</text></view>
+    <view class="guide-entry-cta">{{i18n.homeGuideCta}} <text>›</text></view>
   </view>
 
   <!-- ===== 4. 甄选路线 ===== -->
@@ -81,9 +81,9 @@
     <view class="section-head">
       <view>
         <view class="eyebrow">SELECTED ROUTES</view>
-        <view class="section-title serif">甄选路线</view>
+        <view class="section-title serif">{{i18n.selectedRoutes}}</view>
       </view>
-      <view class="section-more" bindtap="onMoreRoutes">查看全部参考行程 ›</view>
+      <view class="section-more" bindtap="onMoreRoutes">{{i18n.viewAllRoutes}} ›</view>
     </view>
 
     <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
@@ -95,7 +95,7 @@
         <view class="route-name ellipsis">{{item.name}}</view>
         <view class="route-highlights ellipsis">{{item.highlights}}</view>
         <view class="route-foot">
-          <view class="btn-inquiry">查看参考行程</view>
+          <view class="btn-inquiry">{{i18n.viewReference}}</view>
           <view class="route-crowd">{{item.crowd}}</view>
         </view>
       </view>
@@ -105,8 +105,8 @@
     <view class="custom-trip-entry card" bindtap="onCustomTripTap">
       <view class="custom-trip-main">
         <view class="eyebrow custom-trip-kicker">CUSTOM ITINERARY</view>
-        <view class="custom-trip-title serif">定制行程 · 填写需求，获取专属方案</view>
-        <view class="custom-trip-desc">以上路线仅作参考，告诉我们你的日期、人数与偏好，顾问一对一为你定制专属行程</view>
+        <view class="custom-trip-title serif">{{i18n.customItinerary}}</view>
+        <view class="custom-trip-desc">{{i18n.customItineraryDesc}}</view>
       </view>
       <view class="custom-trip-arrow">›</view>
     </view>
@@ -117,18 +117,18 @@
     <view class="section-head">
       <view>
         <view class="eyebrow">LUXURY EXPERIENCE</view>
-        <view class="section-title serif">奢享体验</view>
+        <view class="section-title serif">{{i18n.luxury}}</view>
       </view>
     </view>
     <view class="lux-row">
       <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" bindtap="onInquiryTap">
         <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
         <view class="lux-mask"></view>
-        <view class="lux-corner">高端定制</view>
+        <view class="lux-corner">{{i18n.luxuryTag}}</view>
         <view class="lux-body">
           <view class="lux-name serif">{{item.name}}</view>
           <view class="lux-desc">{{item.desc}}</view>
-          <view class="lux-cta">定制咨询 ›</view>
+          <view class="lux-cta">{{i18n.luxuryCta}} ›</view>
         </view>
       </view>
     </view>
@@ -139,7 +139,7 @@
     <view class="section-head">
       <view>
         <view class="eyebrow">DESTINATIONS</view>
-        <view class="section-title serif">精选目的地</view>
+        <view class="section-title serif">{{i18n.destinations}}</view>
       </view>
     </view>
 
@@ -177,7 +177,7 @@
   <view class="footer">
     <view class="footer-line"></view>
     <view class="footer-site" bindtap="onSiteTap">sy-greece.com</view>
-    <view class="footer-slogan">只为一生美好回忆</view>
+    <view class="footer-slogan">{{i18n.homeSlogan}}</view>
   </view>
 
 </view>

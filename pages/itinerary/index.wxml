@@ -2,7 +2,7 @@
   <view class="iti-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="iti-nav sy-nav">
-      <view class="iti-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="iti-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="iti-brand">SY 希旅人</view>
@@ -10,9 +10,9 @@
     </view>
     <view class="iti-hero-body">
       <view class="iti-kicker">REFERENCE ITINERARIES</view>
-      <view class="iti-title serif">参考行程</view>
-      <view class="iti-subtitle">甄选路线的参考日程，供你快速想象旅程的形状；提交需求后，顾问将为你一对一制作专属定制行程。</view>
-      <view class="iti-pills"><text>结构参考</text><text>景点关联</text><text>一对一定制</text></view>
+      <view class="iti-title serif">{{i18n.itineraryPage.title}}</view>
+      <view class="iti-subtitle">{{i18n.itineraryPage.subtitle}}</view>
+      <view class="iti-pills"><text>{{i18n.itineraryPage.pill1}}</text><text>{{i18n.itineraryPage.pill2}}</text><text>{{i18n.itineraryPage.pill3}}</text></view>
     </view>
   </view>
 
@@ -21,13 +21,13 @@
       <view class="iti-img-wrap">
         <image class="iti-img" src="{{item.img}}" mode="aspectFill" />
         <view class="iti-tag">{{item.tag}}</view>
-        <view class="iti-days">{{item.days}}天{{item.days - 1}}晚</view>
+        <view class="iti-days">{{item.days}}{{locale === 'en' ? ' days ' : '天'}}{{item.days - 1}}{{locale === 'en' ? ' nights' : '晚'}}</view>
       </view>
       <view class="iti-body">
         <view class="iti-name serif">{{item.title}}</view>
         <view class="iti-highlights ellipsis">{{item.highlights}}</view>
         <view class="iti-foot">
-          <view class="iti-cta">查看参考行程</view>
+          <view class="iti-cta">{{i18n.itineraryPage.cta}}</view>
           <view class="iti-crowd">{{item.crowd}}</view>
         </view>
       </view>
@@ -37,11 +37,11 @@
   <view class="iti-consult card" bindtap="onConsult">
     <view>
       <view class="iti-consult-kicker">CUSTOM ITINERARY</view>
-      <view class="iti-consult-title serif">定制行程 · 填写需求，获取专属方案</view>
-      <view class="iti-consult-copy">提交需求表，顾问将按你的日期、人数与偏好定制详细行程，并以行程链接单独发送给你。</view>
+      <view class="iti-consult-title serif">{{i18n.itineraryPage.custom}}</view>
+      <view class="iti-consult-copy">{{i18n.itineraryPage.customDesc}}</view>
     </view>
     <view class="iti-consult-arrow">›</view>
   </view>
 
-  <view class="iti-footer">只为一生美好回忆</view>
+  <view class="iti-footer">{{i18n.commonSlogan}}</view>
 </view>

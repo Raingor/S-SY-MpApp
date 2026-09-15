@@ -3,10 +3,13 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     cities: [],
     sampleTrips: []
   },
@@ -22,6 +25,7 @@ Page({
       cities: content.getCities(),
       sampleTrips: content.getReferenceList()
     });
+    i18n.apply(this);
     // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
     content.loadContent((data) => {
       this.setData({
@@ -29,6 +33,10 @@ Page({
         sampleTrips: content.getReferenceList(data)
       });
     });
+  },
+
+  onShow() {
+    i18n.apply(this);
   },
 
   onBack() {

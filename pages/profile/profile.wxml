@@ -8,15 +8,15 @@
         <view class="head-row">
           <view class="avatar-picker" bindtap="onAvatarTap" hover-class="avatar-picker-hover" aria-label="更换头像">
             <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
-            <view class="avatar-edit-badge">{{avatarUploading ? '上传中' : '更换'}}</view>
+            <view class="avatar-edit-badge">{{avatarUploading ? i18n.profile.avatarUploading : i18n.profile.avatarChange}}</view>
           </view>
           <view class="head-info">
             <view class="nick-row">
               <text class="nick">{{user.nickname}}</text>
               <view wx:if="{{user.member}}" class="member-badge">✦ {{user.member}}</view>
-              <text class="edit-profile" bindtap="onEditProfile">修改</text>
+              <text class="edit-profile" bindtap="onEditProfile">{{i18n.profile.change}}</text>
             </view>
-            <view class="verified">{{phoneBound ? '已绑定手机号' : '请绑定手机号后预约服务'}}</view>
+            <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}</view>
           </view>
         </view>
 
@@ -30,26 +30,26 @@
       </view>
 
       <view wx:else class="login-prompt">
-        <view class="login-title">登录 SY 希旅人</view>
-        <view class="login-desc">微信登录后，绑定手机号即可预约服务</view>
-        <button class="login-button" bindtap="onWechatLogin" loading="{{authLoading}}" disabled="{{authLoading}}">微信登录</button>
+        <view class="login-title">{{i18n.profile.login}}</view>
+        <view class="login-desc">{{i18n.profile.loginDesc}}</view>
+        <button class="login-button" bindtap="onWechatLogin" loading="{{authLoading}}" disabled="{{authLoading}}">{{i18n.profile.wechatLogin}}</button>
       </view>
     </view>
   </view>
 
   <view wx:if="{{loggedIn}}" class="phone-bind-card card">
     <view class="phone-bind-copy">
-      <view class="phone-bind-title">{{phoneBound ? '修改绑定手机号' : '完成手机号绑定'}}</view>
-      <view class="phone-bind-desc">{{phoneBound ? '重新授权微信手机号即可更新绑定' : '预约或提交咨询前，需要先绑定手机号'}}</view>
+      <view class="phone-bind-title">{{phoneBound ? i18n.profile.changePhone : i18n.profile.bindPhone}}</view>
+      <view class="phone-bind-desc">{{phoneBound ? i18n.profile.changePhoneDesc : i18n.profile.bindPhoneDesc}}</view>
     </view>
-    <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">{{phoneBound ? '重新授权' : '绑定手机号'}}</button>
+    <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">{{phoneBound ? i18n.profile.reauthorize : i18n.profile.bind}}</button>
   </view>
 
   <!-- ===== 服务单元格卡 ===== -->
   <view class="panel card">
     <view class="panel-heading">
       <view class="panel-heading-en eyebrow">MY JOURNEY</view>
-      <view class="panel-heading-title serif">我的旅程</view>
+      <view class="panel-heading-title serif">{{i18n.profile.myJourney}}</view>
     </view>
     <view
       class="cell"
@@ -87,7 +87,7 @@
   <view class="panel card">
     <view class="panel-heading">
       <view class="panel-heading-en eyebrow">PROFILE &amp; HELP</view>
-      <view class="panel-heading-title serif">资料与帮助</view>
+      <view class="panel-heading-title serif">{{i18n.profile.profileHelp}}</view>
     </view>
     <view
       class="cell"
@@ -103,11 +103,22 @@
     </view>
   </view>
 
+  <view class="panel card language-panel">
+    <view class="panel-heading">
+      <view class="panel-heading-en eyebrow">LANGUAGE</view>
+      <view class="panel-heading-title serif">{{i18n.language}}</view>
+    </view>
+    <view class="language-hint">{{i18n.languageHint}}</view>
+    <view class="language-options">
+      <view wx:for="{{languageOptions}}" wx:key="value" class="language-option {{locale === item.value ? 'language-option-on' : ''}}" data-locale="{{item.value}}" bindtap="onLanguageTap">{{item.label}}</view>
+    </view>
+  </view>
+
   <!-- 品牌署名 -->
   <view class="foot-brand">
     <view class="foot-en eyebrow">SY TRAVELER</view>
     <view class="foot-site">sy-greece.com</view>
-    <view class="foot-slogan">只为一生美好回忆</view>
+    <view class="foot-slogan">{{i18n.commonSlogan}}</view>
   </view>
 
 </view>

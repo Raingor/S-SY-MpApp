@@ -2,7 +2,7 @@
   <view class="travel-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="travel-nav sy-nav">
-      <view class="travel-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="travel-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="travel-brand">SY 希旅人</view>
@@ -10,16 +10,16 @@
     </view>
     <view class="travel-hero-body">
       <view class="travel-kicker">TRAVEL GUIDE</view>
-      <view class="travel-title serif">希腊出行指南</view>
-      <view class="travel-subtitle">把出发前的疑问变成一份清晰的准备清单，轻松开启雅典与爱琴海之旅。</view>
-      <view class="travel-promise"><text>实用攻略</text><text>出发前收藏</text><text>随时可查</text></view>
+      <view class="travel-title serif">{{i18n.travel.title}}</view>
+      <view class="travel-subtitle">{{i18n.travel.subtitle}}</view>
+      <view class="travel-promise"><text>{{i18n.travel.promise1}}</text><text>{{i18n.travel.promise2}}</text><text>{{i18n.travel.promise3}}</text></view>
     </view>
   </view>
 
   <view class="travel-content">
     <view class="travel-section-kicker">FROM OUR GUIDE LIBRARY</view>
-    <view class="travel-heading serif">把资料变成旅途答案</view>
-    <view class="travel-intro">我们把目录里的 8 份资料整理成适合手机快速浏览的要点，出发前收藏这一页就够了。</view>
+    <view class="travel-heading serif">{{i18n.travel.heading}}</view>
+    <view class="travel-intro">{{i18n.travel.intro}}</view>
 
     <view class="travel-section" wx:for="{{sections}}" wx:key="key">
       <view class="travel-section-head">
@@ -51,18 +51,18 @@
 
     <view class="travel-note">
       <view class="travel-note-mark">i</view>
-      <view class="travel-note-copy">签证、票务、开放时间等信息可能调整，页面内容用于行前参考，出发前请以官方最新信息为准。</view>
+      <view class="travel-note-copy">{{i18n.travel.note}}</view>
     </view>
   </view>
 
   <view class="travel-consult card" bindtap="onConsult">
     <view class="travel-consult-copy">
       <view class="travel-consult-kicker">NEED A CUSTOM PLAN?</view>
-      <view class="travel-consult-title serif">还有具体问题？</view>
-      <view class="travel-consult-desc">告诉我们你的日期、人数与偏好，顾问帮你把攻略落到行程里。</view>
+      <view class="travel-consult-title serif">{{i18n.travel.consultTitle}}</view>
+      <view class="travel-consult-desc">{{i18n.travel.consultDesc}}</view>
     </view>
     <view class="travel-consult-arrow">›</view>
   </view>
 
-  <view class="travel-footer">只为一生美好回忆</view>
+  <view class="travel-footer">{{i18n.commonSlogan}}</view>
 </view>

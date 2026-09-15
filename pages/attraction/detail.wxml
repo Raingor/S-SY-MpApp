@@ -5,7 +5,7 @@
     <view class="spot-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="spot-nav sy-nav">
-      <view class="spot-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="spot-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="spot-brand">SY 希旅人</view>
@@ -21,14 +21,14 @@
   <!-- 简介 -->
   <view class="spot-section card">
     <view class="spot-kicker">ABOUT</view>
-    <view class="spot-heading serif">景点概览</view>
+    <view class="spot-heading serif">{{i18n.contentPage.about}}</view>
     <view class="spot-intro">{{spot.summary}}</view>
   </view>
 
   <!-- 必看亮点 -->
   <view class="spot-section card">
     <view class="spot-kicker">HIGHLIGHTS</view>
-    <view class="spot-heading serif">必看亮点</view>
+    <view class="spot-heading serif">{{i18n.contentPage.highlights}}</view>
     <view class="highlight-list">
       <block wx:for="{{spot.highlights}}" wx:key="name">
         <view wx:if="{{showAllHighlights || index < 3}}" class="highlight-item">
@@ -41,14 +41,14 @@
       </block>
     </view>
     <view class="highlight-more" bindtap="onToggleHighlights">
-      {{showAllHighlights ? '收起亮点' : '查看全部' + spot.highlights.length + '个亮点'}} <text>›</text>
+      {{showAllHighlights ? i18n.contentPage.collapseHighlights : i18n.contentPage.allHighlights + spot.highlights.length + (locale === 'en' ? ' highlights' : '个亮点')}} <text>›</text>
     </view>
   </view>
 
   <!-- 参观指南 -->
   <view class="spot-section card">
     <view class="spot-kicker">VISITOR GUIDE</view>
-    <view class="spot-heading serif">参观指南</view>
+    <view class="spot-heading serif">{{i18n.contentPage.visitorGuide}}</view>
     <scroll-view class="guide-scroll" scroll-x>
       <view
         wx:for="{{guideTabs}}"
@@ -67,31 +67,31 @@
   <!-- 深度讲解 -->
   <view class="spot-section card">
     <view class="spot-kicker">DEEP DIVE</view>
-    <view class="spot-heading serif">深度文史讲解</view>
-    <view class="preview-label"><text>FREE PREVIEW</text> 免费文字预览</view>
+    <view class="spot-heading serif">{{i18n.contentPage.deepDive}}</view>
+    <view class="preview-label"><text>FREE PREVIEW</text> {{i18n.contentPage.freePreview}}</view>
     <view class="preview-copy">{{spot.deepDive.preview}}</view>
     <view class="preview-audio" bindtap="onPreviewAudio">
       <view class="play-icon">▶</view>
-      <view><view>1分钟试听片段</view><text>点击试听 · 内容上传占位</text></view>
+      <view><view>{{i18n.contentPage.audio}}</view><text>{{i18n.contentPage.audioTip}}</text></view>
       <view class="preview-arrow">›</view>
     </view>
 
-    <view class="locked-label"><text>PAID CONTENT</text> 付费解锁内容</view>
+    <view class="locked-label"><text>PAID CONTENT</text> {{i18n.contentPage.paid}}</view>
     <view class="locked-list">
-      <view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">锁定</text></view>
+      <view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">{{i18n.contentPage.locked}}</text></view>
     </view>
-    <view class="unlock-button" bindtap="onUnlock">付费解锁（功能开发中）</view>
+    <view class="unlock-button" bindtap="onUnlock">{{i18n.contentPage.unlock}}</view>
   </view>
 
   <!-- 咨询入口 -->
   <view class="spot-consult card" bindtap="onConsult">
     <view>
       <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
-      <view class="consult-title serif">想把景点读得更深？</view>
-      <view class="consult-copy">预约一对一线上人文咨询，先聊聊你的目的地。</view>
+      <view class="consult-title serif">{{i18n.contentPage.consultTitle}}</view>
+      <view class="consult-copy">{{i18n.contentPage.consultDesc}}</view>
     </view>
     <view class="consult-arrow">›</view>
   </view>
 
-  <view class="spot-footer">只为一生美好回忆</view>
+  <view class="spot-footer">{{i18n.commonSlogan}}</view>
 </view>

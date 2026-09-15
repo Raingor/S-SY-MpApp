@@ -3,6 +3,7 @@
 // type=visa：护照签证资料（姓名*/护照号/有效期/签证备注）
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
+const i18n = require('../../../utils/i18n');
 
 const TYPE_CONFIG = {
   travelers: { collection: 'travelers', addTitle: '添加出行人', editTitle: '编辑出行人' },
@@ -16,17 +17,25 @@ Page({
     loading: false,
     saving: false,
     itemId: '',
-    form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' }
+    form: { name: '', relation: '', passportNo: '', expiry: '', visaStatus: '' },
+    locale: 'zh-CN',
+    i18n: i18n.getMessages()
   },
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    i18n.apply(this);
     const type = options && TYPE_CONFIG[options.type] ? options.type : 'travelers';
     const itemId = options && options.id;
     this.setData({ type, itemId: itemId || '' });
-    wx.setNavigationBarTitle({ title: itemId ? TYPE_CONFIG[type].editTitle : TYPE_CONFIG[type].addTitle });
+    const copy = this.data.i18n.travelerEdit;
+    wx.setNavigationBarTitle({ title: itemId ? (type === 'travelers' ? copy.editTraveler : copy.editDocument) : (type === 'travelers' ? copy.addTraveler : copy.addDocument) });
     if (itemId) this.loadItem(type, itemId);
+  },
+
+  onShow() {
+    i18n.apply(this);
   },
 
   loadItem(type, itemId) {
@@ -34,12 +43,12 @@ Page({
     auth.fetchMyCollection(TYPE_CONFIG[type].collection, (ok, items, message) => {
       if (!ok || !Array.isArray(items)) {
         this.setData({ loading: false });
-        return wx.showToast({ title: message || '加载失败', icon: 'none' });
+        return wx.showToast({ title: message || this.data.i18n.submitFailed, icon: 'none' });
       }
       const item = items.find((it) => it.id === itemId);
       if (!item) {
         this.setData({ loading: false });
-        return wx.showToast({ title: '资料不存在', icon: 'none' });
+        return wx.showToast({ title: this.data.i18n.travelerEdit.notFound, icon: 'none' });
       }
       this.setData({ loading: false, form: {
         name: item.name || '',
@@ -64,9 +73,10 @@ Page({
   },
 
   onSave() {
+    const copy = this.data.i18n;
     const form = this.data.form;
     const name = (form.name || '').trim();
-    if (!name) return wx.showToast({ title: '请填写姓名或称呼', icon: 'none' });
+    if (!name) return wx.showToast({ title: copy.travelerEdit.required, icon: 'none' });
     if (this.data.saving) return;
     const collection = TYPE_CONFIG[this.data.type].collection;
     const payload = this.data.type === 'travelers'
@@ -75,8 +85,8 @@ Page({
     this.setData({ saving: true });
     const done = (ok, unused, message) => {
       this.setData({ saving: false });
-      if (!ok) return wx.showToast({ title: message || '保存失败', icon: 'none' });
-      wx.showToast({ title: '已保存', icon: 'success' });
+      if (!ok) return wx.showToast({ title: message || copy.submitFailed, icon: 'none' });
+      wx.showToast({ title: copy.travelerEdit.saved, icon: 'success' });
       setTimeout(() => wx.navigateBack({ delta: 1 }), 450);
     };
     if (this.data.itemId) {

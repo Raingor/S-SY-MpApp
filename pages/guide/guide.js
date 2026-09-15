@@ -3,6 +3,7 @@ const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead
 const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SY-Greece-Service';
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 const TODAY_KEY = '2026-09-14';
 const CALENDAR_MONTHS = [
   { year: 2026, month: 8, label: '2026年8月' },
@@ -50,6 +51,8 @@ function buildCalendar(year, month) {
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     guide: {
       avatar: '/assets/images/guide/richard-avatar.jpg',
       fullImage: '/assets/images/guide/richard-full.jpg',
@@ -103,6 +106,17 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.applyLocale();
+  },
+
+  onShow() {
+    this.applyLocale();
+  },
+
+  applyLocale() {
+    const copy = i18n.apply(this);
+    this.setData({ calendarWeeks: this.data.locale === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : (this.data.locale === 'zh-TW' ? ['一', '二', '三', '四', '五', '六', '日'] : ['一', '二', '三', '四', '五', '六', '日']), selectedDateText: this.data.selectedDate ? this.data.selectedDateText : copy.guide.chooseDate });
+    return copy;
   },
 
   onBack() {
@@ -116,7 +130,7 @@ Page({
   onCopyWechat() {
     wx.setClipboardData({
       data: this.data.guide.wechat,
-      success: () => wx.showToast({ title: '微信号已复制', icon: 'success' })
+      success: () => wx.showToast({ title: this.data.i18n.copySuccess, icon: 'success' })
     });
   },
 
@@ -139,18 +153,18 @@ Page({
       calendarMonthLabel: target.label,
       calendarDays: buildCalendar(target.year, target.month),
       selectedDate: '',
-      selectedDateText: '请选择可预约日期'
+      selectedDateText: this.data.i18n.guide.chooseDate
     });
   },
 
   onDateTap(e) {
     const { date, state, day } = e.currentTarget.dataset;
     if (!date || state !== 'available') return;
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekdays = this.data.locale === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['日', '一', '二', '三', '四', '五', '六'];
     const dateObject = new Date(`${date}T00:00:00`);
     this.setData({
       selectedDate: date,
-      selectedDateText: `9月${day}日（周${weekdays[dateObject.getDay()]}）`
+      selectedDateText: this.data.locale === 'en' ? `${dateObject.getMonth() + 1}/${day} (${weekdays[dateObject.getDay()]})` : `${dateObject.getMonth() + 1}${this.data.locale === 'zh-TW' ? '月' : '月'}${day}日（周${weekdays[dateObject.getDay()]}）`
     });
   },
 
@@ -171,13 +185,14 @@ Page({
   },
 
   onSubmit() {
+    const copy = this.data.i18n;
     const { form } = this.data;
     const route = form.route.trim();
     const contact = form.contact.trim();
-    if (!route) return wx.showToast({ title: '请填写希望体验的路线', icon: 'none' });
-    if (!contact) return wx.showToast({ title: `请填写${form.contactType === 'wechat' ? '微信号' : '手机号'}`, icon: 'none' });
+    if (!route) return wx.showToast({ title: copy.validation.route, icon: 'none' });
+    if (!contact) return wx.showToast({ title: copy.validation.contact, icon: 'none' });
     if (form.contactType === 'phone' && !/^1[3-9]\d{9}$/.test(contact)) {
-      return wx.showToast({ title: '手机号格式有误', icon: 'none' });
+      return wx.showToast({ title: copy.validation.phoneFormat, icon: 'none' });
     }
     if (this.data.submitting) return;
 
@@ -185,9 +200,9 @@ Page({
     const apiBase = (app.globalData.apiBase || '').replace(/\/$/, '');
     if (!apiBase) {
       return wx.showModal({
-        title: '暂时无法提交',
-        content: '预约接口尚未配置，请稍后再试或直接添加微信联系顾问。',
-        confirmText: '知道了',
+        title: copy.submitFailed,
+        content: copy.validation.notConfigured,
+        confirmText: copy.know,
         showCancel: false
       });
     }
@@ -225,26 +240,26 @@ Page({
       success: (res) => {
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
-            title: '预约已提交',
-            content: 'Richard 或顾问将在24小时内确认时间，并为您提供专属报价。',
-            confirmText: '好的',
+            title: copy.feedback.bookingSubmitted,
+            content: copy.feedback.bookingSubmittedDesc,
+            confirmText: copy.okay,
             showCancel: false,
             success: () => this.setData({ 'form.route': '', 'form.contact': '' })
           });
           return;
         }
         wx.showModal({
-          title: '提交失败',
+          title: copy.feedback.submitError,
           content: leadErrorMessage(res),
-          confirmText: '知道了',
+          confirmText: copy.know,
           showCancel: false
         });
       },
       fail: () => {
         wx.showModal({
-          title: '网络异常',
-          content: '当前网络无法连接预约服务，请检查网络后重试。',
-          confirmText: '知道了',
+          title: copy.networkError,
+          content: copy.feedback.networkError,
+          confirmText: copy.know,
           showCancel: false
         });
       },

@@ -2,10 +2,13 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     // 品牌头图轮播
     heroList: [
       { img: '/assets/images/hero/hero-santorini.jpg', title: 'SY 希旅人', en: 'SY TRAVELER' },
@@ -114,6 +117,7 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.applyLocale();
     content.loadContent((data, state) => {
       // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
       if (state && state.reason === 'offline') return;
@@ -125,14 +129,30 @@ Page({
   },
 
   onShow() {
+    this.applyLocale();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
+      if (this.getTabBar().refreshLocale) this.getTabBar().refreshLocale();
     }
     // tab 切换进入时回到顶部（从子页返回不触发）
     if (app.globalData.pendingTabReset) {
       app.globalData.pendingTabReset = false;
       wx.pageScrollTo({ scrollTop: 0, duration: 0 });
     }
+  },
+
+  applyLocale() {
+    const copy = i18n.apply(this);
+    const entries = [
+      { key: 'customization', label: copy.customize, desc: copy.consultation },
+      { key: 'guide', label: copy.guide, desc: copy.booking },
+      { key: 'vehicle', label: copy.vehicle, desc: copy.resources },
+      { key: 'knowledge', label: copy.knowledge, desc: copy.freePreview },
+      { key: 'business', label: copy.business, desc: copy.businessSupport },
+      { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
+    ];
+    this.setData({ entries, destTabs: [copy.civilization, copy.islands] });
+    return copy;
   },
 
   // 轮播切换

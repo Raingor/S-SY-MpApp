@@ -1,6 +1,7 @@
 // P3 我的页面：微信登录 / 手机号绑定 / 会员信息 / 服务单元格
 const auth = require('../../utils/auth');
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 const app = getApp();
 
 Page({
@@ -10,6 +11,9 @@ Page({
     phoneBound: false,
     authLoading: false,
     avatarUploading: false,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
+    languageOptions: i18n.languageOptions(),
     user: {
       nickname: '希腊旅人',
       avatar: '/assets/images/misc/consultant-avatar.png',
@@ -43,9 +47,37 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.refreshLocale();
+  },
+
+  refreshLocale() {
+    const copy = i18n.apply(this);
+    const stats = this.data.stats || [];
+    this.setData({
+      languageOptions: i18n.languageOptions(),
+      stats: [
+        { label: copy.profile.appointments, value: Number(stats[0] && stats[0].value) || 0 },
+        { label: copy.profile.trips, value: Number(stats[1] && stats[1].value) || 0 },
+        { label: copy.profile.coupons, value: Number(stats[2] && stats[2].value) || 0 },
+        { label: copy.profile.records, value: Number(stats[3] && stats[3].value) || 0 }
+      ],
+      services: [
+        { key: 'orders', label: copy.profile.appointments, badge: '' },
+        { key: 'trips', label: copy.profile.trips, badge: '' },
+        { key: 'coupons', label: copy.profile.coupons, badge: '' }
+      ],
+      helps: [
+        { key: 'travelers', label: copy.profile.travelers },
+        { key: 'visa', label: copy.profile.visa },
+        { key: 'service', label: copy.profile.service },
+        { key: 'about', label: copy.profile.about }
+      ]
+    });
+    return copy;
   },
 
   onShow() {
+    this.refreshLocale();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 2 });
     }
@@ -96,13 +128,13 @@ Page({
           phoneBound: Boolean(user && user.phoneBound),
           ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
         });
-        if (!ok) wx.showToast({ title: message || '微信登录失败', icon: 'none' });
+        if (!ok) wx.showToast({ title: message || this.data.i18n.profile.loginFailed, icon: 'none' });
       }, profile);
     };
     // 昵称/头像需要用户主动授权；拒绝时仍允许登录，并使用“用户+随机数”作为昵称。
     if (wx.getUserProfile) {
       wx.getUserProfile({
-        desc: '用于展示您的微信昵称和头像',
+        desc: this.data.i18n.profile.profileIntro,
         success: (res) => completeLogin(res.userInfo),
         fail: () => completeLogin(null)
       });
@@ -114,6 +146,13 @@ Page({
   onEditProfile() {
     if (!this.data.loggedIn) return this.onWechatLogin();
     wx.navigateTo({ url: '/pages/profile/edit/edit' });
+  },
+
+  onLanguageTap(e) {
+    const locale = e.currentTarget.dataset.locale;
+    if (!locale || locale === i18n.getLocale()) return;
+    i18n.setLocale(locale);
+    wx.reLaunch({ url: '/pages/profile/profile' });
   },
 
   onAvatarTap() {
@@ -139,7 +178,7 @@ Page({
         avatarUploading: false,
         ...(ok && user ? { user: { ...this.data.user, ...user } } : { 'user.avatar': previousAvatar })
       });
-      wx.showToast({ title: ok ? '头像已更新' : (message || '头像上传失败'), icon: ok ? 'success' : 'none' });
+      wx.showToast({ title: ok ? this.data.i18n.profile.avatarUpdated : (message || this.data.i18n.profile.avatarUploadFailed), icon: ok ? 'success' : 'none' });
     });
     if (wx.compressImage) {
       wx.compressImage({
@@ -156,7 +195,7 @@ Page({
   onGetPhoneNumber(e) {
     const code = e.detail && e.detail.code;
     if (!code || !/^getPhoneNumber:ok/.test(e.detail.errMsg || '')) {
-      return wx.showToast({ title: '需要授权手机号后才能提交', icon: 'none' });
+      return wx.showToast({ title: this.data.i18n.validation.phoneAuthRequired, icon: 'none' });
     }
     this.setData({ authLoading: true });
     auth.bindPhone(code, (ok, user, message) => {
@@ -166,7 +205,7 @@ Page({
         phoneBound: Boolean(user && user.phoneBound),
         ...(ok && user ? { user: { ...this.data.user, ...user } } : {})
       });
-      wx.showToast({ title: ok ? '手机号绑定成功' : (message || '绑定失败'), icon: ok ? 'success' : 'none' });
+      wx.showToast({ title: ok ? this.data.i18n.profile.phoneUpdated : (message || this.data.i18n.profile.phoneBindFailed), icon: ok ? 'success' : 'none' });
     });
   },
 
@@ -179,6 +218,7 @@ Page({
 
   onHelpTap(e) {
     const key = e.currentTarget.dataset.key;
+    if (key === 'language') return;
     if (key === 'travelers' || key === 'visa') {
       if (!this.data.loggedIn) return this.onWechatLogin();
       return wx.navigateTo({ url: `/pages/profile/detail/detail?type=${key}` });
@@ -186,15 +226,15 @@ Page({
     if (key === 'service') return wx.switchTab({ url: '/pages/customize/customize' });
     if (key === 'about') {
       wx.showModal({
-        title: '关于 SY 希旅人',
-        content: '只为一生美好回忆\nsy-greece.com',
-        confirmText: '复制官网',
-        cancelText: '关闭',
+        title: this.data.i18n.profile.aboutTitle,
+        content: this.data.i18n.commonSlogan + '\nsy-greece.com',
+        confirmText: this.data.i18n.profile.copyWebsite,
+        cancelText: this.data.i18n.profile.close,
         success: (res) => {
           if (!res.confirm) return;
           wx.setClipboardData({
             data: 'sy-greece.com',
-            success: () => wx.showToast({ title: '官网已复制', icon: 'success' })
+            success: () => wx.showToast({ title: this.data.i18n.profile.websiteCopied, icon: 'success' })
           });
         }
       });

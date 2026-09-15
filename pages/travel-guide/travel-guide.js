@@ -1,10 +1,13 @@
 // 出行指南：将“出行指南”目录中的资料整理成可快速浏览的旅行卡片
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
+const i18n = require('../../utils/i18n');
 
 Page({
   data: {
     statusBarHeight: 20,
+    locale: 'zh-CN',
+    i18n: i18n.getMessages(),
     sections: [
       {
         key: 'prepare',
@@ -104,6 +107,16 @@ Page({
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.applyLocale();
+  },
+
+  onShow() {
+    this.applyLocale();
+  },
+
+  applyLocale() {
+    const copy = i18n.apply(this);
+    this.setData({ sections: copy.travel.sections || this.data.sections });
   },
 
   onBack() {

@@ -5,19 +5,19 @@
     <view class="itd-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="itd-nav sy-nav">
-      <view class="itd-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="itd-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="itd-brand">SY 希旅人</view>
       <view class="itd-mark">✦</view>
     </view>
     <view class="itd-hero-body">
-      <view class="itd-tag" wx:if="{{isCustom}}">专属定制行程</view>
-      <view class="itd-tag itd-tag-ref" wx:else>参考行程</view>
+      <view class="itd-tag" wx:if="{{isCustom}}">{{i18n.contentPage.customTag}}</view>
+      <view class="itd-tag itd-tag-ref" wx:else>{{i18n.contentPage.referenceTag}}</view>
       <view class="itd-title serif">{{itinerary.title}}</view>
       <view class="itd-meta">
         <text wx:if="{{isCustom}}">{{itinerary.period}}</text>
-        <text>{{itinerary.days}}天{{itinerary.days - 1}}晚</text>
+        <text>{{itinerary.days}}{{locale === 'en' ? ' days ' : '天'}}{{itinerary.days - 1}}{{locale === 'en' ? ' nights' : '晚'}}</text>
         <text wx:if="{{itinerary.tag}}">{{itinerary.tag}}</text>
       </view>
     </view>
@@ -26,35 +26,35 @@
   <!-- ===== 定制行程：订单信息 ===== -->
   <view class="itd-section card" wx:if="{{isCustom}}">
     <view class="itd-kicker">ITINERARY DETAILS</view>
-    <view class="itd-heading serif">行程信息</view>
+    <view class="itd-heading serif">{{i18n.contentPage.infoHeading}}</view>
     <view class="itd-info">
       <view class="itd-info-row" wx:for="{{itinerary.header}}" wx:key="label">
         <view class="itd-info-label">{{item.label}}</view>
         <view class="itd-info-value">{{item.value}}</view>
       </view>
       <view class="itd-info-row itd-info-fee">
-        <view class="itd-info-label">服务费总额 / TOTAL SERVICE FEE</view>
+        <view class="itd-info-label">{{i18n.contentPage.fee}}</view>
         <view class="itd-info-value itd-fee">{{itinerary.fee}}</view>
       </view>
     </view>
     <view class="itd-share">
-      <button class="itd-share-btn" open-type="share">转发此行程给同行家人</button>
+      <button class="itd-share-btn" open-type="share">{{i18n.contentPage.shareTrip}}</button>
     </view>
   </view>
 
   <!-- ===== 参考行程：概览 ===== -->
   <view class="itd-section card" wx:else>
     <view class="itd-kicker">OVERVIEW</view>
-    <view class="itd-heading serif">行程概览</view>
+    <view class="itd-heading serif">{{i18n.contentPage.overviewHeading}}</view>
     <view class="itd-overview">
-      <view class="itd-ov-row"><text>亮点</text><view>{{itinerary.highlights}}</view></view>
-      <view class="itd-ov-row"><text>适合</text><view>{{itinerary.crowd}}</view></view>
+      <view class="itd-ov-row"><text>{{i18n.contentPage.highlightLabel}}</text><view>{{itinerary.highlights}}</view></view>
+      <view class="itd-ov-row"><text>{{i18n.contentPage.suitableLabel}}</text><view>{{itinerary.crowd}}</view></view>
     </view>
   </view>
 
   <!-- ===== 服务图例（定制） ===== -->
   <view class="itd-legend card" wx:if="{{isCustom}}">
-    <view class="itd-legend-title">服务包含图例</view>
+    <view class="itd-legend-title">{{i18n.contentPage.serviceLegend}}</view>
     <view class="itd-legend-list">
       <text wx:for="{{serviceKeys}}" wx:key="*this"><text class="star">★</text> {{item}}</text>
     </view>
@@ -64,7 +64,7 @@
   <view class="itd-days">
     <view class="itd-days-head">
       <view class="itd-kicker">DAILY ITINERARY</view>
-      <view class="itd-heading serif">每日行程</view>
+      <view class="itd-heading serif">{{i18n.contentPage.daily}}</view>
     </view>
 
     <scroll-view class="itd-day-jump" scroll-x enable-flex>
@@ -75,7 +75,7 @@
         class="itd-day-jump-item"
         data-key="{{jumpDay.key}}"
         bindtap="onJumpDay"
-      >第{{isCustom ? jumpDay.no : jumpDay.day}}天</view>
+      >{{i18n.contentPage.day}}{{isCustom ? jumpDay.no : jumpDay.day}}{{locale === 'en' ? '' : '天'}}</view>
     </scroll-view>
 
     <view class="itd-day card" wx:for="{{itinerary.schedule}}" wx:for-item="day" wx:key="key" id="itd-day-{{day.key}}">
@@ -85,9 +85,9 @@
           <text class="itd-day-unit">DAY</text>
         </view>
         <view class="itd-day-info">
-          <view class="itd-day-date">{{isCustom ? day.date : '第' + day.day + '天'}}</view>
-          <view class="itd-day-stay" wx:if="{{day.stay}}">夜宿 · {{day.stay}}</view>
-          <view class="itd-day-stay" wx:elif="{{day.city}}">停留 · {{day.city}}</view>
+          <view class="itd-day-date">{{isCustom ? day.date : i18n.contentPage.day + day.day + (locale === 'en' ? '' : '天')}}</view>
+          <view class="itd-day-stay" wx:if="{{day.stay}}">{{i18n.contentPage.night}}{{day.stay}}</view>
+          <view class="itd-day-stay" wx:elif="{{day.city}}">{{i18n.contentPage.stay}}{{day.city}}</view>
         </view>
       </view>
 
@@ -116,7 +116,7 @@
   <!-- ===== 定制行程：服务须知 ===== -->
   <view class="itd-section card itd-notices" wx:if="{{isCustom}}">
     <view class="itd-kicker">NOTICES</view>
-    <view class="itd-heading serif">服务须知</view>
+    <view class="itd-heading serif">{{i18n.contentPage.notices}}</view>
     <view class="itd-notice-group" wx:for="{{itinerary.notices}}" wx:for-item="group" wx:key="title">
       <view class="itd-notice-title">{{group.title}}</view>
       <view class="itd-notice-item" wx:for="{{group.items}}" wx:for-item="note" wx:key="*this"><text>·</text>{{note}}</view>
@@ -127,11 +127,11 @@
   <view class="itd-cta card" bindtap="onCtaTap">
     <view>
       <view class="itd-cta-kicker">{{isCustom ? 'ANY CHANGES?' : 'CUSTOMIZE THIS ROUTE'}}</view>
-      <view class="itd-cta-title serif">{{isCustom ? '需要调整行程？' : '定制行程 · 填写需求，获取专属方案'}}</view>
-      <view class="itd-cta-copy">{{isCustom ? '行程顺序与安排可按实际沟通调整，请联系你的专属顾问。' : '提交需求表，顾问一对一为你制作专属定制行程。'}}</view>
+      <view class="itd-cta-title serif">{{isCustom ? i18n.contentPage.changes : i18n.contentPage.customizeRoute}}</view>
+      <view class="itd-cta-copy">{{isCustom ? i18n.contentPage.changesDesc : i18n.contentPage.customizeRouteDesc}}</view>
     </view>
     <view class="itd-cta-arrow">›</view>
   </view>
 
-  <view class="itd-footer">只为一生美好回忆</view>
+  <view class="itd-footer">{{i18n.contentPage.footerSlogan}}</view>
 </view>

@@ -2,7 +2,7 @@
   <view class="consult-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="consult-nav sy-nav">
-      <view class="consult-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+      <view class="consult-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
         <view class="sy-back-chevron"></view>
       </view>
       <view class="consult-brand">SY 希旅人</view>
@@ -10,64 +10,64 @@
     </view>
     <view class="consult-hero-body">
       <view class="consult-kicker">LOCAL MOBILITY CONSULTATION</view>
-      <view class="consult-title serif">在地用车资源<br />对接咨询</view>
-      <view class="consult-subtitle">根据出行节奏，咨询希腊本地车型与司导资源，顾问协助你完成预约对接。</view>
+      <view class="consult-title serif">{{i18n.vehicleTitle}}<br />{{i18n.vehicleSubtitle}}</view>
+      <view class="consult-subtitle">{{i18n.vehicleDescription}}</view>
       <view class="consult-tag-row">
-        <view class="consult-tag">欧6车型信息</view>
-        <view class="consult-tag">中英双语咨询</view>
-        <view class="consult-tag">按需匹配</view>
+        <view class="consult-tag">{{i18n.vehicleTag1}}</view>
+        <view class="consult-tag">{{i18n.vehicleTag2}}</view>
+        <view class="consult-tag">{{i18n.vehicleTag3}}</view>
       </view>
     </view>
   </view>
 
   <view class="consult-card">
-    <view class="consult-card-title serif">说说你的用车计划</view>
-    <view class="consult-card-tip">提交后，顾问将在24小时内联系你说明对接方式。</view>
+    <view class="consult-card-title serif">{{i18n.forms.vehiclePlan}}</view>
+    <view class="consult-card-tip">{{i18n.forms.vehicleTip}}</view>
 
     <view class="consult-field">
-      <view class="consult-label">出行日期</view>
+      <view class="consult-label">{{i18n.forms.vehicleDate}}</view>
       <picker mode="date" start="2026-09-14" bindchange="onDateChange">
-        <view class="consult-picker">{{form.date || '选择出行日期'}}<text>›</text></view>
+        <view class="consult-picker">{{form.date || i18n.forms.chooseDate}}<text>›</text></view>
       </picker>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">陪同 / 用车时长</view>
+      <view class="consult-label">{{i18n.forms.vehicleDuration}}</view>
       <view class="consult-options">
         <view wx:for="{{durationOptions}}" wx:key="*this" class="consult-option {{form.duration === item ? 'consult-option-on' : ''}}" data-field="duration" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
       </view>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">希望车型</view>
+      <view class="consult-label">{{i18n.forms.vehicleType}}</view>
       <view class="consult-options">
         <view wx:for="{{vehicleOptions}}" wx:key="*this" class="consult-option {{form.vehicleType === item ? 'consult-option-on' : ''}}" data-field="vehicleType" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
       </view>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">随行人数</view>
+      <view class="consult-label">{{i18n.forms.people}}</view>
       <picker range="{{peopleOptions}}" value="0" bindchange="onPeopleChange">
         <view class="consult-picker">{{form.people}}<text>⌄</text></view>
       </picker>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">路线与用车需求 <text>（必填）</text></view>
-      <textarea class="consult-textarea" maxlength="240" placeholder="例如：雅典机场接送 + 市区古迹参访，希望有中文沟通…" placeholder-class="consult-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
+      <view class="consult-label">{{i18n.forms.vehicleRoute}} <text>{{i18n.forms.industryRequired}}</text></view>
+      <textarea class="consult-textarea" maxlength="240" placeholder="{{i18n.forms.vehicleRoutePlaceholder}}" placeholder-class="consult-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">联系方式 <text>（二选一）</text></view>
+      <view class="consult-label">{{i18n.forms.contactMethod}} <text>{{i18n.forms.contactChoose}}</text></view>
       <view class="consult-contact-switch">
-        <view class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">手机号</view>
-        <view class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">微信</view>
+        <view class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">{{i18n.profile.phone}}</view>
+        <view class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">{{i18n.forms.wechat}}</view>
       </view>
-      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? '请输入手机号' : '请输入微信号'}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
+      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? i18n.forms.phonePlaceholderShort : i18n.forms.wechatPlaceholder}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
     </view>
 
-    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? '提交中…' : '提交用车咨询'}}</button>
-    <view class="consult-note">仅提供用车信息咨询与预约对接，车辆及司导劳务由客户直接与希腊本土主体签约结算。</view>
+    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitVehicle}}</button>
+    <view class="consult-note">{{i18n.vehicleNote}}</view>
   </view>
-  <view class="consult-footer">只为一生美好回忆</view>
+  <view class="consult-footer">{{i18n.commonSlogan}}</view>
 </view>

@@ -2,7 +2,7 @@
   <!-- 顶部导航 -->
   <view style="height: {{statusBarHeight}}px;"></view>
   <view class="city-nav sy-nav">
-    <view class="city-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="返回上一页">
+    <view class="city-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
       <view class="sy-back-chevron"></view>
     </view>
     <view class="city-mark">✦</view>
@@ -31,23 +31,23 @@
   </view>
 
   <!-- 说明入口 -->
-  <view class="city-about" bindtap="onAboutGuide">💡 了解「SY希旅人」导览讲解的不同之处</view>
+  <view class="city-about" bindtap="onAboutGuide">💡 {{i18n.contentPage.cityAbout}}</view>
 
   <!-- 深色内容区（占位说明） -->
   <view class="city-note">
     <view class="city-note-kicker">WHAT'S INSIDE</view>
-    <view class="city-note-text">专业编写的图文与语音讲解，按景点逐层展开：先看必看亮点，再看参观指南，最后深入历史、神话与建筑。</view>
+    <view class="city-note-text">{{i18n.contentPage.cityInside}}</view>
   </view>
 
   <!-- 底部双 CTA -->
   <view class="city-cta">
     <view class="cta-buy" hover-class="city-cta-press" bindtap="onBuy">
-      <view class="cta-label">购买导览包</view>
+      <view class="cta-label">{{i18n.contentPage.buy}}</view>
       <view class="cta-sub">{{city.price || '€9.99'}}</view>
     </view>
     <view class="cta-view" hover-class="city-cta-press" bindtap="onView">
-      <view class="cta-label">先看景点</view>
-      <view class="cta-sub">免费浏览</view>
+      <view class="cta-label">{{i18n.contentPage.viewSpots}}</view>
+      <view class="cta-sub">{{i18n.contentPage.freeBrowse}}</view>
     </view>
   </view>
 </view>
