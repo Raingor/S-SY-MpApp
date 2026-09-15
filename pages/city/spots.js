@@ -6,6 +6,7 @@ const i18n = require('../../utils/i18n');
 Page({
   data: {
     statusBarHeight: 20,
+    menuRightSpace: 112,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     city: null,
@@ -14,7 +15,11 @@ Page({
 
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+    const windowWidth = sys.windowWidth || (wx.getSystemInfoSync && wx.getSystemInfoSync().windowWidth) || 375;
+    const menuRightSpace = menu ? Math.max(88, windowWidth - menu.left + 12) : 112;
     i18n.apply(this);
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20, menuRightSpace });
     const cities = content.getCities();
     const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
     this.applyCity(city, sys.statusBarHeight || 20);

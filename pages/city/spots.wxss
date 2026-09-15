@@ -13,6 +13,7 @@ page { background: #10131A; }
   display: flex;
   align-items: center;
   padding: 0 32rpx;
+  box-sizing: border-box;
 }
 
 .spots-title {
@@ -25,6 +26,8 @@ page { background: #10131A; }
 }
 
 .spots-buy {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 10rpx 34rpx;
   border-radius: 28rpx;
   background: linear-gradient(135deg, #1E7BC0 0%, #1567A8 55%, #0F5488 100%);
