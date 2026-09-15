@@ -54,6 +54,38 @@
   background: #EAF3F8;
 }
 
+.avatar-picker {
+  position: relative;
+  display: block;
+  width: 148rpx;
+  height: 148rpx;
+  border-radius: 50%;
+  line-height: 1;
+  overflow: visible;
+}
+
+.avatar-picker .avatar {
+  display: block;
+}
+
+.avatar-picker-hover {
+  opacity: 0.78;
+}
+
+.avatar-edit-badge {
+  position: absolute;
+  right: -12rpx;
+  bottom: 0;
+  padding: 6rpx 12rpx;
+  border: 2rpx solid #FFFFFF;
+  border-radius: 18rpx;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 18rpx;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .avatar-note,
 .field-note {
   color: var(--c-weak);
@@ -101,6 +133,34 @@
 
 .readonly {
   color: var(--c-sub);
+}
+
+.phone-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.phone-edit-row .readonly {
+  flex: 1;
+  min-width: 0;
+}
+
+.rebind-button {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 18rpx;
+  height: 54rpx;
+  border: 1rpx solid var(--c-primary);
+  border-radius: 28rpx;
+  background: transparent;
+  color: var(--c-primary);
+  font-size: 22rpx;
+  line-height: 52rpx;
+}
+
+.rebind-button::after {
+  border: none;
 }
 
 .field-note {

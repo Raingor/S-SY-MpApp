@@ -125,6 +125,38 @@
   flex-shrink: 0;
 }
 
+.avatar-picker {
+  position: relative;
+  display: block;
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  line-height: 1;
+  overflow: visible;
+}
+
+.avatar-picker .avatar {
+  display: block;
+}
+
+.avatar-picker-hover {
+  opacity: 0.78;
+}
+
+.avatar-edit-badge {
+  position: absolute;
+  right: -8rpx;
+  bottom: -2rpx;
+  padding: 6rpx 10rpx;
+  border: 2rpx solid #FFFFFF;
+  border-radius: 18rpx;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 18rpx;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .head-info {
   color: #FFFFFF;
 }

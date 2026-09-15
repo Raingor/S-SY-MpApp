@@ -9,6 +9,7 @@ Page({
     loggedIn: false,
     phoneBound: false,
     authLoading: false,
+    avatarUploading: false,
     user: {
       nickname: '希腊旅人',
       avatar: '/assets/images/misc/consultant-avatar.png',
@@ -113,6 +114,43 @@ Page({
   onEditProfile() {
     if (!this.data.loggedIn) return this.onWechatLogin();
     wx.navigateTo({ url: '/pages/profile/edit/edit' });
+  },
+
+  onAvatarTap() {
+    if (this.data.avatarUploading) return;
+    const choose = (filePath) => this.uploadAvatarFile(filePath);
+    if (wx.chooseMedia) {
+      return wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        success: (res) => choose(res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath)
+      });
+    }
+    wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], success: (res) => choose(res.tempFilePaths && res.tempFilePaths[0]) });
+  },
+
+  uploadAvatarFile(filePath) {
+    if (!filePath || this.data.avatarUploading) return;
+    const previousAvatar = this.data.user.avatar;
+    this.setData({ avatarUploading: true, 'user.avatar': filePath });
+    const upload = (path) => auth.uploadAvatar(path, (ok, user, message) => {
+      this.setData({
+        avatarUploading: false,
+        ...(ok && user ? { user: { ...this.data.user, ...user } } : { 'user.avatar': previousAvatar })
+      });
+      wx.showToast({ title: ok ? '头像已更新' : (message || '头像上传失败'), icon: ok ? 'success' : 'none' });
+    });
+    if (wx.compressImage) {
+      wx.compressImage({
+        src: filePath,
+        quality: 85,
+        success: (res) => upload(res.tempFilePath || filePath),
+        fail: () => upload(filePath)
+      });
+    } else {
+      upload(filePath);
+    }
   },
 
   onGetPhoneNumber(e) {

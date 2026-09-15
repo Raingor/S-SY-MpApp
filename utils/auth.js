@@ -235,6 +235,33 @@ function updateProfile(payload, callback) {
   });
 }
 
+function uploadAvatar(filePath, callback) {
+  const token = getAccessToken();
+  const apiBase = getApiBase();
+  if (!token || !apiBase) return callback(false, null, '请先微信登录');
+  if (!filePath) return callback(false, null, '请选择头像');
+  wx.uploadFile({
+    url: `${apiBase}/api/miniprogram/profile/avatar`,
+    filePath,
+    name: 'file',
+    timeout: 30000,
+    header: { Authorization: `Bearer ${token}` },
+    success: (res) => {
+      let data = null;
+      try { data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data; } catch (error) {}
+      if (res.statusCode >= 200 && res.statusCode < 300 && data && data.user) {
+        const savedUser = saveSession(token, {
+          ...data.user,
+          avatar: data.user.avatarUrl || data.user.avatar || ''
+        });
+        return callback(true, savedUser, '');
+      }
+      callback(false, null, (data && data.error) || '头像上传失败');
+    },
+    fail: () => callback(false, null, '网络异常，请稍后重试')
+  });
+}
+
 function fetchProfile(callback) {
   requestAuth('/api/miniprogram/profile', 'GET', null, (ok, data, message) => {
     if (ok && data.user && data.stats) {
@@ -299,6 +326,7 @@ module.exports = {
   getUserState,
   fetchProfile,
   updateProfile,
+  uploadAvatar,
   fetchMyLeads,
   fetchMyCollection,
   createMyItem,

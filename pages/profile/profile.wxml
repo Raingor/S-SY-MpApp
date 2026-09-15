@@ -6,7 +6,10 @@
     <view class="head-inner">
       <view wx:if="{{loggedIn}}">
         <view class="head-row">
-          <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
+          <view class="avatar-picker" bindtap="onAvatarTap" hover-class="avatar-picker-hover" aria-label="更换头像">
+            <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
+            <view class="avatar-edit-badge">{{avatarUploading ? '上传中' : '更换'}}</view>
+          </view>
           <view class="head-info">
             <view class="nick-row">
               <text class="nick">{{user.nickname}}</text>
@@ -34,12 +37,12 @@
     </view>
   </view>
 
-  <view wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card">
+  <view wx:if="{{loggedIn}}" class="phone-bind-card card">
     <view class="phone-bind-copy">
-      <view class="phone-bind-title">完成手机号绑定</view>
-      <view class="phone-bind-desc">预约或提交咨询前，需要先绑定手机号</view>
+      <view class="phone-bind-title">{{phoneBound ? '修改绑定手机号' : '完成手机号绑定'}}</view>
+      <view class="phone-bind-desc">{{phoneBound ? '重新授权微信手机号即可更新绑定' : '预约或提交咨询前，需要先绑定手机号'}}</view>
     </view>
-    <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">绑定手机号</button>
+    <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">{{phoneBound ? '重新授权' : '绑定手机号'}}</button>
   </view>
 
   <!-- ===== 服务单元格卡 ===== -->
