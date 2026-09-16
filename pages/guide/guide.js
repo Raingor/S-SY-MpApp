@@ -4,6 +4,7 @@ const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SY-Greece-Service';
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
+const content = require('../../data/content');
 const TODAY_KEY = '2026-09-14';
 const CALENDAR_MONTHS = [
   { year: 2026, month: 8, label: '2026年8月' },
@@ -48,12 +49,39 @@ function buildCalendar(year, month) {
   return days;
 }
 
+function localizedGuide(guide, locale) {
+  if (!guide) return null;
+  const suffix = locale === 'en' ? 'En' : (locale === 'zh-TW' ? 'Tw' : '');
+  const read = (key, fallback) => guide[key + suffix] || guide[key] || fallback;
+  return {
+    ...guide,
+    name: read('name', guide.name),
+    role: read('role', guide.role),
+    intro: read('intro', guide.intro),
+    location: read('location', guide.location),
+    storyTitle: read('storyTitle', guide.storyTitle),
+    story1: read('story1', guide.story1),
+    story2: read('story2', guide.story2),
+    storyNote: read('storyNote', guide.storyNote),
+    quoteKicker: read('quoteKicker', guide.quoteKicker),
+    quote: read('quote', guide.quote),
+    quoteFoot: read('quoteFoot', guide.quoteFoot),
+    credentialsTitle: read('credentialsTitle', guide.credentialsTitle),
+    signatureTitle: read('signatureTitle', guide.signatureTitle),
+    reviewsTitle: read('reviewsTitle', guide.reviewsTitle),
+    credentials: guide['credentials' + suffix] || guide.credentials,
+    directions: guide['directions' + suffix] || guide.directions,
+    reviews: guide['reviews' + suffix] || guide.reviews
+  };
+}
+
 Page({
   data: {
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     guide: {
+      id: 'richard-li',
       avatar: '/assets/images/guide/richard-avatar.jpg',
       fullImage: '/assets/images/guide/richard-full.jpg',
       name: 'Richard 李',
@@ -100,23 +128,41 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/guide/guide');
+    return buildShareCard('/pages/guide/guide?id=' + (this.data.guide.id || 'richard-li'));
   },
 
-  onLoad() {
+  onLoad(options) {
+    this.guideId = (options && options.id) || 'richard-li';
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     this.applyLocale();
+    this.loadManagedGuide();
   },
 
   onShow() {
     this.applyLocale();
+    this.loadManagedGuide();
   },
 
   applyLocale() {
     const copy = i18n.apply(this);
     this.setData({ calendarWeeks: this.data.locale === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : (this.data.locale === 'zh-TW' ? ['一', '二', '三', '四', '五', '六', '日'] : ['一', '二', '三', '四', '五', '六', '日']), selectedDateText: this.data.selectedDate ? this.data.selectedDateText : copy.guide.chooseDate });
     return copy;
+  },
+
+  loadManagedGuide() {
+    content.loadContent((data, state) => {
+      if (state && state.reason === 'offline') return;
+      const remote = content.getGuide(this.guideId, data);
+      if (!remote) return;
+      const guide = localizedGuide(remote, this.data.locale);
+      this.setData({
+        guide: { ...this.data.guide, ...guide, wechat: guide.wechat || this.data.guide.wechat },
+        credentials: Array.isArray(guide.credentials) && guide.credentials.length ? guide.credentials : this.data.credentials,
+        directions: Array.isArray(guide.directions) && guide.directions.length ? guide.directions : this.data.directions,
+        reviews: Array.isArray(guide.reviews) && guide.reviews.length ? guide.reviews : this.data.reviews
+      });
+    });
   },
 
   onBack() {
@@ -211,8 +257,10 @@ Page({
       source: 'miniprogram',
       platform: 'wechat-miniprogram',
       leadType: 'guide-booking',
-      guideSlug: 'richard-li',
-      destination: '希腊',
+      guideSlug: this.data.guide.id || this.guideId || 'richard-li',
+      guideId: this.data.guide.id || this.guideId || 'richard-li',
+      countryId: content.getSelectedCountryId(),
+      destination: content.countryName((content.getCountries() || []).find((item) => item.id === content.getSelectedCountryId()), this.data.locale) || '希腊',
       bookingDate: this.data.selectedDate,
       duration: this.data.selectedDuration,
       travelers: form.people,

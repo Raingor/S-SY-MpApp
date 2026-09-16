@@ -23,6 +23,9 @@
       <view class="hero-search-icon"></view>
       <text class="hero-search-text">{{i18n.search}}</text>
     </view>
+    <view class="country-switch" wx:if="{{countries.length > 1}}" bindtap="onCountryTap" hover-class="country-switch-press">
+      <text>{{selectedCountryLabel}}</text><text class="country-switch-arrow">⌄</text>
+    </view>
 
     <!-- 品牌名 + 品牌 slogan（压左下 1/3） -->
     <view class="hero-brand">

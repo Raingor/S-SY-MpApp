@@ -5,6 +5,7 @@ const app = getApp();
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getThemeCategories } = require('../../data/customization-themes');
+const content = require('../../data/content');
 
 function formOptions(locale) {
   if (locale === 'en') return {
@@ -161,6 +162,7 @@ Page({
       source: 'miniprogram',
       platform: 'wechat-miniprogram',
       leadType: this.data.leadType,
+      countryId: content.getSelectedCountryId(),
       destination,
       bookingDate: form.date,
       duration: form.days,

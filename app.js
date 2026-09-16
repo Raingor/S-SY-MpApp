@@ -6,6 +6,7 @@ const i18n = require('./utils/i18n');
 App({
   onLaunch() {
     this.globalData.locale = i18n.getLocale();
+    this.globalData.countryId = wx.getStorageSync('sy_mp_country_id') || 'greece';
     this.globalData.auth.accessToken = wx.getStorageSync('sy_mp_access_token') || '';
     this.globalData.auth.user = wx.getStorageSync('sy_mp_user') || null;
   },
@@ -17,6 +18,7 @@ App({
     },
     pendingLeadType: '',
     locale: 'zh-CN',
+    countryId: 'greece',
     brand: '希腊旅行管家',
     brandEn: 'Greece Travel Butler',
     site: 'sy-greece.com',

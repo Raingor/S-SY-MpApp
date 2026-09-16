@@ -1,14 +1,17 @@
-// 景点与行程内容服务：优先从后端 /api/content 拉取，仅网络离线时回退本地镜像数据
+// 景点、国家与导游内容服务：优先从后端 /api/content 拉取，仅网络离线时回退本地镜像数据
 // 后端字段与本地镜像存在差异，本模块统一适配为页面所需结构
 const local = require('./mirror-content');
 
-let cache = null;          // { cities, attractions, sampleItineraries }
+const COUNTRY_STORAGE_KEY = 'sy_mp_country_id';
+const DEFAULT_COUNTRY_ID = 'greece';
+let cache = null;          // { countries, guides, cities, attractions, sampleItineraries }
 let fetching = null;       // 进行中的请求 Promise（去重）
 let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { cities: [], attractions: [], sampleItineraries: [], destinations: [] };
+const EMPTY_CONTENT = { countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [] };
+const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 
 function hasRemoteContract(data) {
   return Boolean(
@@ -55,6 +58,17 @@ function mapImage(path) {
   if (path.indexOf('/assets/') === 0) return path; // 已是小程序本地路径
   const file = path.split('/').pop();
   return IMAGE_FALLBACK[file] || '/assets/images/dest/dest-athens.jpg';
+}
+
+function mapGuideImage(path, fallback) {
+  if (!path) return fallback || '';
+  if (path.indexOf('/assets/') === 0 || /^https?:\/\//.test(path)) return path;
+  const file = path.split('/').pop();
+  if (file === 'richard-avatar.webp') return '/assets/images/guide/richard-avatar.jpg';
+  if (file === 'richard-full.webp') return '/assets/images/guide/richard-full.jpg';
+  const app = getApp();
+  const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
+  return base.replace(/\/$/, '') + '/images/' + file;
 }
 
 // 后端 cities：mosaic 为图片路径数组
@@ -110,18 +124,60 @@ function adaptDestinations(remoteDestinations) {
   }));
 }
 
+function adaptCountries(remoteCountries) {
+  const countries = Array.isArray(remoteCountries) && remoteCountries.length ? remoteCountries : [DEFAULT_COUNTRY];
+  return countries.filter((item) => item.enabled !== false).map((item) => ({ ...item, heroImage: mapGuideImage(item.heroImage) }));
+}
+
+function adaptGuides(remoteGuides) {
+  return (remoteGuides || []).filter((item) => item.enabled !== false).map((item) => ({
+    ...item,
+    avatar: mapGuideImage(item.avatar, '/assets/images/guide/richard-avatar.jpg'),
+    fullImage: mapGuideImage(item.fullImage, '/assets/images/guide/richard-full.jpg'),
+    path: '/pages/guide/guide?id=' + encodeURIComponent(item.id)
+  }));
+}
+
+function getSelectedCountryId() {
+  const stored = wx.getStorageSync(COUNTRY_STORAGE_KEY);
+  return typeof stored === 'string' && stored ? stored : DEFAULT_COUNTRY_ID;
+}
+
+function setSelectedCountryId(countryId) {
+  const next = String(countryId || DEFAULT_COUNTRY_ID);
+  wx.setStorageSync(COUNTRY_STORAGE_KEY, next);
+  const app = getApp();
+  if (app && app.globalData) app.globalData.countryId = next;
+  cache = null;
+  remoteLoaded = false;
+  fetching = null;
+  loadState = { source: 'local', status: 'initial', reason: '' };
+  return next;
+}
+
+function countryName(country, locale) {
+  if (!country) return '';
+  if (locale === 'en') return country.nameEn || country.name || country.id;
+  if (locale === 'zh-TW') return country.nameTw || country.name || country.id;
+  return country.name || country.nameTw || country.nameEn || country.id;
+}
+
 function fetchContent() {
   if (fetching) return fetching;
   const app = getApp();
   const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
+  const countryId = getSelectedCountryId();
   fetching = new Promise((resolve) => {
     wx.request({
-      url: base + '/api/content',
+      url: base + '/api/content?country=' + encodeURIComponent(countryId),
       method: 'GET',
       timeout: 8000,
       success: (res) => {
         if (res.statusCode === 200 && hasRemoteContract(res.data)) {
           cache = {
+            countryId,
+            countries: adaptCountries(res.data.countries),
+            guides: adaptGuides(res.data.guides),
             cities: adaptCities(res.data.cities),
             attractions: adaptAttractions(res.data.attractions),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
@@ -140,7 +196,7 @@ function fetchContent() {
         resolve({ data: EMPTY_CONTENT, state: loadState });
       },
       fail: () => {
-        cache = local.getContent();
+        cache = { ...local.getContent(), countryId, countries: [DEFAULT_COUNTRY], guides: [] };
         remoteLoaded = false;
         loadState = { source: 'local', status: 'fallback', reason: 'offline' };
         notifyFallback(loadState);
@@ -165,7 +221,19 @@ function loadContent(success) {
 function getContent(source) {
   if (source) return source;
   if (loadState.status === 'contract-error') return EMPTY_CONTENT;
-  return remoteLoaded && cache ? cache : local.getContent();
+  return remoteLoaded && cache ? cache : { ...local.getContent(), countries: [DEFAULT_COUNTRY], guides: [] };
+}
+
+function getCountries(source) {
+  return getContent(source).countries || [DEFAULT_COUNTRY];
+}
+
+function getGuides(source) {
+  return getContent(source).guides || [];
+}
+
+function getGuide(id, source) {
+  return getGuides(source).find((item) => item.id === id) || null;
 }
 
 // ===== 同步查询（本地镜像兜底，接口数据到达后走内存缓存） =====
@@ -223,6 +291,12 @@ module.exports = {
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,
+  getCountries,
+  getGuides,
+  getGuide,
+  getSelectedCountryId,
+  setSelectedCountryId,
+  countryName,
   fetchContent,
   getLoadState: () => loadState
 };

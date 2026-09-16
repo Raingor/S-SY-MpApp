@@ -4,6 +4,7 @@ const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
+const content = require('../../data/content');
 
 function businessOptions(locale) {
   if (locale === 'en') return { cycle: ['1–3 days', '4–7 days', '1–2 weeks', 'Long-term'], duration: ['Half day', '1 day', 'Full service'], language: ['Chinese-English support', 'Conference interpreting', 'Document translation', 'Combined needs'], people: ['1–2 people', '3–5 people', '6+ people'] };
@@ -93,7 +94,8 @@ Page({
       source: 'miniprogram',
       platform: 'wechat-miniprogram',
       leadType: 'business-travel',
-      destination: '希腊',
+      countryId: content.getSelectedCountryId(),
+      destination: content.countryName((content.getCountries() || []).find((item) => item.id === content.getSelectedCountryId()), this.data.locale) || '希腊',
       businessCycle: form.cycle,
       duration: form.duration,
       languageNeeds: form.languageNeeds,

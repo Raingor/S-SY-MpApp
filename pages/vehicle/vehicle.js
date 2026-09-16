@@ -4,6 +4,7 @@ const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
+const content = require('../../data/content');
 
 function vehicleOptions(locale) {
   if (locale === 'en') return { duration: ['Half day', '1 day', 'Multiple days'], vehicle: ['BMW SUV / 5 seats', 'Comfort sedan', 'Business vehicle'], people: ['1–2 people', '3–5 people', '6+ people'] };
@@ -96,7 +97,8 @@ Page({
       source: 'miniprogram',
       platform: 'wechat-miniprogram',
       leadType: 'vehicle-consultation',
-      destination: '希腊',
+      countryId: content.getSelectedCountryId(),
+      destination: content.countryName((content.getCountries() || []).find((item) => item.id === content.getSelectedCountryId()), this.data.locale) || '希腊',
       bookingDate: form.date,
       duration: form.duration,
       vehicleType: form.vehicleType,

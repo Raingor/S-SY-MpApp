@@ -16,6 +16,9 @@ Page({
       { img: '/assets/images/hero/hero-couple.jpg' }
     ],
     heroCurrent: 0,
+    countries: [],
+    selectedCountry: null,
+    selectedCountryLabel: '',
     // 六大服务入口
     entries: [
       { key: 'customization', label: '行程定制', desc: '资讯咨询' },
@@ -123,14 +126,7 @@ Page({
       guideCarouselEnabled: this.data.guides.length > 1
     });
     this.applyLocale();
-    content.loadContent((data, state) => {
-      // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
-      if (state && state.reason === 'offline') return;
-      this.setData({
-        routes: content.getReferenceList(data).slice(0, 4),
-        destinations: content.getHomeDestinations(data)
-      });
-    });
+    this.applyRemoteContent();
   },
 
   onShow() {
@@ -157,7 +153,44 @@ Page({
       { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
     ];
     this.setData({ entries, destTabs: [copy.civilization, copy.islands] });
+    if (this.data.selectedCountry) {
+      this.setData({ selectedCountryLabel: content.countryName(this.data.selectedCountry, this.data.locale) });
+    }
     return copy;
+  },
+
+  applyRemoteContent() {
+    content.loadContent((data, state) => {
+      // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
+      if (state && state.reason === 'offline') return;
+      const countries = content.getCountries(data);
+      const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
+      const guides = content.getGuides(data);
+      this.setData({
+        countries,
+        selectedCountry,
+        selectedCountryLabel: content.countryName(selectedCountry, this.data.locale),
+        guides: guides.length ? guides : this.data.guides,
+        guideCarouselEnabled: guides.length > 1,
+        routes: content.getReferenceList(data).slice(0, 4),
+        destinations: content.getHomeDestinations(data)
+      });
+    });
+  },
+
+  onCountryTap() {
+    const countries = this.data.countries || [];
+    if (countries.length < 2) return;
+    wx.showActionSheet({
+      itemList: countries.map((item) => content.countryName(item, this.data.locale)),
+      success: (res) => {
+        const next = countries[res.tapIndex];
+        if (!next || next.id === content.getSelectedCountryId()) return;
+        content.setSelectedCountryId(next.id);
+        this.setData({ selectedCountry: next, selectedCountryLabel: content.countryName(next, this.data.locale), destTab: 0 });
+        this.applyRemoteContent();
+      }
+    });
   },
 
   // 轮播切换
