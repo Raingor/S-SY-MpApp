@@ -255,12 +255,13 @@ function getAttraction(id, source) {
   return getContent(source).attractions.find((item) => item.id === id) || null;
 }
 
+// 景点关联条目：带出封面图，供行程页渲染缩略图；找不到的 id 直接丢弃。
 function getAttractionNames(ids, source) {
   if (!Array.isArray(ids)) return [];
   const data = getContent(source);
   return ids.map((id) => {
     const item = data.attractions.find((a) => a.id === id);
-    return item ? { id, name: item.name } : null;
+    return item ? { id, name: item.name, image: item.image || '' } : null;
   }).filter(Boolean);
 }
 

@@ -62,11 +62,13 @@ function decorate(itinerary) {
     key: day.no || day.day,
     entries: (day.entries || []).map((entry) => {
       const summary = splitEntryText(entry.text);
+      // 同一时段内若重复关联同一景点，只保留一张卡片，避免出现重复缩略图。
+      const ids = (entry.attractionIds || []).filter((id, index, list) => id && list.indexOf(id) === index);
       return {
         ...entry,
         entryTitle: summary.title,
         entryDescription: summary.description,
-        spots: content.getAttractionNames(entry.attractionIds || [])
+        spots: content.getAttractionNames(ids)
       };
     })
   }));

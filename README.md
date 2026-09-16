@@ -23,7 +23,7 @@ MpApp/
 │   ├── content.js             # 内容服务：优先请求 /api/content，校验契约，仅离线时降级镜像
 │   ├── mirror-content.js      # 本地镜像内容聚合入口
 │   ├── mirror-attractions.js  # 景点镜像数据（6 城 15 景点：亮点/参观指南/深度讲解）
-│   ├── mirror-itineraries.js  # 行程镜像数据（参考行程 + 定制行程样例，经 attractionIds 关联景点）
+│   ├── mirror-itineraries.js  # 行程镜像数据（参考行程 + 定制行程样例，经 attractionIds 关联景点封面图）
 │   ├── customization-themes.js# 定制主题分类（9 类，zh-CN / zh-TW / en 三语对等）
 │   └── luxury.js              # 奢享体验详情（包机/游艇）与首页卡片文案（三语对等）
 ├── pages/
@@ -104,7 +104,7 @@ MpApp/
 ### 行程页 `pages/itinerary/*`
 - **参考行程**（`type=reference`，页面直接展示）：甄选路线的简版逐日日程，首页路线卡直达。
 - **定制行程**（`type=custom`，发客户的专属链接）：参数对齐《希腊定制旅程表》PDF——表头（行程日期/订单编号/旅客人数/语种需求/计划车型/推荐司导/服务费总额）、逐日时段（上午/中午/下午/晚上）、服务标记（接送/陪同/讲解/酒店/门票/机票/船票 ★）、夜宿城市、服务须知四组。
-- 行程条目通过 `attractionIds` 关联景点，详情页可点击景点名跳转景点详情。
+- 行程条目通过 `attractionIds` 关联景点，每日条目下以「景点封面缩略图 + 名称」的胶囊卡展示，点击进入景点详情；同一时段内重复关联的景点会自动去重。
 - 分享卡片即行程链接：`/pages/itinerary/detail?id=<订单号>`。
 
 ### 服务5 希腊商旅随行服务 `pages/business/business`

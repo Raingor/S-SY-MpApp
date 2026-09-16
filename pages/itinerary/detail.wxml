@@ -107,7 +107,12 @@
               class="spot-chip"
               data-id="{{spot.id}}"
               bindtap="onSpotTap"
-            >{{spot.name}} <text>›</text></view>
+              hover-class="spot-chip-press"
+            >
+              <image wx:if="{{spot.image}}" class="spot-chip-img" src="{{spot.image}}" mode="aspectFill" lazy-load />
+              <text class="spot-chip-name">{{spot.name}}</text>
+              <text class="spot-chip-arrow">›</text>
+            </view>
           </view>
         </view>
       </view>

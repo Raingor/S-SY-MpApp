@@ -366,20 +366,48 @@
 .itd-entry-spots {
   display: flex;
   flex-wrap: wrap;
-  gap: 10rpx;
-  margin-top: 12rpx;
+  gap: 12rpx;
+  margin-top: 16rpx;
 }
 
+/* 缩略图 + 名称的胶囊卡：点击进入景点详情 */
 .spot-chip {
-  padding: 8rpx 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  max-width: 100%;
+  padding: 8rpx 18rpx 8rpx 8rpx;
   border: 1rpx solid #BBD8EA;
-  border-radius: 26rpx;
+  border-radius: 30rpx;
   background: #EAF4F9;
   color: #1567A8;
   font-size: 23rpx;
 }
 
-.spot-chip text { font-family: Georgia, serif; }
+.spot-chip-press {
+  background: #D8EAF5;
+}
+
+.spot-chip-img {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #FFFFFF;
+}
+
+.spot-chip-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.spot-chip-arrow {
+  font-family: Georgia, serif;
+  flex-shrink: 0;
+}
 
 /* 服务须知 */
 .itd-notices { padding-bottom: 26rpx; }
