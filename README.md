@@ -189,8 +189,11 @@ MpApp/
 **`.gitignore` 与打包排除是两套独立机制**：`.gitignore` 只影响 Git 提交，微信开发者工具打包依据的是 `project.config.json` 的 `packOptions.ignore`。两者需各自维护。
 
 - `packOptions.ignore` 已排除 `scripts/`、`.kilo/`、`.pi/`、`.gitignore`、`README.md`、`env.md`、`project.private.config.json`。新增开发用目录时必须同步加到这里，否则会被打进主包导致上传失败。
-- **主包体积余量紧张（约 48KB）**：当前打包约 1999.9KB，上限 2,097,152 字节（2048KB）。继续新增图片前须先压缩或清理素材，否则会触发 `80051 source size exceed max limit 2MB`。
-- 可回收空间：`assets/images/icons/` 下 5 个入口图标（共约 36KB）已无源码引用，可安全删除。
+- **主包体积余量紧张（约 49KB）**：当前打包 2,046,585 字节（上限 2,097,152 字节），余量约 49.4KB。新增图片前须先压缩素材，否则会触发 `80051 source size exceed max limit 2MB`。
+- **素材已无冗余可回收**：`assets/images/icons/` 下 5 个入口图标（36KB）由首页 `entry-{{item.key}}.png` **动态拼接引用**，静态检索文件名会误判为未引用，切勿删除。
+- **WebP 收益有限**：实测 JPG 已按质量 72 压缩，转 WebP 仅省约 3%（56KB）；图标 PNG 转 WebP 仅省 8KB。收益不足以承担改动风险，故未启用。
+- **`jenny-wechat-qr.png`（72KB）不可有损压缩**，二维码需保持清晰以保证可扫描。
+- 后续若需扩容，优先考虑**分包**（`subpackages`）把 `pages/profile/*`、`pages/city/*` 拆出，或将大图改由 CDN 加载。
 - 命令行上传（需先在开发者工具「设置 → 安全设置」中开启服务端口）：
 
 ```bash
