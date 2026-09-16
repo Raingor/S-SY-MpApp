@@ -7,6 +7,17 @@ const i18n = require('../../utils/i18n');
 const { getThemeCategories } = require('../../data/customization-themes');
 const content = require('../../data/content');
 
+function buildThemeCategories(locale, selectedThemes) {
+  const selected = selectedThemes || [];
+  return getThemeCategories(locale).map((category) => ({
+    ...category,
+    options: category.options.map((label) => ({
+      label,
+      selected: selected.indexOf(label) !== -1
+    }))
+  }));
+}
+
 function formOptions(locale) {
   if (locale === 'en') return {
     days: ['3–4 days', '5–6 days', '7–9 days', '10+ days'],
@@ -100,7 +111,8 @@ Page({
     const locale = i18n.getLocale();
     const options = formOptions(locale);
     this.setData({
-      themeCategories: getThemeCategories(locale),
+      locale,
+      themeCategories: buildThemeCategories(locale, this.data.form.themes),
       daysOptions: options.days,
       budgetOptions: options.budget,
       peopleOptions: options.people,
@@ -134,7 +146,10 @@ Page({
     } else {
       themes.push(theme);
     }
-    this.setData({ 'form.themes': themes });
+    this.setData({
+      'form.themes': themes,
+      themeCategories: buildThemeCategories(this.data.locale, themes)
+    });
   },
 
   /* ---------- 提交 ---------- */

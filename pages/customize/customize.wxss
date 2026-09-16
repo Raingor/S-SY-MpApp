@@ -160,6 +160,8 @@
 }
 
 .theme-chip {
+  display: inline-flex;
+  align-items: center;
   padding: 13rpx 22rpx;
   border-radius: 36rpx;
   background: #F4F7FA;
@@ -169,11 +171,29 @@
   transition: all 0.2s;
 }
 
+.theme-chip-check {
+  display: none;
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 8rpx;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #FFFFFF;
+  font-size: 17rpx;
+  line-height: 24rpx;
+  text-align: center;
+}
+
 .theme-chip-on {
-  background: rgba(21, 103, 168, 0.08);
+  background: #E8F3FB;
   border-color: var(--c-primary);
   color: var(--c-primary);
   font-weight: 600;
+  box-shadow: 0 5rpx 12rpx rgba(21, 103, 168, 0.12);
+}
+
+.theme-chip-on .theme-chip-check {
+  display: block;
 }
 
 /* 合规说明 */

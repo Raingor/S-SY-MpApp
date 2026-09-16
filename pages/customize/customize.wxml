@@ -97,13 +97,16 @@
         <view class="theme-category-label">{{category.label}}</view>
         <view class="theme-wrap">
           <view
-            class="theme-chip {{form.themes.includes(option) ? 'theme-chip-on' : ''}}"
+            class="theme-chip {{option.selected ? 'theme-chip-on' : ''}}"
             wx:for="{{category.options}}"
             wx:for-item="option"
-            wx:key="*this"
-            data-theme="{{option}}"
+            wx:key="label"
+            data-theme="{{option.label}}"
             bindtap="onThemeToggle"
-          >{{option}}</view>
+          >
+            <view class="theme-chip-check">✓</view>
+            <text>{{option.label}}</text>
+          </view>
         </view>
       </view>
     </view>
