@@ -61,6 +61,9 @@ desktop.ini
 *.swo
 *~
 
+# ---------- 预览产物 ----------
+.preview-tmp/
+
 # ---------- 日志与临时文件 ----------
 *.log
 npm-debug.log*

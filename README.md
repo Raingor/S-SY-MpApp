@@ -202,5 +202,15 @@ MpApp/
   --version 1.0.1 --desc "版本说明"
 ```
 
-- `--project` 必须使用**绝对路径**；传相对路径会读不到 AppID 与 `project.config.json`。
-- 上传后在微信公众平台「管理 → 版本管理 → 开发版本」中，把该版本设为体验版并添加体验成员。
+- `--project` 必须使用**绝对路径**；传相对路径会读不到 AppID 与 `project.config.json`（实测传 `.` 会报「请检查 project.config.json 是否存在及是否有效」）。
+- 生成预览二维码（真机扫码即可体验，无需设为体验版）：
+
+```bash
+mkdir -p .preview-tmp   # --qr-output 所在目录必须已存在
+/Applications/wechatwebdevtools.app/Contents/MacOS/cli preview \
+  --project /Users/raingor_ye/wwwroot/S-SY-MpApp \
+  --qr-format image --qr-output /Users/raingor_ye/wwwroot/S-SY-MpApp/.preview-tmp/qr.png
+```
+
+  用 `--qr-format terminal` 可把二维码直接打印到终端。
+- **CLI 无法把版本设为「体验版」**：官方命令索引只有 `preview` / `upload` / `auto-preview` / `build-npm` 等，`upload` 仅把代码推到「开发版本」。设为体验版必须在微信公众平台（`mp.weixin.qq.com`）登录后操作：**管理 → 版本管理 → 开发版本 → 选为体验版**，再到「成员管理 → 体验成员」添加微信号。扫码登录无法自动化。
