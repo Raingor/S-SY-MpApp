@@ -328,8 +328,18 @@
 
 .itd-entry-body { flex: 1; min-width: 0; }
 
+.itd-entry-title {
+  display: block;
+  color: #284D66;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
 .itd-entry-text {
   display: block;
+  margin-top: 8rpx;
   color: #5B6B7A;
   font-size: 26rpx;
   line-height: 1.8;

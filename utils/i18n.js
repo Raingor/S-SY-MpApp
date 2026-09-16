@@ -200,6 +200,9 @@ messages.en.guide = { heroQuote: 'Turn a glimmer into a Greek experience with re
 messages['zh-CN'].travel = { title: '希腊出行指南', subtitle: '把出发前的疑问变成一份清晰的准备清单，轻松开启雅典与爱琴海之旅。', promise1: '实用攻略', promise2: '出发前收藏', promise3: '随时可查', heading: '把资料变成旅途答案', intro: '我们把资料整理成适合手机快速浏览的要点，出发前收藏这一页就够了。', note: '签证、票务、开放时间等信息可能调整，页面内容用于行前参考，出发前请以官方最新信息为准。', consultTitle: '还有具体问题？', consultDesc: '告诉我们你的日期、人数与偏好，顾问帮你把攻略落到行程里。' };
 messages['zh-TW'].travel = { title: '希臘出行指南', subtitle: '把出發前的疑問變成一份清晰的準備清單，輕鬆開啟雅典與愛琴海之旅。', promise1: '實用攻略', promise2: '出發前收藏', promise3: '隨時可查', heading: '把資料變成旅途答案', intro: '我們把資料整理成適合手機快速瀏覽的要點，出發前收藏這一頁就夠了。', note: '簽證、票務、開放時間等資訊可能調整，頁面內容用於行前參考，出發前請以官方最新資訊為準。', consultTitle: '還有具體問題？', consultDesc: '告訴我們你的日期、人數與偏好，顧問幫你把攻略落到行程裡。' };
 messages.en.travel = { title: 'Greece travel guide', subtitle: 'Turn pre-trip questions into a clear checklist for an easy start in Athens and the Aegean.', promise1: 'Practical guide', promise2: 'Save before departure', promise3: 'Easy to check', heading: 'Turn information into travel answers', intro: 'We organized the materials into mobile-friendly points you can save before departure.', note: 'Visa, ticket and opening information may change. Use this page as a reference and check official sources before departure.', consultTitle: 'Still have questions?', consultDesc: 'Tell us your dates, group and preferences. A consultant can turn the guide into a trip.' };
+Object.assign(messages['zh-CN'].travel, { onlineRead: '在线阅读' });
+Object.assign(messages['zh-TW'].travel, { onlineRead: '線上閱讀' });
+Object.assign(messages.en.travel, { onlineRead: 'Read online' });
 Object.assign(messages['zh-CN'].travel, { sections: [
   { key: 'prepare', kicker: 'PREPARE WELL', title: '出发准备', intro: '把签证、行李与穿搭先安排好，轻装出发。', guides: [
     { key: 'visa', mark: '签', source: '申根签证申请表', title: '签证与材料清单', desc: '按申请表逐项核对个人信息、行程、住宿与保险资料。', points: ['护照与复印件', '行程、住宿与交通', '保险、照片与签名'] },

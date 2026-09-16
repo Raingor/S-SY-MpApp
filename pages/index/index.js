@@ -25,14 +25,16 @@ Page({
       { key: 'business', label: '希腊商旅', desc: '随行咨询' },
       { key: 'travel-guide', label: '出行指南', desc: '实用攻略' }
     ],
-    // 名人导游推荐
-    guide: {
+    // 导游名片轮播：后续新增导游时只需追加一项，并提供对应详情页。
+    guides: [{
       avatar: '/assets/images/guide/richard-avatar.jpg',
       eyebrow: 'SIGNATURE GUIDE',
       name: 'Richard 李',
       role: '名人导游 · 欧洲精品文旅金牌从业者',
-      proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照'
-    },
+      proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照',
+      path: '/pages/guide/guide'
+    }],
+    guideCarouselEnabled: false,
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
       {
@@ -71,13 +73,13 @@ Page({
     // 奢享体验
     luxuries: [
       {
-        id: 'l1',
+        id: 'jet',
         img: '/assets/images/lux/lux-jet.jpg',
         name: '私人包机',
         desc: '雅典—圣岛直达\n海景航线俯瞰基克拉泽斯群岛'
       },
       {
-        id: 'l2',
+        id: 'yacht',
         img: '/assets/images/lux/lux-yacht.jpg',
         name: '游艇出海',
         desc: '帆船/机艇包船\n火山岛浮潜 · 海上落日晚宴'
@@ -116,7 +118,10 @@ Page({
 
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.setData({
+      statusBarHeight: sys.statusBarHeight || 20,
+      guideCarouselEnabled: this.data.guides.length > 1
+    });
     this.applyLocale();
     content.loadContent((data, state) => {
       // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
@@ -195,14 +200,16 @@ Page({
     wx.switchTab({ url: '/pages/customize/customize' });
   },
 
-  // 路线卡 / 奢享卡：电询
-  onInquiryTap() {
-    wx.switchTab({ url: '/pages/customize/customize' });
+  // 奢享体验：先浏览服务详情，再进入咨询。
+  onLuxuryTap(e) {
+    const type = e.currentTarget.dataset.id === 'yacht' ? 'yacht' : 'jet';
+    wx.navigateTo({ url: '/pages/luxury/detail?type=' + type });
   },
 
-  // 名人导游页
-  onGuideTap() {
-    wx.navigateTo({ url: '/pages/guide/guide' });
+  // 导游名片轮播：使用 item 的路径，后续可直接增加更多名片。
+  onGuideTap(e) {
+    const guide = this.data.guides[e.currentTarget.dataset.index || 0];
+    if (guide && guide.path) wx.navigateTo({ url: guide.path });
   },
 
   // 目的地分类切换

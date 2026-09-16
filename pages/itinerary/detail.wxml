@@ -94,7 +94,8 @@
       <view class="itd-entry" wx:for="{{day.entries}}" wx:for-item="entry" wx:key="period">
         <view class="itd-entry-period">{{entry.period}}</view>
         <view class="itd-entry-body">
-          <text class="itd-entry-text">{{entry.text}}</text>
+          <text class="itd-entry-title">{{entry.entryTitle}}</text>
+          <text wx:if="{{entry.entryDescription}}" class="itd-entry-text">{{entry.entryDescription}}</text>
           <view class="itd-entry-services" wx:if="{{entry.services.length}}">
             <text wx:for="{{entry.services}}" wx:for-item="svc" wx:key="*this" class="svc-chip"><text class="star">★</text>{{svc}}</text>
           </view>

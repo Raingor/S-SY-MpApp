@@ -46,16 +46,29 @@ function adaptCustomTrip(trip) {
   };
 }
 
-// 给行程条目挂上景点名称，供 wxml 渲染可点击的景点标签
+function splitEntryText(text) {
+  const parts = String(text || '').split('\n');
+  return {
+    title: (parts.shift() || '').trim(),
+    description: parts.join('\n').trim()
+  };
+}
+
+// 给行程条目挂上景点名称和第一行重点，供 wxml 渲染可点击的景点标签
 function decorate(itinerary) {
   if (!itinerary) return null;
   const schedule = (itinerary.schedule || []).map((day) => ({
     ...day,
     key: day.no || day.day,
-    entries: (day.entries || []).map((entry) => ({
-      ...entry,
-      spots: content.getAttractionNames(entry.attractionIds || [])
-    }))
+    entries: (day.entries || []).map((entry) => {
+      const summary = splitEntryText(entry.text);
+      return {
+        ...entry,
+        entryTitle: summary.title,
+        entryDescription: summary.description,
+        spots: content.getAttractionNames(entry.attractionIds || [])
+      };
+    })
   }));
   return { ...itinerary, schedule };
 }

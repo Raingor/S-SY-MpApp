@@ -13,6 +13,7 @@
     "pages/profile/edit/edit",
     "pages/itinerary/index",
     "pages/itinerary/detail",
+    "pages/luxury/detail",
     "pages/attraction/detail",
     "pages/city/index",
     "pages/city/spots"

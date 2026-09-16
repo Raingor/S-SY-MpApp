@@ -4,26 +4,22 @@ const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
-
-// 行程资讯咨询主题多选
-const THEMES = ['历史文明', '海滩海岛', '餐厅偏好', '特别安排', '体育活动', '高端私旅', '商务', '司导', '翻译'];
+const { getThemeCategories } = require('../../data/customization-themes');
 
 function formOptions(locale) {
   if (locale === 'en') return {
-    themes: ['History & heritage', 'Beaches & islands', 'Restaurants', 'Special arrangements', 'Sports', 'Luxury travel', 'Business', 'Driver-guide', 'Interpreting'],
     days: ['3–4 days', '5–6 days', '7–9 days', '10+ days'],
     budget: ['Under ¥15k', '¥15k–25k', '¥25k–40k', 'Over ¥40k'],
     people: ['1 person', '2 people', '3–5 people', '6+ people'],
     carDistance: ['Any distance', 'Up to 2 hours/day', 'Up to 4 hours/day', 'Up to 6 hours/day']
   };
   if (locale === 'zh-TW') return {
-    themes: ['歷史文明', '海灘海島', '餐廳偏好', '特別安排', '體育活動', '高端私旅', '商務', '司導', '翻譯'],
     days: ['3-4天', '5-6天', '7-9天', '10天以上'],
     budget: ['1.5萬以內', '1.5-2.5萬', '2.5-4萬', '4萬以上'],
     people: ['1人', '2人', '3-5人', '6人以上'],
     carDistance: ['不限車程', '單日不超過2小時', '單日不超過4小時', '單日不超過6小時']
   };
-  return { themes: THEMES, days: ['3-4天', '5-6天', '7-9天', '10天以上'], budget: ['1.5萬以內', '1.5-2.5萬', '2.5-4萬', '4萬以上'], people: ['1人', '2人', '3-5人', '6人以上'], carDistance: ['不限車程', '單日不超過2小時', '單日不超過4小時', '單日不超過6小時'] };
+  return { days: ['3-4天', '5-6天', '7-9天', '10天以上'], budget: ['1.5萬以內', '1.5-2.5萬', '2.5-4萬', '4萬以上'], people: ['1人', '2人', '3-5人', '6人以上'], carDistance: ['不限車程', '單日不超過2小時', '單日不超過4小時', '單日不超過6小時'] };
 }
 
 Page({
@@ -31,7 +27,7 @@ Page({
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
-    themes: THEMES,
+    themeCategories: [],
     form: {
       destination: '',       // 出行目的地
       date: '',              // 出行时间
@@ -103,7 +99,7 @@ Page({
     const locale = i18n.getLocale();
     const options = formOptions(locale);
     this.setData({
-      themes: options.themes,
+      themeCategories: getThemeCategories(locale),
       daysOptions: options.days,
       budgetOptions: options.budget,
       peopleOptions: options.people,

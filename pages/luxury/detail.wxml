@@ -1,0 +1,46 @@
+<view class="lux-detail-page" wx:if="{{detail}}">
+  <view class="lux-hero">
+    <image class="lux-hero-image" src="{{detail.image}}" mode="aspectFill" />
+    <view class="lux-hero-mask"></view>
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="lux-nav sy-nav">
+      <view class="lux-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
+        <view class="sy-back-chevron"></view>
+      </view>
+      <view class="lux-brand">{{i18n.brand}}</view>
+      <view class="lux-mark">✦</view>
+    </view>
+    <view class="lux-hero-body">
+      <view class="lux-kicker">{{detail.eyebrow}}</view>
+      <view class="lux-title serif">{{detail.title}}</view>
+      <view class="lux-intro">{{detail.intro}}</view>
+    </view>
+  </view>
+
+  <view class="lux-content">
+    <view class="lux-section card" wx:for="{{detail.sections}}" wx:key="title">
+      <view class="lux-section-index">0{{index + 1}}</view>
+      <view class="lux-section-title serif">{{item.title}}</view>
+      <view class="lux-list">
+        <view class="lux-list-item" wx:for="{{item.items}}" wx:key="*this">
+          <view class="lux-list-dot"></view>
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="lux-note">
+      <view class="lux-note-mark">i</view>
+      <view>{{detail.note}}</view>
+    </view>
+
+    <view class="lux-cta" bindtap="onConsult" hover-class="lux-cta-press">
+      <view>
+        <view class="lux-cta-kicker">BESPOKE CONSULTATION</view>
+        <view class="lux-cta-title serif">{{detail.cta}}</view>
+      </view>
+      <view class="lux-cta-arrow">›</view>
+    </view>
+  </view>
+  <view class="lux-footer">{{i18n.brandEn}} · {{i18n.commonSlogan}}</view>
+</view>

@@ -93,14 +93,18 @@
     <view class="form-section-label form-section-label-spaced">{{i18n.forms.formPreferences}}</view>
     <view class="field">
       <view class="field-label">{{i18n.forms.theme}} <text class="hint">{{i18n.forms.multiSelect}}</text></view>
-      <view class="theme-wrap">
-        <view
-          class="theme-chip {{form.themes.includes(item) ? 'theme-chip-on' : ''}}"
-          wx:for="{{themes}}"
-          wx:key="*this"
-          data-theme="{{item}}"
-          bindtap="onThemeToggle"
-        >{{item}}</view>
+      <view class="theme-category" wx:for="{{themeCategories}}" wx:key="key" wx:for-item="category">
+        <view class="theme-category-label">{{category.label}}</view>
+        <view class="theme-wrap">
+          <view
+            class="theme-chip {{form.themes.includes(option) ? 'theme-chip-on' : ''}}"
+            wx:for="{{category.options}}"
+            wx:for-item="option"
+            wx:key="*this"
+            data-theme="{{option}}"
+            bindtap="onThemeToggle"
+          >{{option}}</view>
+        </view>
       </view>
     </view>
 

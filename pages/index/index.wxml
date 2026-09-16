@@ -62,19 +62,23 @@
     </view>
   </view>
 
-  <!-- ===== 3. 名人导游推荐 ===== -->
-    <view class="guide-entry card" hover-class="card-press" bindtap="onGuideTap">
-    <view class="guide-entry-main">
-      <image class="guide-entry-avatar" src="{{guide.avatar}}" mode="aspectFill" />
-      <view class="guide-entry-info">
-        <view class="guide-entry-kicker eyebrow">{{guide.eyebrow}}</view>
-        <view class="guide-entry-name serif">{{guide.name}}</view>
-        <view class="guide-entry-role">{{guide.role}}</view>
-        <view class="guide-entry-proof">{{guide.proof}}</view>
+  <!-- ===== 3. 导游名片轮播 ===== -->
+  <swiper class="guide-swiper" circular="{{guideCarouselEnabled}}" autoplay="{{guideCarouselEnabled}}" interval="5000" duration="450" indicator-dots="{{guideCarouselEnabled}}" indicator-color="rgba(255,255,255,.32)" indicator-active-color="#E2C47F">
+    <swiper-item wx:for="{{guides}}" wx:key="name">
+      <view class="guide-entry card" hover-class="card-press" data-index="{{index}}" bindtap="onGuideTap">
+        <view class="guide-entry-main">
+          <image class="guide-entry-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="guide-entry-info">
+            <view class="guide-entry-kicker eyebrow">{{item.eyebrow}}</view>
+            <view class="guide-entry-name serif">{{item.name}}</view>
+            <view class="guide-entry-role">{{item.role}}</view>
+            <view class="guide-entry-proof">{{item.proof}}</view>
+          </view>
+        </view>
+        <view class="guide-entry-cta">{{i18n.homeGuideCta}} <text>›</text></view>
       </view>
-    </view>
-    <view class="guide-entry-cta">{{i18n.homeGuideCta}} <text>›</text></view>
-  </view>
+    </swiper-item>
+  </swiper>
 
   <!-- ===== 4. 甄选路线 ===== -->
   <view class="section">
@@ -121,7 +125,7 @@
       </view>
     </view>
     <view class="lux-row">
-      <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" bindtap="onInquiryTap">
+      <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" data-id="{{item.id}}" bindtap="onLuxuryTap">
         <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
         <view class="lux-mask"></view>
         <view class="lux-corner">{{i18n.luxuryTag}}</view>

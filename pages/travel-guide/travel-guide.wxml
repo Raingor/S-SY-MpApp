@@ -35,7 +35,7 @@
         <view class="travel-card card" wx:for="{{item.guides}}" wx:key="key" wx:for-item="guide">
           <view class="travel-card-top">
             <view class="travel-icon travel-icon-{{guide.key}}">{{guide.mark}}</view>
-            <view class="travel-card-source">PDF · {{guide.source}}</view>
+            <view class="travel-card-source">{{i18n.travel.onlineRead}} · {{guide.source}}</view>
           </view>
           <view class="travel-card-title">{{guide.title}}</view>
           <view class="travel-card-desc">{{guide.desc}}</view>

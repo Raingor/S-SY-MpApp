@@ -246,12 +246,18 @@
 
 
 /* ===== 3. 名人导游推荐 ===== */
+.guide-swiper {
+  height: 252rpx;
+  margin: 26rpx 32rpx 0;
+}
+
 .guide-entry {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin: 26rpx 32rpx 0;
+  height: 244rpx;
+  margin: 0;
   padding: 24rpx 24rpx;
   box-sizing: border-box;
   overflow: hidden;

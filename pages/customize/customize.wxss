@@ -143,14 +143,27 @@
 .theme-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 18rpx;
+  gap: 14rpx;
+}
+
+.theme-category + .theme-category {
+  margin-top: 22rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid #E8EEF1;
+}
+
+.theme-category-label {
+  margin-bottom: 14rpx;
+  color: #0B3C5D;
+  font-size: 27rpx;
+  font-weight: 600;
 }
 
 .theme-chip {
-  padding: 14rpx 32rpx;
+  padding: 13rpx 22rpx;
   border-radius: 36rpx;
   background: #F4F7FA;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: var(--c-sub);
   border: 2rpx solid #E1E9F0;
   transition: all 0.2s;
