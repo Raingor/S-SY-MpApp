@@ -183,3 +183,21 @@ MpApp/
 - `project.private.config.json` 是微信开发者工具的个人私有配置，现已纳入忽略规则；因历史原因仍在版本库中，请勿在其中写入任何密钥。
 - 智能体工作产物（`.kilo/`、`.pi/`）以及编辑器与系统文件（`.DS_Store`、`.idea/`、`.vscode/`）均已忽略，它们体积大且与本机强绑定，不应进入仓库。
 - 若某个文件确实需要入库却被规则命中，使用 `git add -f 文件路径` 强制加入。
+
+## 打包与上传
+
+**`.gitignore` 与打包排除是两套独立机制**：`.gitignore` 只影响 Git 提交，微信开发者工具打包依据的是 `project.config.json` 的 `packOptions.ignore`。两者需各自维护。
+
+- `packOptions.ignore` 已排除 `scripts/`、`.kilo/`、`.pi/`、`.gitignore`、`README.md`、`env.md`、`project.private.config.json`。新增开发用目录时必须同步加到这里，否则会被打进主包导致上传失败。
+- **主包体积余量紧张（约 48KB）**：当前打包约 1999.9KB，上限 2,097,152 字节（2048KB）。继续新增图片前须先压缩或清理素材，否则会触发 `80051 source size exceed max limit 2MB`。
+- 可回收空间：`assets/images/icons/` 下 5 个入口图标（共约 36KB）已无源码引用，可安全删除。
+- 命令行上传（需先在开发者工具「设置 → 安全设置」中开启服务端口）：
+
+```bash
+/Applications/wechatwebdevtools.app/Contents/MacOS/cli upload \
+  --project /Users/raingor_ye/wwwroot/S-SY-MpApp \
+  --version 1.0.1 --desc "版本说明"
+```
+
+- `--project` 必须使用**绝对路径**；传相对路径会读不到 AppID 与 `project.config.json`。
+- 上传后在微信公众平台「管理 → 版本管理 → 开发版本」中，把该版本设为体验版并添加体验成员。
