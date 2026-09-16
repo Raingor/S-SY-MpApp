@@ -134,7 +134,9 @@
         <view class="lux-corner">{{i18n.luxuryTag}}</view>
         <view class="lux-body">
           <view class="lux-name serif">{{item.name}}</view>
-          <view class="lux-desc">{{item.desc}}</view>
+          <view class="lux-desc">
+            <view wx:for="{{item.descLines}}" wx:for-item="line" wx:key="*this">{{line}}</view>
+          </view>
           <view class="lux-cta">{{i18n.luxuryCta}} ›</view>
         </view>
       </view>

@@ -3,6 +3,7 @@ const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
+const { getLuxuryCards } = require('../../data/luxury');
 
 Page({
   data: {
@@ -73,21 +74,9 @@ Page({
         crowd: '适合：深度文化 / 沉浸体验'
       }
     ],
-    // 奢享体验
-    luxuries: [
-      {
-        id: 'jet',
-        img: '/assets/images/lux/lux-jet.jpg',
-        name: '私人包机',
-        desc: '雅典—圣岛直达\n海景航线俯瞰基克拉泽斯群岛'
-      },
-      {
-        id: 'yacht',
-        img: '/assets/images/lux/lux-yacht.jpg',
-        name: '游艇出海',
-        desc: '帆船/机艇包船\n火山岛浮潜 · 海上落日晚宴'
-      }
-    ],
+    // 奢享体验（初始为简体兜底，applyLocale 会按当前语言覆盖为 data/luxury.js 的文案）
+    luxuries: getLuxuryCards('zh-CN')
+      .map((item) => ({ ...item, descLines: item.desc.split('\n') })),
     // 精选目的地 - 分类
     destTab: 0,
     destTabs: ['文明溯源', '海岛度假'],
@@ -144,6 +133,7 @@ Page({
 
   applyLocale() {
     const copy = i18n.apply(this);
+    const locale = i18n.getLocale();
     const entries = [
       { key: 'customization', label: copy.customize, desc: copy.consultation },
       { key: 'guide', label: copy.guideService, desc: copy.booking },
@@ -152,7 +142,12 @@ Page({
       { key: 'business', label: copy.business, desc: copy.businessSupport },
       { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
     ];
-    this.setData({ entries, destTabs: [copy.civilization, copy.islands] });
+    this.setData({
+      entries,
+      destTabs: [copy.civilization, copy.islands],
+      luxuries: getLuxuryCards(locale)
+        .map((item) => ({ ...item, descLines: item.desc.split('\n') }))
+    });
     if (this.data.selectedCountry) {
       this.setData({ selectedCountryLabel: content.countryName(this.data.selectedCountry, this.data.locale) });
     }
