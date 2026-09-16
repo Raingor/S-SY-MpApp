@@ -5,6 +5,30 @@
       {
         "value": "scripts",
         "type": "folder"
+      },
+      {
+        "value": ".kilo",
+        "type": "folder"
+      },
+      {
+        "value": ".pi",
+        "type": "folder"
+      },
+      {
+        "value": ".gitignore",
+        "type": "file"
+      },
+      {
+        "value": "README.md",
+        "type": "file"
+      },
+      {
+        "value": "env.md",
+        "type": "file"
+      },
+      {
+        "value": "project.private.config.json",
+        "type": "file"
       }
     ],
     "include": []
