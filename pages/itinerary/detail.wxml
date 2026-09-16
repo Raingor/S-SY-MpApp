@@ -104,14 +104,16 @@
               wx:for="{{entry.spots}}"
               wx:for-item="spot"
               wx:key="id"
-              class="spot-chip"
+              class="spot-card"
               data-id="{{spot.id}}"
               bindtap="onSpotTap"
-              hover-class="spot-chip-press"
+              hover-class="spot-card-press"
             >
-              <image wx:if="{{spot.image}}" class="spot-chip-img" src="{{spot.image}}" mode="aspectFill" lazy-load />
-              <text class="spot-chip-name">{{spot.name}}</text>
-              <text class="spot-chip-arrow">›</text>
+              <image wx:if="{{spot.image}}" class="spot-card-img" src="{{spot.image}}" mode="aspectFill" lazy-load />
+              <view wx:else class="spot-card-img spot-card-img-empty"></view>
+              <view class="spot-card-mask"></view>
+              <view class="spot-card-name">{{spot.name}}</view>
+              <view class="spot-card-arrow">›</view>
             </view>
           </view>
         </view>

@@ -362,51 +362,67 @@
   font-size: 18rpx;
 }
 
-/* 关联景点 */
+/* 关联景点：风景照卡片，名称叠加在照片左上角 */
 .itd-entry-spots {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
-  margin-top: 16rpx;
+  gap: 16rpx;
+  margin-top: 18rpx;
 }
 
-/* 缩略图 + 名称的胶囊卡：点击进入景点详情 */
-.spot-chip {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
+/* flex-grow 让两列均分；当某行只有 1 张（多数日程如此）时自动拉伸占满整行，不留空白 */
+.spot-card {
+  position: relative;
+  flex: 1 1 calc((100% - 16rpx) / 2);
+  min-width: calc((100% - 16rpx) / 2);
   max-width: 100%;
-  padding: 8rpx 18rpx 8rpx 8rpx;
-  border: 1rpx solid #BBD8EA;
-  border-radius: 30rpx;
-  background: #EAF4F9;
-  color: #1567A8;
-  font-size: 23rpx;
-}
-
-.spot-chip-press {
-  background: #D8EAF5;
-}
-
-.spot-chip-img {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: #FFFFFF;
-}
-
-.spot-chip-name {
-  flex: 1;
-  min-width: 0;
+  height: 190rpx;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  border-radius: 18rpx;
+  background: #0B3C5D;
 }
 
-.spot-chip-arrow {
+.spot-card-press { opacity: 0.86; }
+
+.spot-card-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 无图景点的兜底底色，规则与有图卡片一致，布局不塌陷 */
+.spot-card-img-empty {
+  background: linear-gradient(135deg, #1567A8 0%, #0B3C5D 100%);
+}
+
+/* 顶部加深，保证左上角白字在任何照片上都清晰可读 */
+.spot-card-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 60, 93, 0.62) 0%, rgba(11, 60, 93, 0.12) 52%, rgba(11, 60, 93, 0.34) 100%);
+}
+
+.spot-card-name {
+  position: absolute;
+  left: 16rpx;
+  top: 14rpx;
+  right: 16rpx;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 1rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.45);
+}
+
+.spot-card-arrow {
+  position: absolute;
+  right: 14rpx;
+  bottom: 10rpx;
+  color: rgba(255, 255, 255, 0.92);
   font-family: Georgia, serif;
-  flex-shrink: 0;
+  font-size: 26rpx;
+  line-height: 1;
 }
 
 /* 服务须知 */
