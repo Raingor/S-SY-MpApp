@@ -13,7 +13,11 @@
   color: #FFFFFF;
 }
 
+/* 必须绝对定位：否则 image 会占据正常流，把状态栏占位与导航栏
+   挤出 .spot-hero 的固定高度，导致返回按钮被 overflow:hidden 裁掉 */
 .spot-hero-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
