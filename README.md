@@ -14,8 +14,10 @@ MpApp/
 ├── app.json                   # 页面路由、自定义 tabBar 配置
 ├── app.wxss                   # 设计系统（色彩变量、卡片、按钮）
 ├── project.config.json        # 微信开发者工具项目配置（scripts/ 不参与打包）
+├── project.private.config.json# 开发者工具个人私有配置（本机调试开关，已跟踪但勿放密钥）
+├── .gitignore                 # 忽略规则（凭据、私有配置、智能体产物等）
 ├── sitemap.json               # 页面收录规则
-├── env.md                     # 小程序 AppID
+├── env.md                     # 小程序 AppID（非敏感，勿放 AppSecret）
 ├── custom-tab-bar/            # 胶囊式自定义 TabBar（中间「立即联系」凸起）
 ├── data/
 │   ├── content.js             # 内容服务：优先请求 /api/content，校验契约，仅离线时降级镜像
@@ -174,4 +176,9 @@ MpApp/
 
 ## 版本管理注意
 
-- 远程仓库使用 SSH 方式访问：`git@github.com:Raingor/S-SY-MpApp.git`。请勿把带访问令牌的 HTTPS 地址写入 `.git/config`。
+- 远程仓库使用 SSH 方式访问：`git@github.com:Raingor/S-SY-MpApp.git`。请勿把带访问令牌的 HTTPS 地址写入 `.git/config`；`.git/` 不随仓库分发，但会在本机泄露明文令牌。
+- 忽略规则统一维护在仓库根目录的 `.gitignore`。不要再把规则写进 `.git/info/exclude`，因为 `.git/` 不随仓库分发，他人克隆后拿不到规则，会误把 `.kilo/worktrees/` 下的整份工作树副本一起提交。
+- 凭据管理：`.env`、`*.key`、`*.pem`、`*.p12`、`service-account*.json` 等已纳入忽略。当前 `env.md` 只存放小程序 AppID（公开信息）；若日后需要写入 AppSecret、地图 Key 或支付密钥，请改用 `.env`（可提交一份 `.env.example` 作模板），不要写进 `env.md`。
+- `project.private.config.json` 是微信开发者工具的个人私有配置，现已纳入忽略规则；因历史原因仍在版本库中，请勿在其中写入任何密钥。
+- 智能体工作产物（`.kilo/`、`.pi/`）以及编辑器与系统文件（`.DS_Store`、`.idea/`、`.vscode/`）均已忽略，它们体积大且与本机强绑定，不应进入仓库。
+- 若某个文件确实需要入库却被规则命中，使用 `git add -f 文件路径` 强制加入。

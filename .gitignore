@@ -1,0 +1,81 @@
+# ============================================================
+# 希腊旅行管家 · 微信小程序
+# 忽略规则原则：只提交可直接运行的源码与必要素材；
+# 本机环境、编辑器状态、智能体产物与任何凭据一律不入库。
+# ============================================================
+
+# ---------- 凭据与私密配置（最高优先级） ----------
+# 注意：env.md 目前只放小程序 AppID（非敏感）。若以后需要写入
+# AppSecret、地图 Key、支付密钥等，请改用下面的 .env 形式，
+# 不要继续写进 env.md，以免随仓库分发。
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+secrets.json
+*.secret.json
+config.secret.*
+service-account*.json
+
+# ---------- 本地私有配置 ----------
+# 微信开发者工具的「个人私有配置」：官方定义为个人本机调试开关
+# （libVersion、compileHotReLoad、urlCheck 等），不应随仓库共享。
+project.private.config.json
+
+# ---------- 智能体 / 编辑器工作产物 ----------
+# Kilo Code 工作树副本、会话状态，体积大且与本机强绑定。
+# 过去只写在 .git/info/exclude 里，该文件不随仓库分发，
+# 他人克隆后会误提交整份工作树副本，故移入这里统一管理。
+.kilo/
+.kilocode/
+.pi/
+.pi-*
+
+# ---------- 依赖与构建产物 ----------
+node_modules/
+miniprogram_npm/
+dist/
+build/
+
+# ---------- Python（scripts/compress_images.py） ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ---------- 系统与编辑器 ----------
+.DS_Store
+**/.DS_Store
+._*
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ---------- 日志与临时文件 ----------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tmp
+*.bak
+*.orig
+*.rej
+tmp/
+temp/
+
+# ============================================================
+# 补充说明
+# 若某个文件确实需要入库但被上述规则命中，
+# 可用 `git add -f <文件路径>` 强制加入。
+# ============================================================
