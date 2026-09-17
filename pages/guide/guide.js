@@ -1,7 +1,7 @@
 // P4 名人导游页：Richard 李个人介绍 + 可预约日期 + 专属报价
 const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
-const GUIDE_WECHAT = 'SY-Greece-Service';
+const GUIDE_WECHAT = 'SYGJ1130';
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const content = require('../../data/content');
@@ -85,9 +85,9 @@ Page({
       avatar: '/assets/images/guide/richard-avatar.jpg',
       fullImage: '/assets/images/guide/richard-full.jpg',
       name: 'Richard 李',
-      role: '名人导游 · 欧洲精品文旅金牌从业者',
-      location: 'SIGNATURE GUIDE  /  ATHENS · GREECE',
-      intro: '只为一生美好回忆',
+      role: '名人司导',
+      location: '雅典 / 伯罗奔尼撒半岛 / 德尔斐 / 梅黛奥拉 / 圣托里尼',
+      intro: '希腊历史人文与私人路线顾问',
       wechat: GUIDE_WECHAT
     },
     credentials: [
