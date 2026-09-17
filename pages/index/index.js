@@ -29,15 +29,8 @@ Page({
       { key: 'business', label: '希腊商旅', desc: '随行咨询' },
       { key: 'travel-guide', label: '出行指南', desc: '实用攻略' }
     ],
-    // 导游名片轮播：后续新增导游时只需追加一项，并提供对应详情页。
-    guides: [{
-      avatar: '/assets/images/guide/richard-avatar.jpg',
-      eyebrow: 'SIGNATURE GUIDE',
-      name: 'Richard 李',
-      role: '名人导游 · 欧洲精品文旅金牌从业者',
-      proof: '武汉大学双学士 · 英国澳洲双硕士 · 欧盟 / 美国 / 中国驾照',
-      path: '/pages/guide/guide'
-    }],
+    // 导游名片轮播：数据来自后台 /api/content，不再内嵌旧文案，避免后台修改后前台不同步。
+    guides: [],
     guideCarouselEnabled: false,
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
@@ -165,7 +158,7 @@ Page({
         countries,
         selectedCountry,
         selectedCountryLabel: content.countryName(selectedCountry, this.data.locale),
-        guides: guides.length ? guides : this.data.guides,
+        guides: guides,
         guideCarouselEnabled: guides.length > 1,
         routes: content.getReferenceList(data).slice(0, 4),
         destinations: content.getHomeDestinations(data)

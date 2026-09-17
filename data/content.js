@@ -210,8 +210,9 @@ function fetchContent() {
 }
 
 // 页面统一入口：options.success 回调形式（与现有页面代码风格一致）
-function loadContent(success) {
-  if (remoteLoaded && cache) {
+// forceRefresh=true 时忽略内存缓存，重新拉取后端最新内容（后台修改导游信息后即时同步）。
+function loadContent(success, forceRefresh) {
+  if (!forceRefresh && remoteLoaded && cache) {
     success(cache, loadState);
     return;
   }

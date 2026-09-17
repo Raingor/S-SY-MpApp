@@ -151,6 +151,7 @@ Page({
   },
 
   loadManagedGuide() {
+    // 第二个参数 true：每次进入页都重新拉后端，跳过内存缓存，确保后台改导游信息后即时同步。
     content.loadContent((data, state) => {
       if (state && state.reason === 'offline') return;
       const remote = content.getGuide(this.guideId, data);
@@ -162,7 +163,7 @@ Page({
         directions: Array.isArray(guide.directions) && guide.directions.length ? guide.directions : this.data.directions,
         reviews: Array.isArray(guide.reviews) && guide.reviews.length ? guide.reviews : this.data.reviews
       });
-    });
+    }, true);
   },
 
   onBack() {
