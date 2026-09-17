@@ -300,5 +300,14 @@ module.exports = {
   setSelectedCountryId,
   countryName,
   fetchContent,
+  invalidate,
   getLoadState: () => loadState
 };
+
+// 让缓存失效：后台修改内容后，下次 loadContent 会重新拉取而非使用内存缓存。
+function invalidate() {
+  cache = null;
+  remoteLoaded = false;
+  loadState = { source: 'local', status: 'initial', reason: '' };
+}
+

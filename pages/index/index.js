@@ -148,6 +148,7 @@ Page({
   },
 
   applyRemoteContent() {
+    // 第二个参数 true：每次进入首页都重新拉后端，跳过内存缓存，确保后台改目的地/路线后即时同步。
     content.loadContent((data, state) => {
       // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
       if (state && state.reason === 'offline') return;
@@ -163,7 +164,7 @@ Page({
         routes: content.getReferenceList(data).slice(0, 4),
         destinations: content.getHomeDestinations(data)
       });
-    });
+    }, true);
   },
 
   onCountryTap() {

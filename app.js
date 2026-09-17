@@ -10,6 +10,13 @@ App({
     this.globalData.auth.accessToken = wx.getStorageSync('sy_mp_access_token') || '';
     this.globalData.auth.user = wx.getStorageSync('sy_mp_user') || null;
   },
+  onShow() {
+    // 小程序回到前台时让内容缓存失效，后台改动（导游/目的地/路线等）下次进入页面即同步。
+    try {
+      const content = require('./data/content');
+      if (content && typeof content.invalidate === 'function') content.invalidate();
+    } catch (e) { /* 内容模块尚未加载则忽略 */ }
+  },
   globalData: {
     apiBase: API_BASE,
     auth: {
