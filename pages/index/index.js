@@ -73,28 +73,7 @@ Page({
     // 精选目的地 - 分类
     destTab: 0,
     destTabs: ['文明溯源', '海岛度假'],
-    destinations: [
-      {
-        tab: '文明溯源',
-        tiles: [
-          { name: '雅典', en: 'ATHENS', img: '/assets/images/dest/dest-athens.jpg' },
-          { name: '德尔斐', en: 'DELPHI', img: '/assets/images/dest/dest-delphi.jpg' },
-          { name: '梅黛奥拉', en: 'METEORA', img: '/assets/images/dest/dest-meteora.jpg' },
-          { name: '纳夫普利翁', en: 'NAFPLIO', img: '/assets/images/dest/dest-nafplion.jpg' }
-        ],
-        chips: ['伯罗奔尼撒', '古科林斯', '奥林匹亚', '斯巴达']
-      },
-      {
-        tab: '海岛度假',
-        tiles: [
-          { name: '圣托里尼', en: 'SANTORINI', img: '/assets/images/dest/dest-santorini.jpg' },
-          { name: '米克诺斯', en: 'MYKONOS', img: '/assets/images/dest/dest-mykonos.jpg' },
-          { name: '扎金索斯', en: 'ZAKYNTHOS', img: '/assets/images/dest/dest-zakynthos.jpg' },
-          { name: '克里特', en: 'CRETE', img: '/assets/images/dest/dest-crete.jpg' }
-        ],
-        chips: ['科孚岛', '埃伊纳岛', '帕罗斯', '米洛斯']
-      }
-    ]
+    destinations: []
   },
 
   onShareAppMessage() {
@@ -108,11 +87,11 @@ Page({
       guideCarouselEnabled: this.data.guides.length > 1
     });
     this.applyLocale();
-    this.applyRemoteContent();
   },
 
   onShow() {
     this.applyLocale();
+    this.applyRemoteContent();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 });
       if (this.getTabBar().refreshLocale) this.getTabBar().refreshLocale();
@@ -152,6 +131,8 @@ Page({
     content.loadContent((data, state) => {
       // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
       if (state && state.reason === 'offline') return;
+      if (data.countryId && data.countryId !== content.getSelectedCountryId()) return;
+      this.destinationContent = data;
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
@@ -239,9 +220,17 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 目的地瓷贴 → 景点区（城市选择）
-  onDestTap() {
-    wx.navigateTo({ url: '/pages/knowledge/knowledge' });
+  // 只使用后台显式关联的景点 ID，不按目的地名称或数组位置猜测。
+  onDestTap(e) {
+    const id = e.currentTarget.dataset.attractionId;
+    const data = this.destinationContent;
+    const spot = id && data && data.countryId === content.getSelectedCountryId()
+      ? content.getAttraction(id, data) : null;
+    if (!spot || (spot.countryId && spot.countryId !== data.countryId)) {
+      wx.showToast({ title: '该目的地暂无景点详情', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
   },
 
   // 页脚官网（复制域名）

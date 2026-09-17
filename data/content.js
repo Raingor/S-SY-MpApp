@@ -71,6 +71,17 @@ function mapGuideImage(path, fallback) {
   return base.replace(/\/$/, '') + '/images/' + file;
 }
 
+// 后台上传的图片保持远程地址，不套用旧素材文件名映射。
+function mapManagedImage(path) {
+  if (typeof path !== 'string' || !path.trim()) return '';
+  const value = path.trim();
+  if (/^https?:\/\//i.test(value) || value.indexOf('/assets/') === 0) return value;
+  const app = getApp();
+  const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
+  const relative = value.replace(/^(?:\.\/|\/)+/, '').replace(/^(?:images\/)+/, '');
+  return base.replace(/\/$/, '') + '/images/' + relative;
+}
+
 // 后端 cities：mosaic 为图片路径数组
 function adaptCities(remoteCities) {
   return (remoteCities || []).map((city) => ({
@@ -86,6 +97,8 @@ function adaptAttractions(remoteAttractions) {
     ...item,
     sizeLabel: item.sizeLabel || item.scale || '大型',
     image: mapImage(item.image),
+    shareTitle: typeof item.shareTitle === 'string' ? item.shareTitle.trim() : '',
+    shareImage: mapManagedImage(item.shareImage),
     logo: mapImage(item.logo),
     highlights: (item.highlights || []).map((h) =>
       typeof h === 'string' ? { name: h, desc: '' } : h
@@ -117,9 +130,11 @@ function adaptSampleTrips(remoteTrips) {
 
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
+    id: destination.id,
+    attractionId: typeof destination.attractionId === 'string' ? destination.attractionId.trim() : '',
     name: destination.name,
     en: destination.en,
-    img: mapImage(destination.image),
+    img: mapManagedImage(destination.image),
     type: destination.type || 'culture'
   }));
 }
@@ -203,10 +218,11 @@ function fetchContent() {
         resolve({ data: cache, state: loadState });
       }
     });
-    // 请求结束后允许下次重试
-    setTimeout(() => { fetching = null; }, 0);
   });
-  return fetching;
+  // 完成后再释放去重锁，不能在请求尚未完成时用零延时定时器释放。
+  const pending = fetching;
+  pending.then(() => { if (fetching === pending) fetching = null; });
+  return pending;
 }
 
 // 页面统一入口：options.success 回调形式（与现有页面代码风格一致）
@@ -280,7 +296,7 @@ function getHomeDestinations(source) {
     tab: group.tab,
     tiles: destinations
       .filter((item) => item.type === group.type)
-      .map(({ name, en, img }) => ({ name, en, img })),
+      .map(({ id, attractionId, name, en, img }) => ({ id, attractionId, name, en, img })),
     chips: []
   }));
 }

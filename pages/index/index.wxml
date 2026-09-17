@@ -166,7 +166,7 @@
     <block wx:for="{{destinations}}" wx:key="tab" wx:for-item="group" wx:for-index="gi">
       <view wx:if="{{destTab === gi}}">
         <view class="dest-grid">
-          <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="name" bindtap="onDestTap">
+          <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="id" data-attraction-id="{{item.attractionId}}" bindtap="onDestTap">
             <image class="dest-img" src="{{item.img}}" mode="aspectFill" />
             <view class="dest-mask"></view>
             <view class="dest-info">

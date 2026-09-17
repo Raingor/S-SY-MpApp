@@ -25,22 +25,28 @@ Page({
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     i18n.apply(this);
-    const spotId = options.id || '';
-    const spot = content.getAttraction(spotId);
-    if (spot) this.applySpot(spot, sys.statusBarHeight || 20);
+    this.spotId = (options && options.id) || '';
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    const spot = content.getAttraction(this.spotId);
+    if (spot) this.applySpot(spot);
+  },
+
+  loadSpot() {
+    if (!this.spotId) return;
     content.loadContent((data) => {
-      const fresh = content.getAttraction(spotId, data);
+      const fresh = content.getAttraction(this.spotId, data);
       if (fresh) this.applySpot(fresh);
       else {
         this.setData({ spot: null, guideTabs: [] });
         wx.showToast({ title: '未找到该景点', icon: 'none' });
         setTimeout(() => wx.navigateBack({ delta: 1 }), 800);
       }
-    });
+    }, true);
   },
 
   onShow() {
     i18n.apply(this);
+    this.loadSpot();
   },
 
   applySpot(spot, statusBarHeight) {
@@ -59,10 +65,12 @@ Page({
 
   onShareAppMessage() {
     const spot = this.data.spot;
+    const id = this.spotId || (spot && spot.id);
+    if (!id) return buildShareCard('/pages/index/index');
     return {
-      title: (spot ? spot.name + ' · ' : '') + this.data.i18n.commonSlogan,
-      path: '/pages/attraction/detail?id=' + (spot ? spot.id : ''),
-      imageUrl: spot ? spot.image : undefined
+      title: (spot && spot.shareTitle) || (spot ? spot.name + ' · ' : '') + this.data.i18n.commonSlogan,
+      path: '/pages/attraction/detail?id=' + encodeURIComponent(id),
+      imageUrl: spot ? (spot.shareImage || spot.image) : undefined
     };
   },
 
