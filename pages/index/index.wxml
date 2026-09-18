@@ -93,20 +93,24 @@
       <view class="section-more" bindtap="onMoreRoutes">{{i18n.viewAllRoutes}} ›</view>
     </view>
 
-    <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
-      <view class="route-img-wrap">
-        <image class="route-img" src="{{item.img}}" mode="aspectFill" />
-        <view class="route-tag">{{item.tag}}</view>
-      </view>
-      <view class="route-body">
-        <view class="route-name ellipsis">{{item.name}}</view>
-        <view class="route-highlights ellipsis">{{item.highlights}}</view>
-        <view class="route-foot">
-          <view class="btn-inquiry">{{i18n.viewReference}}</view>
-          <view class="route-crowd">{{item.crowd}}</view>
+    <scroll-view class="route-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" enable-flex="true">
+      <view class="route-scroll-track">
+        <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
+          <view class="route-img-wrap">
+            <image class="route-img" src="{{item.img}}" mode="aspectFill" />
+            <view class="route-tag">{{item.tag}}</view>
+          </view>
+          <view class="route-body">
+            <view class="route-name ellipsis">{{item.name}}</view>
+            <view class="route-highlights ellipsis">{{item.highlights}}</view>
+            <view class="route-foot">
+              <view class="btn-inquiry">{{i18n.viewReference}}</view>
+              <view class="route-crowd">{{item.crowd}}</view>
+            </view>
+          </view>
         </view>
       </view>
-    </view>
+    </scroll-view>
 
     <!-- 定制行程入口（与路线区同屏，明显位置） -->
     <view class="custom-trip-entry card" bindtap="onCustomTripTap">

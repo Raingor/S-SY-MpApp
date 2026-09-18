@@ -390,14 +390,28 @@
 }
 
 /* ===== 3. 甄选路线 ===== */
+.route-scroll {
+  width: calc(100% + 32rpx);
+  margin-right: -32rpx;
+  white-space: nowrap;
+}
+
+.route-scroll-track {
+  display: flex;
+  gap: 24rpx;
+  padding-right: 32rpx;
+}
+
 .route-card {
+  flex: 0 0 590rpx;
+  width: 590rpx;
   overflow: hidden;
-  margin-bottom: 28rpx;
+  white-space: normal;
 }
 
 .route-img-wrap {
   position: relative;
-  height: 340rpx;
+  height: 300rpx;
 }
 
 .route-img {
