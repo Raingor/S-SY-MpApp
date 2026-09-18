@@ -312,7 +312,17 @@ function getHomeDestinations(source, locale, fallbackLabels) {
     ? data.destinationCategories
     : FALLBACK_DESTINATION_CATEGORIES;
   const labels = fallbackLabels || { culture: '文明溯源', island: '海岛度假' };
-  const groups = remoteCategories
+  // 防御性过滤：无论缓存是否经历过 adaptDestinationCategories，都在此排除禁用分类，
+  // 确保禁用分类在任何代码路径都会从 Tab 列表消失。
+  const activeCategories = remoteCategories
+    .filter((category) => category && category.enabled !== false)
+    .slice()
+    .sort((a, b) => {
+      const sa = Number.isFinite(Number(a.sort)) ? Number(a.sort) : 0;
+      const sb = Number.isFinite(Number(b.sort)) ? Number(b.sort) : 0;
+      return sa - sb;
+    });
+  const groups = activeCategories
     .map((category) => {
       const tiles = destinations
         .filter((item) => item.type === category.key)
@@ -326,7 +336,8 @@ function getHomeDestinations(source, locale, fallbackLabels) {
       return { key: category.key, tab, tiles, chips: [] };
     })
     .filter(Boolean);
-  // Unknown destination types remain hidden rather than being misclassified into the first tab.
+  // Unknown destination types (those without a matching category.key) remain hidden
+  // rather than being misclassified into the first tab.
   return groups;
 }
 
