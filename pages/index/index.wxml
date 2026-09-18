@@ -70,7 +70,7 @@
     <swiper-item wx:for="{{guides}}" wx:key="name">
       <view class="guide-entry card" hover-class="card-press" data-index="{{index}}" bindtap="onGuideTap">
         <view class="guide-entry-main">
-          <image class="guide-entry-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <image class="guide-entry-avatar" src="{{item.avatar}}" mode="aspectFill" webp="{{true}}" />
           <view class="guide-entry-info">
             <view class="guide-entry-kicker eyebrow">{{item.eyebrow}}</view>
             <view class="guide-entry-name serif">{{item.name}}</view>
@@ -167,7 +167,7 @@
       <view wx:if="{{destTab === gi}}">
         <view class="dest-grid">
           <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="id" data-attraction-id="{{item.attractionId}}" bindtap="onDestTap">
-            <image class="dest-img" src="{{item.img}}" mode="aspectFill" />
+            <image class="dest-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" lazy-load="{{true}}" />
             <view class="dest-mask"></view>
             <view class="dest-info">
               <view class="dest-en eyebrow">{{item.en}}</view>
