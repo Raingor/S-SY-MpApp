@@ -10,8 +10,12 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [] };
+const EMPTY_CONTENT = { countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [] };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
+const FALLBACK_DESTINATION_CATEGORIES = [
+  { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
+  { key: 'island', name: '海岛度假', nameTw: '海島度假', nameEn: 'Island escapes' }
+];
 
 function hasRemoteContract(data) {
   return Boolean(
@@ -128,6 +132,20 @@ function adaptSampleTrips(remoteTrips) {
   }));
 }
 
+function adaptDestinationCategories(remoteCategories) {
+  if (!Array.isArray(remoteCategories) || !remoteCategories.length) return [];
+  return remoteCategories
+    .filter((category) => category && category.enabled !== false && typeof category.key === 'string' && category.key.trim())
+    .map((category, index) => ({
+      key: category.key.trim(),
+      name: category.name || '',
+      nameTw: category.nameTw || '',
+      nameEn: category.nameEn || '',
+      sort: Number.isFinite(Number(category.sort)) ? Number(category.sort) : index
+    }))
+    .sort((a, b) => a.sort - b.sort);
+}
+
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
     id: destination.id,
@@ -135,7 +153,7 @@ function adaptDestinations(remoteDestinations) {
     name: destination.name,
     en: destination.en,
     img: mapManagedImage(destination.image),
-    type: destination.type || 'culture'
+    type: typeof destination.type === 'string' ? destination.type.trim() : ''
   }));
 }
 
@@ -196,7 +214,8 @@ function fetchContent() {
             cities: adaptCities(res.data.cities),
             attractions: adaptAttractions(res.data.attractions),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
-            destinations: adaptDestinations(res.data.destinations)
+            destinations: adaptDestinations(res.data.destinations),
+            destinationCategories: adaptDestinationCategories(res.data.destinationCategories)
           };
           remoteLoaded = true;
           loadState = { source: 'remote', status: 'ready', reason: '' };
@@ -286,19 +305,29 @@ function getReferenceList(source) {
   return getContent(source).sampleItineraries;
 }
 
-function getHomeDestinations(source) {
-  const destinations = getContent(source).destinations || [];
-  const groups = [
-    { tab: '文明溯源', type: 'culture' },
-    { tab: '海岛度假', type: 'island' }
-  ];
-  return groups.map((group) => ({
-    tab: group.tab,
-    tiles: destinations
-      .filter((item) => item.type === group.type)
-      .map(({ id, attractionId, name, en, img }) => ({ id, attractionId, name, en, img })),
-    chips: []
-  }));
+function getHomeDestinations(source, locale, fallbackLabels) {
+  const data = getContent(source);
+  const destinations = data.destinations || [];
+  const remoteCategories = Array.isArray(data.destinationCategories) && data.destinationCategories.length
+    ? data.destinationCategories
+    : FALLBACK_DESTINATION_CATEGORIES;
+  const labels = fallbackLabels || { culture: '文明溯源', island: '海岛度假' };
+  const groups = remoteCategories
+    .map((category) => {
+      const tiles = destinations
+        .filter((item) => item.type === category.key)
+        .map(({ id, attractionId, name, en, img }) => ({ id, attractionId, name, en, img }));
+      if (!tiles.length) return null;
+      const tab = locale === 'en'
+        ? (category.nameEn || labels[category.key] || category.name || category.key)
+        : locale === 'zh-TW'
+          ? (category.nameTw || labels[category.key] || category.name || category.key)
+          : (category.name || labels[category.key] || category.nameTw || category.key);
+      return { key: category.key, tab, tiles, chips: [] };
+    })
+    .filter(Boolean);
+  // Unknown destination types remain hidden rather than being misclassified into the first tab.
+  return groups;
 }
 
 module.exports = {

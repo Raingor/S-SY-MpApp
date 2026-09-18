@@ -23,6 +23,12 @@ const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 const websiteFixture = {
   countries: [{ id: 'greece', name: '希腊' }],
   cities: [], guides: [], routes: [], sampleItineraries: [],
+  destinationCategories: [
+    { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage', sort: 20, enabled: true },
+    { key: 'island', name: '海岛度假', nameTw: '海島度假', nameEn: 'Island escapes', sort: 10, enabled: true },
+    { key: 'empty', name: '空分类', sort: 30, enabled: true },
+    { key: 'disabled', name: '禁用分类', sort: 1, enabled: false }
+  ],
   attractions: [
     {
       id: 'acropolis', name: '雅典卫城', countryId: 'greece',
@@ -38,7 +44,8 @@ const websiteFixture = {
   destinations: [
     { id: 'athens', name: '雅典', type: 'culture', image: './images/athens.webp', attractionId: 'acropolis' },
     { id: 'mykonos', name: '米克诺斯', type: 'island', image: './images/destination-mu4yf709-f0dadc.jpg', attractionId: '' },
-    { id: 'double', name: '双目录测试', type: 'island', image: './images/images/double-path.jpg' }
+    { id: 'double', name: '双目录测试', type: 'island', image: './images/images/double-path.jpg' },
+    { id: 'unknown', name: '未知分类', type: 'unknown', image: './images/unknown.jpg' }
   ]
 };
 
@@ -75,10 +82,26 @@ async function main() {
   assert.equal(old.shareImage, '', '可空回退空串');
 
   const groups = content.getHomeDestinations();
+  assert.deepEqual(groups.map((group) => group.key), ['island', 'culture'], '按 sort 排序并隐藏空/禁用分类');
+  assert.deepEqual(groups.map((group) => group.tab), ['海岛度假', '文明溯源'], '中文分类标签');
   const findTile = (id) => groups.flatMap((g) => g.tiles).find((t) => t.id === id);
   assert.equal(findTile('athens').attractionId, 'acropolis', 'athens→acropolis 透传');
   assert.equal(findTile('mykonos').attractionId, '', 'mykonos 无关联');
   assert.equal(findTile('double').img, 'https://content.example/images/double-path.jpg', '双 images/ 折叠');
+  assert.equal(findTile('unknown'), undefined, '未知 type 不误归类');
+  const englishGroups = content.getHomeDestinations(undefined, 'en', { culture: 'Heritage', island: 'Island escapes' });
+  assert.deepEqual(englishGroups.map((group) => group.tab), ['Island escapes', 'Heritage'], '英文分类标签');
+
+  // 旧接口未返回 destinationCategories 时，回退既有双分类；未知 type 仍不归类。
+  content.invalidate();
+  let fallbackResolve;
+  const fallbackPromise = new Promise((resolve) => { fallbackResolve = resolve; });
+  resolveFetch = (opts) => { opts.success({ statusCode: 200, data: { ...websiteFixture, destinationCategories: undefined } }); fallbackResolve(); };
+  content.loadContent(() => {}, true);
+  await fallbackPromise;
+  const fallbackGroups = content.getHomeDestinations();
+  assert.deepEqual(fallbackGroups.map((group) => group.key), ['culture', 'island'], '旧接口回退 culture/island');
+  assert.equal(fallbackGroups.flatMap((group) => group.tiles).find((tile) => tile.id === 'unknown'), undefined, '回退时未知 type 仍隐藏');
 
   // 2) 边缘样例：绝对 URL 保留、images/images 折叠
   let r2;

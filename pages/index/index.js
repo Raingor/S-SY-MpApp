@@ -114,9 +114,23 @@ Page({
       { key: 'business', label: copy.business, desc: copy.businessSupport },
       { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
     ];
+    const localeTabs = [copy.civilization, copy.islands];
+    const fallbackLabels = {
+      culture: copy.civilization,
+      island: copy.islands
+    };
+    const localizedDestinations = this.destinationContent
+      ? content.getHomeDestinations(this.destinationContent, locale, fallbackLabels)
+      : null;
     this.setData({
       entries,
-      destTabs: [copy.civilization, copy.islands],
+      ...(localizedDestinations
+        ? {
+            destinations: localizedDestinations,
+            destTabs: localizedDestinations.map((group) => group.tab),
+            destTab: localizedDestinations.length ? Math.min(this.data.destTab, localizedDestinations.length - 1) : 0
+          }
+        : { destTabs: localeTabs }),
       luxuries: getLuxuryCards(locale)
         .map((item) => ({ ...item, descLines: item.desc.split('\n') }))
     });
@@ -136,6 +150,11 @@ Page({
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
+      const destinations = content.getHomeDestinations(data, this.data.locale, {
+        culture: this.data.locale === 'en' ? 'Heritage' : this.data.locale === 'zh-TW' ? '文明溯源' : '文明溯源',
+        island: this.data.locale === 'en' ? 'Island escapes' : this.data.locale === 'zh-TW' ? '海島度假' : '海岛度假'
+      });
+      const destTab = destinations.length ? Math.min(this.data.destTab, destinations.length - 1) : 0;
       this.setData({
         countries,
         selectedCountry,
@@ -143,7 +162,9 @@ Page({
         guides: guides,
         guideCarouselEnabled: guides.length > 1,
         routes: content.getReferenceList(data).slice(0, 4),
-        destinations: content.getHomeDestinations(data)
+        destTabs: destinations.map((group) => group.tab),
+        destTab,
+        destinations
       });
     }, true);
   },

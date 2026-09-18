@@ -73,7 +73,7 @@ MpApp/
 4. **名人导游名片** — 读取后端托管导游数据，多于一位时启用轮播，点击进入导游页
 5. **甄选路线** — 参考行程卡（id 对齐后端 `sampleItineraries`），引导一对一咨询
 6. **奢享体验** — 私人包机 / 游艇出海双竖卡，金色「高端定制」角标，点击进入奢享详情页
-7. **精选目的地** — 文明溯源 / 海岛度假双分类，瓷贴 + 文字标签；每个瓷贴由后台 `destinations[].attractionId` 显式关联景点，点击进入对应 `pages/attraction/detail`，无关联则提示暂无详情，不按名称或位置猜测
+7. **精选目的地** — 读取后台 `destinationCategories` 动态生成分类 tab，按 `sort/enabled` 处理并按当前语言显示；分类缺失时回退文明溯源 / 海岛度假，未知 `destinations[].type` 不误归类。每个瓷贴由后台 `destinations[].attractionId` 显式关联景点，点击进入对应 `pages/attraction/detail`，无关联则提示暂无详情，不按名称或位置猜测
 8. **品牌页脚** — sy-greece.com + 「只为一生美好回忆」
 9. **底部 Tab** — 胶囊式，中间「立即联系」凸起直达转化
 
@@ -152,7 +152,7 @@ MpApp/
 ### 接口配置
 
 - `app.js` 的 `globalData.apiBase` 默认为生产地址 `https://sy-greece.com`，本地联调时可替换为测试环境地址。
-- **内容接口** `GET /api/content`：必须返回 `countries`、`guides`、`cities`、`attractions`、`sampleItineraries`、`routes`、`destinations` 七个数组。字段不完整时小程序会明确提示「内容服务暂不可用」，**不会用本地镜像冒充正式数据**；仅网络离线时降级到 `data/mirror-*.js` 镜像。
+- **内容接口** `GET /api/content`：必须返回 `countries`、`guides`、`cities`、`attractions`、`sampleItineraries`、`routes`、`destinations` 七个数组；可选返回 `destinationCategories: [{ key, name, nameTw, nameEn, sort, enabled }]`，小程序按启用状态和排序动态渲染。字段不完整时小程序会明确提示「内容服务暂不可用」，**不会用本地镜像冒充正式数据**；仅网络离线时降级到 `data/mirror-*.js` 镜像。
 - 后端 `image` 字段为 `./images/xxx.webp` 时，由 `data/content.js` 的映射表替换为本地素材路径；**后台上传的景点分享图 `shareImage` 与目的地自定义图 `image` 保持远程地址，不套用旧素材文件名映射**。
 - 景点分享由后台配置：`attractions[].shareTitle`（可空，空时回退「景点名 · 品牌 slogan」）、`attractions[].shareImage`（可空，空时回退景点主图）；分享路径始终为 `pages/attraction/detail?id=<景点ID>`，ID 经 `encodeURIComponent` 编码。
 - P2、Richard 预约、用车咨询、商旅咨询、奢享咨询均向 `${apiBase}/api/leads` 发起 JSON `POST`，需将接口域名加入微信开发者工具的 request 合法域名。
