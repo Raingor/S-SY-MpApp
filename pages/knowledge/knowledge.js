@@ -5,6 +5,28 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 
+const PRODUCT_CATEGORY_ALIASES = [
+  ['athens', '雅典', '雅典区域'],
+  ['santorini', '圣托里尼', '聖托里尼'],
+  ['crete', '克里特'],
+  ['peloponnese', '伯罗奔尼撒', '伯羅奔尼撒', 'nafplio', '纳夫普利翁', '纳夫普里奥', 'corinth', '科林斯'],
+  ['zakynthos', '扎金索斯'],
+];
+
+function spotSearchText(spot) {
+  return [
+    spot && spot.name,
+    spot && spot.en,
+    spot && spot.summary,
+    spot && spot.category,
+    spot && spot.city,
+    spot && spot.cityName,
+    spot && spot.region,
+    spot && spot.destination,
+    ...((spot && spot.highlights) || []).map((item) => typeof item === 'string' ? item : item && item.name)
+  ].filter(Boolean).join(' ').toLowerCase();
+}
+
 Page({
   data: {
     statusBarHeight: 20,
@@ -14,6 +36,7 @@ Page({
     panelTabs: [],
     cities: [],
     sampleTrips: [],
+    allHotSpots: [],
     searchQuery: '',
     searchResults: [],
     hotSpots: [],
@@ -27,11 +50,13 @@ Page({
 
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const localHotSpots = content.getAttractions();
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
       cities: content.getCities(),
       sampleTrips: content.getReferenceList(),
-      hotSpots: content.getAttractions().slice(0, 6)
+      allHotSpots: localHotSpots,
+      hotSpots: this.filterHotSpots(localHotSpots, 0)
     });
     this.applyLocale();
     // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
@@ -39,7 +64,8 @@ Page({
       this.setData({
         cities: content.getCities(data),
         sampleTrips: content.getReferenceList(data),
-        hotSpots: content.getAttractions(data).slice(0, 6)
+        allHotSpots: content.getAttractions(data),
+        hotSpots: this.filterHotSpots(content.getAttractions(data), this.data.categoryIndex)
       });
     });
   },
@@ -61,11 +87,37 @@ Page({
     this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0 });
   },
 
+  filterHotSpots(spots, categoryIndex) {
+    const list = Array.isArray(spots) ? spots : [];
+    const index = Number(categoryIndex);
+    if (!Number.isInteger(index) || index < 0 || index > 5) return list.slice(0, 6);
+    if (index === 5) {
+      return list.filter((spot) => !PRODUCT_CATEGORY_ALIASES.some((aliases) => aliases.some((alias) => spotSearchText(spot).includes(alias.toLowerCase())))).slice(0, 6);
+    }
+    const aliases = PRODUCT_CATEGORY_ALIASES[index] || [];
+    return list.filter((spot) => aliases.some((alias) => spotSearchText(spot).includes(alias.toLowerCase()))).slice(0, 6);
+  },
+
+  filterSearchResults(query, spots) {
+    const normalized = String(query || '').trim().toLowerCase();
+    if (!normalized) return [];
+    return (spots || []).filter((spot) => spotSearchText(spot).includes(normalized)).slice(0, 5);
+  },
+
+  onCategoryTap(e) {
+    const categoryIndex = Number(e.currentTarget.dataset.index);
+    if (!Number.isInteger(categoryIndex)) return;
+    const hotSpots = this.filterHotSpots(this.data.allHotSpots, categoryIndex);
+    this.setData({
+      categoryIndex,
+      hotSpots,
+      searchResults: this.filterSearchResults(this.data.searchQuery, hotSpots)
+    });
+  },
+
   onSearchInput(e) {
-    const query = String(e.detail.value || '').trim().toLowerCase();
-    const spots = this.data.hotSpots || [];
-    const results = query ? spots.filter((spot) => [spot.name, spot.en, spot.summary, spot.category, ...(spot.highlights || []).map((item) => item.name)].join(' ').toLowerCase().includes(query)) : [];
-    this.setData({ searchQuery: e.detail.value, searchResults: results.slice(0, 5) });
+    const value = e.detail.value || '';
+    this.setData({ searchQuery: value, searchResults: this.filterSearchResults(value, this.data.hotSpots) });
   },
 
   onSearchConfirm(e) {

@@ -278,6 +278,7 @@
 .knowledge-product-categories { width: 100%; padding: 0 32rpx 6rpx; white-space: nowrap; box-sizing: border-box; }
 .knowledge-product-category { display: inline-block; margin-right: 14rpx; padding: 14rpx 22rpx; border: 1rpx solid #E1E9EE; border-radius: 28rpx; background: #FFFFFF; color: #5B6B7A; font-size: 23rpx; }
 .knowledge-product-category-on { border-color: #1567A8; background: #1567A8; color: #FFFFFF; }
+.knowledge-product-empty { margin: 0 32rpx 28rpx; padding: 48rpx 28rpx; color: #8AA3B5; font-size: 24rpx; text-align: center; }
 .knowledge-hot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18rpx; padding: 0 32rpx; }
 .knowledge-hot-card { margin: 0; overflow: hidden; }
 .knowledge-hot-image { height: 190rpx; position: relative; }

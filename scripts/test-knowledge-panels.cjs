@@ -12,7 +12,11 @@ assert.match(knowledge, /activePanel === 0/);
 assert.match(knowledge, /activePanel === 1/);
 assert.match(knowledge, /knowledge-product-banner/);
 assert.match(knowledge, /knowledge-hot-grid/);
+assert.match(knowledge, /knowledge-product-category[^>]*bindtap="onCategoryTap"/);
 assert.match(knowledgeJs, /onPanelTap\(e\)/);
+assert.match(knowledgeJs, /onCategoryTap\(e\)/);
+assert.match(knowledgeJs, /filterHotSpots\(spots, categoryIndex\)/);
+assert.match(knowledgeJs, /categoryIndex,\n      hotSpots/);
 assert.match(i18n, /originalTab:/);
 assert.match(i18n, /newTab:/);
 
