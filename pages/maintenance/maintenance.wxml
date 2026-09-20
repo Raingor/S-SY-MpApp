@@ -1,0 +1,7 @@
+<view class="maintenance-page">
+  <view class="maintenance-orbit"><view class="maintenance-dot"></view></view>
+  <view class="maintenance-eyebrow">GREECE TRAVEL BUTLER</view>
+  <view class="maintenance-title serif">{{title}}</view>
+  <view class="maintenance-message">{{message}}</view>
+  <view class="maintenance-note">我们正在进行内容与服务升级，完成后会恢复访问。</view>
+</view>

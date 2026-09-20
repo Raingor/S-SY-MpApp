@@ -11,6 +11,8 @@
     "pages/profile/detail/detail",
     "pages/profile/traveler-edit/traveler-edit",
     "pages/profile/edit/edit",
+    "pages/maintenance/maintenance",
+    "pages/live-booking/live-booking",
     "pages/itinerary/index",
     "pages/itinerary/detail",
     "pages/luxury/detail",

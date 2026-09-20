@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [] };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [] };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -103,6 +103,10 @@ function adaptAttractions(remoteAttractions) {
     image: mapImage(item.image),
     shareTitle: typeof item.shareTitle === 'string' ? item.shareTitle.trim() : '',
     shareImage: mapManagedImage(item.shareImage),
+    videoUrl: item.videoUrl || item.video || '',
+    videoDuration: Number(item.videoDuration || item.durationSeconds || 0) || 0,
+    videoTrialSeconds: Number(item.videoTrialSeconds || item.trialSeconds || 0) || 0,
+    paidContent: item.paidContent || {},
     logo: mapImage(item.logo),
     highlights: (item.highlights || []).map((h) =>
       typeof h === 'string' ? { name: h, desc: '' } : h
@@ -207,8 +211,18 @@ function fetchContent() {
       timeout: 8000,
       success: (res) => {
         if (res.statusCode === 200 && hasRemoteContract(res.data)) {
+          if (res.data.settings && res.data.settings.miniprogramAccess === false) {
+            cache = EMPTY_CONTENT;
+            remoteLoaded = false;
+            loadState = { source: 'remote', status: 'maintenance', reason: 'maintenance' };
+            const app = getApp();
+            if (app && typeof app.enterMaintenance === 'function') app.enterMaintenance(res.data.settings);
+            resolve({ data: EMPTY_CONTENT, state: loadState });
+            return;
+          }
           cache = {
             countryId,
+            settings: res.data.settings || {},
             countries: adaptCountries(res.data.countries),
             guides: adaptGuides(res.data.guides),
             cities: adaptCities(res.data.cities),
@@ -217,6 +231,7 @@ function fetchContent() {
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories)
           };
+          if (app && app.globalData) app.globalData.contentSettings = res.data.settings || {};
           remoteLoaded = true;
           loadState = { source: 'remote', status: 'ready', reason: '' };
           resolve({ data: cache, state: loadState });
@@ -287,6 +302,10 @@ function getAttractionsByCity(cityId, source) {
   return data.attractions.filter((item) => item.city === cityId);
 }
 
+function getAttractions(source) {
+  return getAttractionsByCity('all', source);
+}
+
 function getAttraction(id, source) {
   return getContent(source).attractions.find((item) => item.id === id) || null;
 }
@@ -345,6 +364,7 @@ module.exports = {
   loadContent,
   getCities,
   getAttractionsByCity,
+  getAttractions,
   getAttraction,
   getAttractionNames,
   getReferenceList,
@@ -366,4 +386,3 @@ function invalidate() {
   remoteLoaded = false;
   loadState = { source: 'local', status: 'initial', reason: '' };
 }
-

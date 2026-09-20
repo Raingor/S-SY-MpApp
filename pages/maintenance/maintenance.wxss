@@ -1,0 +1,59 @@
+.maintenance-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 180rpx 72rpx 120rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #16283A;
+  background: linear-gradient(160deg, #F4F7FA 0%, #FFFFFF 58%, #F4F0E8 100%);
+}
+
+.maintenance-orbit {
+  width: 148rpx;
+  height: 148rpx;
+  margin-bottom: 48rpx;
+  display: grid;
+  place-items: center;
+  border: 2rpx solid rgba(198, 161, 91, .46);
+  border-radius: 50%;
+  box-shadow: 0 18rpx 46rpx rgba(11, 60, 93, .12);
+}
+
+.maintenance-dot {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: #1567A8;
+  box-shadow: 0 0 0 18rpx rgba(21, 103, 168, .1), 0 0 0 36rpx rgba(198, 161, 91, .1);
+}
+
+.maintenance-eyebrow {
+  color: #8AA3B5;
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+}
+
+.maintenance-title {
+  margin-top: 22rpx;
+  color: #0B3C5D;
+  font-size: 60rpx;
+  line-height: 1.25;
+}
+
+.maintenance-message {
+  max-width: 600rpx;
+  margin-top: 30rpx;
+  color: #5B6B7A;
+  font-size: 30rpx;
+  line-height: 1.75;
+}
+
+.maintenance-note {
+  max-width: 560rpx;
+  margin-top: 22rpx;
+  color: #8AA3B5;
+  font-size: 24rpx;
+  line-height: 1.7;
+}

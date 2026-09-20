@@ -45,6 +45,12 @@
     <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">{{phoneBound ? i18n.profile.reauthorize : i18n.profile.bind}}</button>
   </view>
 
+  <view wx:if="{{loggedIn}}" class="knowledge-member-card card">
+    <view class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberStatus || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{memberStatus ? i18n.paidContent.memberUnlocked : i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
+    <view class="knowledge-stats"><view><text>{{purchasedCount}}</text><label>{{i18n.paidContent.purchased}}</label></view><view><text>{{favoriteCount}}</text><label>{{i18n.profileDetail.favorites || '收藏'}}</label></view><view><text>{{liveBookingCount}}</text><label>{{i18n.liveBooking.title}}</label></view><view><text>{{historyCount}}</text><label>{{i18n.profileDetail.history || '观看历史'}}</label></view></view>
+    <button class="knowledge-member-action" bindtap="onKnowledgeTap">{{memberStatus ? i18n.paidContent.memberUnlocked : i18n.paidContent.member}}</button>
+  </view>
+
   <!-- ===== 服务单元格卡 ===== -->
   <view class="panel card">
     <view class="panel-heading">

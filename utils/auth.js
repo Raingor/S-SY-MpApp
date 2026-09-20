@@ -13,7 +13,8 @@ function getApiBase() {
 }
 
 function getAccessToken() {
-  return wx.getStorageSync(TOKEN_KEY) || getApp().globalData.auth.accessToken || '';
+  const app = getApp();
+  return wx.getStorageSync(TOKEN_KEY) || (app.globalData.auth && app.globalData.auth.accessToken) || '';
 }
 
 function getCachedUser() {

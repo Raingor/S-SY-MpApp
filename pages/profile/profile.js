@@ -3,6 +3,7 @@ const auth = require('../../utils/auth');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const app = getApp();
+const paidContent = require('../../utils/paid-content');
 
 Page({
   data: {
@@ -10,6 +11,12 @@ Page({
     loggedIn: false,
     phoneBound: false,
     authLoading: false,
+    membershipConfigured: false,
+    memberStatus: '',
+    purchasedCount: 0,
+    favoriteCount: 0,
+    liveBookingCount: 0,
+    historyCount: 0,
     avatarUploading: false,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
@@ -93,8 +100,22 @@ Page({
         phoneBound: Boolean(user && user.phoneBound),
         ...(loggedIn && user ? { user: { ...this.data.user, ...user } } : {})
       });
-      if (loggedIn) this.refreshStats();
+      if (loggedIn) { this.refreshStats(); this.loadKnowledgeState(); }
     });
+  },
+
+  loadKnowledgeState() {
+    paidContent.fetchConfig((ok, config) => this.setData({ membershipConfigured: ok || config.configured }));
+    paidContent.fetchEntitlements((ok, entitlements) => {
+      const copy = this.data.i18n.paidContent;
+      this.setData({
+        memberStatus: entitlements.member ? copy.memberUnlocked : '',
+        purchasedCount: (entitlements.purchases || []).length,
+        favoriteCount: (entitlements.favorites || []).length,
+        historyCount: (entitlements.history || []).length
+      });
+    });
+    auth.fetchMyLeads({ leadType: 'live-booking' }, (ok, items) => this.setData({ liveBookingCount: ok ? items.length : 0 }));
   },
 
   refreshStats() {
@@ -146,6 +167,11 @@ Page({
   onEditProfile() {
     if (!this.data.loggedIn) return this.onWechatLogin();
     wx.navigateTo({ url: '/pages/profile/edit/edit' });
+  },
+
+  onKnowledgeTap() {
+    if (!this.data.membershipConfigured) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
+    wx.showModal({ title: this.data.i18n.paidContent.member, content: this.data.i18n.paidContent.memberDesc, confirmText: this.data.i18n.paidContent.member, cancelText: this.data.i18n.know });
   },
 
   onLanguageTap(e) {

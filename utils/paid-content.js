@@ -1,0 +1,76 @@
+// 知识付费能力适配层：只消费 Website/后端真实配置，不在小程序端伪造价格、订单或支付成功。
+const auth = require('./auth');
+
+function apiBase() {
+  return (getApp().globalData.apiBase || '').replace(/\/$/, '');
+}
+
+function request(path, method, data, callback) {
+  const token = auth.getAccessToken();
+  const headers = { 'content-type': 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  wx.request({
+    url: `${apiBase()}${path}`,
+    method: method || 'GET',
+    timeout: 15000,
+    header: headers,
+    data,
+    success: (res) => callback(res.statusCode >= 200 && res.statusCode < 300, res.data || {}, res),
+    fail: (error) => callback(false, { error: error && error.errMsg }, null)
+  });
+}
+
+function configFromContent(settings) {
+  const source = settings || {};
+  const trialSeconds = Number(source.trialSeconds ?? source.videoTrialSeconds ?? source.knowledgeTrialSeconds);
+  return {
+    trialSeconds: Number.isFinite(trialSeconds) && trialSeconds > 0 ? trialSeconds : 0,
+    products: source.products || source.knowledgeProducts || {},
+    configured: Number.isFinite(trialSeconds) && trialSeconds > 0
+  };
+}
+
+function fetchConfig(callback) {
+  request('/api/miniprogram/knowledge/config', 'GET', null, (ok, data, res) => {
+    if (ok && data) return callback(true, { ...configFromContent(data), ...data }, res);
+    callback(false, configFromContent(getApp().globalData.contentSettings), res);
+  });
+}
+
+function fetchEntitlements(callback) {
+  request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
+    if (!ok) return callback(false, { member: false, purchases: [], favorites: [], history: [] }, res);
+    callback(true, {
+      member: Boolean(data.member || data.isMember || data.membership),
+      memberLabel: data.memberLabel || '',
+      purchases: data.purchases || data.unlockedAttractions || [],
+      favorites: data.favorites || [],
+      history: data.history || [],
+      orders: data.orders || []
+    }, res);
+  });
+}
+
+function hasPurchase(entitlements, attractionId) {
+  return Boolean((entitlements && entitlements.purchases || []).some((item) => {
+    const id = typeof item === 'string' ? item : item && (item.attractionId || item.id);
+    return id === attractionId;
+  }));
+}
+
+function isUnlocked(entitlements, attractionId) {
+  return Boolean(entitlements && (entitlements.member || hasPurchase(entitlements, attractionId)));
+}
+
+function createOrder(productType, attractionId, callback) {
+  request('/api/miniprogram/orders', 'POST', { productType, ...(attractionId ? { attractionId } : {}) }, (ok, data, res) => {
+    if (!ok || !data.payment) return callback(false, data, res);
+    wx.requestPayment({
+      ...data.payment,
+      success: () => callback(true, data, res),
+      fail: (error) => callback(false, { ...data, error: error && error.errMsg }, res)
+    });
+  });
+}
+
+module.exports = { fetchConfig, fetchEntitlements, hasPurchase, isUnlocked, createOrder };

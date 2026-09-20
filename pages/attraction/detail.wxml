@@ -64,27 +64,27 @@
     </view>
   </view>
 
-  <!-- 深度讲解 -->
-  <view class="spot-section card">
-    <view class="spot-kicker">DEEP DIVE</view>
-    <view class="spot-heading serif">{{i18n.contentPage.deepDive}}</view>
-    <view class="preview-label"><text>FREE PREVIEW</text> {{i18n.contentPage.freePreview}}</view>
+  <!-- 视频讲解与试看权限 -->
+  <view class="spot-section card paid-video-section">
+    <view class="spot-kicker">VIDEO GUIDE</view>
+    <view class="spot-heading serif">{{i18n.paidContent.video}}</view>
+    <view class="video-shell">
+      <video wx:if="{{spot.videoUrl}}" id="knowledge-video" src="{{spot.videoUrl}}" controls object-fit="contain" bindplay="onVideoPlay" bindtimeupdate="onVideoTimeUpdate" binderror="onVideoError"></video>
+      <view wx:else class="video-empty"><view class="video-empty-icon">▶</view><view>{{i18n.paidContent.trialUnavailable}}</view></view>
+      <view wx:if="{{!isVideoUnlocked && paidConfig.configured && !trialEnded}}" class="trial-badge">{{i18n.paidContent.trial}} {{paidConfig.trialSeconds}}s</view>
+      <view wx:if="{{isVideoUnlocked}}" class="unlock-badge">{{entitlements.member ? i18n.paidContent.memberUnlocked : i18n.paidContent.purchased}}</view>
+    </view>
+    <view class="video-status" wx:if="{{!isVideoUnlocked}}">{{trialLabel}}</view>
+    <view class="preview-label"><text>FREE TEXT</text> {{i18n.paidContent.freeText}}</view>
     <view class="preview-copy">{{spot.deepDive.preview}}</view>
-    <view class="preview-audio" bindtap="onPreviewAudio">
-      <view class="play-icon">▶</view>
-      <view><view>{{i18n.contentPage.audio}}</view><text>{{i18n.contentPage.audioTip}}</text></view>
-      <view class="preview-arrow">›</view>
-    </view>
-
-    <view class="locked-label"><text>PAID CONTENT</text> {{i18n.contentPage.paid}}</view>
-    <view class="locked-list">
-      <view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">{{i18n.contentPage.locked}}</text></view>
-    </view>
-    <view class="unlock-button" bindtap="onUnlock">{{i18n.contentPage.unlock}}</view>
+    <view class="locked-list"><view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">{{isVideoUnlocked ? '' : i18n.contentPage.locked}}</text></view></view>
+    <view class="unlock-button" bindtap="onUnlock">{{isVideoUnlocked ? i18n.paidContent.memberUnlocked : i18n.paidContent.unlock}}</view>
   </view>
 
+  <view class="spot-section card related-section" wx:if="{{related.length}}"><view class="spot-kicker">RELATED</view><view class="spot-heading serif">{{i18n.paidContent.related}}</view><view class="related-list"><view wx:for="{{related}}" wx:key="id" class="related-item" data-id="{{item.id}}" bindtap="onRelatedTap"><image src="{{item.image}}" mode="aspectFill"/><view><view class="related-name">{{item.name}}</view><view class="related-desc">{{item.summary}}</view></view><text>›</text></view></view></view>
+
   <!-- 咨询入口 -->
-  <view class="spot-consult card" bindtap="onConsult">
+  <view class="spot-consult card" bindtap="onLiveBooking">
     <view>
       <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
       <view class="consult-title serif">{{i18n.contentPage.consultTitle}}</view>
@@ -95,3 +95,5 @@
 
   <view class="spot-footer">{{i18n.commonSlogan}}</view>
 </view>
+
+<view wx:if="{{showPurchaseModal}}" class="purchase-overlay"><view class="purchase-modal card"><view class="purchase-close" bindtap="closePurchase">×</view><view class="spot-kicker">UNLOCK YOUR GREECE</view><view class="purchase-title serif">{{i18n.paidContent.trialEnded}}</view><view class="purchase-copy">{{i18n.paidContent.trialEndedDesc}}</view><button class="purchase-option" data-product="attraction" bindtap="onPurchase" loading="{{purchaseLoading}}"><view>{{i18n.paidContent.buySpot}}</view><text>{{i18n.paidContent.buySpotDesc}}</text></button><button class="purchase-option purchase-option-featured" data-product="membership" bindtap="onPurchase" loading="{{purchaseLoading}}"><view>{{i18n.paidContent.member}}</view><text>{{i18n.paidContent.memberDesc}}</text></button></view></view>
