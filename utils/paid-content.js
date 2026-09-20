@@ -39,8 +39,9 @@ function fetchConfig(callback) {
 
 function fetchEntitlements(callback) {
   request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
-    if (!ok) return callback(false, { member: false, purchases: [], favorites: [], history: [] }, res);
+    if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [] }, res);
     callback(true, {
+      simulation: Boolean(data.simulation),
       member: Boolean(data.member || data.isMember || data.membership),
       memberLabel: data.memberLabel || '',
       purchases: data.purchases || data.unlockedAttractions || [],
@@ -64,13 +65,31 @@ function isUnlocked(entitlements, attractionId) {
 
 function createOrder(productType, attractionId, callback) {
   request('/api/miniprogram/orders', 'POST', { productType, ...(attractionId ? { attractionId } : {}) }, (ok, data, res) => {
-    if (!ok || !data.payment) return callback(false, data, res);
+    if (!ok) return callback(false, data, res);
+    // 模拟订单明确没有 payment，不得调用 wx.requestPayment，也不能伪造已支付。
+    if (data.simulation && data.order && data.order.status === 'pending' && !data.payment) {
+      return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: true }, res);
+    }
+    if (!data.payment) return callback(false, data, res);
     wx.requestPayment({
       ...data.payment,
-      success: () => callback(true, data, res),
+      success: () => callback(true, { ...data, paymentStatus: 'paid' }, res),
       fail: (error) => callback(false, { ...data, error: error && error.errMsg }, res)
     });
   });
 }
 
-module.exports = { fetchConfig, fetchEntitlements, hasPurchase, isUnlocked, createOrder };
+function simulateOrderResult(orderId, outcome, callback) {
+  const action = outcome === 'failed' ? 'simulate-failed' : 'simulate-paid';
+  request(`/api/miniprogram/orders/${encodeURIComponent(orderId)}/${action}`, 'POST', null, (ok, data, res) => {
+    callback(ok, data, res);
+  });
+}
+
+function resetSimulation(callback) {
+  request('/api/miniprogram/simulation/reset', 'POST', null, (ok, data, res) => {
+    callback(ok, data, res);
+  });
+}
+
+module.exports = { fetchConfig, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };

@@ -30,6 +30,9 @@ Page({
     ,showPurchaseModal: false
     ,trialLabel: ''
     ,purchaseLoading: false
+    ,simulationMode: false
+    ,pendingSimulationOrder: null
+    ,simulationLoading: false
   },
 
   onLoad(options) {
@@ -75,7 +78,7 @@ Page({
   },
 
   loadPaidState() {
-    paidContent.fetchConfig((ok, config) => this.setData({ paidConfig: config, trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable }));
+    paidContent.fetchConfig((ok, config) => this.setData({ paidConfig: config, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable }));
     paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
   },
 
@@ -135,10 +138,31 @@ Page({
     this.setData({ purchaseLoading: true });
     paidContent.createOrder(productType, productType === 'attraction' ? this.spotId : '', (ok, data) => {
       this.setData({ purchaseLoading: false });
+      if (data && data.pendingSimulation && data.order) {
+        return this.setData({ pendingSimulationOrder: data.order });
+      }
       if (!ok) return wx.showModal({ title: this.data.i18n.submitFailed, content: data.error || this.data.i18n.paidContent.payUnavailable, confirmText: this.data.i18n.know, showCancel: false });
-      this.setData({ showPurchaseModal: false, trialEnded: false });
+      this.setData({ showPurchaseModal: false, trialEnded: false, pendingSimulationOrder: null });
       this.loadPaidState();
-      wx.showToast({ title: this.data.i18n.paidContent.memberUnlocked, icon: 'success' });
+      wx.showToast({ title: productType === 'membership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
+    });
+  },
+
+  onSimulationPay(e) {
+    const outcome = e.currentTarget.dataset.outcome;
+    const order = this.data.pendingSimulationOrder;
+    if (!order || this.data.simulationLoading) return;
+    this.setData({ simulationLoading: true });
+    paidContent.simulateOrderResult(order.id, outcome, (ok, data) => {
+      this.setData({ simulationLoading: false });
+      if (!ok) return wx.showModal({ title: this.data.i18n.submitFailed, content: (data && (data.error || data.message)) || this.data.i18n.paidContent.payUnavailable, confirmText: this.data.i18n.know, showCancel: false });
+      if (outcome === 'failed') {
+        this.setData({ pendingSimulationOrder: null });
+        return wx.showToast({ title: this.data.i18n.paidContent.simulationFailed, icon: 'none' });
+      }
+      this.setData({ showPurchaseModal: false, trialEnded: false, pendingSimulationOrder: null });
+      this.loadPaidState();
+      wx.showToast({ title: order.productType === 'membership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
     });
   },
 
