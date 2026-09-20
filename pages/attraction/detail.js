@@ -41,14 +41,14 @@ Page({
     this.spotId = (options && options.id) || '';
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     const spot = content.getAttraction(this.spotId);
-    if (spot) { this.applySpot(spot); if (spot.videoUrl) this.loadPaidState(); }
+    if (spot) { this.applySpot(spot); this.loadPaidState(); }
   },
 
   loadSpot() {
     if (!this.spotId) return;
     content.loadContent((data) => {
       const fresh = content.getAttraction(this.spotId, data);
-      if (fresh) { this.applySpot(fresh); if (fresh.videoUrl) this.loadPaidState(); }
+      if (fresh) { this.applySpot(fresh); this.loadPaidState(); }
       else {
         this.setData({ spot: null, guideTabs: [] });
         wx.showToast({ title: '未找到该景点', icon: 'none' });
