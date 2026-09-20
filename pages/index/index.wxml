@@ -44,31 +44,7 @@
     </view>
   </view>
 
-  <!-- ===== 2. 知识库入口总览 ===== -->
-  <view class="knowledge-search card">
-    <view class="knowledge-search-icon"></view>
-    <input value="{{searchQuery}}" confirm-type="search" placeholder="{{productHome.searchPlaceholder}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" />
-  </view>
-  <view wx:if="{{searchQuery && searchResults.length}}" class="search-results card">
-    <view wx:for="{{searchResults}}" wx:key="id" class="search-result" data-index="{{index}}" bindtap="onHotSpotTap"><image src="{{item.image}}" mode="aspectFill" /><view><view class="search-result-name">{{item.name}}</view><view class="search-result-desc">{{item.category}}</view></view><text>›</text></view>
-  </view>
-
-  <swiper class="product-banner" circular autoplay interval="4800" duration="500" bindchange="onCampaignChange">
-    <swiper-item><view class="campaign campaign-member" data-type="member" bindtap="onCampaignTap"><view class="campaign-tag">LIMITED · {{productHome.banners[0]}}</view><view class="campaign-title serif">{{productHome.memberTitle}}</view><view class="campaign-copy">{{productHome.memberDesc}}</view><view class="campaign-action">{{productHome.openMember}} ›</view></view></swiper-item>
-    <swiper-item><view class="campaign campaign-spot" data-type="spot" bindtap="onCampaignTap"><view class="campaign-tag">POPULAR · {{productHome.banners[1]}}</view><view class="campaign-title serif">{{productHome.popular}}</view><view class="campaign-copy">{{productHome.freeTrial}}</view><view class="campaign-action">{{productHome.freeTrial}} ›</view></view></swiper-item>
-    <swiper-item><view class="campaign campaign-live" data-type="live" bindtap="onCampaignTap"><view class="campaign-tag">LIVE TALK · {{productHome.banners[2]}}</view><view class="campaign-title serif">{{productHome.liveTitle}}</view><view class="campaign-copy">{{productHome.liveDesc}}</view><view class="campaign-action">{{productHome.reserve}} ›</view></view></swiper-item>
-  </swiper>
-
-  <view class="product-section-head"><view class="eyebrow">CATEGORIES</view><view class="product-section-title serif">{{i18n.knowledge}}</view></view>
-  <scroll-view class="knowledge-categories" scroll-x="true" show-scrollbar="false"><view wx:for="{{productHome.categories}}" wx:key="*this" data-index="{{index}}" bindtap="onCategoryTap" class="knowledge-category {{categoryIndex === index ? 'knowledge-category-on' : ''}}">{{item}}</view></scroll-view>
-
-  <view class="product-section-head"><view class="eyebrow">POPULAR</view><view class="product-section-title serif">{{productHome.popular}}</view></view>
-  <view class="hot-spot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="hot-spot card" data-index="{{index}}" bindtap="onHotSpotTap"><view class="hot-spot-image"><image src="{{item.image}}" mode="aspectFill" /><view class="free-trial-badge">{{productHome.freeTrial}}</view></view><view class="hot-spot-body"><view class="hot-spot-name serif">{{item.name}}</view><view class="hot-spot-desc">{{item.summary}}</view></view></view></view>
-
-  <view class="live-zone card" bindtap="onLiveTap"><view><view class="eyebrow">LIVE TALK</view><view class="live-zone-title serif">{{productHome.liveTitle}}</view><view class="live-zone-copy">{{productHome.liveDesc}}</view></view><view class="live-zone-button">{{productHome.reserve}} ›</view></view>
-  <view class="member-zone card" bindtap="onMemberTap"><view class="eyebrow member-eyebrow">MEMBERSHIP</view><view class="member-zone-title serif">{{productHome.memberTitle}}</view><view class="member-zone-copy">{{productHome.memberDesc}}</view><view class="member-zone-button">{{productHome.openMember}} ›</view></view>
-
-  <!-- ===== 2. 核心五大服务入口 ===== -->
+  <!-- ===== 2. 核心六大服务入口 ===== -->
   <view class="entries card">
     <view
       class="entry-item"

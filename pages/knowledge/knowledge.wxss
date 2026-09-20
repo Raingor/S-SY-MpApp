@@ -86,6 +86,48 @@
   font-size: 18rpx;
 }
 
+/* 内容板块切换：像杂志目录一样，让旧知识与新增讲解拥有清晰边界。 */
+.knowledge-panel-tabs {
+  display: flex;
+  gap: 14rpx;
+  margin: -28rpx 32rpx 0;
+  padding: 10rpx;
+  position: relative;
+  z-index: 2;
+  border: 1rpx solid rgba(255, 255, 255, .22);
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 16rpx 34rpx rgba(7, 31, 52, .14);
+  backdrop-filter: blur(18rpx);
+}
+
+.knowledge-panel-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 16rpx 12rpx 14rpx;
+  border-radius: 17rpx;
+  color: #6E7E8B;
+  font-size: 23rpx;
+  line-height: 1.3;
+  text-align: center;
+  transition: all .2s ease;
+}
+
+.knowledge-panel-tab-index {
+  margin-bottom: 5rpx;
+  color: #B9A67D;
+  font-size: 16rpx;
+  letter-spacing: 2rpx;
+}
+
+.knowledge-panel-tab-active {
+  background: #0B3C5D;
+  color: #FFFFFF;
+  box-shadow: 0 8rpx 18rpx rgba(11, 60, 93, .18);
+}
+
+.knowledge-panel-tab-active .knowledge-panel-tab-index { color: #E2C47F; }
+
 .knowledge-catalog,
 .spot-list-wrap,
 .trip-section {
@@ -202,6 +244,57 @@
   font-size: 22rpx;
   text-align: center;
 }
+
+/* 新增知识讲解板块 */
+.knowledge-product-intro { padding: 48rpx 32rpx 0; }
+.knowledge-product-title { margin-top: 14rpx; color: #0B3C5D; font-size: 38rpx; font-weight: 700; }
+.knowledge-product-copy { margin-top: 10rpx; color: #7890A1; font-size: 23rpx; line-height: 1.65; }
+.knowledge-product-search { margin: 24rpx 32rpx 0; padding: 0 26rpx; height: 82rpx; display: flex; align-items: center; gap: 16rpx; }
+.knowledge-product-search-icon { width: 24rpx; height: 24rpx; border: 4rpx solid #1567A8; border-radius: 50%; position: relative; flex-shrink: 0; }
+.knowledge-product-search-icon::after { content: ''; position: absolute; width: 12rpx; height: 4rpx; right: -10rpx; bottom: -5rpx; background: #1567A8; transform: rotate(45deg); border-radius: 4rpx; }
+.knowledge-product-search input { flex: 1; min-width: 0; color: #16283A; font-size: 26rpx; }
+.knowledge-product-results { margin: 12rpx 32rpx 0; padding: 0 24rpx; }
+.knowledge-product-result { display: flex; align-items: center; gap: 16rpx; padding: 18rpx 0; border-bottom: 1rpx solid #EDF1F4; }
+.knowledge-product-result:last-child { border-bottom: 0; }
+.knowledge-product-result image { width: 72rpx; height: 72rpx; border-radius: 12rpx; flex-shrink: 0; }
+.knowledge-product-result > view { flex: 1; min-width: 0; }
+.knowledge-product-result-name { color: #0B3C5D; font-size: 26rpx; font-weight: 600; }
+.knowledge-product-result-desc { margin-top: 5rpx; color: #8AA3B5; font-size: 21rpx; }
+.knowledge-product-result > text { color: #8AA3B5; font-size: 36rpx; }
+.knowledge-product-banner { height: 300rpx; margin-top: 24rpx; }
+.knowledge-campaign { height: 100%; margin: 0 32rpx; box-sizing: border-box; padding: 30rpx; border-radius: 24rpx; overflow: hidden; position: relative; box-shadow: 0 12rpx 34rpx rgba(8, 47, 73, .13); }
+.knowledge-campaign::after { content: '✦'; position: absolute; right: 30rpx; bottom: -36rpx; color: rgba(255, 255, 255, .18); font-size: 180rpx; }
+.knowledge-campaign-member { background: linear-gradient(135deg, #C6A15B, #DFBF7C); color: #3C2D10; }
+.knowledge-campaign-spot { background: linear-gradient(135deg, #082F49, #1567A8); color: #FFFFFF; }
+.knowledge-campaign-live { background: linear-gradient(135deg, #123F5A, #2B8C91); color: #FFFFFF; }
+.knowledge-campaign-tag { position: relative; z-index: 1; font-size: 18rpx; letter-spacing: 2rpx; font-weight: 700; }
+.knowledge-campaign-member .knowledge-campaign-tag { color: #6B521D; }
+.knowledge-campaign-title { position: relative; z-index: 1; margin-top: 26rpx; font-size: 40rpx; font-weight: 700; }
+.knowledge-campaign-copy { position: relative; z-index: 1; margin-top: 10rpx; max-width: 500rpx; font-size: 24rpx; line-height: 1.6; opacity: .82; }
+.knowledge-campaign-action { position: absolute; z-index: 1; bottom: 28rpx; left: 30rpx; padding: 10rpx 22rpx; border-radius: 30rpx; background: rgba(255, 255, 255, .96); color: #1567A8; font-size: 23rpx; font-weight: 700; }
+.knowledge-campaign-member .knowledge-campaign-action { background: #082F49; color: #FFFFFF; }
+.knowledge-product-section-head { display: flex; align-items: baseline; gap: 12rpx; padding: 34rpx 32rpx 16rpx; }
+.knowledge-product-section-title { color: #0B3C5D; font-size: 34rpx; font-weight: 700; }
+.knowledge-product-categories { width: 100%; padding: 0 32rpx 6rpx; white-space: nowrap; box-sizing: border-box; }
+.knowledge-product-category { display: inline-block; margin-right: 14rpx; padding: 14rpx 22rpx; border: 1rpx solid #E1E9EE; border-radius: 28rpx; background: #FFFFFF; color: #5B6B7A; font-size: 23rpx; }
+.knowledge-product-category-on { border-color: #1567A8; background: #1567A8; color: #FFFFFF; }
+.knowledge-hot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18rpx; padding: 0 32rpx; }
+.knowledge-hot-card { margin: 0; overflow: hidden; }
+.knowledge-hot-image { height: 190rpx; position: relative; }
+.knowledge-hot-image image { width: 100%; height: 100%; }
+.knowledge-free-trial { position: absolute; top: 14rpx; left: 14rpx; padding: 6rpx 12rpx; border-radius: 20rpx; background: #DFBF7C; color: #5A4413; font-size: 18rpx; font-weight: 700; }
+.knowledge-hot-body { padding: 18rpx; }
+.knowledge-hot-name { color: #0B3C5D; font-size: 27rpx; font-weight: 700; }
+.knowledge-hot-desc { display: -webkit-box; overflow: hidden; margin-top: 8rpx; color: #8AA3B5; font-size: 21rpx; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.knowledge-live-zone, .knowledge-member-zone { margin: 30rpx 32rpx 0; padding: 26rpx 28rpx; display: flex; align-items: center; justify-content: space-between; gap: 18rpx; }
+.knowledge-live-zone { background: linear-gradient(135deg, #0B3C5D, #1567A8); color: #FFFFFF; }
+.knowledge-member-zone { background: linear-gradient(135deg, #C6A15B, #DFBF7C); color: #3C2D10; }
+.knowledge-live-zone .eyebrow { color: #9FC4E0; }
+.knowledge-member-eyebrow { color: #6B521D; }
+.knowledge-live-title, .knowledge-member-title { margin-top: 8rpx; font-size: 32rpx; font-weight: 700; }
+.knowledge-live-copy, .knowledge-member-copy { margin-top: 7rpx; font-size: 22rpx; line-height: 1.5; opacity: .82; }
+.knowledge-live-button, .knowledge-member-button { flex-shrink: 0; padding: 12rpx 16rpx; border-radius: 28rpx; background: #FFFFFF; color: #1567A8; font-size: 22rpx; font-weight: 700; }
+.knowledge-member-button { background: #082F49; color: #FFFFFF; }
 
 /* 咨询入口 */
 .knowledge-consult {

@@ -10,8 +10,15 @@ Page({
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
+    activePanel: 0,
+    panelTabs: [],
     cities: [],
-    sampleTrips: []
+    sampleTrips: [],
+    searchQuery: '',
+    searchResults: [],
+    hotSpots: [],
+    productHome: i18n.getMessages().productHome,
+    categoryIndex: 0
   },
 
   onShareAppMessage() {
@@ -23,20 +30,69 @@ Page({
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
       cities: content.getCities(),
-      sampleTrips: content.getReferenceList()
+      sampleTrips: content.getReferenceList(),
+      hotSpots: content.getAttractions().slice(0, 6)
     });
-    i18n.apply(this);
+    this.applyLocale();
     // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
     content.loadContent((data) => {
       this.setData({
         cities: content.getCities(data),
-        sampleTrips: content.getReferenceList(data)
+        sampleTrips: content.getReferenceList(data),
+        hotSpots: content.getAttractions(data).slice(0, 6)
       });
     });
   },
 
   onShow() {
-    i18n.apply(this);
+    this.applyLocale();
+  },
+
+  applyLocale() {
+    const copy = i18n.apply(this);
+    this.setData({
+      panelTabs: [copy.knowledgePage.originalTab, copy.knowledgePage.newTab],
+      productHome: copy.productHome
+    });
+    return copy;
+  },
+
+  onPanelTap(e) {
+    this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0 });
+  },
+
+  onSearchInput(e) {
+    const query = String(e.detail.value || '').trim().toLowerCase();
+    const spots = this.data.hotSpots || [];
+    const results = query ? spots.filter((spot) => [spot.name, spot.en, spot.summary, spot.category, ...(spot.highlights || []).map((item) => item.name)].join(' ').toLowerCase().includes(query)) : [];
+    this.setData({ searchQuery: e.detail.value, searchResults: results.slice(0, 5) });
+  },
+
+  onSearchConfirm(e) {
+    const query = String(e.detail.value || '').trim();
+    if (!query) return;
+    const spot = (this.data.searchResults || [])[0];
+    if (spot) return wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+    wx.showToast({ title: this.data.locale === 'en' ? 'No matching sight' : this.data.locale === 'zh-TW' ? '沒有找到相關景點' : '没有找到相关景点', icon: 'none' });
+  },
+
+  onHotSpotTap(e) {
+    const spot = this.data.hotSpots[Number(e.currentTarget.dataset.index)];
+    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+  },
+
+  onCampaignTap(e) {
+    const type = e.currentTarget.dataset.type;
+    if (type === 'live') return wx.navigateTo({ url: '/pages/live-booking/live-booking' });
+    if (type === 'member') return this.openMember();
+    const spot = this.data.hotSpots[0];
+    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+  },
+
+  onLiveTap() { wx.navigateTo({ url: '/pages/live-booking/live-booking' }); },
+  onMemberTap() { this.openMember(); },
+  openMember() {
+    wx.showModal({ title: this.data.productHome.memberTitle, content: this.data.productHome.memberDesc, confirmText: this.data.productHome.openMember, cancelText: this.data.i18n.know });
   },
 
   onBack() {

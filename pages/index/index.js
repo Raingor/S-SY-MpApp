@@ -17,12 +17,6 @@ Page({
       { img: '/assets/images/hero/hero-couple.jpg' }
     ],
     heroCurrent: 0,
-    searchQuery: '',
-    searchResults: [],
-    hotSpots: [],
-    productHome: i18n.getMessages().productHome,
-    campaignIndex: 0,
-    categoryIndex: 0,
     countries: [],
     selectedCountry: null,
     selectedCountryLabel: '',
@@ -130,7 +124,6 @@ Page({
       : null;
     this.setData({
       entries,
-      productHome: copy.productHome,
       ...(localizedDestinations
         ? {
             destinations: localizedDestinations,
@@ -172,7 +165,6 @@ Page({
         destTabs: destinations.map((group) => group.tab),
         destTab,
         destinations
-        ,hotSpots: content.getAttractions(data).slice(0, 6)
       });
     }, true);
   },
@@ -195,46 +187,6 @@ Page({
   // 轮播切换
   onHeroChange(e) {
     this.setData({ heroCurrent: e.detail.current });
-  },
-
-  onSearchInput(e) {
-    const query = String(e.detail.value || '').trim().toLowerCase();
-    const spots = this.data.hotSpots || [];
-    const results = query ? spots.filter((spot) => [spot.name, spot.en, spot.summary, spot.category, ...(spot.highlights || []).map((item) => item.name)].join(' ').toLowerCase().includes(query)) : [];
-    this.setData({ searchQuery: e.detail.value, searchResults: results.slice(0, 5) });
-  },
-
-  onSearchConfirm(e) {
-    const query = String(e.detail.value || '').trim();
-    if (!query) return;
-    const spot = (this.data.searchResults || [])[0];
-    if (spot) return wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-    wx.showToast({ title: this.data.locale === 'en' ? 'No matching sight' : this.data.locale === 'zh-TW' ? '沒有找到相關景點' : '没有找到相关景点', icon: 'none' });
-  },
-
-  onSearchTap() {
-    this.setData({ searchQuery: '' });
-  },
-
-  onCampaignChange(e) { this.setData({ campaignIndex: Number(e.detail.current) }); },
-  onCategoryTap(e) { this.setData({ categoryIndex: Number(e.currentTarget.dataset.index) }); },
-  onCampaignTap(e) {
-    const type = e.currentTarget.dataset.type;
-    if (type === 'live') return wx.navigateTo({ url: '/pages/live-booking/live-booking' });
-    if (type === 'member') return this.openMember();
-    const spot = this.data.hotSpots[0];
-    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-  },
-
-  onHotSpotTap(e) {
-    const spot = this.data.hotSpots[Number(e.currentTarget.dataset.index)];
-    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-  },
-
-  onLiveTap() { wx.navigateTo({ url: '/pages/live-booking/live-booking' }); },
-  onMemberTap() { this.openMember(); },
-  openMember() {
-    wx.showModal({ title: this.data.productHome.memberTitle, content: this.data.productHome.memberDesc, confirmText: this.data.productHome.openMember, cancelText: this.data.i18n.know });
   },
 
   // 六大服务入口

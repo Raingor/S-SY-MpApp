@@ -16,6 +16,16 @@
     </view>
   </view>
 
+  <!-- 知识库内容板块切换：保留旧内容，并承载新增知识付费内容 -->
+  <view class="knowledge-panel-tabs" role="tablist">
+    <view wx:for="{{panelTabs}}" wx:key="*this" class="knowledge-panel-tab {{activePanel === index ? 'knowledge-panel-tab-active' : ''}}" data-index="{{index}}" bindtap="onPanelTap" role="tab" aria-selected="{{activePanel === index}}">
+      <view class="knowledge-panel-tab-index">0{{index + 1}}</view>
+      <view>{{item}}</view>
+    </view>
+  </view>
+
+  <!-- 板块一：原有城市与参考行程内容 -->
+  <block wx:if="{{activePanel === 0}}">
   <!-- 精选城市（封面图 + 名称 + 统计摘要） -->
   <view class="knowledge-catalog">
     <view class="knowledge-section-kicker">01 · CITIES</view>
@@ -50,6 +60,39 @@
     </view>
     <view class="trip-more" bindtap="onMoreTrips">{{i18n.knowledgePage.viewTrips}} ›</view>
   </view>
+  </block>
+
+  <!-- 板块二：新增搜索、景点讲解、直播预约与会员内容 -->
+  <block wx:if="{{activePanel === 1}}">
+    <view class="knowledge-product-intro">
+      <view class="knowledge-section-kicker">NEW · KNOWLEDGE ACCESS</view>
+      <view class="knowledge-product-title serif">{{productHome.popular}}</view>
+      <view class="knowledge-product-copy">{{productHome.memberDesc}}</view>
+    </view>
+
+    <view class="knowledge-product-search card">
+      <view class="knowledge-product-search-icon"></view>
+      <input value="{{searchQuery}}" confirm-type="search" placeholder="{{productHome.searchPlaceholder}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" />
+    </view>
+    <view wx:if="{{searchQuery && searchResults.length}}" class="knowledge-product-results card">
+      <view wx:for="{{searchResults}}" wx:key="id" class="knowledge-product-result" data-index="{{index}}" bindtap="onHotSpotTap"><image src="{{item.image}}" mode="aspectFill" /><view><view class="knowledge-product-result-name">{{item.name}}</view><view class="knowledge-product-result-desc">{{item.category}}</view></view><text>›</text></view>
+    </view>
+
+    <swiper class="knowledge-product-banner" circular autoplay interval="4800" duration="500">
+      <swiper-item><view class="knowledge-campaign knowledge-campaign-member" data-type="member" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIMITED · {{productHome.banners[0]}}</view><view class="knowledge-campaign-title serif">{{productHome.memberTitle}}</view><view class="knowledge-campaign-copy">{{productHome.memberDesc}}</view><view class="knowledge-campaign-action">{{productHome.openMember}} ›</view></view></swiper-item>
+      <swiper-item><view class="knowledge-campaign knowledge-campaign-spot" data-type="spot" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">POPULAR · {{productHome.banners[1]}}</view><view class="knowledge-campaign-title serif">{{productHome.popular}}</view><view class="knowledge-campaign-copy">{{productHome.freeTrial}}</view><view class="knowledge-campaign-action">{{productHome.freeTrial}} ›</view></view></swiper-item>
+      <swiper-item><view class="knowledge-campaign knowledge-campaign-live" data-type="live" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIVE TALK · {{productHome.banners[2]}}</view><view class="knowledge-campaign-title serif">{{productHome.liveTitle}}</view><view class="knowledge-campaign-copy">{{productHome.liveDesc}}</view><view class="knowledge-campaign-action">{{productHome.reserve}} ›</view></view></swiper-item>
+    </swiper>
+
+    <view class="knowledge-product-section-head"><view class="eyebrow">CATEGORIES</view><view class="knowledge-product-section-title serif">{{i18n.knowledge}}</view></view>
+    <scroll-view class="knowledge-product-categories" scroll-x="true" show-scrollbar="false"><view wx:for="{{productHome.categories}}" wx:key="*this" data-index="{{index}}" class="knowledge-product-category {{categoryIndex === index ? 'knowledge-product-category-on' : ''}}">{{item}}</view></scroll-view>
+
+    <view class="knowledge-product-section-head"><view class="eyebrow">POPULAR</view><view class="knowledge-product-section-title serif">{{productHome.popular}}</view></view>
+    <view class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-index="{{index}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image src="{{item.image}}" mode="aspectFill" /><view class="knowledge-free-trial">{{productHome.freeTrial}}</view></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.name}}</view><view class="knowledge-hot-desc">{{item.summary}}</view></view></view></view>
+
+    <view class="knowledge-live-zone card" bindtap="onLiveTap"><view><view class="eyebrow">LIVE TALK</view><view class="knowledge-live-title serif">{{productHome.liveTitle}}</view><view class="knowledge-live-copy">{{productHome.liveDesc}}</view></view><view class="knowledge-live-button">{{productHome.reserve}} ›</view></view>
+    <view class="knowledge-member-zone card" bindtap="onMemberTap"><view class="eyebrow knowledge-member-eyebrow">MEMBERSHIP</view><view class="knowledge-member-title serif">{{productHome.memberTitle}}</view><view class="knowledge-member-copy">{{productHome.memberDesc}}</view><view class="knowledge-member-button">{{productHome.openMember}} ›</view></view>
+  </block>
 
   <view class="knowledge-consult card" bindtap="onConsult">
     <view>
