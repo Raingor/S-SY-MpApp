@@ -95,9 +95,22 @@ function createOrder(productType, attractionId, callback) {
     if (!data.payment) return callback(false, data, res);
     wx.requestPayment({
       ...data.payment,
-      success: () => callback(true, { ...data, paymentStatus: 'paid' }, res),
+      success: () => waitForOrder(data.order && data.order.id, 0, (statusData) => {
+        if (statusData && statusData.order && statusData.order.status === 'paid') return callback(true, { ...data, ...statusData, paymentStatus: 'paid' }, res);
+        if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
+        callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
+      }),
       fail: (error) => callback(false, { ...data, error: error && error.errMsg }, res)
     });
+  });
+}
+
+function waitForOrder(orderId, attempt, callback) {
+  if (!orderId) return callback(null);
+  request(`/api/miniprogram/orders/${encodeURIComponent(orderId)}`, 'GET', null, (ok, data) => {
+    if (ok && data && data.order && ['paid', 'failed', 'closed'].includes(data.order.status)) return callback(data);
+    if (attempt >= 7) return callback(ok ? data : null);
+    setTimeout(() => waitForOrder(orderId, attempt + 1, callback), 800);
   });
 }
 
