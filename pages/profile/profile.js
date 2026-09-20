@@ -4,6 +4,7 @@ const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const app = getApp();
 const paidContent = require('../../utils/paid-content');
+const content = require('../../data/content');
 
 Page({
   data: {
@@ -12,11 +13,16 @@ Page({
     phoneBound: false,
     authLoading: false,
     membershipConfigured: false,
+    simulationEnabled: false,
+    simulationPhone: '13800138000',
+    simulationLoading: false,
     memberStatus: '',
     purchasedCount: 0,
     favoriteCount: 0,
     liveBookingCount: 0,
     historyCount: 0,
+    purchasedCourses: [],
+    knowledgeOrders: [],
     avatarUploading: false,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
@@ -100,8 +106,10 @@ Page({
         phoneBound: Boolean(user && user.phoneBound),
         ...(loggedIn && user ? { user: { ...this.data.user, ...user } } : {})
       });
-      if (loggedIn) { this.refreshStats(); this.loadKnowledgeState(); }
+      this.loadKnowledgeState();
+      if (loggedIn) this.refreshStats();
     });
+    paidContent.fetchConfig((ok, config) => this.setData({ simulationEnabled: Boolean(config.simulation), membershipConfigured: ok || config.configured }));
   },
 
   loadKnowledgeState() {
@@ -114,6 +122,17 @@ Page({
         favoriteCount: (entitlements.favorites || []).length,
         historyCount: (entitlements.history || []).length
       });
+      const purchases = entitlements.purchases || [];
+      const purchasedCourses = purchases.map((item) => {
+        const attraction = item.attractionId ? content.getAttraction(item.attractionId) : null;
+        return {
+          id: item.orderId || item.attractionId || item.productType,
+          title: item.productType === 'membership' ? copy.member : (attraction && attraction.name) || item.attractionId || copy.video,
+          status: item.status || 'paid',
+          purchasedAt: item.purchasedAt || ''
+        };
+      });
+      this.setData({ purchasedCourses, knowledgeOrders: (entitlements.orders || []).slice().reverse().slice(0, 8) });
     });
     auth.fetchMyLeads({ leadType: 'live-booking' }, (ok, items) => this.setData({ liveBookingCount: ok ? items.length : 0 }));
   },
@@ -172,6 +191,21 @@ Page({
   onKnowledgeTap() {
     if (!this.data.membershipConfigured) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
     wx.showModal({ title: this.data.i18n.paidContent.member, content: this.data.i18n.paidContent.memberDesc, confirmText: this.data.i18n.paidContent.member, cancelText: this.data.i18n.know });
+  },
+
+  onSimulationPhoneInput(e) { this.setData({ simulationPhone: e.detail.value }); },
+
+  onSimulationLogin() {
+    if (this.data.simulationLoading) return;
+    this.setData({ simulationLoading: true });
+    paidContent.startSimulationSession(this.data.simulationPhone, (ok, user, data) => {
+      this.setData({ simulationLoading: false });
+      if (!ok) return wx.showToast({ title: (data && (data.error || data.message)) || this.data.i18n.paidContent.simulationLoginFailed, icon: 'none' });
+      this.setData({ loggedIn: true, phoneBound: true, user: { ...this.data.user, ...user } });
+      this.refreshStats();
+      this.loadKnowledgeState();
+      wx.showToast({ title: this.data.i18n.paidContent.simulationLoginSuccess, icon: 'success' });
+    });
   },
 
   onLanguageTap(e) {

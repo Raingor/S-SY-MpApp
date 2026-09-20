@@ -16,7 +16,7 @@
               <view wx:if="{{user.member}}" class="member-badge">✦ {{user.member}}</view>
               <text class="edit-profile" bindtap="onEditProfile">{{i18n.profile.change}}</text>
             </view>
-            <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}</view>
+            <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}<text wx:if="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text></view>
           </view>
         </view>
 
@@ -49,6 +49,24 @@
     <view class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberStatus || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{memberStatus ? i18n.paidContent.memberUnlocked : i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
     <view class="knowledge-stats"><view><text>{{purchasedCount}}</text><label>{{i18n.paidContent.purchased}}</label></view><view><text>{{favoriteCount}}</text><label>{{i18n.profileDetail.favorites || '收藏'}}</label></view><view><text>{{liveBookingCount}}</text><label>{{i18n.liveBooking.title}}</label></view><view><text>{{historyCount}}</text><label>{{i18n.profileDetail.history || '观看历史'}}</label></view></view>
     <button class="knowledge-member-action" bindtap="onKnowledgeTap">{{memberStatus ? i18n.paidContent.memberUnlocked : i18n.paidContent.member}}</button>
+  </view>
+
+  <view wx:if="{{simulationEnabled && !loggedIn}}" class="simulation-login-card card">
+    <view class="simulation-login-kicker">TEST PAYMENT</view>
+    <view class="simulation-login-title serif">{{i18n.paidContent.simulationLoginTitle}}</view>
+    <view class="simulation-login-desc">{{i18n.paidContent.simulationLoginDesc}}</view>
+    <input class="simulation-phone-input" type="number" maxlength="20" value="{{simulationPhone}}" bindinput="onSimulationPhoneInput" placeholder="{{i18n.paidContent.simulationPhonePlaceholder}}" />
+    <button class="simulation-login-button" bindtap="onSimulationLogin" loading="{{simulationLoading}}" disabled="{{simulationLoading}}">{{i18n.paidContent.simulationLogin}}</button>
+  </view>
+
+  <view wx:if="{{loggedIn && purchasedCourses.length}}" class="knowledge-record-card card">
+    <view class="record-heading"><view><view class="eyebrow">PURCHASED COURSES</view><view class="record-title serif">{{i18n.paidContent.purchasedCourses}}</view></view><view class="record-count">{{purchasedCourses.length}}</view></view>
+    <view wx:for="{{purchasedCourses}}" wx:key="id" class="record-row"><view class="record-dot">✦</view><view class="record-main"><view class="record-name">{{item.title}}</view><view class="record-meta">{{item.status}}<text wx:if="{{item.purchasedAt}}"> · {{item.purchasedAt}}</text></view></view><view class="record-check">✓</view></view>
+  </view>
+
+  <view wx:if="{{loggedIn && knowledgeOrders.length}}" class="knowledge-record-card card">
+    <view class="record-heading"><view><view class="eyebrow">PAYMENT ORDERS</view><view class="record-title serif">{{i18n.paidContent.paymentOrders}}</view></view><view class="record-count">{{knowledgeOrders.length}}</view></view>
+    <view wx:for="{{knowledgeOrders}}" wx:key="id" class="record-row"><view class="record-order-mark">¥</view><view class="record-main"><view class="record-name">{{item.name}}</view><view class="record-meta">¥{{item.price}} · {{item.status}}<text wx:if="{{item.createdAt}}"> · {{item.createdAt}}</text></view></view><view class="record-arrow">›</view></view>
   </view>
 
   <!-- ===== 服务单元格卡 ===== -->

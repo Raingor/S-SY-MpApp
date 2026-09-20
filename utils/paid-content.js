@@ -37,6 +37,28 @@ function fetchConfig(callback) {
   });
 }
 
+function startSimulationSession(phone, callback) {
+  const base = apiBase();
+  const normalized = String(phone || '').replace(/[^\d+]/g, '');
+  if (!base || !/^\+?\d{7,20}$/.test(normalized)) return callback(false, null, { code: 'SIMULATION_PHONE_INVALID' });
+  wx.request({
+    url: `${base}/api/miniprogram/simulation/session`,
+    method: 'POST',
+    timeout: 15000,
+    header: { 'content-type': 'application/json' },
+    data: { phone: normalized },
+    success: (res) => {
+      const data = res.data || {};
+      if (res.statusCode >= 200 && res.statusCode < 300 && data.accessToken && data.user) {
+        auth.saveSession(data.accessToken, data.user);
+        return callback(true, data.user, data);
+      }
+      callback(false, null, data);
+    },
+    fail: (error) => callback(false, null, { error: error && error.errMsg })
+  });
+}
+
 function fetchEntitlements(callback) {
   request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
     if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [] }, res);
@@ -92,4 +114,4 @@ function resetSimulation(callback) {
   });
 }
 
-module.exports = { fetchConfig, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };
+module.exports = { fetchConfig, startSimulationSession, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };

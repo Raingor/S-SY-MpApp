@@ -350,6 +350,7 @@
 .purchase-option::after { border: 0; }
 .purchase-option view { font-size: 27rpx; font-weight: 700; }
 .purchase-option text { margin-top: 6rpx; color: #8AA3B5; font-size: 21rpx; }
+.purchase-option view .purchase-price { display: inline; margin-left: 10rpx; color: #C08A36; font-size: 23rpx; font-weight: 700; }
 .purchase-option-featured { border-color: #C6A15B; background: linear-gradient(110deg,#FFFAF0,#FFF); }
 .simulation-box { margin-top: 24rpx; padding: 20rpx; border: 1rpx solid rgba(196, 145, 57, .35); border-radius: 18rpx; background: #fffaf0; }
 .simulation-label { color: #9a6a19; font-size: 24rpx; font-weight: 600; }

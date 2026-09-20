@@ -22,6 +22,10 @@ function getCachedUser() {
   return cached && typeof cached === 'object' ? cached : getApp().globalData.auth.user;
 }
 
+function isSimulationToken(token) {
+  return /^sim[-_:]/i.test(String(token || '')) || /^smpv1\./i.test(String(token || ''));
+}
+
 function saveSession(accessToken, user) {
   // 服务端可能暂时只返回鉴权字段；同一用户的本地昵称/头像继续保留。
   const previous = getCachedUser();
@@ -108,6 +112,7 @@ function fetchMe(callback) {
   const token = getAccessToken();
   const apiBase = getApiBase();
   if (!token || !apiBase) return callback(false, null, copy.validation.loginRequired);
+  if (isSimulationToken(token)) return callback(true, getCachedUser(), '');
   wx.request({
     url: `${apiBase}/api/miniprogram/auth/me`,
     method: 'GET',
@@ -208,6 +213,7 @@ function ensurePhoneBound(ready, blocked) {
 function getUserState(callback) {
   const token = getAccessToken();
   if (!token) return callback(false, null);
+  if (isSimulationToken(token)) return callback(true, getCachedUser());
   // “我的”页每次显示时向服务端确认，避免手机号在其他端绑定后仍显示旧状态。
   fetchMe((ok, user) => callback(ok, user));
 }
@@ -342,6 +348,7 @@ module.exports = {
   updateMyItem,
   deleteMyItem,
   fetchMyCoupons,
+  saveSession,
   clearSession,
   getAppState
 };

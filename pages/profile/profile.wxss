@@ -99,6 +99,26 @@
 .knowledge-member-action { height: 66rpx; margin: 22rpx 0 0; border: 0; border-radius: 34rpx; background: #DFBF7C; color: #3C2D10; font-size: 24rpx; line-height: 66rpx; }
 .knowledge-member-action::after { border: 0; }
 
+.simulation-login-card { margin-top: 24rpx; padding: 28rpx; border: 1rpx solid #D9E5EC; background: linear-gradient(135deg, #F8FBFD, #FFFFFF); }
+.simulation-login-kicker { color: #C08A36; font-size: 19rpx; font-weight: 700; letter-spacing: 2rpx; }
+.simulation-login-title { margin-top: 10rpx; color: #0B3C5D; font-size: 31rpx; font-weight: 700; }
+.simulation-login-desc { margin-top: 8rpx; color: #718394; font-size: 22rpx; line-height: 1.5; }
+.simulation-phone-input { height: 76rpx; margin-top: 20rpx; padding: 0 22rpx; box-sizing: border-box; border: 1rpx solid #D6E1E8; border-radius: 14rpx; background: #FFFFFF; color: #0B3C5D; font-size: 26rpx; }
+.simulation-login-button { height: 70rpx; margin: 18rpx 0 0; border: 0; border-radius: 35rpx; background: #0B3C5D; color: #FFFFFF; font-size: 25rpx; line-height: 70rpx; }
+.simulation-login-button::after { border: 0; }
+.knowledge-record-card { margin-top: 24rpx; padding: 26rpx 28rpx; }
+.record-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
+.record-title { margin-top: 8rpx; color: #0B3C5D; font-size: 30rpx; font-weight: 700; }
+.record-count { min-width: 42rpx; height: 42rpx; border-radius: 21rpx; background: #EEF6FB; color: #1567A8; font-size: 22rpx; line-height: 42rpx; text-align: center; }
+.record-row { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 0 0; }
+.record-dot, .record-order-mark { display: flex; align-items: center; justify-content: center; width: 42rpx; height: 42rpx; flex-shrink: 0; border-radius: 50%; background: #FBF3E2; color: #C6A15B; font-size: 22rpx; font-weight: 700; }
+.record-order-mark { background: #EEF6FB; color: #1567A8; }
+.record-main { min-width: 0; flex: 1; }
+.record-name { overflow: hidden; color: #263B4D; font-size: 24rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.record-meta { margin-top: 5rpx; overflow: hidden; color: #91A2AF; font-size: 19rpx; text-overflow: ellipsis; white-space: nowrap; }
+.record-check { color: #2C8C66; font-size: 28rpx; }
+.record-arrow { color: #9AAAB6; font-size: 34rpx; }
+
 .phone-bind-copy {
   min-width: 0;
   flex: 1;
