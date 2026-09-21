@@ -93,7 +93,16 @@
       </view>
       <view class="route-audio-mark">♫</view>
     </view>
-    <audio class="route-audio-player" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" action="{{routeAudioAction}}" controls bindplay="onRouteAudioPlay" bindtimeupdate="onRouteAudioTimeUpdate"></audio>
+    <audio class="route-audio-native" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" action="{{routeAudioAction}}" bindplay="onRouteAudioPlay" bindpause="onRouteAudioPause" bindtimeupdate="onRouteAudioTimeUpdate" bindended="onRouteAudioEnded"></audio>
+    <view class="route-audio-controls">
+      <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
+        <view class="route-audio-icon {{routeAudioPlaying ? 'route-audio-icon-pause' : 'route-audio-icon-play'}}"></view>
+        <view class="route-audio-control-label">{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}</view>
+      </view>
+      <view class="route-audio-time">{{routeAudioCurrentTime}} <text>/ 1:00</text></view>
+      <view class="route-audio-restart" hover-class="route-audio-control-press" bindtap="onRouteAudioRestart" aria-label="{{i18n.routeAudio.restart}}">↺</view>
+    </view>
+    <view class="route-audio-progress"><view class="route-audio-progress-bar" style="width: {{routeAudioProgress}}%;"></view></view>
     <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
   </view>
 

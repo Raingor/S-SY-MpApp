@@ -405,10 +405,118 @@
   line-height: 1;
 }
 
-.route-audio-player {
-  display: block;
-  width: 100%;
+.route-audio-native {
+  position: absolute;
+  left: -9999rpx;
+  width: 1rpx;
+  height: 1rpx;
+  opacity: 0;
+}
+
+.route-audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.route-audio-main-control {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 22rpx;
+  box-sizing: border-box;
+  border-radius: 38rpx;
+  background: linear-gradient(135deg, #0B3C5D, #1567A8);
+  color: #FFFFFF;
+}
+
+.route-audio-control-press {
+  opacity: .78;
+  transform: scale(.98);
+}
+
+.route-audio-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 12rpx;
+}
+
+.route-audio-icon-play {
+  margin-left: 3rpx;
+  width: 0;
+  height: 0;
+  border-top: 16rpx solid transparent;
+  border-bottom: 16rpx solid transparent;
+  border-left: 22rpx solid #FFFFFF;
+}
+
+.route-audio-icon-pause::before,
+.route-audio-icon-pause::after {
+  content: '';
+  position: absolute;
+  top: 1rpx;
+  width: 8rpx;
+  height: 30rpx;
+  border-radius: 4rpx;
+  background: #FFFFFF;
+}
+
+.route-audio-icon-pause::before { left: 4rpx; }
+.route-audio-icon-pause::after { right: 4rpx; }
+
+.route-audio-control-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.route-audio-time {
+  flex-shrink: 0;
+  color: #0B3C5D;
+  font-size: 22rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.route-audio-time text {
+  color: #93A5B3;
+}
+
+.route-audio-restart {
+  flex-shrink: 0;
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1rpx solid #D8E2E8;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: #0B3C5D;
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.route-audio-progress {
+  height: 8rpx;
   margin-top: 18rpx;
+  overflow: hidden;
+  border-radius: 6rpx;
+  background: #E5EBEF;
+}
+
+.route-audio-progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #C6A15B, #E2C47F);
+  transition: width .2s linear;
 }
 
 .route-audio-note {

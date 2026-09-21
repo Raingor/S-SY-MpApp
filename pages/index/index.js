@@ -36,6 +36,9 @@ Page({
       src: '/assets/audio/selected-routes-intro.m4a'
     },
     routeAudioAction: {},
+    routeAudioPlaying: false,
+    routeAudioCurrentTime: '0:00',
+    routeAudioProgress: 0,
     routeAudioPreviewEnded: false,
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
@@ -85,20 +88,65 @@ Page({
     return buildShareCard('/pages/index/index');
   },
 
+  onRouteAudioToggle() {
+    if (this.data.routeAudioPreviewEnded) {
+      return wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
+    }
+    this.setData({ routeAudioAction: { method: this.data.routeAudioPlaying ? 'pause' : 'play' } });
+  },
+
   onRouteAudioPlay() {
-    if (!this.data.routeAudioPreviewEnded) return;
-    this.setData({ routeAudioAction: { method: 'pause' } });
+    if (this.data.routeAudioPreviewEnded) {
+      return this.setData({ routeAudioAction: { method: 'pause' } });
+    }
+    this.setData({ routeAudioPlaying: true });
+  },
+
+  onRouteAudioPause() {
+    this.setData({ routeAudioPlaying: false });
   },
 
   onRouteAudioTimeUpdate(e) {
-    if (this.data.routeAudioPreviewEnded) return;
     const currentTime = Number(e.detail && e.detail.currentTime) || 0;
-    if (currentTime < 60) return;
+    if (this.data.routeAudioPreviewEnded) return;
+    if (currentTime < 60) {
+      return this.setData({
+        routeAudioCurrentTime: this.formatAudioTime(currentTime),
+        routeAudioProgress: Math.min(100, currentTime / 60 * 100)
+      });
+    }
     this.setData({
       routeAudioPreviewEnded: true,
+      routeAudioPlaying: false,
+      routeAudioCurrentTime: '1:00',
+      routeAudioProgress: 100,
       routeAudioAction: { method: 'pause' }
     });
     wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
+  },
+
+  onRouteAudioEnded() {
+    this.setData({ routeAudioPlaying: false });
+  },
+
+  onRouteAudioRestart() {
+    this.setData({
+      routeAudioAction: { method: 'seek', data: 0 },
+      routeAudioPlaying: false,
+      routeAudioCurrentTime: '0:00',
+      routeAudioProgress: 0,
+      routeAudioPreviewEnded: false
+    });
+    setTimeout(() => {
+      this.setData({ routeAudioAction: { method: 'play' } });
+    }, 80);
+  },
+
+  formatAudioTime(seconds) {
+    const totalSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainder = String(totalSeconds % 60).padStart(2, '0');
+    return minutes + ':' + remainder;
   },
 
   onLoad() {
