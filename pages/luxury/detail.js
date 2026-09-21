@@ -1,7 +1,7 @@
-const app = getApp();
 const i18n = require('../../utils/i18n');
 const { buildShareCard } = require('../../utils/share');
 const { getLuxuryDetail } = require('../../data/luxury');
+const CONSULTANT_PHONE = '15071465661';
 
 Page({
   data: {
@@ -32,8 +32,10 @@ Page({
   },
 
   onConsult() {
-    app.globalData.pendingLeadType = 'customization';
-    wx.switchTab({ url: '/pages/customize/customize' });
+    wx.makePhoneCall({
+      phoneNumber: CONSULTANT_PHONE,
+      fail: () => wx.showToast({ title: '电话拨打失败，请稍后重试', icon: 'none' })
+    });
   },
 
   onShareAppMessage() {

@@ -147,31 +147,7 @@
     </view>
   </view>
 
-  <!-- ===== 4. 奢享体验 ===== -->
-  <view class="section">
-    <view class="section-head">
-      <view>
-        <view class="eyebrow">LUXURY EXPERIENCE</view>
-        <view class="section-title serif">{{i18n.luxury}}</view>
-      </view>
-    </view>
-    <view class="lux-row">
-      <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" data-id="{{item.id}}" bindtap="onLuxuryTap">
-        <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
-        <view class="lux-mask"></view>
-        <view class="lux-corner">{{i18n.luxuryTag}}</view>
-        <view class="lux-body">
-          <view class="lux-name serif">{{item.name}}</view>
-          <view class="lux-desc">
-            <view wx:for="{{item.descLines}}" wx:for-item="line" wx:key="*this">{{line}}</view>
-          </view>
-          <view class="lux-cta">{{i18n.luxuryCta}} ›</view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <!-- ===== 5. 精选目的地 ===== -->
+  <!-- ===== 4. 精选目的地 ===== -->
   <view class="section">
     <view class="section-head">
       <view>
@@ -208,6 +184,33 @@
         </view>
       </view>
     </block>
+  </view>
+
+  <!-- ===== 5. 奢享体验（目的地之后） ===== -->
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="eyebrow">LUXURY EXPERIENCE</view>
+        <view class="section-title serif">{{i18n.luxury}}</view>
+      </view>
+    </view>
+    <scroll-view class="lux-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" enable-flex="true">
+      <view class="lux-row">
+        <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" data-id="{{item.id}}" bindtap="onLuxuryTap">
+          <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
+          <view class="lux-mask"></view>
+          <view class="lux-corner">{{i18n.luxuryTag}}</view>
+          <view class="lux-body">
+            <view class="lux-name serif">{{item.name}}</view>
+            <view class="lux-desc">
+              <view wx:for="{{item.descLines}}" wx:for-item="line" wx:key="*this">{{line}}</view>
+            </view>
+            <view class="lux-cta">{{i18n.luxuryCta}} ›</view>
+          </view>
+        </view>
+        <view class="lux-scroll-end-gap" aria-hidden="true"></view>
+      </view>
+    </scroll-view>
   </view>
 
   <!-- ===== 6. 品牌页脚 ===== -->

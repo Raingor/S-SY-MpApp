@@ -630,17 +630,31 @@
   color: var(--c-weak);
 }
 
-/* ===== 4. 奢享体验 ===== */
+/* ===== 5. 奢享体验 ===== */
+.lux-scroll {
+  width: calc(100% + 32rpx);
+  margin-right: -32rpx;
+  white-space: nowrap;
+}
+
 .lux-row {
   display: flex;
   gap: 24rpx;
+  padding-right: 32rpx;
 }
 
 .lux-card {
   position: relative;
-  flex: 1;
+  flex: 0 0 500rpx;
+  width: 500rpx;
   height: 420rpx;
   overflow: hidden;
+  white-space: normal;
+}
+
+.lux-scroll-end-gap {
+  flex: 0 0 1rpx;
+  width: 1rpx;
 }
 
 .lux-img {
