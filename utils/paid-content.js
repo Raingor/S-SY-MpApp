@@ -60,8 +60,13 @@ function startSimulationSession(phone, callback) {
 }
 
 function fetchEntitlements(callback) {
+  // 免费试看不需要登录；未登录时不要请求需要 Bearer Token 的权益接口，
+  // 避免在控制台产生 401，同时保持未购买状态供试看计时逻辑使用。
+  if (!auth.getAccessToken()) {
+    return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, null);
+  }
   request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
-    if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [] }, res);
+    if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, res);
     callback(true, {
       simulation: Boolean(data.simulation),
       member: Boolean(data.member || data.isMember || data.membership),
