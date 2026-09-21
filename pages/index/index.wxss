@@ -411,6 +411,13 @@
   margin-top: 18rpx;
 }
 
+.route-audio-note {
+  margin-top: 8rpx;
+  color: #B2853E;
+  font-size: 20rpx;
+  line-height: 1.4;
+}
+
 /* ===== 通用 section ===== */
 .section {
   margin-top: 48rpx;

@@ -35,6 +35,8 @@ Page({
     homeAudio: {
       src: '/assets/audio/selected-routes-intro.m4a'
     },
+    routeAudioAction: {},
+    routeAudioPreviewEnded: false,
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
       {
@@ -81,6 +83,22 @@ Page({
 
   onShareAppMessage() {
     return buildShareCard('/pages/index/index');
+  },
+
+  onRouteAudioPlay() {
+    if (!this.data.routeAudioPreviewEnded) return;
+    this.setData({ routeAudioAction: { method: 'pause' } });
+  },
+
+  onRouteAudioTimeUpdate(e) {
+    if (this.data.routeAudioPreviewEnded) return;
+    const currentTime = Number(e.detail && e.detail.currentTime) || 0;
+    if (currentTime < 60) return;
+    this.setData({
+      routeAudioPreviewEnded: true,
+      routeAudioAction: { method: 'pause' }
+    });
+    wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
   },
 
   onLoad() {

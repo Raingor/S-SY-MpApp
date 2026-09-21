@@ -93,7 +93,8 @@
       </view>
       <view class="route-audio-mark">♫</view>
     </view>
-    <audio class="route-audio-player" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" controls></audio>
+    <audio class="route-audio-player" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" action="{{routeAudioAction}}" controls bindplay="onRouteAudioPlay" bindtimeupdate="onRouteAudioTimeUpdate"></audio>
+    <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
   </view>
 
   <!-- ===== 4. 甄选路线 ===== -->
