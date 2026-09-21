@@ -13,6 +13,7 @@ Page({
     phoneBound: false,
     authLoading: false,
     membershipConfigured: false,
+    membershipLoading: false,
     simulationEnabled: false,
     simulationPhone: '13800138000',
     simulationLoading: false,
@@ -190,7 +191,37 @@ Page({
 
   onKnowledgeTap() {
     if (!this.data.membershipConfigured) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
-    wx.showModal({ title: this.data.i18n.paidContent.member, content: this.data.i18n.paidContent.memberDesc, confirmText: this.data.i18n.paidContent.member, cancelText: this.data.i18n.know });
+    if (!auth.getAccessToken()) return this.onWechatLogin();
+    if (!this.data.phoneBound) {
+      return wx.showModal({
+        title: this.data.i18n.profile.bindPhone,
+        content: this.data.i18n.profile.bindPhoneDesc,
+        confirmText: this.data.i18n.profile.bind,
+        cancelText: this.data.i18n.know,
+        success: (res) => {
+          if (res.confirm) wx.pageScrollTo({ scrollTop: 0, duration: 200 });
+        }
+      });
+    }
+    if (this.data.memberStatus || this.data.membershipLoading) return;
+    this.setData({ membershipLoading: true });
+    paidContent.createOrder('membership', '', (ok, data) => {
+      this.setData({ membershipLoading: false });
+      if (!ok) {
+        if (data && data.code === 'PHONE_BIND_REQUIRED') this.setData({ phoneBound: false });
+        return wx.showModal({
+          title: this.data.i18n.submitFailed,
+          content: (data && (data.error || data.message)) || this.data.i18n.paidContent.payUnavailable,
+          confirmText: this.data.i18n.know,
+          showCancel: false
+        });
+      }
+      this.loadKnowledgeState();
+      if (data && data.paymentStatus === 'pending') {
+        return wx.showToast({ title: this.data.i18n.paidContent.paymentPending, icon: 'none' });
+      }
+      wx.showToast({ title: this.data.i18n.paidContent.memberUnlocked, icon: 'success' });
+    });
   },
 
   onSimulationPhoneInput(e) { this.setData({ simulationPhone: e.detail.value }); },
