@@ -32,6 +32,9 @@ Page({
     // 导游名片轮播：数据来自后台 /api/content，不再内嵌旧文案，避免后台修改后前台不同步。
     guides: [],
     guideCarouselEnabled: false,
+    homeAudio: {
+      src: '/assets/audio/selected-routes-intro.m4a'
+    },
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
     routes: [
       {

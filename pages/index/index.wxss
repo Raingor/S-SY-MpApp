@@ -364,6 +364,53 @@
   font-size: 25rpx;
 }
 
+/* ===== 甄选路线语音导览 ===== */
+.route-audio {
+  margin: 48rpx 32rpx 0;
+  padding: 26rpx 28rpx 20rpx;
+  overflow: hidden;
+  background: linear-gradient(135deg, #F8F4EA, #FFFFFF 72%);
+  border: 1rpx solid #E7E0D1;
+}
+
+.route-audio-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.route-audio-kicker {
+  color: #B2853E;
+}
+
+.route-audio-title {
+  margin-top: 8rpx;
+  color: var(--c-deep);
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.route-audio-desc {
+  margin-top: 7rpx;
+  color: var(--c-sub);
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.route-audio-mark {
+  flex-shrink: 0;
+  color: #C6A15B;
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.route-audio-player {
+  display: block;
+  width: 100%;
+  margin-top: 18rpx;
+}
+
 /* ===== 通用 section ===== */
 .section {
   margin-top: 48rpx;

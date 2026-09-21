@@ -83,6 +83,19 @@
     </swiper-item>
   </swiper>
 
+  <!-- 甄选路线语音导览 -->
+  <view class="route-audio card">
+    <view class="route-audio-head">
+      <view>
+        <view class="eyebrow route-audio-kicker">{{i18n.routeAudio.kicker}}</view>
+        <view class="route-audio-title serif">{{i18n.routeAudio.title}}</view>
+        <view class="route-audio-desc">{{i18n.routeAudio.desc}}</view>
+      </view>
+      <view class="route-audio-mark">♫</view>
+    </view>
+    <audio class="route-audio-player" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" controls></audio>
+  </view>
+
   <!-- ===== 4. 甄选路线 ===== -->
   <view class="section">
     <view class="section-head">
