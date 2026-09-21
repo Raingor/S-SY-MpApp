@@ -79,7 +79,7 @@
     </view>
 
     <swiper class="knowledge-product-banner" circular autoplay interval="4800" duration="500">
-      <swiper-item><view class="knowledge-campaign knowledge-campaign-member" data-type="member" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIMITED · {{productHome.banners[0]}}</view><view class="knowledge-campaign-title serif">{{productHome.memberTitle}}</view><view class="knowledge-campaign-copy">{{productHome.memberDesc}}</view><view class="knowledge-campaign-action">{{productHome.openMember}} ›</view></view></swiper-item>
+      <swiper-item><view class="knowledge-campaign knowledge-campaign-member" data-type="member" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIMITED · {{productHome.banners[0]}}</view><view class="knowledge-campaign-title serif">{{productHome.memberTitle}}</view><view class="knowledge-campaign-copy">{{productHome.memberDesc}}</view><view class="knowledge-campaign-action">{{membershipLoading ? i18n.loading : productHome.openMember}} ›</view></view></swiper-item>
       <swiper-item><view class="knowledge-campaign knowledge-campaign-spot" data-type="spot" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">POPULAR · {{productHome.banners[1]}}</view><view class="knowledge-campaign-title serif">{{productHome.popular}}</view><view class="knowledge-campaign-copy">{{productHome.freeTrial}}</view><view class="knowledge-campaign-action">{{productHome.freeTrial}} ›</view></view></swiper-item>
       <swiper-item><view class="knowledge-campaign knowledge-campaign-live" data-type="live" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIVE TALK · {{productHome.banners[2]}}</view><view class="knowledge-campaign-title serif">{{productHome.liveTitle}}</view><view class="knowledge-campaign-copy">{{productHome.liveDesc}}</view><view class="knowledge-campaign-action">{{productHome.reserve}} ›</view></view></swiper-item>
     </swiper>
@@ -92,7 +92,7 @@
     <view wx:else class="knowledge-product-empty card">{{productHome.categoryEmpty}}</view>
 
     <view class="knowledge-live-zone card" bindtap="onLiveTap"><view><view class="eyebrow">LIVE TALK</view><view class="knowledge-live-title serif">{{productHome.liveTitle}}</view><view class="knowledge-live-copy">{{productHome.liveDesc}}</view></view><view class="knowledge-live-button">{{productHome.reserve}} ›</view></view>
-    <view class="knowledge-member-zone card" bindtap="onMemberTap"><view class="eyebrow knowledge-member-eyebrow">MEMBERSHIP</view><view class="knowledge-member-title serif">{{productHome.memberTitle}}</view><view class="knowledge-member-copy">{{productHome.memberDesc}}</view><view class="knowledge-member-button">{{productHome.openMember}} ›</view></view>
+    <view class="knowledge-member-zone card" bindtap="onMemberTap"><view class="eyebrow knowledge-member-eyebrow">MEMBERSHIP</view><view class="knowledge-member-title serif">{{productHome.memberTitle}}</view><view class="knowledge-member-copy">{{productHome.memberDesc}}</view><view class="knowledge-member-button">{{membershipLoading ? i18n.loading : productHome.openMember}} ›</view></view>
   </block>
 
   <view class="knowledge-consult card" bindtap="onConsult">

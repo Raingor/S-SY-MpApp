@@ -4,6 +4,8 @@ const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
+const auth = require('../../utils/auth');
+const paidContent = require('../../utils/paid-content');
 
 const PRODUCT_CATEGORY_ALIASES = [
   ['athens', '雅典', '雅典区域'],
@@ -41,7 +43,9 @@ Page({
     searchResults: [],
     hotSpots: [],
     productHome: i18n.getMessages().productHome,
-    categoryIndex: 0
+    categoryIndex: 0,
+    membershipConfigured: false,
+    membershipLoading: false
   },
 
   onShareAppMessage() {
@@ -72,6 +76,7 @@ Page({
 
   onShow() {
     this.applyLocale();
+    paidContent.fetchConfig((ok, config) => this.setData({ membershipConfigured: ok || config.configured }));
   },
 
   applyLocale() {
@@ -144,7 +149,48 @@ Page({
   onLiveTap() { wx.navigateTo({ url: '/pages/live-booking/live-booking' }); },
   onMemberTap() { this.openMember(); },
   openMember() {
-    wx.showModal({ title: this.data.productHome.memberTitle, content: this.data.productHome.memberDesc, confirmText: this.data.productHome.openMember, cancelText: this.data.i18n.know });
+    if (this.data.membershipLoading) return;
+    if (!this.data.membershipConfigured) {
+      return paidContent.fetchConfig((ok, config) => {
+        const configured = ok || config.configured;
+        this.setData({ membershipConfigured: configured });
+        if (configured) return this.openMember();
+        wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
+      });
+    }
+    const token = auth.getAccessToken();
+    if (!token || auth.isSimulationToken(token)) {
+      if (token && auth.isSimulationToken(token)) auth.clearSession();
+      return wx.switchTab({ url: '/pages/profile/profile' });
+    }
+    auth.getUserState((loggedIn, user) => {
+      if (!loggedIn) return wx.switchTab({ url: '/pages/profile/profile' });
+      if (!user || !user.phoneBound) {
+        return wx.showModal({
+          title: this.data.i18n.profile.bindPhone,
+          content: this.data.i18n.profile.bindPhoneDesc,
+          confirmText: this.data.i18n.profile.bind,
+          cancelText: this.data.i18n.know,
+          success: (res) => { if (res.confirm) wx.switchTab({ url: '/pages/profile/profile' }); }
+        });
+      }
+      this.setData({ membershipLoading: true });
+      paidContent.createOrder('membership', '', (ok, data) => {
+        this.setData({ membershipLoading: false });
+        if (!ok) {
+          return wx.showModal({
+            title: this.data.i18n.submitFailed,
+            content: (data && (data.error || data.message)) || this.data.i18n.paidContent.payUnavailable,
+            confirmText: this.data.i18n.know,
+            showCancel: false
+          });
+        }
+        if (data && data.paymentStatus === 'pending') {
+          return wx.showToast({ title: this.data.i18n.paidContent.paymentPending, icon: 'none' });
+        }
+        wx.showToast({ title: this.data.i18n.paidContent.memberUnlocked, icon: 'success' });
+      });
+    });
   },
 
   onBack() {
