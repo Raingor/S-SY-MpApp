@@ -35,7 +35,6 @@ Page({
     homeAudio: {
       src: '/assets/audio/selected-routes-intro.m4a'
     },
-    routeAudioAction: {},
     routeAudioPlaying: false,
     routeAudioCurrentTime: '0:00',
     routeAudioProgress: 0,
@@ -88,21 +87,38 @@ Page({
     return buildShareCard('/pages/index/index');
   },
 
+  getRouteAudioContext() {
+    if (!this.routeAudioContext) {
+      this.routeAudioContext = wx.createAudioContext('route-audio-player', this);
+    }
+    return this.routeAudioContext;
+  },
+
   onRouteAudioToggle() {
     if (this.data.routeAudioPreviewEnded) {
       return wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
     }
-    this.setData({ routeAudioAction: { method: this.data.routeAudioPlaying ? 'pause' : 'play' } });
+    const audio = this.getRouteAudioContext();
+    if (this.data.routeAudioPlaying) audio.pause();
+    else audio.play();
   },
 
   onRouteAudioPlay() {
     if (this.data.routeAudioPreviewEnded) {
-      return this.setData({ routeAudioAction: { method: 'pause' } });
+      this.getRouteAudioContext().pause();
+      return;
+    }
+    this.routeAudioRestarting = false;
+    if (this.routeAudioRestartTimer) {
+      clearTimeout(this.routeAudioRestartTimer);
+      this.routeAudioRestartTimer = null;
     }
     this.setData({ routeAudioPlaying: true });
   },
 
   onRouteAudioPause() {
+    // 从头播放时 pause 只是重置流程的一步，不应把最终播放状态覆盖掉。
+    if (this.routeAudioRestarting) return;
     this.setData({ routeAudioPlaying: false });
   },
 
@@ -115,12 +131,12 @@ Page({
         routeAudioProgress: Math.min(100, currentTime / 60 * 100)
       });
     }
+    this.getRouteAudioContext().pause();
     this.setData({
       routeAudioPreviewEnded: true,
       routeAudioPlaying: false,
       routeAudioCurrentTime: '1:00',
-      routeAudioProgress: 100,
-      routeAudioAction: { method: 'pause' }
+      routeAudioProgress: 100
     });
     wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
   },
@@ -130,16 +146,28 @@ Page({
   },
 
   onRouteAudioRestart() {
+    const audio = this.getRouteAudioContext();
+    this.routeAudioRestarting = true;
+    if (this.routeAudioRestartTimer) clearTimeout(this.routeAudioRestartTimer);
+    audio.pause();
+    audio.seek(0);
     this.setData({
-      routeAudioAction: { method: 'seek', data: 0 },
       routeAudioPlaying: false,
       routeAudioCurrentTime: '0:00',
       routeAudioProgress: 0,
       routeAudioPreviewEnded: false
+    }, () => {
+      // pause → seek → play 分步执行，避免 audio 组件合并 action 导致无法暂停或未回到 0 秒。
+      this.routeAudioRestartTimer = setTimeout(() => {
+        audio.seek(0);
+        audio.play();
+        // 某些基础库在音频异常时不派发 play，避免重启锁永久阻塞暂停。
+        this.routeAudioRestartTimer = setTimeout(() => {
+          this.routeAudioRestarting = false;
+          this.routeAudioRestartTimer = null;
+        }, 1200);
+      }, 80);
     });
-    setTimeout(() => {
-      this.setData({ routeAudioAction: { method: 'play' } });
-    }, 80);
   },
 
   formatAudioTime(seconds) {

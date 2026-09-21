@@ -93,7 +93,7 @@
       </view>
       <view class="route-audio-mark">♫</view>
     </view>
-    <audio class="route-audio-native" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" action="{{routeAudioAction}}" bindplay="onRouteAudioPlay" bindpause="onRouteAudioPause" bindtimeupdate="onRouteAudioTimeUpdate" bindended="onRouteAudioEnded"></audio>
+    <audio id="route-audio-player" class="route-audio-native" src="{{homeAudio.src}}" name="{{i18n.routeAudio.name}}" author="{{i18n.routeAudio.author}}" bindplay="onRouteAudioPlay" bindpause="onRouteAudioPause" bindtimeupdate="onRouteAudioTimeUpdate" bindended="onRouteAudioEnded"></audio>
     <view class="route-audio-controls">
       <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
         <view class="route-audio-icon {{routeAudioPlaying ? 'route-audio-icon-pause' : 'route-audio-icon-play'}}"></view>
