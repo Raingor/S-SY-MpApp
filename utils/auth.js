@@ -333,6 +333,7 @@ function fetchMyCoupons(callback) {
 
 module.exports = {
   getAccessToken,
+  isSimulationToken,
   getCachedUser,
   login,
   fetchMe,

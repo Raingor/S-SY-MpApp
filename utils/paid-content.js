@@ -60,12 +60,14 @@ function startSimulationSession(phone, callback) {
 }
 
 function fetchEntitlements(callback) {
+  const token = auth.getAccessToken();
   // 免费试看不需要登录；未登录时不要请求需要 Bearer Token 的权益接口，
   // 避免在控制台产生 401，同时保持未购买状态供试看计时逻辑使用。
-  if (!auth.getAccessToken()) {
+  if (!token) {
     return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, null);
   }
-  request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
+
+  const requestEntitlements = () => request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
     if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, res);
     callback(true, {
       simulation: Boolean(data.simulation),
@@ -77,6 +79,17 @@ function fetchEntitlements(callback) {
       orders: data.orders || []
     }, res);
   });
+
+  // 模拟支付关闭后，旧的本地模拟 Token 不能拿去访问真实支付权益接口。
+  // 先读取当前支付配置：模拟环境继续保留模拟会话，真实环境清除旧会话并按游客处理。
+  if (auth.isSimulationToken(token)) {
+    return fetchConfig((ok, config) => {
+      if (ok && config.simulation) return requestEntitlements();
+      auth.clearSession();
+      callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, null);
+    });
+  }
+  requestEntitlements();
 }
 
 function hasPurchase(entitlements, attractionId) {
