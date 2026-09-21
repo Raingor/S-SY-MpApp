@@ -59,6 +59,21 @@ function startSimulationSession(phone, callback) {
   });
 }
 
+function fetchOrders(callback) {
+  request('/api/miniprogram/orders', 'GET', null, (ok, data, res) => {
+    if (ok && Array.isArray(data.items)) return callback(true, data.items, '', res);
+    callback(false, [], (data && data.error) || '暂时无法加载订单', res);
+  });
+}
+
+function fetchOrder(orderId, callback) {
+  if (!orderId) return callback(false, null, '订单编号无效', null);
+  request(`/api/miniprogram/orders/${encodeURIComponent(orderId)}`, 'GET', null, (ok, data, res) => {
+    if (ok && data && data.order) return callback(true, data.order, '', res);
+    callback(false, null, (data && data.error) || '暂时无法加载订单详情', res);
+  });
+}
+
 function fetchEntitlements(callback) {
   const token = auth.getAccessToken();
   // 免费试看不需要登录；未登录时不要请求需要 Bearer Token 的权益接口，
@@ -145,4 +160,4 @@ function resetSimulation(callback) {
   });
 }
 
-module.exports = { fetchConfig, startSimulationSession, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };
+module.exports = { fetchConfig, startSimulationSession, fetchOrders, fetchOrder, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };

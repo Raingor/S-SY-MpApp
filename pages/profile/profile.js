@@ -41,7 +41,8 @@ Page({
     ],
     // 服务单元格卡
     services: [
-      { key: 'orders', label: '我的预约', badge: '' },
+      { key: 'payment-orders', label: '我的订单', badge: '' },
+      { key: 'appointments', label: '我的预约', badge: '' },
       { key: 'trips', label: '我的行程', badge: '' },
       { key: 'coupons', label: '优惠券', badge: '' }
     ],
@@ -76,7 +77,8 @@ Page({
         { label: copy.profile.records, value: Number(stats[3] && stats[3].value) || 0 }
       ],
       services: [
-        { key: 'orders', label: copy.profile.appointments, badge: '' },
+        { key: 'payment-orders', label: copy.profileDetail.myOrders, badge: this.data.knowledgeOrders.length ? String(this.data.knowledgeOrders.length) : '' },
+        { key: 'appointments', label: copy.profile.appointments, badge: '' },
         { key: 'trips', label: copy.profile.trips, badge: '' },
         { key: 'coupons', label: copy.profile.coupons, badge: '' }
       ],
@@ -133,7 +135,12 @@ Page({
           purchasedAt: item.purchasedAt || ''
         };
       });
-      this.setData({ purchasedCourses, knowledgeOrders: (entitlements.orders || []).slice().reverse().slice(0, 8) });
+      const knowledgeOrders = (entitlements.orders || []).slice().reverse().slice(0, 8);
+      this.setData({
+        purchasedCourses,
+        knowledgeOrders,
+        services: this.data.services.map((item) => item.key === 'payment-orders' ? { ...item, badge: knowledgeOrders.length ? String(knowledgeOrders.length) : '' } : item)
+      });
     });
     auth.fetchMyLeads({ leadType: 'live-booking' }, (ok, items) => this.setData({ liveBookingCount: ok ? items.length : 0 }));
   },
@@ -303,7 +310,7 @@ Page({
   onServiceTap(e) {
     const key = e.currentTarget.dataset.key;
     if (!this.data.loggedIn) return this.onWechatLogin();
-    const type = key === 'orders' ? 'orders' : key === 'trips' ? 'trips' : 'coupons';
+    const type = key === 'payment-orders' ? 'payment-orders' : key === 'appointments' ? 'orders' : key === 'trips' ? 'trips' : 'coupons';
     wx.navigateTo({ url: `/pages/profile/detail/detail?type=${type}` });
   },
 

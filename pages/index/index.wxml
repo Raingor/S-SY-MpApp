@@ -31,7 +31,7 @@
     <view class="hero-brand">
       <view class="hero-brand-en eyebrow">{{i18n.brandEn}}</view>
       <view class="hero-brand-name serif">{{i18n.brand}}</view>
-      <view class="hero-brand-slogan">{{i18n.homeSlogan}}</view>
+      <view class="hero-brand-slogan">{{i18n.homeHeroSlogan}}</view>
     </view>
 
     <!-- 轮播指示点 -->
