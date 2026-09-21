@@ -15,6 +15,10 @@
         "type": "folder"
       },
       {
+        "value": ".preview-tmp",
+        "type": "folder"
+      },
+      {
         "value": ".gitignore",
         "type": "file"
       },
