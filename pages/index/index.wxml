@@ -3,6 +3,7 @@
   <!-- ===== 1. 品牌头图轮播（沉浸式） ===== -->
   <view class="hero">
     <swiper
+      wx:if="{{heroList.length}}"
       class="hero-swiper"
       autoplay
       circular
@@ -10,10 +11,14 @@
       duration="600"
       bindchange="onHeroChange"
     >
-      <swiper-item wx:for="{{heroList}}" wx:key="img">
-        <image class="hero-img" src="{{item.img}}" mode="aspectFill" />
+      <swiper-item wx:for="{{heroList}}" wx:key="id">
+        <image class="hero-img" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" />
       </swiper-item>
     </swiper>
+    <view wx:else class="hero-empty">
+      <view class="hero-empty-mark">SY</view>
+      <view>{{heroStatus === 'loading' ? i18n.loading : i18n.homeHeroEmpty}}</view>
+    </view>
     <!-- 深海蓝渐变遮罩（62%） -->
     <view class="hero-mask"></view>
 
@@ -28,14 +33,14 @@
     </view>
 
     <!-- 品牌名 + 品牌 slogan（压左下 1/3） -->
-    <view class="hero-brand">
-      <view class="hero-brand-en eyebrow">{{i18n.brandEn}}</view>
-      <view class="hero-brand-name serif">{{i18n.brand}}</view>
-      <view class="hero-brand-slogan">{{i18n.homeHeroSlogan}}</view>
+    <view wx:if="{{heroCopy.eyebrow || heroCopy.title || heroCopy.description}}" class="hero-brand">
+      <view wx:if="{{heroCopy.eyebrow}}" class="hero-brand-en eyebrow">{{heroCopy.eyebrow}}</view>
+      <view wx:if="{{heroCopy.title}}" class="hero-brand-name serif">{{heroCopy.title}}</view>
+      <view wx:if="{{heroCopy.description}}" class="hero-brand-slogan">{{heroCopy.description}}</view>
     </view>
 
     <!-- 轮播指示点 -->
-    <view class="hero-dots">
+    <view wx:if="{{heroList.length > 1}}" class="hero-dots">
       <view
         wx:for="{{heroList}}"
         wx:key="img"

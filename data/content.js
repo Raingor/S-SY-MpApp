@@ -4,13 +4,13 @@ const local = require('./mirror-content');
 
 const COUNTRY_STORAGE_KEY = 'sy_mp_country_id';
 const DEFAULT_COUNTRY_ID = 'greece';
-let cache = null;          // { countries, guides, cities, attractions, sampleItineraries }
+let cache = null;          // { countries, guides, cities, attractions, sampleItineraries, home }
 let fetching = null;       // 进行中的请求 Promise（去重）
 let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [] };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [], home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -150,6 +150,28 @@ function adaptDestinationCategories(remoteCategories) {
     .sort((a, b) => a.sort - b.sort);
 }
 
+// 首页 Hero：图片、眉标题、主标题和描述全部来自后端 home，不使用本地文案/图片。
+function adaptHome(remoteHome) {
+  const home = remoteHome && typeof remoteHome === 'object' ? remoteHome : {};
+  const banners = Array.isArray(home.banners) ? home.banners : [];
+  return {
+    eyebrow: typeof home.eyebrow === 'string' ? home.eyebrow.trim() : '',
+    title: typeof home.title === 'string' ? home.title.trim() : '',
+    description: typeof home.description === 'string' ? home.description.trim() : '',
+    banners: banners
+      .filter((item) => item && item.enabled === true && typeof item.image === 'string' && item.image.trim())
+      .map((item, index) => ({
+        id: String(item.id || 'home-hero-' + index),
+        img: mapManagedImage(item.image),
+        title: typeof item.title === 'string' ? item.title.trim() : '',
+        alt: typeof item.alt === 'string' ? item.alt.trim() : '',
+        sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
+      }))
+      .filter((item) => item.img)
+      .sort((a, b) => a.sort - b.sort)
+  };
+}
+
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
     id: destination.id,
@@ -233,7 +255,8 @@ function fetchContent() {
             attractions: adaptAttractions(res.data.attractions),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
-            destinationCategories: adaptDestinationCategories(res.data.destinationCategories)
+            destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
+            home: adaptHome(res.data.home)
           };
           if (app && app.globalData) app.globalData.contentSettings = res.data.settings || {};
           remoteLoaded = true;

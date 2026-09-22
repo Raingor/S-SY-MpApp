@@ -10,12 +10,10 @@ Page({
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
-    // 品牌头图轮播
-    heroList: [
-      { img: '/assets/images/hero/hero-santorini.jpg' },
-      { img: '/assets/images/hero/hero-acropolis.jpg' },
-      { img: '/assets/images/hero/hero-couple.jpg' }
-    ],
+    // Hero 图片与文案均来自后端 /api/content 的 home，不内嵌本地内容。
+    heroList: [],
+    heroCopy: { eyebrow: '', title: '', description: '' },
+    heroStatus: 'loading',
     heroCurrent: 0,
     countries: [],
     selectedCountry: null,
@@ -243,10 +241,14 @@ Page({
   applyRemoteContent() {
     // 第二个参数 true：每次进入首页都重新拉后端，跳过内存缓存，确保后台改目的地/路线后即时同步。
     content.loadContent((data, state) => {
-      // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
-      if (state && state.reason === 'offline') return;
+      // 网络离线时不使用硬编码 Hero 冒充后台内容。
+      if (state && state.reason === 'offline') {
+        this.setData({ heroList: [], heroCopy: { eyebrow: '', title: '', description: '' }, heroStatus: 'empty' });
+        return;
+      }
       if (data.countryId && data.countryId !== content.getSelectedCountryId()) return;
       this.destinationContent = data;
+      const home = data.home || { eyebrow: '', title: '', description: '', banners: [] };
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
@@ -264,7 +266,15 @@ Page({
         routes: content.getReferenceList(data).slice(0, 4),
         destTabs: destinations.map((group) => group.tab),
         destTab,
-        destinations
+        destinations,
+        heroList: Array.isArray(home.banners) ? home.banners : [],
+        heroCopy: {
+          eyebrow: home.eyebrow || '',
+          title: home.title || '',
+          description: home.description || ''
+        },
+        heroStatus: home.banners && home.banners.length ? 'ready' : 'empty',
+        heroCurrent: 0
       });
     }, true);
   },
