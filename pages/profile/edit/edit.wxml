@@ -11,11 +11,13 @@
   <view wx:if="{{loading}}" class="state">{{i18n.loadingProfile}}</view>
   <view wx:elif="{{loggedIn}}" class="content">
     <view class="profile-card card">
-      <view class="avatar-picker" bindtap="onAvatarTap" hover-class="avatar-picker-hover" aria-label="更换头像">
+      <view class="avatar-picker" aria-label="更换头像">
         <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <button class="avatar-picker-trigger" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" disabled="{{avatarUploading}}" aria-label="获取微信头像"></button>
         <view class="avatar-edit-badge">{{avatarUploading ? i18n.profile.avatarUploading : i18n.profile.avatarChange}}</view>
       </view>
       <view class="avatar-note">{{i18n.profile.avatarNote}}</view>
+      <button class="avatar-source-button" bindtap="onAvatarTap" disabled="{{avatarUploading}}">{{i18n.profile.avatarChooseFromAlbum}}</button>
     </view>
 
     <view class="form card">

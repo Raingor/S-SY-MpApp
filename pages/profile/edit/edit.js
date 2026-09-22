@@ -49,6 +49,11 @@ Page({
     this.setData({ nickname: e.detail.value });
   },
 
+  onChooseAvatar(e) {
+    if (this.data.avatarUploading) return;
+    this.uploadAvatarFile(e.detail && e.detail.avatarUrl);
+  },
+
   onAvatarTap() {
     if (this.data.avatarUploading) return;
     const choose = (filePath) => this.uploadAvatarFile(filePath);
