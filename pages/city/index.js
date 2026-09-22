@@ -17,12 +17,14 @@ Page({
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     i18n.apply(this);
+    this.cityId = String((options && options.id) || '').trim();
     const cities = content.getCities();
-    const city = cities.find((item) => item.id === (options && options.id)) || cities[0];
-    this.applyCity(city, sys.statusBarHeight || 20);
+    const city = cities.find((item) => item.id === this.cityId) || null;
+    if (city) this.applyCity(city, sys.statusBarHeight || 20);
+    else this.setData({ city: null, stats: [] });
     content.loadContent((data) => {
       const fresh = content.getCities(data);
-      const updated = fresh.find((item) => item.id === (this.data.city && this.data.city.id)) || fresh[0];
+      const updated = fresh.find((item) => item.id === this.cityId) || null;
       if (updated) this.applyCity(updated);
       else this.setData({ city: null, stats: [] });
     });
@@ -59,6 +61,10 @@ Page({
     goBack();
   },
 
+  onBackToDestinations() {
+    wx.switchTab({ url: '/pages/index/index' });
+  },
+
   // 了解导览讲解的不同之处
   onAboutGuide() {
     wx.showModal({
@@ -72,6 +78,7 @@ Page({
   // 购买：城市导览讲解包（支付接入前为说明弹窗）
   onBuy() {
     const city = this.data.city;
+    if (!city) return;
     wx.showModal({
       title: city.name + ' · 导览讲解包',
       content: city.purchaseNote + '\n价格：' + city.price + '（含 ' + city.museumCount + ' 座博物馆、' + city.guidePointCount + ' 个讲解点、' + city.audioMinutes + ' 分钟语音）\n\n支付与会员权限接入中，当前可免费浏览景点亮点与参观指南。',
@@ -82,6 +89,7 @@ Page({
 
   // 查看：进入城市景点列表
   onView() {
-    wx.navigateTo({ url: '/pages/city/spots?id=' + this.data.city.id });
+    if (!this.data.city || !this.data.city.id) return;
+    wx.navigateTo({ url: '/pages/city/spots?id=' + encodeURIComponent(this.data.city.id) });
   }
 });

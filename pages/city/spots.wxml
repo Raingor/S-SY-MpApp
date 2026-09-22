@@ -10,7 +10,7 @@
   </view>
 
   <!-- 景点卡片列表 -->
-  <view class="spots-list">
+  <view class="spots-list" wx:if="{{spots.length}}">
     <view class="spot-card" wx:for="{{spots}}" wx:key="id" data-id="{{item.id}}" bindtap="onSpotTap">
       <view class="spot-card-img-wrap">
         <image class="spot-card-img" src="{{item.image}}" mode="aspectFill" />
@@ -27,6 +27,16 @@
       </view>
     </view>
   </view>
+  <view wx:else class="spots-empty">
+    <view class="spots-empty-title">{{i18n.contentPage.spotsEmpty}}</view>
+    <view class="spots-empty-desc">{{i18n.contentPage.spotsEmptyDesc}}</view>
+    <view class="spots-empty-action" bindtap="onBackToDestinations">{{i18n.contentPage.backToDestinations}}</view>
+  </view>
 
   <view class="spots-footer">{{i18n.commonSlogan}}</view>
+</view>
+<view wx:else class="spots-empty spots-page-empty">
+  <view class="spots-empty-title">{{i18n.contentPage.destinationEmpty}}</view>
+  <view class="spots-empty-desc">{{i18n.contentPage.destinationEmptyDesc}}</view>
+  <view class="spots-empty-action" bindtap="onBackToDestinations">{{i18n.contentPage.backToDestinations}}</view>
 </view>

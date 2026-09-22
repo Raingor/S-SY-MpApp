@@ -51,3 +51,8 @@
     </view>
   </view>
 </view>
+<view wx:else class="city-empty">
+  <view class="city-empty-title">{{i18n.contentPage.destinationEmpty}}</view>
+  <view class="city-empty-desc">{{i18n.contentPage.destinationEmptyDesc}}</view>
+  <view class="city-empty-action" bindtap="onBackToDestinations">{{i18n.contentPage.backToDestinations}}</view>
+</view>

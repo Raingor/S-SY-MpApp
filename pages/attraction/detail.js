@@ -49,11 +49,12 @@ Page({
     if (!this.spotId) return;
     content.loadContent((data) => {
       const fresh = content.getAttraction(this.spotId, data);
-      if (fresh) { this.applySpot(fresh); this.loadPaidState(); }
-      else {
-        this.setData({ spot: null, guideTabs: [] });
-        wx.showToast({ title: '未找到该景点', icon: 'none' });
-        setTimeout(() => wx.navigateBack({ delta: 1 }), 800);
+      if (fresh) {
+        this.contentSource = data;
+        this.applySpot(fresh);
+        this.loadPaidState();
+      } else {
+        this.setData({ spot: null, guideTabs: [], related: [] });
       }
     }, true);
   },
@@ -74,7 +75,7 @@ Page({
       guideTabs,
       guideIndex: 0,
       showAllHighlights: false
-      ,related: content.getAttractions().filter((item) => item.id !== spot.id && item.city === spot.city).slice(0, 3)
+      ,related: content.getAttractions(this.contentSource).filter((item) => item.id !== spot.id && item.city === spot.city).slice(0, 3)
     });
   },
 
@@ -96,6 +97,10 @@ Page({
 
   onBack() {
     goBack();
+  },
+
+  onBackToDestinations() {
+    wx.switchTab({ url: '/pages/index/index' });
   },
 
   onToggleHighlights() {

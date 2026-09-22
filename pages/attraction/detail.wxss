@@ -341,6 +341,10 @@
 .related-name { color: #0B3C5D; font-size: 25rpx; font-weight: 600; }
 .related-desc { display: -webkit-box; overflow: hidden; margin-top: 6rpx; color: #8AA3B5; font-size: 20rpx; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .related-item > text { color: #8AA3B5; font-size: 34rpx; }
+.spot-empty { min-height: 100vh; box-sizing: border-box; padding: 260rpx 64rpx 80rpx; background: #F4F7FA; color: #0B3C5D; text-align: center; }
+.spot-empty-title { font-size: 38rpx; font-weight: 700; }
+.spot-empty-desc { margin-top: 18rpx; color: #6E8190; font-size: 26rpx; line-height: 1.7; }
+.spot-empty-action { display: flex; align-items: center; justify-content: center; height: 82rpx; margin-top: 44rpx; border-radius: 42rpx; background: #1567A8; color: #FFFFFF; font-size: 28rpx; }
 .purchase-overlay { position: fixed; z-index: 30; inset: 0; display: flex; align-items: flex-end; padding: 24rpx; box-sizing: border-box; background: rgba(8,47,73,.62); }
 .purchase-modal { position: relative; width: 100%; padding: 38rpx 28rpx 30rpx; box-sizing: border-box; }
 .purchase-close { position: absolute; right: 28rpx; top: 18rpx; color: #8AA3B5; font-size: 46rpx; font-weight: 200; }

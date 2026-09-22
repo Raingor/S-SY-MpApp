@@ -1,6 +1,13 @@
 <view class="live-page">
   <view class="live-hero"><view style="height: {{statusBarHeight}}px;"></view><view class="live-nav"><view class="back" bindtap="onBack">‹</view><view class="brand">{{i18n.brand}}</view><view class="mark">✦</view></view><view class="eyebrow">LIVE HUMANITIES SESSION</view><view class="live-title serif">{{i18n.liveBooking.title}}</view><view class="live-sub">{{i18n.liveBooking.subtitle}}</view></view>
   <view class="compliance"><view class="compliance-title">{{i18n.liveBooking.complianceTitle}}</view><view>{{i18n.liveBooking.compliance}}</view></view>
+  <view class="live-service-note card">
+    <view class="live-service-title">{{i18n.liveBooking.serviceTitle}}</view>
+    <view class="live-service-item"><text class="live-service-index">01</text><text>{{i18n.liveBooking.serviceScene}}</text></view>
+    <view class="live-service-item"><text class="live-service-index">02</text><text>{{i18n.liveBooking.serviceConfirm}}</text></view>
+    <view class="live-service-item"><text class="live-service-index">03</text><text>{{i18n.liveBooking.serviceContact}}</text></view>
+    <view class="live-service-notice">{{i18n.liveBooking.serviceNotice}}</view>
+  </view>
   <view class="live-contact card">
     <view class="live-contact-title">{{i18n.liveBooking.contactTitle}}</view>
     <view class="live-contact-desc">{{i18n.liveBooking.contactDesc}}</view>

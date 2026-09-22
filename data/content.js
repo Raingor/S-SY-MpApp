@@ -153,7 +153,11 @@ function adaptDestinationCategories(remoteCategories) {
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
     id: destination.id,
+    cityId: typeof destination.cityId === 'string' ? destination.cityId.trim() : '',
     attractionId: typeof destination.attractionId === 'string' ? destination.attractionId.trim() : '',
+    attractionIds: Array.isArray(destination.attractionIds)
+      ? destination.attractionIds.filter((id) => typeof id === 'string' && id.trim()).map((id) => id.trim())
+      : (typeof destination.attractionId === 'string' && destination.attractionId.trim() ? [destination.attractionId.trim()] : []),
     name: destination.name,
     en: destination.en,
     img: mapManagedImage(destination.image),
@@ -306,6 +310,25 @@ function getAttractions(source) {
   return getAttractionsByCity('all', source);
 }
 
+function getAttractionsByIds(ids, source) {
+  if (!Array.isArray(ids)) return [];
+  const byId = new Map(getContent(source).attractions.map((item) => [item.id, item]));
+  return ids
+    .filter((id) => typeof id === 'string' && id)
+    .map((id) => byId.get(id) || null)
+    .filter(Boolean);
+}
+
+function getDestinationByCity(cityId, source) {
+  const data = getContent(source);
+  if (!cityId) return null;
+  const explicit = (data.destinations || []).find((item) => item && item.cityId === cityId);
+  if (explicit) return explicit;
+  // 兼容旧接口：仅接受目的地 id 与城市 id 完全一致，不按名称或数组位置猜测。
+  const cityIds = new Set((data.cities || []).map((city) => city && city.id).filter(Boolean));
+  return (data.destinations || []).find((item) => item && !item.cityId && item.id === cityId && cityIds.has(item.id)) || null;
+}
+
 function getAttraction(id, source) {
   return getContent(source).attractions.find((item) => item.id === id) || null;
 }
@@ -343,9 +366,23 @@ function getHomeDestinations(source, locale, fallbackLabels) {
     });
   const groups = activeCategories
     .map((category) => {
+      const cityIds = new Set((data.cities || []).map((city) => city && city.id).filter(Boolean));
       const tiles = destinations
         .filter((item) => item.type === category.key)
-        .map(({ id, attractionId, name, en, img }) => ({ id, attractionId, name, en, img }));
+        .map((item) => {
+          // 新接口优先使用显式 cityId；兼容旧数据时仅接受“目的地 id 与城市 id 完全一致”，不按名称或数组位置猜测。
+          const candidateCityId = item.cityId || (cityIds.has(item.id) ? item.id : '');
+          const cityId = cityIds.has(candidateCityId) ? candidateCityId : '';
+          return cityId ? {
+            id: item.id,
+            cityId,
+            attractionIds: item.attractionIds || (item.attractionId ? [item.attractionId] : []),
+            name: item.name,
+            en: item.en,
+            img: item.img
+          } : null;
+        })
+        .filter(Boolean);
       if (!tiles.length) return null;
       const tab = locale === 'en'
         ? (category.nameEn || labels[category.key] || category.name || category.key)
@@ -364,7 +401,9 @@ module.exports = {
   loadContent,
   getCities,
   getAttractionsByCity,
+  getAttractionsByIds,
   getAttractions,
+  getDestinationByCity,
   getAttraction,
   getAttractionNames,
   getReferenceList,

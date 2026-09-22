@@ -337,17 +337,18 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 只使用后台显式关联的景点 ID，不按目的地名称或数组位置猜测。
+  // 精选目的地严格进入城市页，再由城市页展示景点列表；只使用稳定 cityId，不按名称或数组位置猜测。
   onDestTap(e) {
-    const id = e.currentTarget.dataset.attractionId;
+    const cityId = String(e.currentTarget.dataset.cityId || '').trim();
     const data = this.destinationContent;
-    const spot = id && data && data.countryId === content.getSelectedCountryId()
-      ? content.getAttraction(id, data) : null;
-    if (!spot || (spot.countryId && spot.countryId !== data.countryId)) {
-      wx.showToast({ title: '该目的地暂无景点详情', icon: 'none' });
+    const city = cityId && data && data.countryId === content.getSelectedCountryId()
+      ? content.getCities(data).find((item) => item.id === cityId)
+      : null;
+    if (!city) {
+      wx.showToast({ title: this.data.locale === 'en' ? 'This destination is unavailable' : '该目的地暂不可用', icon: 'none' });
       return;
     }
-    wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+    wx.navigateTo({ url: '/pages/city/index?id=' + encodeURIComponent(city.id) });
   },
 
   // 页脚官网（复制域名）
