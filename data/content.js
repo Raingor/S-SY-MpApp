@@ -164,6 +164,7 @@ function adaptHome(remoteHome) {
         id: String(item.id || 'home-hero-' + index),
         img: mapManagedImage(item.image),
         title: typeof item.title === 'string' ? item.title.trim() : '',
+        description: typeof item.description === 'string' ? item.description.trim() : '',
         alt: typeof item.alt === 'string' ? item.alt.trim() : '',
         sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
       }))

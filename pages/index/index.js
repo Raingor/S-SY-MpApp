@@ -270,8 +270,8 @@ Page({
         heroList: Array.isArray(home.banners) ? home.banners : [],
         heroCopy: {
           eyebrow: home.eyebrow || '',
-          title: home.title || '',
-          description: home.description || ''
+          title: (home.banners && home.banners[0] && home.banners[0].title) || home.title || '',
+          description: (home.banners && home.banners[0] && home.banners[0].description) || home.description || ''
         },
         heroStatus: home.banners && home.banners.length ? 'ready' : 'empty',
         heroCurrent: 0
@@ -296,7 +296,17 @@ Page({
 
   // 轮播切换
   onHeroChange(e) {
-    this.setData({ heroCurrent: e.detail.current });
+    const heroCurrent = Number(e.detail.current) || 0;
+    const banner = this.data.heroList[heroCurrent] || {};
+    const home = this.destinationContent && this.destinationContent.home ? this.destinationContent.home : {};
+    this.setData({
+      heroCurrent,
+      heroCopy: {
+        eyebrow: home.eyebrow || '',
+        title: banner.title || home.title || '',
+        description: banner.description || home.description || ''
+      }
+    });
   },
 
   // 六大服务入口
