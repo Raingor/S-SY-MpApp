@@ -270,8 +270,8 @@ Page({
         heroList: Array.isArray(home.banners) ? home.banners : [],
         heroCopy: {
           eyebrow: home.eyebrow || '',
-          title: (home.banners && home.banners[0] && home.banners[0].title) || home.title || '',
-          description: (home.banners && home.banners[0] && home.banners[0].description) || home.description || ''
+          title: home.title || (home.banners && home.banners[0] && home.banners[0].title) || '',
+          description: home.description || (home.banners && home.banners[0] && home.banners[0].description) || ''
         },
         heroStatus: home.banners && home.banners.length ? 'ready' : 'empty',
         heroCurrent: 0
@@ -303,8 +303,8 @@ Page({
       heroCurrent,
       heroCopy: {
         eyebrow: home.eyebrow || '',
-        title: banner.title || home.title || '',
-        description: banner.description || home.description || ''
+        title: home.title || banner.title || '',
+        description: home.description || banner.description || ''
       }
     });
   },
