@@ -391,7 +391,6 @@ function getHomeDestinations(source, locale, fallbackLabels) {
           } : null;
         })
         .filter(Boolean);
-      if (!tiles.length) return null;
       const tab = locale === 'en'
         ? (category.nameEn || labels[category.key] || category.name || category.key)
         : locale === 'zh-TW'

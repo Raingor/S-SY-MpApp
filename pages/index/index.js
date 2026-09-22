@@ -79,7 +79,7 @@ Page({
       .map((item) => ({ ...item, descLines: item.desc.split('\n') })),
     // 精选目的地 - 分类
     destTab: 0,
-    destTabs: ['文明溯源', '海岛度假'],
+    destTabs: [],
     destinations: []
   },
 
@@ -215,7 +215,6 @@ Page({
       { key: 'business', label: copy.business, desc: copy.businessSupport },
       { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
     ];
-    const localeTabs = [copy.civilization, copy.islands];
     const fallbackLabels = {
       culture: copy.civilization,
       island: copy.islands
@@ -231,7 +230,7 @@ Page({
             destTabs: localizedDestinations.map((group) => group.tab),
             destTab: localizedDestinations.length ? Math.min(this.data.destTab, localizedDestinations.length - 1) : 0
           }
-        : { destTabs: localeTabs }),
+        : {}),
       luxuries: getLuxuryCards(locale)
         .map((item) => ({ ...item, descLines: item.desc.split('\n') }))
     });

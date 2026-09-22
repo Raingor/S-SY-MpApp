@@ -749,6 +749,22 @@
   gap: 18rpx;
 }
 
+.dest-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180rpx;
+  padding: 24rpx 32rpx;
+  box-sizing: border-box;
+  border: 2rpx solid #E1E9F0;
+  border-radius: 24rpx;
+  background: #FFFFFF;
+  color: var(--c-sub);
+  font-size: 25rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
 .dest-tile {
   position: relative;
   width: calc((100% - 18rpx) / 2);
