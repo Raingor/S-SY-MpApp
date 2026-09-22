@@ -292,9 +292,17 @@ function getGuide(id, source) {
 }
 
 // ===== 同步查询（本地镜像兜底，接口数据到达后走内存缓存） =====
+const INACTIVE_CITY_STATUSES = new Set(['disabled', 'inactive', 'archived', 'draft']);
+
+function isActiveCity(city) {
+  if (!city || city.enabled === false) return false;
+  const status = String(city.status || '').trim().toLowerCase();
+  return !INACTIVE_CITY_STATUSES.has(status);
+}
+
 function getCities(source) {
   const data = getContent(source);
-  return data.cities.map((city) => ({
+  return data.cities.filter(isActiveCity).map((city) => ({
     ...city,
     count: data.attractions.filter((item) => item.city === city.id).length
   }));
@@ -325,7 +333,7 @@ function getDestinationByCity(cityId, source) {
   const explicit = (data.destinations || []).find((item) => item && item.cityId === cityId);
   if (explicit) return explicit;
   // 兼容旧接口：仅接受目的地 id 与城市 id 完全一致，不按名称或数组位置猜测。
-  const cityIds = new Set((data.cities || []).map((city) => city && city.id).filter(Boolean));
+  const cityIds = new Set(getCities(data).map((city) => city.id));
   return (data.destinations || []).find((item) => item && !item.cityId && item.id === cityId && cityIds.has(item.id)) || null;
 }
 
@@ -366,7 +374,7 @@ function getHomeDestinations(source, locale, fallbackLabels) {
     });
   const groups = activeCategories
     .map((category) => {
-      const cityIds = new Set((data.cities || []).map((city) => city && city.id).filter(Boolean));
+      const cityIds = new Set(getCities(data).map((city) => city.id));
       const tiles = destinations
         .filter((item) => item.type === category.key)
         .map((item) => {
