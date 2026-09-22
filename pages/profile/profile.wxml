@@ -64,46 +64,40 @@
     <view wx:for="{{purchasedCourses}}" wx:key="id" class="record-row"><view class="record-dot">✦</view><view class="record-main"><view class="record-name">{{item.title}}</view><view class="record-meta">{{item.status}}<text wx:if="{{item.purchasedAt}}"> · {{item.purchasedAt}}</text></view></view><view class="record-check">✓</view></view>
   </view>
 
-  <view wx:if="{{loggedIn && knowledgeOrders.length}}" class="knowledge-record-card card">
-    <view class="record-heading"><view><view class="eyebrow">PAYMENT ORDERS</view><view class="record-title serif">{{i18n.paidContent.paymentOrders}}</view></view><view class="record-count">{{knowledgeOrders.length}}</view></view>
-    <view wx:for="{{knowledgeOrders}}" wx:key="id" class="record-row"><view class="record-order-mark">¥</view><view class="record-main"><view class="record-name">{{item.name}}</view><view class="record-meta">¥{{item.price}} · {{item.status}}<text wx:if="{{item.createdAt}}"> · {{item.createdAt}}</text></view></view><view class="record-arrow">›</view></view>
-  </view>
-
-  <!-- ===== 服务单元格卡 ===== -->
+  <!-- ===== 服务格子卡 ===== -->
   <view class="panel card">
     <view class="panel-heading">
       <view class="panel-heading-en eyebrow">MY JOURNEY</view>
       <view class="panel-heading-title serif">{{i18n.profile.myJourney}}</view>
     </view>
-    <view
-      class="cell"
-      hover-class="cell-press"
-      wx:for="{{services}}"
-      wx:key="key"
-      data-key="{{item.key}}"
-      bindtap="onServiceTap"
-    >
-      <view class="cell-icon cell-icon-{{item.key}}">
-        <!-- 订单 -->
-        <view wx:if="{{item.key === 'orders'}}" class="i-order">
-          <view class="i-order-line l1"></view>
-          <view class="i-order-line l2"></view>
+    <view class="icon-grid journey-grid">
+      <view
+        class="icon-grid-item"
+        hover-class="cell-press"
+        wx:for="{{services}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onServiceTap"
+      >
+        <view class="cell-icon cell-icon-{{item.key}}">
+          <view wx:if="{{item.key === 'payment-orders' || item.key === 'appointments'}}" class="i-order">
+            <view class="i-order-line l1"></view>
+            <view class="i-order-line l2"></view>
+          </view>
+          <view wx:elif="{{item.key === 'trips'}}" class="i-trip">
+            <view class="i-trip-pin"></view>
+            <view class="i-trip-line"></view>
+          </view>
+          <view wx:else class="i-coupon">
+            <view class="i-coupon-body"></view>
+            <view class="i-coupon-hole h1"></view>
+            <view class="i-coupon-hole h2"></view>
+          </view>
         </view>
-        <!-- 行程 -->
-        <view wx:elif="{{item.key === 'trips'}}" class="i-trip">
-          <view class="i-trip-pin"></view>
-          <view class="i-trip-line"></view>
-        </view>
-        <!-- 优惠券 -->
-        <view wx:else class="i-coupon">
-          <view class="i-coupon-body"></view>
-          <view class="i-coupon-hole h1"></view>
-          <view class="i-coupon-hole h2"></view>
-        </view>
+        <view class="cell-label">{{item.label}}</view>
+        <view wx:if="{{item.badge}}" class="cell-badge">{{item.badge}}</view>
+        <view class="cell-arrow">›</view>
       </view>
-      <view class="cell-label">{{item.label}}</view>
-      <view wx:if="{{item.badge}}" class="cell-badge">{{item.badge}}</view>
-      <view class="cell-arrow">›</view>
     </view>
   </view>
 

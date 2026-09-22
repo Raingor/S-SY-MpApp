@@ -2,13 +2,16 @@
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
 const i18n = require('../../../utils/i18n');
+const paidContent = require('../../../utils/paid-content');
 
 const TYPE_CONFIG = {
   orders: { title: '我的预约', mode: 'leads', empty: '还没有提交过预约或咨询' },
   trips: { title: '我的行程', mode: 'trips', empty: '暂未安排导游陪同行程' },
   coupons: { title: '优惠券', mode: 'coupons', empty: '当前没有可使用的优惠券' },
   travelers: { title: '常用出行人', mode: 'traveler', empty: '添加常用出行人，填写表单时更方便' },
-  visa: { title: '护照签证资料', mode: 'document', empty: '添加资料后可在预约时快速查看' }
+  visa: { title: '护照签证资料', mode: 'document', empty: '添加资料后可在预约时快速查看' },
+  'payment-orders': { title: '我的订单', mode: 'payment-orders', empty: '暂无支付订单' },
+  'payment-order': { title: '订单详情', mode: 'payment-order', empty: '暂无支付订单' }
 };
 
 function formatDate(value, fallback = '时间待确认') {
@@ -26,6 +29,28 @@ function leadStatus(status, copy) {
   return (copy.statuses && copy.statuses[status]) || copy.statuses.fallback;
 }
 
+function paymentStatus(status, copy) {
+  return (copy && copy[status]) || status || copy.pending;
+}
+
+function formatDateTime(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toISOString().replace('T', ' ').replace('Z', '');
+}
+
+function paymentOrderView(item, copy) {
+  return {
+    ...item,
+    displayTitle: item.name || (item.productType === 'membership' ? copy.paidContent.member : copy.paidContent.video),
+    displayStatus: paymentStatus(item.status, copy.profileDetail),
+    displayCreated: formatDateTime(item.createdAt),
+    displayPaid: formatDateTime(item.paidAt),
+    displayAmount: item.price === undefined || item.price === null ? '—' : `¥${item.price}`
+  };
+}
+
 Page({
   data: {
     type: 'orders',
@@ -36,6 +61,7 @@ Page({
     saving: false,
     statusBarHeight: 20,
     items: [],
+    order: null,
     locale: 'zh-CN',
     i18n: i18n.getMessages()
   },
@@ -48,8 +74,17 @@ Page({
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     i18n.apply(this);
     const type = options && TYPE_CONFIG[options.type] ? options.type : 'orders';
+    this.orderId = options && options.id ? decodeURIComponent(options.id) : '';
     const copy = this.data.i18n.profileDetail;
-    const config = { orders: { title: copy.orders, mode: 'leads', empty: copy.noOrders }, trips: { title: copy.trips, mode: 'trips', empty: copy.noTrips }, coupons: { title: copy.coupons, mode: 'coupons', empty: copy.noCoupons }, travelers: { title: copy.travelers, mode: 'traveler', empty: copy.noTravelers }, visa: { title: copy.visa, mode: 'document', empty: copy.noVisa } }[type];
+    const config = {
+      orders: { title: copy.orders, mode: 'leads', empty: copy.noOrders },
+      trips: { title: copy.trips, mode: 'trips', empty: copy.noTrips },
+      coupons: { title: copy.coupons, mode: 'coupons', empty: copy.noCoupons },
+      travelers: { title: copy.travelers, mode: 'traveler', empty: copy.noTravelers },
+      visa: { title: copy.visa, mode: 'document', empty: copy.noVisa },
+      'payment-orders': { title: copy.myOrders, mode: 'payment-orders', empty: copy.noPaymentOrders },
+      'payment-order': { title: copy.paymentOrder, mode: 'payment-order', empty: copy.noPaymentOrders }
+    }[type];
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
       type,
@@ -65,6 +100,8 @@ Page({
       }
       if (config.mode === 'leads' || config.mode === 'trips') this.loadLeads();
       else if (config.mode === 'coupons') this.loadCoupons();
+      else if (config.mode === 'payment-orders') this.loadPaymentOrders();
+      else if (config.mode === 'payment-order') this.loadPaymentOrder();
       else this.loadProfileItems();
     });
   },
@@ -73,6 +110,8 @@ Page({
     i18n.apply(this);
     if (this.data.mode === 'leads' || this.data.mode === 'trips') this.loadLeads();
     else if (this.data.mode === 'coupons') this.loadCoupons();
+    else if (this.data.mode === 'payment-orders') this.loadPaymentOrders();
+    else if (this.data.mode === 'payment-order') this.loadPaymentOrder();
     else this.loadProfileItems();
   },
 
@@ -120,6 +159,34 @@ Page({
     });
   },
 
+  loadPaymentOrders() {
+    this.setData({ loading: true });
+    paidContent.fetchOrders((ok, items, message) => {
+      if (!ok) {
+        this.setData({ loading: false });
+        return wx.showToast({ title: message || this.data.i18n.profileDetail.loadRecordsFailed, icon: 'none' });
+      }
+      this.setData({
+        loading: false,
+        items: items.map((item) => paymentOrderView(item, this.data.i18n))
+      });
+    });
+  },
+
+  loadPaymentOrder() {
+    if (!this.orderId) {
+      return this.setData({ loading: false, order: null });
+    }
+    this.setData({ loading: true });
+    paidContent.fetchOrder(this.orderId, (ok, item, message) => {
+      if (!ok) {
+        this.setData({ loading: false, order: null });
+        return wx.showToast({ title: message || this.data.i18n.profileDetail.loadRecordsFailed, icon: 'none' });
+      }
+      this.setData({ loading: false, order: paymentOrderView(item, this.data.i18n) });
+    });
+  },
+
   loadProfileItems() {
     const collection = this.data.mode === 'traveler' ? 'travelers' : 'documents';
     this.setData({ loading: true });
@@ -130,6 +197,12 @@ Page({
       }
       this.setData({ loading: false, items });
     });
+  },
+
+  onPaymentOrderTap(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return wx.showToast({ title: this.data.i18n.profileDetail.invalidId, icon: 'none' });
+    wx.navigateTo({ url: '/pages/profile/detail/detail?type=payment-order&id=' + encodeURIComponent(id) });
   },
 
   // 添加出行人 → 独立编辑页，保存后 onShow 自动刷新列表

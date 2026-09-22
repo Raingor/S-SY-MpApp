@@ -8,7 +8,53 @@
     <view class="topbar-space"></view>
   </view>
 
-  <view wx:if="{{mode === 'leads' || mode === 'trips'}}" class="content">
+  <view wx:if="{{mode === 'payment-orders'}}" class="content">
+    <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
+    <view wx:elif="{{!items.length}}" class="empty card">
+      <view class="empty-icon">¥</view>
+      <view class="empty-title">{{empty}}</view>
+      <view class="empty-desc">{{i18n.profileDetail.emptyDesc}}</view>
+    </view>
+    <view wx:else class="payment-order-list">
+      <view class="payment-order card" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="onPaymentOrderTap" hover-class="card-press">
+        <view class="payment-order-head">
+          <view class="payment-order-mark">¥</view>
+          <view class="payment-order-main">
+            <view class="payment-order-title">{{item.displayTitle}}</view>
+            <view class="payment-order-meta">{{item.displayAmount}} · {{item.displayStatus}}</view>
+          </view>
+          <view class="payment-order-arrow">›</view>
+        </view>
+        <view class="payment-order-time">{{i18n.profileDetail.orderCreatedAt}}：{{item.displayCreated}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{mode === 'payment-order'}}" class="content">
+    <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
+    <view wx:elif="{{!order}}" class="empty card">
+      <view class="empty-icon">¥</view>
+      <view class="empty-title">{{empty}}</view>
+      <view class="empty-desc">{{i18n.profileDetail.emptyDesc}}</view>
+    </view>
+    <view wx:else class="payment-detail card">
+      <view class="payment-detail-kicker eyebrow">{{i18n.profileDetail.paymentOrderKicker}}</view>
+      <view class="payment-detail-title serif">{{order.displayTitle}}</view>
+      <view class="payment-detail-status">{{order.displayStatus}}</view>
+      <view class="payment-detail-list">
+        <view class="payment-detail-row"><text>{{i18n.profileDetail.orderProduct}}</text><text>{{order.displayTitle}}</text></view>
+        <view class="payment-detail-row"><text>{{i18n.profileDetail.orderNumber}}</text><text>{{order.id}}</text></view>
+        <view wx:if="{{order.outTradeNo}}" class="payment-detail-row"><text>{{i18n.profileDetail.merchantOrderNumber}}</text><text>{{order.outTradeNo}}</text></view>
+        <view class="payment-detail-row"><text>{{i18n.profileDetail.orderAmount}}</text><text>{{order.displayAmount}}</text></view>
+        <view class="payment-detail-row"><text>{{i18n.profileDetail.orderStatus}}</text><text>{{order.displayStatus}}</text></view>
+        <view class="payment-detail-row"><text>{{i18n.profileDetail.orderCreatedAt}}</text><text>{{order.displayCreated}}</text></view>
+        <view wx:if="{{order.paidAt}}" class="payment-detail-row"><text>{{i18n.profileDetail.orderPaidAt}}</text><text>{{order.displayPaid}}</text></view>
+        <view wx:if="{{order.transactionId}}" class="payment-detail-row"><text>{{i18n.profileDetail.transactionId}}</text><text>{{order.transactionId}}</text></view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{mode === 'leads' || mode === 'trips'}}" class="content">
     <view wx:if="{{loading}}" class="state">{{i18n.loading}}</view>
     <view wx:elif="{{!items.length}}" class="empty card">
       <view class="empty-icon">○</view>

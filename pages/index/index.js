@@ -33,7 +33,7 @@ Page({
     guides: [],
     guideCarouselEnabled: false,
     homeAudio: {
-      src: '/assets/audio/selected-routes-intro.m4a'
+      src: 'https://sy-greece.com/audio/selected-routes-intro.m4a'
     },
     routeAudioPlaying: false,
     routeAudioCurrentTime: '0:00',

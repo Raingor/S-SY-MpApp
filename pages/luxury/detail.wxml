@@ -34,12 +34,25 @@
       <view>{{detail.note}}</view>
     </view>
 
-    <view class="lux-cta" bindtap="onConsult" hover-class="lux-cta-press">
-      <view>
-        <view class="lux-cta-kicker">BESPOKE CONSULTATION</view>
-        <view class="lux-cta-title serif">{{detail.cta}}</view>
+    <view class="consultant card">
+      <view class="consultant-top" bindtap="onCopyWechat">
+        <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
+        <view class="consultant-info">
+          <view class="consultant-name">{{i18n.forms.consultantTitle}} · {{consultant.name}}</view>
+          <view class="consultant-title">{{consultant.title}}</view>
+          <view class="consultant-slogan">{{consultant.slogan}}</view>
+          <view class="consultant-wechat">{{i18n.forms.wechatId}}：{{consultant.wechat}}（{{i18n.forms.tapToCopy}}）</view>
+        </view>
       </view>
-      <view class="lux-cta-arrow">›</view>
+      <view class="consultant-qr" bindtap="onPreviewQr">
+        <image class="qr-img" src="{{consultant.qr}}" mode="aspectFit" />
+        <view class="qr-tip">{{i18n.forms.qrTip}}</view>
+      </view>
+    </view>
+
+    <view class="phone-row" bindtap="onCallPhone">
+      <text>{{i18n.forms.phone}}：{{consultant.phone}}</text>
+      <text class="phone-arrow">{{i18n.forms.call}} ›</text>
     </view>
   </view>
   <view class="lux-footer">{{i18n.brandEn}} · {{i18n.commonSlogan}}</view>

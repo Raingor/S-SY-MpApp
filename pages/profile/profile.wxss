@@ -111,13 +111,11 @@
 .record-title { margin-top: 8rpx; color: #0B3C5D; font-size: 30rpx; font-weight: 700; }
 .record-count { min-width: 42rpx; height: 42rpx; border-radius: 21rpx; background: #EEF6FB; color: #1567A8; font-size: 22rpx; line-height: 42rpx; text-align: center; }
 .record-row { display: flex; align-items: center; gap: 16rpx; padding: 20rpx 0 0; }
-.record-dot, .record-order-mark { display: flex; align-items: center; justify-content: center; width: 42rpx; height: 42rpx; flex-shrink: 0; border-radius: 50%; background: #FBF3E2; color: #C6A15B; font-size: 22rpx; font-weight: 700; }
-.record-order-mark { background: #EEF6FB; color: #1567A8; }
+.record-dot { display: flex; align-items: center; justify-content: center; width: 42rpx; height: 42rpx; flex-shrink: 0; border-radius: 50%; background: #FBF3E2; color: #C6A15B; font-size: 22rpx; font-weight: 700; }
 .record-main { min-width: 0; flex: 1; }
 .record-name { overflow: hidden; color: #263B4D; font-size: 24rpx; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .record-meta { margin-top: 5rpx; overflow: hidden; color: #91A2AF; font-size: 19rpx; text-overflow: ellipsis; white-space: nowrap; }
 .record-check { color: #2C8C66; font-size: 28rpx; }
-.record-arrow { color: #9AAAB6; font-size: 34rpx; }
 
 .phone-bind-copy {
   min-width: 0;
@@ -354,7 +352,8 @@
   flex-shrink: 0;
 }
 
-.cell-icon-orders { background: linear-gradient(140deg, #E3F2FC, #CDE6F8); }
+.cell-icon-payment-orders,
+.cell-icon-appointments { background: linear-gradient(140deg, #E3F2FC, #CDE6F8); }
 .cell-icon-trips { background: linear-gradient(140deg, #E8F3EC, #D9EBDF); }
 .cell-icon-coupons { background: linear-gradient(140deg, #FBF3E3, #F3E5CB); }
 
@@ -366,8 +365,8 @@
 
 .cell-badge {
   font-size: 22rpx;
-  color: var(--c-primary);
-  background: rgba(21, 103, 168, 0.08);
+  color: #FFFFFF;
+  background: #E34D4D;
   padding: 6rpx 16rpx;
   border-radius: 18rpx;
   margin-right: 12rpx;
@@ -376,6 +375,49 @@
 .cell-arrow {
   color: var(--c-weak);
   font-size: 32rpx;
+}
+
+/* ===== 首页式服务格子 ===== */
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  padding-bottom: 24rpx;
+}
+
+.icon-grid-item {
+  position: relative;
+  flex: 0 0 calc(50% - 8rpx);
+  min-height: 178rpx;
+  box-sizing: border-box;
+  padding: 24rpx;
+  border: 1rpx solid #E7EFF4;
+  border-radius: 24rpx;
+  background: #F8FBFD;
+}
+
+.icon-grid-item .cell-icon {
+  margin: 0;
+}
+
+.icon-grid-item .cell-label {
+  display: block;
+  margin-top: 18rpx;
+  font-size: 27rpx;
+  line-height: 1.35;
+}
+
+.icon-grid-item .cell-badge {
+  position: absolute;
+  top: 18rpx;
+  right: 18rpx;
+  margin: 0;
+}
+
+.icon-grid-item .cell-arrow {
+  position: absolute;
+  right: 20rpx;
+  bottom: 16rpx;
 }
 
 /* 图标：订单 */
