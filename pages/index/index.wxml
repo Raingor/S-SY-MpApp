@@ -44,7 +44,56 @@
     </view>
   </view>
 
-  <!-- ===== 2. 核心六大服务入口 ===== -->
+  <!-- ===== 2. 后台首页 Banner（与品牌 Hero 数据源隔离） ===== -->
+  <view class="home-banners" wx:if="{{homeBannerStatus !== 'idle'}}">
+    <view class="home-banner-head">
+      <view class="eyebrow">{{i18n.homeBanner.eyebrow}}</view>
+      <view class="home-banner-count" wx:if="{{homeBanners.length > 1}}">{{homeBannerCurrent + 1}} / {{homeBanners.length}}</view>
+    </view>
+    <swiper
+      wx:if="{{homeBannerStatus === 'ready' && homeBanners.length}}"
+      class="home-banner-swiper"
+      autoplay="{{homeBanners.length > 1}}"
+      circular="{{homeBanners.length > 1}}"
+      interval="4800"
+      duration="550"
+      bindchange="onHomeBannerChange"
+    >
+      <swiper-item wx:for="{{homeBanners}}" wx:key="id">
+        <view class="home-banner-card" hover-class="home-banner-press" data-index="{{index}}" bindtap="onHomeBannerTap">
+          <image
+            wx:if="{{!item.imageError}}"
+            class="home-banner-image"
+            src="{{item.image}}"
+            mode="aspectFill"
+            lazy-load="{{true}}"
+            webp="{{true}}"
+            data-index="{{index}}"
+            binderror="onHomeBannerImageError"
+          />
+          <view wx:else class="home-banner-image-fallback">
+            <view class="home-banner-fallback-mark">SY</view>
+            <view>{{i18n.homeBanner.imageFailed}}</view>
+          </view>
+          <view class="home-banner-overlay"></view>
+          <view wx:if="{{item.title}}" class="home-banner-copy">
+            <view class="home-banner-title serif">{{item.title}}</view>
+            <view wx:if="{{item.alt}}" class="home-banner-alt">{{item.alt}}</view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+    <view wx:elif="{{homeBannerStatus === 'loading'}}" class="home-banner-state">
+      <view class="home-banner-state-mark">✦</view>
+      <view>{{i18n.homeBanner.loading}}</view>
+    </view>
+    <view wx:else class="home-banner-state home-banner-empty">
+      <view class="home-banner-state-mark">✦</view>
+      <view>{{i18n.homeBanner.empty}}</view>
+    </view>
+  </view>
+
+  <!-- ===== 3. 核心六大服务入口 ===== -->
   <view class="entries card">
     <view
       class="entry-item"

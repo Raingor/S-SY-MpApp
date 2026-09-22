@@ -5,6 +5,36 @@ const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getLuxuryCards } = require('../../data/luxury');
 
+const HOME_BANNER_ROUTES = new Set([
+  '/pages/index/index',
+  '/pages/customize/customize',
+  '/pages/guide/guide',
+  '/pages/vehicle/vehicle',
+  '/pages/travel-guide/travel-guide',
+  '/pages/knowledge/knowledge',
+  '/pages/business/business',
+  '/pages/profile/profile',
+  '/pages/live-booking/live-booking',
+  '/pages/itinerary/index',
+  '/pages/itinerary/detail',
+  '/pages/luxury/detail',
+  '/pages/attraction/detail',
+  '/pages/city/index',
+  '/pages/city/spots'
+]);
+const HOME_BANNER_TAB_ROUTES = new Set([
+  '/pages/index/index',
+  '/pages/customize/customize',
+  '/pages/profile/profile'
+]);
+
+function getSafeHomeBannerRoute(value) {
+  const route = typeof value === 'string' ? value.trim() : '';
+  if (!route || route.indexOf('/pages/') !== 0) return '';
+  const pathname = route.split('?')[0].split('#')[0];
+  return HOME_BANNER_ROUTES.has(pathname) ? route : '';
+}
+
 Page({
   data: {
     statusBarHeight: 20,
@@ -17,6 +47,9 @@ Page({
       { img: '/assets/images/hero/hero-couple.jpg' }
     ],
     heroCurrent: 0,
+    homeBanners: [],
+    homeBannerStatus: 'idle',
+    homeBannerCurrent: 0,
     countries: [],
     selectedCountry: null,
     selectedCountryLabel: '',
@@ -242,11 +275,16 @@ Page({
 
   applyRemoteContent() {
     // 第二个参数 true：每次进入首页都重新拉后端，跳过内存缓存，确保后台改目的地/路线后即时同步。
+    this.setData({ homeBannerStatus: 'loading', homeBannerCurrent: 0 });
     content.loadContent((data, state) => {
       // 网络离线时保留首页品牌镜像；接口契约错误已由内容服务明确提示，不能继续展示镜像。
-      if (state && state.reason === 'offline') return;
+      if (state && state.reason === 'offline') {
+        this.setData({ homeBanners: [], homeBannerStatus: 'empty', homeBannerCurrent: 0 });
+        return;
+      }
       if (data.countryId && data.countryId !== content.getSelectedCountryId()) return;
       this.destinationContent = data;
+      const homeBanners = data.home && Array.isArray(data.home.banners) ? data.home.banners : [];
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
@@ -264,7 +302,10 @@ Page({
         routes: content.getReferenceList(data).slice(0, 4),
         destTabs: destinations.map((group) => group.tab),
         destTab,
-        destinations
+        destinations,
+        homeBanners,
+        homeBannerStatus: homeBanners.length ? 'ready' : 'empty',
+        homeBannerCurrent: 0
       });
     }, true);
   },
@@ -287,6 +328,31 @@ Page({
   // 轮播切换
   onHeroChange(e) {
     this.setData({ heroCurrent: e.detail.current });
+  },
+
+  onHomeBannerChange(e) {
+    this.setData({ homeBannerCurrent: e.detail.current });
+  },
+
+  onHomeBannerImageError(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    if (!Number.isInteger(index) || !this.data.homeBanners[index]) return;
+    const homeBanners = this.data.homeBanners.map((item, itemIndex) => (
+      itemIndex === index ? { ...item, imageError: true } : item
+    ));
+    this.setData({ homeBanners });
+  },
+
+  onHomeBannerTap(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const banner = this.data.homeBanners[index];
+    const route = getSafeHomeBannerRoute(banner && banner.route);
+    if (!route) return;
+    if (HOME_BANNER_TAB_ROUTES.has(route.split('?')[0])) {
+      wx.switchTab({ url: route.split('?')[0] });
+      return;
+    }
+    wx.navigateTo({ url: route });
   },
 
   // 六大服务入口
