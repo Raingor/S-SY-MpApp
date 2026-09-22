@@ -3,6 +3,7 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
+const { formatCnyPrice } = require('../../utils/price');
 
 Page({
   data: {
@@ -53,7 +54,7 @@ Page({
       : content.getAttractionsByCity(city.id, this.contentSource);
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
-      city,
+      city: { ...city, priceDisplay: formatCnyPrice(city) },
       spots: spots.map((spot) => ({
         ...spot,
         // 馆徽兜底：无独立 logo 时用景点封面
@@ -83,9 +84,10 @@ Page({
   onBuy() {
     const city = this.data.city;
     if (!city) return;
+    const price = city.priceDisplay || this.data.i18n.contentPage.priceUnavailable;
     wx.showModal({
       title: city.name + ' · 导览讲解包',
-      content: city.purchaseNote + '\n价格：' + city.price + '（含 ' + city.museumCount + ' 座博物馆、' + city.guidePointCount + ' 个讲解点、' + city.audioMinutes + ' 分钟语音）\n\n支付与会员权限接入中，当前可免费浏览景点亮点与参观指南。',
+      content: city.purchaseNote + '\n价格：' + price + '（含 ' + city.museumCount + ' 座博物馆、' + city.guidePointCount + ' 个讲解点、' + city.audioMinutes + ' 分钟语音）\n\n支付与会员权限接入中，当前可免费浏览景点亮点与参观指南。',
       confirmText: '知道了',
       showCancel: false
     });

@@ -4,6 +4,7 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
+const { formatCnyPrice } = require('../../utils/price');
 
 Page({
   data: {
@@ -39,7 +40,7 @@ Page({
     const labels = locale === 'en' ? ['museums', 'guide points', 'audio minutes'] : (locale === 'zh-TW' ? ['座博物館', '個講解點', '分鐘語音'] : ['座博物館', '個講解點', '分鐘語音']);
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
-      city,
+      city: { ...city, priceDisplay: formatCnyPrice(city) },
       stats: [
         { value: String(city.museumCount), label: labels[0] },
         { value: Number(city.guidePointCount).toLocaleString(), label: labels[1] },
@@ -79,9 +80,10 @@ Page({
   onBuy() {
     const city = this.data.city;
     if (!city) return;
+    const price = city.priceDisplay || this.data.i18n.contentPage.priceUnavailable;
     wx.showModal({
       title: city.name + ' · 导览讲解包',
-      content: city.purchaseNote + '\n价格：' + city.price + '（含 ' + city.museumCount + ' 座博物馆、' + city.guidePointCount + ' 个讲解点、' + city.audioMinutes + ' 分钟语音）\n\n支付与会员权限接入中，当前可免费浏览景点亮点与参观指南。',
+      content: city.purchaseNote + '\n价格：' + price + '（含 ' + city.museumCount + ' 座博物馆、' + city.guidePointCount + ' 个讲解点、' + city.audioMinutes + ' 分钟语音）\n\n支付与会员权限接入中，当前可免费浏览景点亮点与参观指南。',
       confirmText: '知道了',
       showCancel: false
     });
