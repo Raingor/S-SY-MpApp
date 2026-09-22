@@ -145,6 +145,10 @@ Page({
     this.setData({ routeAudioPlaying: false });
   },
 
+  onRouteAudioMore() {
+    wx.navigateTo({ url: '/pages/knowledge/knowledge?panel=1&track=deep' });
+  },
+
   onRouteAudioRestart() {
     const audio = this.getRouteAudioContext();
     this.routeAudioRestarting = true;

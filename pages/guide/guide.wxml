@@ -34,6 +34,34 @@
     </view>
   </view>
 
+  <!-- ===== 古迹讲解服务分流 ===== -->
+  <view class="guide-services">
+    <view class="section-kicker">HERITAGE GUIDE</view>
+    <view class="section-title serif">{{i18n.guide.services.title}}</view>
+    <view class="guide-service-grid">
+      <view class="guide-service-card guide-service-offline card" bindtap="onOfflineGuideTap">
+        <view class="guide-service-index">01</view>
+        <view class="guide-service-title serif">{{i18n.guide.services.offlineTitle}}</view>
+        <view class="guide-service-desc">{{i18n.guide.services.offlineDesc}}</view>
+        <view class="guide-service-cta">{{i18n.guide.services.offlineCta}} <text>→</text></view>
+      </view>
+      <view class="guide-service-card guide-service-live card" bindtap="onLiveGuideTap">
+        <view class="guide-service-index">02</view>
+        <view class="guide-service-title serif">{{i18n.guide.services.liveTitle}}</view>
+        <view class="guide-service-desc">{{i18n.guide.services.liveDesc}}</view>
+        <view class="guide-service-cta">{{i18n.guide.services.liveCta}} <text>→</text></view>
+      </view>
+    </view>
+    <view class="guide-trial-card card" bindtap="onFreeTrialTap">
+      <view>
+        <view class="guide-trial-kicker">FREE PREVIEW</view>
+        <view class="guide-trial-title serif">{{i18n.guide.services.trialTitle}}</view>
+        <view class="guide-trial-desc">{{i18n.guide.services.trialDesc}}</view>
+      </view>
+      <view class="guide-trial-cta">{{i18n.guide.services.trialCta}} ›</view>
+    </view>
+  </view>
+
   <!-- ===== 人物故事 ===== -->
   <view class="light-section story-section">
     <view class="section-kicker">01 · MEET RICHARD</view>

@@ -191,6 +191,117 @@
   line-height: 1.6;
 }
 
+.guide-services {
+  padding: 58rpx 32rpx 0;
+}
+
+.guide-service-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18rpx;
+  margin-top: 26rpx;
+}
+
+.guide-service-card {
+  min-height: 286rpx;
+  padding: 24rpx 22rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #DCE6EA;
+  box-shadow: 0 12rpx 28rpx rgba(11, 60, 93, 0.08);
+}
+
+.guide-service-offline {
+  background: linear-gradient(145deg, #FFFFFF, #F4F8FB);
+}
+
+.guide-service-live {
+  background: linear-gradient(145deg, #0B3C5D, #1567A8);
+  color: #FFFFFF;
+}
+
+.guide-service-index {
+  color: #C6A15B;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 20rpx;
+  letter-spacing: 3rpx;
+}
+
+.guide-service-title {
+  margin-top: 28rpx;
+  color: var(--c-deep);
+  font-size: 31rpx;
+  line-height: 1.35;
+}
+
+.guide-service-live .guide-service-title {
+  color: #FFFFFF;
+}
+
+.guide-service-desc {
+  min-height: 92rpx;
+  margin-top: 14rpx;
+  color: var(--c-sub);
+  font-size: 22rpx;
+  line-height: 1.65;
+}
+
+.guide-service-live .guide-service-desc {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.guide-service-cta {
+  margin-top: 18rpx;
+  color: #1567A8;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.guide-service-live .guide-service-cta {
+  color: #E2C47F;
+}
+
+.guide-service-cta text {
+  margin-left: 6rpx;
+  font-size: 28rpx;
+}
+
+.guide-trial-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-top: 18rpx;
+  padding: 24rpx 26rpx;
+  border: 1rpx solid #E1C68E;
+  background: #FFFAF0;
+}
+
+.guide-trial-kicker {
+  color: #B2853E;
+  font-family: Inter, -apple-system, sans-serif;
+  font-size: 18rpx;
+  letter-spacing: 2rpx;
+}
+
+.guide-trial-title {
+  margin-top: 8rpx;
+  color: var(--c-deep);
+  font-size: 29rpx;
+}
+
+.guide-trial-desc {
+  margin-top: 6rpx;
+  color: var(--c-sub);
+  font-size: 21rpx;
+}
+
+.guide-trial-cta {
+  flex-shrink: 0;
+  color: #1567A8;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
 .light-section,
 .booking-section {
   padding: 74rpx 32rpx 0;

@@ -175,6 +175,18 @@ Page({
     wx.pageScrollTo({ selector: '#booking', duration: 420 });
   },
 
+  onOfflineGuideTap() {
+    this.onBookTap();
+  },
+
+  onLiveGuideTap() {
+    wx.navigateTo({ url: '/pages/live-booking/live-booking?source=guide' });
+  },
+
+  onFreeTrialTap() {
+    wx.navigateTo({ url: '/pages/knowledge/knowledge?panel=1&track=deep' });
+  },
+
   onCopyWechat() {
     wx.setClipboardData({
       data: this.data.guide.wechat,
@@ -237,6 +249,7 @@ Page({
     const { form } = this.data;
     const route = form.route.trim();
     const contact = form.contact.trim();
+    if (!this.data.selectedDate) return wx.showToast({ title: copy.guide.chooseDate, icon: 'none' });
     if (!route) return wx.showToast({ title: copy.validation.route, icon: 'none' });
     if (!contact) return wx.showToast({ title: copy.validation.contact, icon: 'none' });
     if (form.contactType === 'phone' && !/^1[3-9]\d{9}$/.test(contact)) {

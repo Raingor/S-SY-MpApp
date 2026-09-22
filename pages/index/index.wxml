@@ -104,6 +104,7 @@
     </view>
     <view class="route-audio-progress"><view class="route-audio-progress-bar" style="width: {{routeAudioProgress}}%;"></view></view>
     <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
+    <view class="route-audio-more" bindtap="onRouteAudioMore">{{i18n.routeAudio.more}} ›</view>
   </view>
 
   <!-- ===== 4. 甄选路线 ===== -->

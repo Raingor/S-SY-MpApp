@@ -4,6 +4,7 @@ const auth = require('../../utils/auth');
 const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
+const CONSULTANT_PHONE = '15071465661';
 
 Page({
   data: {
@@ -64,5 +65,6 @@ Page({
   },
 
   onCopyWechat() { wx.setClipboardData({ data: 'SYGJ1130', success: () => wx.showToast({ title: this.data.i18n.liveBooking.copied, icon: 'success' }) }); },
+  onCallConsultant() { wx.makePhoneCall({ phoneNumber: CONSULTANT_PHONE }); },
   onDone() { this.setData({ submitted: false }); }
 });

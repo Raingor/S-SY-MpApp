@@ -44,6 +44,7 @@ Page({
     searchResults: [],
     hotSpots: [],
     productHome: i18n.getMessages().productHome,
+    productTrack: 'classic',
     categoryIndex: 0,
     membershipConfigured: false,
     membershipLoading: false
@@ -53,15 +54,19 @@ Page({
     return buildShareCard('/pages/knowledge/knowledge');
   },
 
-  onLoad() {
+  onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const localHotSpots = content.getAttractions();
+    const productTrack = options && options.track === 'deep' ? 'deep' : 'classic';
+    const activePanel = options && (options.panel === '1' || options.track === 'deep') ? 1 : 0;
     this.setData({
       statusBarHeight: sys.statusBarHeight || 20,
+      activePanel,
+      productTrack,
       cities: content.getCities(),
       sampleTrips: content.getReferenceList(),
       allHotSpots: localHotSpots,
-      hotSpots: this.filterHotSpots(localHotSpots, 0)
+      hotSpots: this.filterHotSpots(localHotSpots, 0, productTrack)
     });
     this.applyLocale();
     // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
@@ -93,8 +98,21 @@ Page({
     this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0 });
   },
 
-  filterHotSpots(spots, categoryIndex) {
-    const list = Array.isArray(spots) ? spots : [];
+  onProductTrackTap(e) {
+    const productTrack = e.currentTarget.dataset.track === 'deep' ? 'deep' : 'classic';
+    this.setData({ productTrack, hotSpots: this.filterHotSpots(this.data.allHotSpots, this.data.categoryIndex, productTrack), searchResults: [] });
+  },
+
+  matchesProductTrack(spot, track) {
+    const explicit = spot && (spot.knowledgeTrack || spot.contentTrack || spot.track || spot.section);
+    if (!explicit) return true;
+    const normalized = String(explicit).toLowerCase();
+    const isDeep = normalized.includes('deep') || normalized.includes('深度');
+    return track === 'deep' ? isDeep : !isDeep;
+  },
+
+  filterHotSpots(spots, categoryIndex, productTrack = this.data.productTrack) {
+    const list = (Array.isArray(spots) ? spots : []).filter((spot) => this.matchesProductTrack(spot, productTrack));
     const index = Number(categoryIndex);
     if (!Number.isInteger(index) || index < 0 || index > 5) return list.slice(0, 6);
     if (index === 5) {
@@ -113,7 +131,7 @@ Page({
   onCategoryTap(e) {
     const categoryIndex = Number(e.currentTarget.dataset.index);
     if (!Number.isInteger(categoryIndex)) return;
-    const hotSpots = this.filterHotSpots(this.data.allHotSpots, categoryIndex);
+    const hotSpots = this.filterHotSpots(this.data.allHotSpots, categoryIndex, this.data.productTrack);
     this.setData({
       categoryIndex,
       hotSpots,

@@ -64,10 +64,19 @@
 
   <!-- 板块二：新增搜索、景点讲解、直播预约与会员内容 -->
   <block wx:if="{{activePanel === 1}}">
-    <view class="knowledge-product-intro">
+    <view id="knowledge-product" class="knowledge-product-intro">
       <view class="knowledge-section-kicker">NEW · KNOWLEDGE ACCESS</view>
       <view class="knowledge-product-title serif">{{productHome.popular}}</view>
       <view class="knowledge-product-copy">{{productHome.memberDesc}}</view>
+    </view>
+
+    <view class="knowledge-track-tabs" role="tablist">
+      <view class="knowledge-track-tab {{productTrack === 'classic' ? 'knowledge-track-tab-on' : ''}}" data-track="classic" bindtap="onProductTrackTap">{{productHome.classicTitle}}</view>
+      <view class="knowledge-track-tab {{productTrack === 'deep' ? 'knowledge-track-tab-on' : ''}}" data-track="deep" bindtap="onProductTrackTap">{{productHome.deepTitle}}</view>
+    </view>
+    <view class="knowledge-course-types">
+      <view class="knowledge-course-type"><view class="knowledge-course-icon">♫</view><view><view class="knowledge-course-title">{{productHome.aiAudio}}</view><view class="knowledge-course-hint">{{productHome.courseHint}}</view></view></view>
+      <view class="knowledge-course-type"><view class="knowledge-course-icon knowledge-course-icon-human">◉</view><view><view class="knowledge-course-title">{{productHome.humanAudio}}</view><view class="knowledge-course-hint">{{productHome.courseHint}}</view></view></view>
     </view>
 
     <view class="knowledge-product-search card">

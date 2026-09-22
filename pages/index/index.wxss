@@ -526,6 +526,14 @@
   line-height: 1.4;
 }
 
+.route-audio-more {
+  margin-top: 14rpx;
+  color: #1567A8;
+  font-size: 23rpx;
+  font-weight: 600;
+  text-align: right;
+}
+
 /* ===== 通用 section ===== */
 .section {
   margin-top: 48rpx;
