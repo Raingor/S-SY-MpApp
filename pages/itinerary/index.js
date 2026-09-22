@@ -1,6 +1,7 @@
 // 参考行程列表页（页面直接展示的简单版行程）
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 
 Page({
@@ -32,7 +33,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   onItemTap(e) {

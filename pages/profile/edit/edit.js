@@ -1,6 +1,7 @@
 // 修改个人资料：昵称、头像和手机号均支持用户主动更新
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
+const { goBack } = require('../../../utils/navigation');
 const i18n = require('../../../utils/i18n');
 
 Page({
@@ -42,7 +43,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack('/pages/profile/profile');
   },
 
   onInput(e) {

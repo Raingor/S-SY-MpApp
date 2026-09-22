@@ -1,6 +1,7 @@
 // 出行指南：将“出行指南”目录中的资料整理成可快速浏览的旅行卡片
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 
 Page({
@@ -120,7 +121,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   onConsult() {

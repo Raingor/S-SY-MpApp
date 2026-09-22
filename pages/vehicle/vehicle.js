@@ -3,6 +3,7 @@ const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead
 const auth = require('../../utils/auth');
 const app = getApp();
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const content = require('../../data/content');
 
@@ -56,7 +57,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   onDateChange(e) {

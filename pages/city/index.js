@@ -2,6 +2,7 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 
 Page({
@@ -55,7 +56,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   // 了解导览讲解的不同之处

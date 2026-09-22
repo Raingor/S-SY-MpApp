@@ -1,6 +1,7 @@
 // 我的资料详情：预约、行程、优惠券、常用出行人与护照签证资料
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
+const { goBack } = require('../../../utils/navigation');
 const i18n = require('../../../utils/i18n');
 const paidContent = require('../../../utils/paid-content');
 
@@ -116,7 +117,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack('/pages/profile/profile');
   },
 
   loadLeads() {

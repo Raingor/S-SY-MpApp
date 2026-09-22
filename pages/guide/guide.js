@@ -3,6 +3,7 @@ const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead
 const auth = require('../../utils/auth');
 const GUIDE_WECHAT = 'SYGJ1130';
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const content = require('../../data/content');
 const TODAY_KEY = '2026-09-14';
@@ -167,9 +168,7 @@ Page({
   },
 
   onBack() {
-    const pages = getCurrentPages();
-    if (pages.length > 1) return wx.navigateBack({ delta: 1 });
-    wx.switchTab({ url: '/pages/index/index' });
+    goBack();
   },
 
   onBookTap() {

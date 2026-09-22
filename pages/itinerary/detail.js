@@ -7,6 +7,7 @@ const i18n = require('../../utils/i18n');
 const mirror = require('../../data/mirror-itineraries');
 const { SERVICE_KEYS } = require('../../data/mirror-itineraries');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 
 // 统一后端 customTrips 结构 → 页面结构
 // 后端字段：orderNo/period/travelers/language/vehicle/guide/totalFee/days[{date,city,slots}] /notices
@@ -162,7 +163,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   onJumpDay(e) {

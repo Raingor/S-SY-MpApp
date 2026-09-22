@@ -2,6 +2,7 @@ const app = getApp();
 const content = require('../../data/content');
 const auth = require('../../utils/auth');
 const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 
 Page({
@@ -35,7 +36,7 @@ Page({
   onInput(e) { this.setData({ [`form.${e.currentTarget.dataset.field}`]: e.detail.value }); },
   onSpotChange(e) { const item = this.data.spots[Number(e.detail.value)]; this.setData({ 'form.attraction': item ? item.name : '' }); },
   onTimeChange(e) { this.setData({ 'form.timeSlot': this.data.timeSlots[Number(e.detail.value)] || '' }); },
-  onBack() { wx.navigateBack({ delta: 1 }); },
+  onBack() { goBack(); },
 
   onSubmit() {
     const copy = this.data.i18n;

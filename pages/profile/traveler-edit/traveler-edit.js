@@ -3,6 +3,7 @@
 // type=visa：护照签证资料（姓名*/护照号/有效期/签证备注）
 const auth = require('../../../utils/auth');
 const { buildShareCard } = require('../../../utils/share');
+const { goBack } = require('../../../utils/navigation');
 const i18n = require('../../../utils/i18n');
 
 const TYPE_CONFIG = {
@@ -65,7 +66,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack('/pages/profile/profile');
   },
 
   onInput(e) {

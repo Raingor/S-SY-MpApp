@@ -1,5 +1,6 @@
 const i18n = require('../../utils/i18n');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const { getLuxuryDetail } = require('../../data/luxury');
 const CONSULTANT_PHONE = '15071465661';
 
@@ -45,7 +46,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   onConsult() {

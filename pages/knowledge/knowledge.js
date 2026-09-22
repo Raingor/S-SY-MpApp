@@ -3,6 +3,7 @@
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const auth = require('../../utils/auth');
 const paidContent = require('../../utils/paid-content');
@@ -194,7 +195,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack({ delta: 1 });
+    goBack();
   },
 
   // 城市卡 → 城市介绍页
