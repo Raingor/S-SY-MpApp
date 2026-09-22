@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [], home: { banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [] };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -165,25 +165,6 @@ function adaptDestinations(remoteDestinations) {
   }));
 }
 
-// 小程序首页 Banner 只读取后端 home.banners，不复用 Website 首页头图或本地品牌 Hero。
-function adaptHomeBanners(remoteHome) {
-  const banners = remoteHome && Array.isArray(remoteHome.banners) ? remoteHome.banners : [];
-  return banners
-    .filter((item) => item && item.enabled === true && typeof item.image === 'string' && item.image.trim())
-    .map((item, index) => ({
-      id: String(item.id || 'home-banner-' + index),
-      title: typeof item.title === 'string' ? item.title.trim() : '',
-      alt: typeof item.alt === 'string' ? item.alt.trim() : '',
-      image: mapManagedImage(item.image),
-      enabled: true,
-      sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index,
-      route: typeof item.route === 'string' ? item.route.trim() : (typeof item.path === 'string' ? item.path.trim() : ''),
-      imageError: false
-    }))
-    .filter((item) => item.image)
-    .sort((a, b) => a.sort - b.sort);
-}
-
 function adaptCountries(remoteCountries) {
   const countries = Array.isArray(remoteCountries) && remoteCountries.length ? remoteCountries : [DEFAULT_COUNTRY];
   return countries.filter((item) => item.enabled !== false).map((item) => ({ ...item, heroImage: mapGuideImage(item.heroImage) }));
@@ -252,8 +233,7 @@ function fetchContent() {
             attractions: adaptAttractions(res.data.attractions),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
-            destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
-            home: { banners: adaptHomeBanners(res.data.home) }
+            destinationCategories: adaptDestinationCategories(res.data.destinationCategories)
           };
           if (app && app.globalData) app.globalData.contentSettings = res.data.settings || {};
           remoteLoaded = true;
