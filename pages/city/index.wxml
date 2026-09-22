@@ -43,7 +43,8 @@
   <view class="city-cta">
     <view class="cta-buy" hover-class="city-cta-press" bindtap="onBuy">
       <view class="cta-label">{{i18n.contentPage.buy}}</view>
-      <view class="cta-sub">{{city.price || '€9.99'}}</view>
+      <view wx:if="{{city.price}}" class="cta-sub">{{city.price}}</view>
+      <view wx:else class="cta-sub">{{i18n.contentPage.priceUnavailable}}</view>
     </view>
     <view class="cta-view" hover-class="city-cta-press" bindtap="onView">
       <view class="cta-label">{{i18n.contentPage.viewSpots}}</view>
