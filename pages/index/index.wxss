@@ -427,14 +427,6 @@
   line-height: 1;
 }
 
-.route-audio-native {
-  position: absolute;
-  left: -9999rpx;
-  width: 1rpx;
-  height: 1rpx;
-  opacity: 0;
-}
-
 .route-audio-controls {
   display: flex;
   align-items: center;
