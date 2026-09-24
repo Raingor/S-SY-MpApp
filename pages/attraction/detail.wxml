@@ -1,105 +1,46 @@
 <view class="spot-page" wx:if="{{spot}}">
-  <!-- 头图 -->
   <view class="spot-hero">
-    <image class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" />
-    <view class="spot-hero-mask"></view>
-    <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="spot-nav sy-nav">
-      <view class="spot-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
-        <view class="sy-back-chevron"></view>
-      </view>
-      <view class="spot-brand">{{i18n.brand}}</view>
-      <view class="spot-mark">✦</view>
-    </view>
-    <view class="spot-hero-body">
-      <view class="spot-cat">{{spot.category}}</view>
-      <view class="spot-title serif">{{spot.name}}</view>
-      <view class="spot-en">{{spot.en}}</view>
-    </view>
+    <image wx:if="{{spot.image}}" class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" />
+    <view class="spot-hero-shade"></view>
+    <view class="spot-top-inset" style="height: {{statusBarHeight}}px;"></view>
+    <view class="spot-nav"><view class="spot-back" bindtap="onBack" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view><view class="spot-nav-title">{{i18n.guideService}}</view><view class="spot-nav-space"></view></view>
+    <view class="spot-hero-copy"><view wx:if="{{spot.category}}" class="spot-category">{{spot.category}}</view><view class="spot-title serif">{{spot.name}}</view><view wx:if="{{spot.en}}" class="spot-native">{{spot.en}}</view></view>
   </view>
 
-  <!-- 简介 -->
-  <view class="spot-section card">
-    <view class="spot-kicker">ABOUT</view>
-    <view class="spot-heading serif">{{i18n.contentPage.about}}</view>
-    <view class="spot-intro">{{spot.summary}}</view>
-  </view>
+  <scroll-view class="detail-section-nav" scroll-x="true" show-scrollbar="false" scroll-with-animation="true"><view wx:for="{{detailSections}}" wx:key="id" class="detail-section-tab {{activeDetailSection === item.id ? 'detail-section-tab-on' : ''}}" data-id="{{item.id}}" bindtap="onSectionTap">{{item.label}}</view></scroll-view>
 
-  <!-- 必看亮点 -->
-  <view class="spot-section card">
-    <view class="spot-kicker">HIGHLIGHTS</view>
-    <view class="spot-heading serif">{{i18n.contentPage.highlights}}</view>
-    <view class="highlight-list">
-      <block wx:for="{{spot.highlights}}" wx:key="name">
-        <view wx:if="{{showAllHighlights || index < 3}}" class="highlight-item">
-          <image class="highlight-img" src="{{spot.image}}" mode="aspectFill" />
-          <view class="highlight-body">
-            <view class="highlight-name">{{item.name}}</view>
-            <view class="highlight-desc">{{item.desc}}</view>
-          </view>
-        </view>
-      </block>
+  <view class="detail-content">
+    <view id="section-overview" class="detail-intro-block"><view class="detail-eyebrow">{{i18n.contentPage.about}}</view><view wx:if="{{spot.summary}}" class="spot-intro">{{spot.summary}}</view><view wx:else class="detail-muted">{{i18n.heritage.updatePending}}</view></view>
+
+    <view id="section-visit" class="detail-section"><view class="detail-section-head"><view><view class="detail-eyebrow">VISIT THE MUSEUM</view><view class="detail-heading serif">{{i18n.heritage.visitor}}</view></view><text class="detail-heading-mark">⌖</text></view>
+      <view class="visitor-section-grid"><view wx:for="{{visitorSections}}" wx:key="kind" class="visitor-section-card" data-kind="{{item.kind}}" hover-class="visitor-section-card-pressed" bindtap="onVisitorSectionTap"><view class="visit-tile-head"><text class="visit-icon">{{item.icon}}</text><text class="visit-label">{{item.displayTitle}}</text></view></view></view>
+      <view wx:for="{{customSections}}" wx:key="id" class="visitor-custom-section"><view class="visitor-custom-title">{{item.displayTitle}}</view><rich-text wx:if="{{item.hasContent}}" class="visitor-rich-text" nodes="{{item.richNodes}}" bindtap="onRichTextTap"/><view wx:else class="visitor-section-empty">{{i18n.heritage.updatePending}}</view></view>
+      <view class="detail-caveat">{{i18n.heritage.officialNotice}}</view>
     </view>
-    <view class="highlight-more" bindtap="onToggleHighlights">
-      {{showAllHighlights ? i18n.contentPage.collapseHighlights : i18n.contentPage.allHighlights + spot.highlights.length + (locale === 'en' ? ' highlights' : '个亮点')}} <text>›</text>
+
+    <view wx:if="{{spot.highlights.length}}" id="section-highlights" class="detail-section"><view class="detail-section-head"><view><view class="detail-eyebrow">MUST-SEE</view><view class="detail-heading serif">{{i18n.heritage.highlights}}</view></view><view wx:if="{{spot.highlights.length > 3}}" class="detail-more" bindtap="onToggleHighlights">{{showAllHighlights ? i18n.contentPage.collapseHighlights : i18n.contentPage.allHighlights}} ›</view></view>
+      <scroll-view class="highlight-rail" scroll-x="true" show-scrollbar="false"><view wx:for="{{spot.highlights}}" wx:key="name" wx:if="{{showAllHighlights || index < 3}}" class="highlight-card {{item.hasTarget ? 'highlight-card-linked' : ''}}" data-id="{{item.exhibitId}}" bindtap="onPointTap"><image wx:if="{{item.image}}" class="highlight-card-image" src="{{item.image}}" mode="aspectFill" /><view class="highlight-card-copy"><view class="highlight-name">{{item.displayName}}<text wx:if="{{item.hasTarget}}">↗</text></view><view wx:if="{{item.displayDesc}}" class="highlight-desc">{{item.displayDesc}}</view><view wx:if="{{item.hasTarget}}" class="highlight-card-cta">{{i18n.heritage.online}} ›</view></view></view></scroll-view>
     </view>
-  </view>
 
-  <!-- 参观指南 -->
-  <view class="spot-section card">
-    <view class="spot-kicker">VISITOR GUIDE</view>
-    <view class="spot-heading serif">{{i18n.contentPage.visitorGuide}}</view>
-    <scroll-view class="guide-scroll" scroll-x>
-      <view
-        wx:for="{{guideTabs}}"
-        wx:key="key"
-        class="guide-tab {{guideIndex === index ? 'guide-tab-on' : ''}}"
-        data-index="{{index}}"
-        bindtap="onGuideTap"
-      >{{item.label}}</view>
-    </scroll-view>
-    <view class="guide-panel">
-      <view class="guide-label">{{guideTabs[guideIndex].label}}</view>
-      <view class="guide-text">{{guideTabs[guideIndex].text}}</view>
+    <view id="section-audio" class="detail-section"><view class="detail-section-head"><view><view class="detail-eyebrow">AUDIO GUIDE</view><view class="detail-heading serif">{{i18n.heritage.audioHow}}</view></view><text class="detail-heading-mark">♫</text></view>
+      <view class="audio-how-card"><view class="audio-how-step"><text>01</text><view>{{i18n.heritage.routeStep}}</view></view><view class="audio-how-step"><text>02</text><view>{{i18n.heritage.onlineStep}}</view></view><view class="audio-how-step"><text>03</text><view>{{i18n.heritage.expertStep}}</view></view><view class="audio-how-note">{{i18n.heritage.previewStep}}</view></view>
+      <view wx:if="{{routeGuides.length || onlineGuides.length || expertGuides.length}}" class="audio-track-list">
+        <block wx:for="{{routeGuides}}" wx:key="id"><view class="audio-track-card" data-id="{{item.id}}" bindtap="onTrackTap"><view class="audio-track-symbol">↗</view><view class="audio-track-copy"><view class="audio-track-title">{{item.displayTitle}}</view><view class="audio-track-meta">{{i18n.heritage.routes}} · {{i18n.heritage.preview}} ≤60s</view></view><text class="audio-play">▶</text></view></block>
+        <block wx:for="{{onlineGuides}}" wx:key="id"><view class="audio-track-card" data-id="{{item.id}}" bindtap="onTrackTap"><view class="audio-track-symbol">◎</view><view class="audio-track-copy"><view class="audio-track-title">{{item.displayTitle}}</view><view class="audio-track-meta">{{i18n.heritage.online}} · {{i18n.heritage.preview}} ≤60s</view></view><text class="audio-play">▶</text></view></block>
+        <block wx:for="{{expertGuides}}" wx:key="id"><view class="audio-track-card" data-id="{{item.id}}" bindtap="onTrackTap"><view class="audio-track-symbol">✦</view><view class="audio-track-copy"><view class="audio-track-title">{{item.displayTitle}}</view><view class="audio-track-meta">{{i18n.heritage.expert}} · {{i18n.heritage.preview}} ≤60s</view></view><text class="audio-play">▶</text></view></block>
+      </view><view wx:else class="detail-empty-note">{{i18n.heritage.noAudio}}</view>
     </view>
-  </view>
 
-  <!-- 视频讲解与试看权限 -->
-  <view class="spot-section card paid-video-section">
-    <view class="spot-kicker">VIDEO GUIDE</view>
-    <view class="spot-heading serif">{{i18n.paidContent.video}}</view>
-    <view class="video-shell">
-      <video wx:if="{{spot.videoUrl}}" id="knowledge-video" src="{{spot.videoUrl}}" controls object-fit="contain" bindplay="onVideoPlay" bindtimeupdate="onVideoTimeUpdate" binderror="onVideoError"></video>
-      <view wx:else class="video-empty"><view class="video-empty-icon">▶</view><view>{{i18n.paidContent.trialUnavailable}}</view></view>
-      <view wx:if="{{!isVideoUnlocked && paidConfig.configured && !trialEnded}}" class="trial-badge">{{i18n.paidContent.trial}} {{paidConfig.trialSeconds}}s</view>
-      <view wx:if="{{isVideoUnlocked}}" class="unlock-badge">{{entitlements.member ? i18n.paidContent.memberUnlocked : i18n.paidContent.purchased}}</view>
+    <view id="section-routes" class="detail-section"><view class="detail-section-head"><view><view class="detail-eyebrow">EXPLORE IN ORDER</view><view class="detail-heading serif">{{i18n.heritage.routes}}</view></view><text class="detail-heading-mark">⌁</text></view>
+      <view wx:if="{{routes.length}}" class="route-list"><view wx:for="{{routes}}" wx:key="id" class="route-card" data-id="{{item.id}}" bindtap="onRouteTap"><view class="route-card-number">0{{index + 1}}</view><view class="route-card-copy"><view>{{item.displayTitle}}</view><text wx:if="{{item.description}}">{{item.description}}</text></view><text class="detail-arrow">›</text></view></view>
+      <view wx:elif="{{exhibits.length}}" class="route-list"><view wx:for="{{exhibits}}" wx:key="id" class="route-card" data-id="{{item.id}}" bindtap="onPointTap"><view class="route-card-number">0{{index + 1}}</view><view class="route-card-copy"><view>{{item.displayName}}</view><text wx:if="{{item.displayDescription}}">{{item.displayDescription}}</text></view><text class="detail-arrow">›</text></view></view>
+      <view wx:else class="detail-empty-note">{{i18n.heritage.noRoutes}}</view>
     </view>
-    <view class="video-status" wx:if="{{!isVideoUnlocked}}">{{trialLabel}}</view>
-    <view class="preview-label"><text>FREE TEXT</text> {{i18n.paidContent.freeText}}</view>
-    <view class="preview-copy">{{spot.deepDive.preview}}</view>
-    <view class="locked-list"><view wx:for="{{spot.deepDive.locked}}" wx:key="*this"><text>▧</text>{{item}}<text class="lock-mark">{{isVideoUnlocked ? '' : i18n.contentPage.locked}}</text></view></view>
-    <view class="unlock-button" bindtap="onUnlock">{{isVideoUnlocked ? i18n.paidContent.memberUnlocked : i18n.paidContent.unlock}}</view>
+
+    <view wx:if="{{spot.videoUrl}}" class="detail-section"><view class="detail-section-head"><view><view class="detail-eyebrow">VIDEO</view><view class="detail-heading serif">{{i18n.paidContent.video}}</view></view></view><view class="video-shell"><video id="knowledge-video" src="{{spot.videoUrl}}" controls object-fit="contain" bindplay="onVideoPlay" bindtimeupdate="onVideoTimeUpdate" binderror="onVideoError"></video></view><view class="video-status">{{trialLabel}}</view><view wx:if="{{!isVideoUnlocked && paidConfig.configured}}" class="unlock-button" bindtap="onUnlock">{{i18n.paidContent.unlock}}</view></view>
+
+    <view wx:if="{{related.length}}" class="detail-section related-section"><view class="detail-section-head"><view><view class="detail-eyebrow">NEARBY</view><view class="detail-heading serif">{{i18n.paidContent.related}}</view></view></view><view wx:for="{{related}}" wx:key="id" class="related-item" data-id="{{item.id}}" bindtap="onRelatedTap"><image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill"/><view class="related-name">{{item.name}}</view><text>›</text></view></view>
   </view>
-
-  <view class="spot-section card related-section" wx:if="{{related.length}}"><view class="spot-kicker">RELATED</view><view class="spot-heading serif">{{i18n.paidContent.related}}</view><view class="related-list"><view wx:for="{{related}}" wx:key="id" class="related-item" data-id="{{item.id}}" bindtap="onRelatedTap"><image src="{{item.image}}" mode="aspectFill"/><view><view class="related-name">{{item.name}}</view><view class="related-desc">{{item.summary}}</view></view><text>›</text></view></view></view>
-
-  <!-- 咨询入口 -->
-  <view class="spot-consult card" bindtap="onLiveBooking">
-    <view>
-      <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
-      <view class="consult-title serif">{{i18n.contentPage.consultTitle}}</view>
-      <view class="consult-copy">{{i18n.contentPage.consultDesc}}</view>
-    </view>
-    <view class="consult-arrow">›</view>
-  </view>
-
-  <view class="spot-footer">{{i18n.commonSlogan}}</view>
 </view>
-
-<view wx:if="{{!spot}}" class="spot-empty">
-  <view class="spot-empty-title">{{i18n.contentPage.attractionEmpty}}</view>
-  <view class="spot-empty-desc">{{i18n.contentPage.attractionEmptyDesc}}</view>
-  <view class="spot-empty-action" bindtap="onBackToDestinations">{{i18n.contentPage.backToDestinations}}</view>
-</view>
-
-<view wx:if="{{showPurchaseModal}}" class="purchase-overlay"><view class="purchase-modal card"><view class="purchase-close" bindtap="closePurchase">×</view><view class="spot-kicker">UNLOCK YOUR GREECE</view><view class="purchase-title serif">{{i18n.paidContent.trialEnded}}</view><view class="purchase-copy">{{i18n.paidContent.trialEndedDesc}}</view><button wx:if="{{!pendingSimulationOrder}}" class="purchase-option" data-product="attraction" bindtap="onPurchase" loading="{{purchaseLoading}}"><view>{{i18n.paidContent.buySpot}} <text class="purchase-price">¥{{paidConfig.products.attraction.price}}</text></view><text>{{i18n.paidContent.buySpotDesc}}</text></button><button wx:if="{{!pendingSimulationOrder}}" class="purchase-option purchase-option-featured" data-product="membership" bindtap="onPurchase" loading="{{purchaseLoading}}"><view>{{i18n.paidContent.member}} <text class="purchase-price">¥{{paidConfig.products.membership.price}}</text></view><text>{{i18n.paidContent.memberDesc}}</text></button><view wx:if="{{pendingSimulationOrder && simulationMode}}" class="simulation-box"><view class="simulation-label">{{i18n.paidContent.simulationTitle}}</view><view class="simulation-order">{{pendingSimulationOrder.id}}</view><button class="purchase-option" data-outcome="paid" bindtap="onSimulationPay" loading="{{simulationLoading}}">{{i18n.paidContent.simulationSuccess}}</button><button class="purchase-option simulation-failed-option" data-outcome="failed" bindtap="onSimulationPay" loading="{{simulationLoading}}">{{i18n.paidContent.simulationFailure}}</button></view></view></view>
+<view wx:if="{{!spot}}" class="spot-empty"><view class="spot-empty-title">{{contentError ? i18n.heritage.networkFailed : i18n.contentPage.attractionEmpty}}</view><view class="spot-empty-desc">{{i18n.contentPage.attractionEmptyDesc}}</view><view class="spot-empty-action" bindtap="onBackToDestinations">{{i18n.contentPage.backToDestinations}}</view></view>
+<view wx:if="{{showPurchaseModal}}" class="purchase-overlay"><view class="purchase-modal"><view class="purchase-close" bindtap="closePurchase">×</view><view class="detail-eyebrow">{{spot.name}}</view><view class="purchase-title serif">{{i18n.paidContent.trialEnded}}</view><view class="purchase-copy">{{i18n.paidContent.trialEndedDesc}}</view><button wx:if="{{!pendingSimulationOrder && paidConfig.products.attraction}}" class="purchase-option" data-product="attraction" bindtap="onPurchase" loading="{{purchaseLoading}}">{{i18n.paidContent.buySpot}} ¥{{paidConfig.products.attraction.price}}</button><button wx:if="{{!pendingSimulationOrder && paidConfig.products.membership}}" class="purchase-option" data-product="membership" bindtap="onPurchase" loading="{{purchaseLoading}}">{{i18n.paidContent.member}} ¥{{paidConfig.products.membership.price}}</button><view wx:if="{{pendingSimulationOrder && simulationMode}}" class="simulation-box"><view class="simulation-label">{{i18n.paidContent.simulationTitle}}</view><button data-outcome="paid" bindtap="onSimulationPay">{{i18n.paidContent.simulationSuccess}}</button><button data-outcome="failed" bindtap="onSimulationPay">{{i18n.paidContent.simulationFailure}}</button></view></view></view>

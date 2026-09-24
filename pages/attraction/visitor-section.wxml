@@ -1,0 +1,21 @@
+<view class="visitor-detail-page" wx:if="{{spot}}">
+  <view class="visitor-detail-safe-top" style="height: {{statusBarHeight}}px;"></view>
+  <view class="visitor-detail-nav"><view class="visitor-detail-back" bindtap="onBack" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view><view class="visitor-detail-nav-title">{{i18n.guideService}}</view><view class="visitor-detail-nav-space"></view></view>
+  <scroll-view class="visitor-detail-tabs" scroll-x="true" show-scrollbar="false" scroll-with-animation="true"><view wx:for="{{sections}}" wx:key="kind" class="visitor-detail-tab {{activeKind === item.kind ? 'visitor-detail-tab-on' : ''}}" data-kind="{{item.kind}}" bindtap="onTabTap">{{item.displayTitle}}</view></scroll-view>
+  <scroll-view class="visitor-detail-scroll" scroll-y="true" show-scrollbar="false">
+    <image wx:if="{{spot.image}}" class="visitor-detail-cover" src="{{spot.image}}" mode="aspectFill" />
+    <view wx:else class="visitor-detail-no-cover"><view class="visitor-detail-no-cover-mark">⌖</view><view>{{spot.displayName}}</view></view>
+    <view class="visitor-detail-content">
+      <view class="visitor-detail-eyebrow">{{activeSection.displayTitle}}</view>
+      <view class="visitor-detail-title serif">{{spot.displayName}} {{activeSection.displayTitle}}</view>
+      <rich-text wx:if="{{activeSection.hasContent}}" class="visitor-detail-rich" nodes="{{activeSection.richNodes}}" bindtap="onRichTextTap" />
+      <view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
+      <image wx:if="{{activeKind === 'map' && activeSection.mapImage}}" class="visitor-detail-map" src="{{activeSection.mapImage}}" mode="widthFix" bindtap="onMapTap" />
+      <view wx:if="{{activeKind === 'map' && activeSection.mapUrl}}" class="visitor-detail-map-link" bindtap="onMapTap"><text>⌖</text><view>{{activeSection.displayTitle}}</view><text>↗</text></view>
+      <view wx:if="{{activeKind === 'map' && (activeSection.sourceUrl || activeSection.verifiedAt)}}" class="visitor-detail-source"><view wx:if="{{activeSection.sourceUrl}}" bindtap="onSourceTap">{{activeSection.sourceTitle || i18n.heritage.source}} ↗</view><text wx:if="{{activeSection.verifiedAt}}">{{i18n.heritage.verifiedAt}}：{{activeSection.verifiedAt}}</text></view>
+      <view class="visitor-detail-note">{{i18n.heritage.officialNotice}}</view>
+    </view>
+  </scroll-view>
+</view>
+<view wx:elif="{{loading}}" class="visitor-detail-state">{{i18n.loading}}</view>
+<view wx:else class="visitor-detail-state"><view>{{i18n.heritage.networkFailed}}</view><view class="visitor-detail-back-link" bindtap="onBack">{{i18n.back}}</view></view>

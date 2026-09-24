@@ -960,3 +960,11 @@
   opacity: 0.88;
   transform: scale(0.97);
 }
+
+/* 0924: compact services and published album cards */
+.guide-hero-compact { min-height: 0; padding-bottom: 22rpx; }
+.guide-hero-compact::after { display: none; }
+.guide-hero-compact .hero-content { padding-top: 28rpx; padding-bottom: 24rpx; }
+.guide-hero-compact .guide-name { font-size: 42rpx; line-height: 1.35; letter-spacing: 0; }
+.guide-service-card.guide-service-live { background: linear-gradient(145deg, #0B3C5D, #1567A8); color: #FFFFFF; }
+.guide-service-card.guide-service-offline { background: linear-gradient(145deg, #FFFFFF, #F4F8FB); color: #17334B; }

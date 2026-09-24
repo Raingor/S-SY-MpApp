@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], sampleItineraries: [], destinations: [], destinationCategories: [], home: { eyebrow: '', title: '', description: '', banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -61,7 +61,7 @@ function mapImage(path) {
   if (!path) return '';
   if (path.indexOf('/assets/') === 0) return path; // 已是小程序本地路径
   const file = path.split('/').pop();
-  return IMAGE_FALLBACK[file] || '/assets/images/dest/dest-athens.jpg';
+  return IMAGE_FALLBACK[file] || mapManagedImage(path);
 }
 
 function mapGuideImage(path, fallback) {
@@ -96,6 +96,18 @@ function adaptCities(remoteCities) {
 }
 
 // 后端 attractions：sizeLabel 可能写作 scale
+function isPublished(item) {
+  return item && item.enabled !== false && item.published !== false && !['draft', 'disabled', 'inactive', 'archived', 'unpublished'].includes(String(item.status || '').toLowerCase());
+}
+
+function adaptAudioAlbums(albums) {
+  return (Array.isArray(albums) ? albums : []).filter(isPublished).map((album) => ({
+    ...album,
+    cover: mapManagedImage(album.cover || album.image),
+    episodes: (Array.isArray(album.episodes) ? album.episodes : []).filter((episode) => isPublished(episode) && episode.id && episode.previewUrl).map((episode) => ({ ...episode, cover: mapManagedImage(episode.cover) }))
+  })).filter((album) => album.episodes.length > 0);
+}
+
 function adaptAttractions(remoteAttractions) {
   return (remoteAttractions || []).map((item) => ({
     ...item,
@@ -109,9 +121,23 @@ function adaptAttractions(remoteAttractions) {
     paidContent: item.paidContent || {},
     logo: mapImage(item.logo),
     highlights: (item.highlights || []).map((h) =>
-      typeof h === 'string' ? { name: h, desc: '' } : h
+      typeof h === 'string' ? { name: h, desc: '', image: '' } : { ...h, image: mapManagedImage(h.image) }
     ),
-    guide: item.guide || {}
+    visitorInfo: { ...(item.visitorInfo || {}), mapImage: mapManagedImage(item.visitorInfo && item.visitorInfo.mapImage) },
+    visitorInfoSections: (Array.isArray(item.visitorInfoSections) ? item.visitorInfoSections : []).map((section, index) => ({
+      ...section,
+      sort: Number.isFinite(Number(section && section.sort)) ? Number(section.sort) : index,
+      map: section && section.map && typeof section.map === 'object' ? { ...section.map, image: mapManagedImage(section.map.image) } : {}
+    })).sort((a, b) => a.sort - b.sort),
+    customSections: (Array.isArray(item.customSections) ? item.customSections : []).filter(isPublished).map((section, index) => ({
+      ...section,
+      sort: Number.isFinite(Number(section && section.sort)) ? Number(section.sort) : index,
+      map: section && section.map && typeof section.map === 'object' ? { ...section.map, image: mapManagedImage(section.map.image) } : {}
+    })).sort((a, b) => a.sort - b.sort),
+    guide: { ...(item.guide || {}), mapImage: mapManagedImage(item.guide && item.guide.mapImage) },
+    exhibits: (Array.isArray(item.exhibits) ? item.exhibits : []).filter(isPublished).map((point) => ({ ...point, image: mapManagedImage(point.image) })),
+    routes: (Array.isArray(item.routes) ? item.routes : []).filter(isPublished),
+    audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : []).filter((track) => isPublished(track) && track.id && track.previewUrl).map((track) => ({ ...track, cover: mapManagedImage(track.cover) }))
   }));
 }
 
@@ -254,6 +280,7 @@ function fetchContent() {
             guides: adaptGuides(res.data.guides),
             cities: adaptCities(res.data.cities),
             attractions: adaptAttractions(res.data.attractions),
+            audioAlbums: adaptAudioAlbums(res.data.audioAlbums),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
@@ -365,6 +392,10 @@ function getAttraction(id, source) {
   return getContent(source).attractions.find((item) => item.id === id) || null;
 }
 
+function getAudioAlbums(source) {
+  return getContent(source).audioAlbums || [];
+}
+
 // 景点关联条目：带出封面图，供行程页渲染缩略图；找不到的 id 直接丢弃。
 function getAttractionNames(ids, source) {
   if (!Array.isArray(ids)) return [];
@@ -436,6 +467,7 @@ module.exports = {
   getAttractions,
   getDestinationByCity,
   getAttraction,
+  getAudioAlbums,
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,

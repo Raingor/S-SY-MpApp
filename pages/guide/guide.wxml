@@ -1,6 +1,6 @@
 <view class="guide-page">
-  <!-- ===== 人物头部 ===== -->
-  <view class="guide-hero">
+  <!-- 简洁服务头部；导游资料仍留在后台与预约链路，不在本页作个人宣传。 -->
+  <view class="guide-hero guide-hero-compact">
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="guide-nav sy-nav">
       <view class="nav-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
@@ -10,28 +10,7 @@
       <view class="nav-mark">✦</view>
     </view>
 
-    <view class="hero-content">
-      <view class="hero-kicker">{{guide.location}}</view>
-      <view class="hero-person">
-        <image class="guide-avatar" src="{{guide.avatar}}" mode="aspectFill" />
-        <view class="hero-person-info">
-          <view class="guide-name serif">{{guide.name}}</view>
-          <view class="guide-role">{{guide.role}}</view>
-        </view>
-      </view>
-      <view class="hero-intro">{{guide.intro}}</view>
-      <view class="hero-actions">
-        <view class="hero-button hero-button-primary" bindtap="onBookTap">{{i18n.forms.reserve}} <text>→</text></view>
-        <view class="hero-button hero-button-ghost" bindtap="onCopyWechat">{{i18n.forms.addWechat}}</view>
-      </view>
-    </view>
-
-    <view class="hero-quote">
-      <view class="quote-kicker">{{guide.quoteKicker || guide.name}}</view>
-      <view class="quote-title">{{guide.quote || i18n.guide.heroQuote}}</view>
-      <view class="quote-line"></view>
-      <view class="quote-foot">{{guide.quoteFoot || i18n.guide.quoteFoot}}</view>
-    </view>
+    <view class="hero-content"><view class="guide-name serif">{{i18n.guideService}}</view></view>
   </view>
 
   <!-- ===== 古迹讲解服务分流 ===== -->
@@ -62,63 +41,9 @@
     </view>
   </view>
 
-  <!-- ===== 人物故事 ===== -->
-  <view class="light-section story-section">
-    <view class="section-kicker">01 · MEET RICHARD</view>
-    <view class="section-title serif">{{guide.storyTitle || i18n.guide.storyTitle}}</view>
-    <view class="story-copy">
-      <text>{{guide.story1 || i18n.guide.story1}}</text>
-      <text>{{guide.story2 || i18n.guide.story2}}</text>
-    </view>
-    <image class="guide-full-image" src="{{guide.fullImage}}" mode="widthFix" />
-    <view class="story-note">“{{guide.storyNote || i18n.guide.storyNote}}”<text>— {{guide.name}} / {{guide.eyebrow}}</text></view>
-  </view>
-
-  <!-- ===== 核心背书 ===== -->
-  <view class="light-section credentials-section">
-    <view class="section-kicker">02 · THE CREDENTIALS</view>
-    <view class="section-title serif">{{guide.credentialsTitle || i18n.guide.credentialsTitle}}</view>
-    <view class="credential-row">
-      <view class="credential-card" wx:for="{{credentials}}" wx:key="index">
-        <view class="credential-index">{{item.index}}</view>
-        <view class="credential-title">{{item.title}}</view>
-        <view class="credential-desc">{{item.desc}}</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- ===== 擅长方向 ===== -->
-  <view class="dark-section signature-section">
-    <view class="section-kicker section-kicker-gold">03 · HIS SIGNATURE</view>
-    <view class="section-title section-title-light serif">{{guide.signatureTitle || i18n.guide.signatureTitle}}</view>
-    <view class="direction-grid">
-      <view class="direction-card" wx:for="{{directions}}" wx:key="key">
-        <view class="direction-icon direction-icon-{{item.key}}"></view>
-        <view class="direction-index">{{item.index}}</view>
-        <view class="direction-title serif">{{item.title}}</view>
-        <view class="direction-subtitle">{{item.subtitle}}</view>
-        <view class="direction-desc">{{item.desc}}</view>
-        <view class="direction-meta">{{item.suitable}}</view>
-        <view class="direction-duration">{{item.duration}}</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- ===== 客户评价 ===== -->
-  <view class="dark-section reviews-section">
-    <view class="section-kicker section-kicker-gold">04 · FROM THE GUESTBOOK</view>
-    <view class="section-title section-title-light serif">{{guide.reviewsTitle || i18n.guide.reviewsTitle}}</view>
-    <view class="review-list">
-      <view class="review-item" wx:for="{{reviews}}" wx:key="name">
-        <view class="review-quote">“{{item.quote}}”</view>
-        <view class="review-author">{{item.name}} <text>· {{item.meta}}</text></view>
-      </view>
-    </view>
-  </view>
-
   <!-- ===== 预约模块 ===== -->
   <view class="booking-section" id="booking">
-    <view class="section-kicker">05 · RESERVE YOUR TIME</view>
+    <view class="section-kicker">RESERVATION REQUEST</view>
     <view class="section-title serif">{{i18n.guide.bookingTitle}}</view>
     <view class="booking-sub">{{i18n.guide.bookingSub}}</view>
 
@@ -147,19 +72,14 @@
           bindtap="onDateTap"
         >
           <text wx:if="{{!item.blank}}">{{item.day}}</text>
-          <view wx:if="{{!item.blank && item.state !== 'unavailable'}}" class="date-dot"></view>
+
         </view>
       </view>
-      <view class="calendar-legend">
-        <view><text class="legend-dot legend-available"></text>{{i18n.guide.available}}</view>
-        <view><text class="legend-dot legend-pending"></text>{{i18n.guide.pending}}</view>
-        <view><text class="legend-dot legend-booked"></text>{{i18n.guide.booked}}</view>
-        <view><text class="legend-dot legend-past"></text>{{i18n.guide.unavailable}}</view>
-      </view>
+      <view class="calendar-note">{{i18n.heritage.requestDateNotice}}</view>
     </view>
 
     <view class="booking-form card">
-      <view class="form-heading serif">{{i18n.forms.bookingTitle}}</view>
+      <view class="form-heading serif">{{i18n.heritage.bookingFormTitle}}</view>
       <view class="form-tip">{{i18n.guide.selectedPrefix}} {{selectedDateText}} · {{i18n.forms.contactMethod}}</view>
 
       <view class="form-field">
@@ -191,7 +111,7 @@
       </view>
 
       <button class="submit-button" hover-class="guide-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitBooking}}</button>
-      <view class="submit-note">{{i18n.forms.submitBookingNote}}</view>
+      <view class="submit-note">{{i18n.heritage.submitBookingNote}}</view>
     </view>
   </view>
 
@@ -199,7 +119,7 @@
   <view class="closing-section">
     <view class="closing-title serif">{{i18n.guide.closingTitle}}</view>
     <view class="closing-copy">{{i18n.guide.closingCopy}}</view>
-    <view class="closing-button" bindtap="onBookTap">{{i18n.forms.reserve}} <text>→</text></view>
+    <view class="closing-button" bindtap="onBookTap">{{i18n.heritage.reserve}} <text>→</text></view>
     <view class="closing-site">{{i18n.brandEn}} · sy-greece.com</view>
   </view>
 

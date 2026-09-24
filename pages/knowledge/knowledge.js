@@ -1,238 +1,87 @@
-// 服务4：景点区（城市选择层 → 城市介绍页 → 城市景点列表 → 景点详情）
-// 数据：优先后端 /api/content，失败回退本地镜像（data/content.js）
+// 文史知识库：已发布景点与真实音频专辑；离线镜像仅用于景点，并明确标示。
 const app = getApp();
 const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
-const auth = require('../../utils/auth');
-const paidContent = require('../../utils/paid-content');
 
-const PRODUCT_CATEGORY_ALIASES = [
-  ['athens', '雅典', '雅典区域'],
-  ['santorini', '圣托里尼', '聖托里尼'],
-  ['crete', '克里特'],
-  ['peloponnese', '伯罗奔尼撒', '伯羅奔尼撒', 'nafplio', '纳夫普利翁', '纳夫普里奥', 'corinth', '科林斯'],
-  ['zakynthos', '扎金索斯'],
-];
+function translated(item, key, locale) {
+  const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
+  return (item && (item[key + suffix] || item[key])) || '';
+}
 
-function spotSearchText(spot) {
-  return [
-    spot && spot.name,
-    spot && spot.en,
-    spot && spot.summary,
-    spot && spot.category,
-    spot && spot.city,
-    spot && spot.cityName,
-    spot && spot.region,
-    spot && spot.destination,
-    ...((spot && spot.highlights) || []).map((item) => typeof item === 'string' ? item : item && item.name)
-  ].filter(Boolean).join(' ').toLowerCase();
+function displaySpots(spots, query, category, locale, audioOnly) {
+  const word = String(query || '').trim().toLowerCase();
+  return (spots || []).filter((spot) => {
+    if (audioOnly && !(spot.audioGuides || []).some((track) => track.id && track.previewUrl)) return false;
+    if (category && spot.city !== category) return false;
+    if (!word) return true;
+    return [translated(spot, 'name', locale), spot.name, spot.en, translated(spot, 'summary', locale), spot.category, spot.city,
+      ...(spot.highlights || []).map((h) => translated(h, 'name', locale))].filter(Boolean).join(' ').toLowerCase().includes(word);
+  }).map((spot) => ({ ...spot, displayName: translated(spot, 'name', locale), displaySummary: translated(spot, 'summary', locale) }));
 }
 
 Page({
   data: {
-    statusBarHeight: 20,
-    locale: 'zh-CN',
-    i18n: i18n.getMessages(),
-    activePanel: 0,
-    panelTabs: [],
-    cities: [],
-    sampleTrips: [],
-    allHotSpots: [],
-    searchQuery: '',
-    searchResults: [],
-    hotSpots: [],
-    productHome: i18n.getMessages().productHome,
-    productTrack: 'classic',
-    categoryIndex: 0,
-    membershipConfigured: false,
-    membershipLoading: false
+    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
+    panelTabs: [], cities: [], sampleTrips: [], allHotSpots: [], hotSpots: [],
+    albums: [], visibleAlbums: [], searchQuery: '', categoryId: '', audioOnly: false,
+    loading: true, contentError: false, offline: false
   },
-
-  onShareAppMessage() {
-    return buildShareCard('/pages/knowledge/knowledge');
-  },
-
+  onShareAppMessage() { return buildShareCard('/pages/knowledge/knowledge'); },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    const localHotSpots = content.getAttractions();
-    const productTrack = options && options.track === 'deep' ? 'deep' : 'classic';
-    const activePanel = options && (options.panel === '1' || options.track === 'deep') ? 1 : 0;
-    this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
-      activePanel,
-      productTrack,
-      cities: content.getCities(),
-      sampleTrips: content.getReferenceList(),
-      allHotSpots: localHotSpots,
-      hotSpots: this.filterHotSpots(localHotSpots, 0, productTrack)
-    });
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20, activePanel: options && options.panel === '1' ? 1 : 0, audioOnly: Boolean(options && options.audioOnly === '1') });
     this.applyLocale();
-    // 异步拉取后端数据；仅网络离线时显示明确标记的本地镜像，契约错误不伪装为成功
-    content.loadContent((data) => {
+    this.refresh();
+  },
+  onShow() { this.applyLocale(); },
+  refresh() {
+    this.setData({ loading: true });
+    content.loadContent((data, state) => {
+      const spots = content.getAttractions(data);
+      const albums = state && state.source === 'remote' ? content.getAudioAlbums(data) : [];
       this.setData({
-        cities: content.getCities(data),
-        sampleTrips: content.getReferenceList(data),
-        allHotSpots: content.getAttractions(data),
-        hotSpots: this.filterHotSpots(content.getAttractions(data), this.data.categoryIndex)
+        cities: content.getCities(data), sampleTrips: content.getReferenceList(data),
+        allHotSpots: spots, albums,
+        loading: false, contentError: state && state.status === 'contract-error',
+        offline: state && state.reason === 'offline'
       });
-    });
+      this.filterItems();
+    }, true);
   },
-
-  onShow() {
-    this.applyLocale();
-    paidContent.fetchConfig((ok, config) => this.setData({ membershipConfigured: ok || config.configured }));
-  },
-
   applyLocale() {
     const copy = i18n.apply(this);
+    this.setData({ panelTabs: [copy.heritage.sights, copy.heritage.history] });
+    this.filterItems();
+  },
+  filterItems() {
+    const { allHotSpots, albums, searchQuery, categoryId, locale, audioOnly } = this.data;
     this.setData({
-      panelTabs: [copy.knowledgePage.originalTab, copy.knowledgePage.newTab],
-      productHome: copy.productHome
-    });
-    return copy;
-  },
-
-  onPanelTap(e) {
-    this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0 });
-  },
-
-  onProductTrackTap(e) {
-    const productTrack = e.currentTarget.dataset.track === 'deep' ? 'deep' : 'classic';
-    this.setData({ productTrack, hotSpots: this.filterHotSpots(this.data.allHotSpots, this.data.categoryIndex, productTrack), searchResults: [] });
-  },
-
-  matchesProductTrack(spot, track) {
-    const explicit = spot && (spot.knowledgeTrack || spot.contentTrack || spot.track || spot.section);
-    if (!explicit) return true;
-    const normalized = String(explicit).toLowerCase();
-    const isDeep = normalized.includes('deep') || normalized.includes('深度');
-    return track === 'deep' ? isDeep : !isDeep;
-  },
-
-  filterHotSpots(spots, categoryIndex, productTrack = this.data.productTrack) {
-    const list = (Array.isArray(spots) ? spots : []).filter((spot) => this.matchesProductTrack(spot, productTrack));
-    const index = Number(categoryIndex);
-    if (!Number.isInteger(index) || index < 0 || index > 5) return list.slice(0, 6);
-    if (index === 5) {
-      return list.filter((spot) => !PRODUCT_CATEGORY_ALIASES.some((aliases) => aliases.some((alias) => spotSearchText(spot).includes(alias.toLowerCase())))).slice(0, 6);
-    }
-    const aliases = PRODUCT_CATEGORY_ALIASES[index] || [];
-    return list.filter((spot) => aliases.some((alias) => spotSearchText(spot).includes(alias.toLowerCase()))).slice(0, 6);
-  },
-
-  filterSearchResults(query, spots) {
-    const normalized = String(query || '').trim().toLowerCase();
-    if (!normalized) return [];
-    return (spots || []).filter((spot) => spotSearchText(spot).includes(normalized)).slice(0, 5);
-  },
-
-  onCategoryTap(e) {
-    const categoryIndex = Number(e.currentTarget.dataset.index);
-    if (!Number.isInteger(categoryIndex)) return;
-    const hotSpots = this.filterHotSpots(this.data.allHotSpots, categoryIndex, this.data.productTrack);
-    this.setData({
-      categoryIndex,
-      hotSpots,
-      searchResults: this.filterSearchResults(this.data.searchQuery, hotSpots)
+      hotSpots: displaySpots(allHotSpots, searchQuery, categoryId, locale, audioOnly),
+      visibleAlbums: (albums || []).map((album) => ({ ...album,
+        displayTitle: translated(album, 'title', locale),
+        displayDescription: translated(album, 'description', locale),
+        durationMinutes: Math.ceil((album.episodes || []).reduce((sum, episode) => sum + (Number(episode.durationSeconds) || 0), 0) / 60)
+      })).filter((album) => !searchQuery || [album.title, album.displayTitle, album.displayDescription, ...(album.episodes || []).map((episode) => translated(episode, 'title', locale))].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()))
     });
   },
-
-  onSearchInput(e) {
-    const value = e.detail.value || '';
-    this.setData({ searchQuery: value, searchResults: this.filterSearchResults(value, this.data.hotSpots) });
+  onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '', categoryId: '' }); this.filterItems(); },
+  onCategoryTap(e) { this.setData({ categoryId: e.currentTarget.dataset.id === this.data.categoryId ? '' : e.currentTarget.dataset.id }); this.filterItems(); },
+  onSearchInput(e) { this.setData({ searchQuery: e.detail.value || '' }); this.filterItems(); },
+  onSearchConfirm() {
+    if (this.data.activePanel !== 0 || !this.data.hotSpots.length) return;
+    this.openSpot(this.data.hotSpots[0].id);
   },
-
-  onSearchConfirm(e) {
-    const query = String(e.detail.value || '').trim();
-    if (!query) return;
-    const spot = (this.data.searchResults || [])[0];
-    if (spot) return wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-    wx.showToast({ title: this.data.locale === 'en' ? 'No matching sight' : this.data.locale === 'zh-TW' ? '沒有找到相關景點' : '没有找到相关景点', icon: 'none' });
-  },
-
-  onHotSpotTap(e) {
-    const spot = this.data.hotSpots[Number(e.currentTarget.dataset.index)];
-    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-  },
-
-  onCampaignTap(e) {
-    const type = e.currentTarget.dataset.type;
-    if (type === 'live') return wx.navigateTo({ url: '/pages/live-booking/live-booking' });
-    if (type === 'member') return this.openMember();
-    const spot = this.data.hotSpots[0];
-    if (spot) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
-  },
-
-  onLiveTap() { wx.navigateTo({ url: '/pages/live-booking/live-booking' }); },
-  onMemberTap() { this.openMember(); },
-  openMember() {
-    if (this.data.membershipLoading) return;
-    if (!this.data.membershipConfigured) {
-      return paidContent.fetchConfig((ok, config) => {
-        const configured = ok || config.configured;
-        this.setData({ membershipConfigured: configured });
-        if (configured) return this.openMember();
-        wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
-      });
-    }
-    const token = auth.getAccessToken();
-    if (!token || auth.isSimulationToken(token)) {
-      if (token && auth.isSimulationToken(token)) auth.clearSession();
-      return wx.switchTab({ url: '/pages/profile/profile' });
-    }
-    auth.getUserState((loggedIn, user) => {
-      if (!loggedIn) return wx.switchTab({ url: '/pages/profile/profile' });
-      if (!user || !user.phoneBound) {
-        return wx.showModal({
-          title: this.data.i18n.profile.bindPhone,
-          content: this.data.i18n.profile.bindPhoneDesc,
-          confirmText: this.data.i18n.profile.bind,
-          cancelText: this.data.i18n.know,
-          success: (res) => { if (res.confirm) wx.switchTab({ url: '/pages/profile/profile' }); }
-        });
-      }
-      this.setData({ membershipLoading: true });
-      paidContent.createOrder('membership', '', (ok, data) => {
-        this.setData({ membershipLoading: false });
-        if (!ok) {
-          return wx.showModal({
-            title: this.data.i18n.submitFailed,
-            content: (data && (data.error || data.message)) || this.data.i18n.paidContent.payUnavailable,
-            confirmText: this.data.i18n.know,
-            showCancel: false
-          });
-        }
-        if (data && data.paymentStatus === 'pending') {
-          return wx.showToast({ title: this.data.i18n.paidContent.paymentPending, icon: 'none' });
-        }
-        wx.showToast({ title: this.data.i18n.paidContent.memberUnlocked, icon: 'success' });
-      });
-    });
-  },
-
-  onBack() {
-    goBack();
-  },
-
-  // 城市卡 → 城市介绍页
-  onCityTap(e) {
+  openSpot(id) { if (id) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(id) }); },
+  onHotSpotTap(e) { this.openSpot(e.currentTarget.dataset.id); },
+  onAlbumTap(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/city/index?id=' + id });
+    if (id) wx.navigateTo({ url: '/pages/audio/album?id=' + encodeURIComponent(id) });
   },
-
-  onTripTap(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.navigateTo({ url: '/pages/itinerary/detail?id=' + id });
-  },
-
-  onMoreTrips() {
-    wx.navigateTo({ url: '/pages/itinerary/index' });
-  },
-
-  onConsult() {
-    app.globalData.pendingLeadType = 'knowledge-base';
-    wx.switchTab({ url: '/pages/customize/customize' });
-  }
+  onBack() { goBack(); },
+  onCityTap(e) { wx.navigateTo({ url: '/pages/city/index?id=' + encodeURIComponent(e.currentTarget.dataset.id) }); },
+  onTripTap(e) { wx.navigateTo({ url: '/pages/itinerary/detail?id=' + encodeURIComponent(e.currentTarget.dataset.id) }); },
+  onMoreTrips() { wx.navigateTo({ url: '/pages/itinerary/index' }); },
+  onConsult() { app.globalData.pendingLeadType = 'knowledge-base'; wx.switchTab({ url: '/pages/customize/customize' }); }
 });

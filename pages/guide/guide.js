@@ -6,24 +6,14 @@ const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const content = require('../../data/content');
-const TODAY_KEY = '2026-09-14';
-const CALENDAR_MONTHS = [
-  { year: 2026, month: 8, label: '2026年8月' },
-  { year: 2026, month: 9, label: '2026年9月' },
-  { year: 2026, month: 10, label: '2026年10月' },
-  { year: 2026, month: 11, label: '2026年11月' },
-  { year: 2026, month: 12, label: '2026年12月' },
-  { year: 2027, month: 1, label: '2027年1月' },
-  { year: 2027, month: 2, label: '2027年2月' }
-];
-const CALENDAR_SCHEDULES = {
-  '2026-09': { 12: 'booked', 16: 'available', 17: 'available', 21: 'booked', 22: 'pending', 24: 'available', 25: 'available' },
-  '2026-10': { 8: 'available', 9: 'available', 10: 'pending', 15: 'available', 16: 'available', 17: 'booked', 22: 'available', 23: 'available' },
-  '2026-11': { 5: 'available', 6: 'available', 12: 'available', 13: 'pending', 19: 'available', 20: 'available' },
-  '2026-12': { 3: 'available', 4: 'available', 11: 'booked', 17: 'available', 18: 'available' },
-  '2027-01': { 7: 'available', 8: 'available', 14: 'pending', 21: 'available', 22: 'available' },
-  '2027-02': { 4: 'available', 5: 'available', 18: 'available', 19: 'available' }
-};
+// 日期仅表示预约意向，不伪造后台排班、已约满或可用时段。
+function bookingMonths() {
+  const today = new Date();
+  return Array.from({ length: 12 }, (_, index) => {
+    const date = new Date(today.getFullYear(), today.getMonth() + index, 1);
+    return { year: date.getFullYear(), month: date.getMonth() + 1, label: `${date.getFullYear()}年${date.getMonth() + 1}月` };
+  });
+}
 
 function padMonth(month) {
   return String(month).padStart(2, '0');
@@ -33,13 +23,13 @@ function buildCalendar(year, month) {
   const monthKey = `${year}-${padMonth(month)}`;
   const leading = (new Date(year, month - 1, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month, 0).getDate();
-  const schedules = CALENDAR_SCHEDULES[monthKey] || {};
+  const now = new Date();
+  const todayKey = `${now.getFullYear()}-${padMonth(now.getMonth() + 1)}-${String(now.getDate()).padStart(2, '0')}`;
   const days = [];
   for (let i = 0; i < leading; i += 1) days.push({ key: `blank-leading-${i}`, blank: true });
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = `${monthKey}-${String(day).padStart(2, '0')}`;
-    const scheduledState = schedules[day] || 'unavailable';
-    const state = date < TODAY_KEY ? 'past' : scheduledState;
+    const state = date < todayKey ? 'past' : 'request';
     days.push({ key: date, day, date, state });
   }
   let trailing = 0;
@@ -108,19 +98,19 @@ Page({
       { quote: '不赶景点，更像和一位老朋友探索希腊。小众海岸线比想象中更惊喜。', name: '广州 · M女士', meta: '海岛深度定制' }
     ],
     calendarWeeks: ['一', '二', '三', '四', '五', '六', '日'],
-    calendarMonths: CALENDAR_MONTHS,
-    calendarIndex: 1,
-    canPrevMonth: true,
+    calendarMonths: bookingMonths(),
+    calendarIndex: 0,
+    canPrevMonth: false,
     canNextMonth: true,
-    calendarMonthLabel: '2026年9月',
-    calendarDays: buildCalendar(2026, 9),
-    selectedDate: '2026-09-16',
-    selectedDateText: '9月16日（周三）',
+    calendarMonthLabel: '',
+    calendarDays: [],
+    selectedDate: '',
+    selectedDateText: '',
     durationOptions: ['半日陪同', '1日陪同', '多日陪同'],
     selectedDuration: '半日陪同',
     peopleOptions: ['1-2位成人', '3-5位成人', '6位以上'],
     form: {
-      people: '2位成人',
+      people: '1-2位成人',
       route: '',
       contactType: 'wechat',
       contact: ''
@@ -135,7 +125,8 @@ Page({
   onLoad(options) {
     this.guideId = (options && options.id) || 'richard-li';
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    const first = this.data.calendarMonths[0];
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20, calendarMonthLabel: first.label, calendarDays: buildCalendar(first.year, first.month) });
     this.applyLocale();
     this.loadManagedGuide();
   },
@@ -146,9 +137,23 @@ Page({
   },
 
   applyLocale() {
+    const durationIndex = Math.max(0, this.data.durationOptions.indexOf(this.data.selectedDuration));
+    const peopleIndex = Math.max(0, this.data.peopleOptions.indexOf(this.data.form.people));
     const copy = i18n.apply(this);
-    this.setData({ calendarWeeks: this.data.locale === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : (this.data.locale === 'zh-TW' ? ['一', '二', '三', '四', '五', '六', '日'] : ['一', '二', '三', '四', '五', '六', '日']), selectedDateText: this.data.selectedDate ? this.data.selectedDateText : copy.guide.chooseDate });
+    const week = this.data.locale === 'en' ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['一', '二', '三', '四', '五', '六', '日'];
+    const durationOptions = copy.heritage.durationOptions;
+    const peopleOptions = copy.heritage.peopleOptions;
+    const selectedMonth = this.data.calendarMonths[this.data.calendarIndex];
+    this.setData({ calendarWeeks: week, durationOptions, peopleOptions,
+      selectedDuration: durationOptions[durationIndex] || durationOptions[0],
+      'form.people': peopleOptions[peopleIndex] || peopleOptions[0],
+      calendarMonthLabel: this.formatMonth(selectedMonth),
+      selectedDateText: this.data.selectedDate ? this.formatDate(this.data.selectedDate) : copy.guide.chooseDate });
     return copy;
+  },
+  formatMonth(month) {
+    if (!month) return '';
+    return this.data.locale === 'en' ? `${month.year}-${padMonth(month.month)}` : `${month.year}年${month.month}月`;
   },
 
   loadManagedGuide() {
@@ -184,7 +189,7 @@ Page({
   },
 
   onFreeTrialTap() {
-    wx.navigateTo({ url: '/pages/knowledge/knowledge?panel=1&track=deep' });
+    wx.navigateTo({ url: '/pages/knowledge/knowledge?panel=0&audioOnly=1' });
   },
 
   onCopyWechat() {
@@ -210,22 +215,22 @@ Page({
       calendarIndex: nextIndex,
       canPrevMonth: nextIndex > 0,
       canNextMonth: nextIndex < this.data.calendarMonths.length - 1,
-      calendarMonthLabel: target.label,
+      calendarMonthLabel: this.formatMonth(target),
       calendarDays: buildCalendar(target.year, target.month),
       selectedDate: '',
       selectedDateText: this.data.i18n.guide.chooseDate
     });
   },
 
-  onDateTap(e) {
-    const { date, state, day } = e.currentTarget.dataset;
-    if (!date || state !== 'available') return;
+  formatDate(date) {
     const weekdays = this.data.locale === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['日', '一', '二', '三', '四', '五', '六'];
-    const dateObject = new Date(`${date}T00:00:00`);
-    this.setData({
-      selectedDate: date,
-      selectedDateText: this.data.locale === 'en' ? `${dateObject.getMonth() + 1}/${day} (${weekdays[dateObject.getDay()]})` : `${dateObject.getMonth() + 1}${this.data.locale === 'zh-TW' ? '月' : '月'}${day}日（周${weekdays[dateObject.getDay()]}）`
-    });
+    const value = new Date(`${date}T00:00:00`);
+    return this.data.locale === 'en' ? `${value.getMonth() + 1}/${value.getDate()} (${weekdays[value.getDay()]})` : `${value.getMonth() + 1}月${value.getDate()}日（周${weekdays[value.getDay()]}）`;
+  },
+  onDateTap(e) {
+    const { date, state } = e.currentTarget.dataset;
+    if (!date || state !== 'request') return;
+    this.setData({ selectedDate: date, selectedDateText: this.formatDate(date) });
   },
 
   onDurationTap(e) {
@@ -304,7 +309,7 @@ Page({
         if (isSuccessfulLeadResponse(res)) {
           wx.showModal({
             title: copy.feedback.bookingSubmitted,
-            content: copy.feedback.bookingSubmittedDesc,
+            content: copy.heritage.bookingSubmittedDesc,
             confirmText: copy.okay,
             showCancel: false,
             success: () => this.setData({ 'form.route': '', 'form.contact': '' })

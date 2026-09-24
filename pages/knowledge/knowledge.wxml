@@ -1,117 +1,24 @@
 <view class="knowledge-page">
   <view class="knowledge-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="knowledge-nav sy-nav">
-      <view class="knowledge-back sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}">
-        <view class="sy-back-chevron"></view>
-      </view>
-      <view class="knowledge-brand">{{i18n.brand}}</view>
-      <view class="knowledge-mark">✦</view>
-    </view>
-    <view class="knowledge-hero-body">
-      <view class="knowledge-kicker">ATTRACTIONS &amp; KNOWLEDGE</view>
-      <view class="knowledge-title serif">{{i18n.knowledgePage.title}}</view>
-      <view class="knowledge-subtitle">{{i18n.knowledgePage.subtitle}}</view>
-      <view class="knowledge-pills"><text>{{i18n.knowledgePage.pill1}}</text><text>{{i18n.knowledgePage.pill2}}</text><text>{{i18n.knowledgePage.pill3}}</text><text>{{i18n.knowledgePage.pill4}}</text></view>
-    </view>
+    <view class="knowledge-nav sy-nav"><view class="knowledge-back sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="knowledge-brand">{{i18n.brand}}</view></view>
+    <view class="knowledge-hero-body"><view class="knowledge-kicker">GREEK HERITAGE</view><view class="knowledge-title serif">{{i18n.knowledgePage.title}}</view><view class="knowledge-subtitle">{{i18n.heritage.libraryIntro}}</view></view>
   </view>
-
-  <!-- 知识库内容板块切换：保留旧内容，并承载新增知识付费内容 -->
-  <view class="knowledge-panel-tabs" role="tablist">
-    <view wx:for="{{panelTabs}}" wx:key="*this" class="knowledge-panel-tab {{activePanel === index ? 'knowledge-panel-tab-active' : ''}}" data-index="{{index}}" bindtap="onPanelTap" role="tab" aria-selected="{{activePanel === index}}">
-      <view class="knowledge-panel-tab-index">0{{index + 1}}</view>
-      <view>{{item}}</view>
-    </view>
-  </view>
-
-  <!-- 板块一：原有城市与参考行程内容 -->
+  <view class="knowledge-panel-tabs" role="tablist"><view wx:for="{{panelTabs}}" wx:key="*this" class="knowledge-panel-tab {{activePanel === index ? 'knowledge-panel-tab-active' : ''}}" data-index="{{index}}" bindtap="onPanelTap" role="tab" aria-selected="{{activePanel === index}}"><view class="knowledge-panel-tab-index">0{{index + 1}}</view><view>{{item}}</view></view></view>
+  <view wx:if="{{offline}}" class="knowledge-product-empty card">{{i18n.heritage.offlineNotice}}</view>
+  <view wx:if="{{contentError}}" class="knowledge-product-empty card">{{i18n.heritage.networkFailed}} <view bindtap="refresh">{{i18n.heritage.retry}} ›</view></view>
   <block wx:if="{{activePanel === 0}}">
-  <!-- 精选城市（封面图 + 名称 + 统计摘要） -->
-  <view class="knowledge-catalog">
-    <view class="knowledge-section-kicker">01 · CITIES</view>
-    <view class="knowledge-heading serif">{{i18n.knowledgePage.cities}}</view>
-
-    <view class="city-grid">
-      <view class="city-card card" hover-class="card-press" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap">
-        <image class="city-card-img" src="{{item.cover}}" mode="aspectFill" />
-        <view class="city-card-mask"></view>
-        <view class="city-card-info">
-          <view class="city-card-name serif">{{item.name}}</view>
-          <view class="city-card-sub">{{item.subtitle}}</view>
-          <view class="city-card-stats">{{item.museumCount}} {{locale === 'en' ? 'museums' : (locale === 'zh-TW' ? '座博物館' : '座博物馆')}} · {{item.guidePointCount}} {{locale === 'en' ? 'guide points' : (locale === 'zh-TW' ? '個講解點' : '个讲解点')}}</view>
-        </view>
-        <view class="city-card-arrow">›</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 关联参考行程 -->
-  <view class="trip-section">
-    <view class="knowledge-section-kicker">02 · ITINERARIES</view>
-    <view class="knowledge-heading serif">{{i18n.knowledgePage.trips}}</view>
-    <view class="trip-row card" hover-class="card-press" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap">
-      <image class="trip-thumb" src="{{item.img}}" mode="aspectFill" />
-      <view class="trip-info">
-        <view class="trip-name ellipsis">{{item.title}}</view>
-        <view class="trip-highlights ellipsis">{{item.highlights}}</view>
-        <view class="trip-days">{{item.days}}{{locale === 'en' ? ' days ' : '天'}}{{item.days - 1}}{{locale === 'en' ? ' nights' : '晚'}} · {{item.tag}}</view>
-      </view>
-      <view class="trip-arrow">›</view>
-    </view>
-    <view class="trip-more" bindtap="onMoreTrips">{{i18n.knowledgePage.viewTrips}} ›</view>
-  </view>
+    <view class="knowledge-product-intro"><view class="knowledge-product-title serif">{{i18n.heritage.sights}}</view><view class="knowledge-product-copy">{{i18n.heritage.sightsIntro}}</view></view>
+    <view class="knowledge-product-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchSights}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" /></view>
+    <scroll-view wx:if="{{!audioOnly && cities.length}}" class="knowledge-product-categories" scroll-x="true"><view class="knowledge-product-category {{!categoryId ? 'knowledge-product-category-on' : ''}}" data-id="" bindtap="onCategoryTap">{{i18n.heritage.allCities}}</view><view wx:for="{{cities}}" wx:key="id" class="knowledge-product-category {{categoryId === item.id ? 'knowledge-product-category-on' : ''}}" data-id="{{item.id}}" bindtap="onCategoryTap">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view></scroll-view>
+    <view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view>
+    <view wx:elif="{{hotSpots.length}}" class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-id="{{item.id}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" /></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.displayName}}</view><view class="knowledge-hot-desc">{{item.displaySummary}}</view><view>{{i18n.heritage.visitorAndPreview}} ›</view></view></view></view>
+    <view wx:else class="knowledge-product-empty card">{{audioOnly ? i18n.heritage.noPreviews : i18n.heritage.noSights}}</view>
+    <block wx:if="{{!audioOnly}}">
+      <view wx:if="{{cities.length}}" class="knowledge-catalog"><view class="knowledge-heading serif">{{i18n.knowledgePage.cities}}</view><view class="city-grid"><view class="city-card card" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap"><image wx:if="{{item.cover}}" class="city-card-img" src="{{item.cover}}" mode="aspectFill" /><view class="city-card-mask"></view><view class="city-card-info"><view class="city-card-name serif">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view><view class="city-card-sub">{{item.subtitle}}</view></view><view class="city-card-arrow">›</view></view></view></view>
+      <view wx:if="{{sampleTrips.length}}" class="trip-section"><view class="knowledge-heading serif">{{i18n.knowledgePage.trips}}</view><view class="trip-row card" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap"><image wx:if="{{item.img}}" class="trip-thumb" src="{{item.img}}" mode="aspectFill" /><view class="trip-info"><view class="trip-name ellipsis">{{item.title}}</view><view class="trip-highlights ellipsis">{{item.highlights}}</view></view><view class="trip-arrow">›</view></view><view class="trip-more" bindtap="onMoreTrips">{{i18n.knowledgePage.viewTrips}} ›</view></view>
+    </block>
   </block>
-
-  <!-- 板块二：新增搜索、景点讲解、直播预约与会员内容 -->
-  <block wx:if="{{activePanel === 1}}">
-    <view id="knowledge-product" class="knowledge-product-intro">
-      <view class="knowledge-section-kicker">NEW · KNOWLEDGE ACCESS</view>
-      <view class="knowledge-product-title serif">{{productHome.popular}}</view>
-      <view class="knowledge-product-copy">{{productHome.memberDesc}}</view>
-    </view>
-
-    <view class="knowledge-track-tabs" role="tablist">
-      <view class="knowledge-track-tab {{productTrack === 'classic' ? 'knowledge-track-tab-on' : ''}}" data-track="classic" bindtap="onProductTrackTap">{{productHome.classicTitle}}</view>
-      <view class="knowledge-track-tab {{productTrack === 'deep' ? 'knowledge-track-tab-on' : ''}}" data-track="deep" bindtap="onProductTrackTap">{{productHome.deepTitle}}</view>
-    </view>
-    <view class="knowledge-course-types">
-      <view class="knowledge-course-type"><view class="knowledge-course-icon">♫</view><view><view class="knowledge-course-title">{{productHome.aiAudio}}</view><view class="knowledge-course-hint">{{productHome.courseHint}}</view></view></view>
-      <view class="knowledge-course-type"><view class="knowledge-course-icon knowledge-course-icon-human">◉</view><view><view class="knowledge-course-title">{{productHome.humanAudio}}</view><view class="knowledge-course-hint">{{productHome.courseHint}}</view></view></view>
-    </view>
-
-    <view class="knowledge-product-search card">
-      <view class="knowledge-product-search-icon"></view>
-      <input value="{{searchQuery}}" confirm-type="search" placeholder="{{productHome.searchPlaceholder}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" />
-    </view>
-    <view wx:if="{{searchQuery && searchResults.length}}" class="knowledge-product-results card">
-      <view wx:for="{{searchResults}}" wx:key="id" class="knowledge-product-result" data-index="{{index}}" bindtap="onHotSpotTap"><image src="{{item.image}}" mode="aspectFill" /><view><view class="knowledge-product-result-name">{{item.name}}</view><view class="knowledge-product-result-desc">{{item.category}}</view></view><text>›</text></view>
-    </view>
-
-    <swiper class="knowledge-product-banner" circular autoplay interval="4800" duration="500">
-      <swiper-item><view class="knowledge-campaign knowledge-campaign-member" data-type="member" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIMITED · {{productHome.banners[0]}}</view><view class="knowledge-campaign-title serif">{{productHome.memberTitle}}</view><view class="knowledge-campaign-copy">{{productHome.memberDesc}}</view><view class="knowledge-campaign-action">{{membershipLoading ? i18n.loading : productHome.openMember}} ›</view></view></swiper-item>
-      <swiper-item><view class="knowledge-campaign knowledge-campaign-spot" data-type="spot" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">POPULAR · {{productHome.banners[1]}}</view><view class="knowledge-campaign-title serif">{{productHome.popular}}</view><view class="knowledge-campaign-copy">{{productHome.freeTrial}}</view><view class="knowledge-campaign-action">{{productHome.freeTrial}} ›</view></view></swiper-item>
-      <swiper-item><view class="knowledge-campaign knowledge-campaign-live" data-type="live" bindtap="onCampaignTap"><view class="knowledge-campaign-tag">LIVE TALK · {{productHome.banners[2]}}</view><view class="knowledge-campaign-title serif">{{productHome.liveTitle}}</view><view class="knowledge-campaign-copy">{{productHome.liveDesc}}</view><view class="knowledge-campaign-action">{{productHome.reserve}} ›</view></view></swiper-item>
-    </swiper>
-
-    <view class="knowledge-product-section-head"><view class="eyebrow">CATEGORIES</view><view class="knowledge-product-section-title serif">{{i18n.knowledge}}</view></view>
-    <scroll-view class="knowledge-product-categories" scroll-x="true" show-scrollbar="false"><view wx:for="{{productHome.categories}}" wx:key="*this" data-index="{{index}}" class="knowledge-product-category {{categoryIndex === index ? 'knowledge-product-category-on' : ''}}" bindtap="onCategoryTap" aria-selected="{{categoryIndex === index}}">{{item}}</view></scroll-view>
-
-    <view class="knowledge-product-section-head"><view class="eyebrow">POPULAR</view><view class="knowledge-product-section-title serif">{{productHome.popular}}</view></view>
-    <view wx:if="{{hotSpots.length}}" class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-index="{{index}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image src="{{item.image}}" mode="aspectFill" /><view class="knowledge-free-trial">{{productHome.freeTrial}}</view></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.name}}</view><view class="knowledge-hot-desc">{{item.summary}}</view></view></view></view>
-    <view wx:else class="knowledge-product-empty card">{{productHome.categoryEmpty}}</view>
-
-    <view class="knowledge-live-zone card" bindtap="onLiveTap"><view><view class="eyebrow">LIVE TALK</view><view class="knowledge-live-title serif">{{productHome.liveTitle}}</view><view class="knowledge-live-copy">{{productHome.liveDesc}}</view></view><view class="knowledge-live-button">{{productHome.reserve}} ›</view></view>
-    <view class="knowledge-member-zone card" bindtap="onMemberTap"><view class="eyebrow knowledge-member-eyebrow">MEMBERSHIP</view><view class="knowledge-member-title serif">{{productHome.memberTitle}}</view><view class="knowledge-member-copy">{{productHome.memberDesc}}</view><view class="knowledge-member-button">{{membershipLoading ? i18n.loading : productHome.openMember}} ›</view></view>
-  </block>
-
-  <view class="knowledge-consult card" bindtap="onConsult">
-    <view>
-      <view class="consult-kicker">ONE-TO-ONE HUMANITIES CONSULTATION</view>
-      <view class="consult-title serif">{{i18n.knowledgePage.consultTitle}}</view>
-      <view class="consult-copy">{{i18n.knowledgePage.consultDesc}}</view>
-    </view>
-    <view class="consult-arrow">›</view>
-  </view>
-
-  <view class="knowledge-footer">{{i18n.commonSlogan}}</view>
+  <block wx:else><view class="knowledge-product-intro"><view class="knowledge-product-title serif">{{i18n.heritage.history}}</view><view class="knowledge-product-copy">{{i18n.heritage.albumsIntro}}</view></view><view class="knowledge-product-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchAlbums}}" bindinput="onSearchInput" /></view><view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view><view wx:elif="{{visibleAlbums.length}}" class="heritage-albums"><view wx:for="{{visibleAlbums}}" wx:key="id" class="heritage-album card" data-id="{{item.id}}" bindtap="onAlbumTap"><image wx:if="{{item.cover}}" class="heritage-album-cover" src="{{item.cover}}" mode="aspectFill" /><view class="heritage-album-body"><view class="heritage-album-title serif">{{item.displayTitle}}</view><view class="heritage-album-desc">{{item.displayDescription}}</view><view class="heritage-album-meta">{{item.episodes.length}} {{i18n.heritage.episodes}} <text wx:if="{{item.durationMinutes}}"> · {{item.durationMinutes}} {{i18n.heritage.minutes}}</text> ›</view></view></view></view><view wx:else class="knowledge-product-empty card">{{contentError ? i18n.heritage.networkFailed : i18n.heritage.noAlbums}}</view></block>
+  <view class="knowledge-consult card" bindtap="onConsult"><view><view class="consult-title serif">{{i18n.knowledgePage.consultTitle}}</view><view class="consult-copy">{{i18n.knowledgePage.consultDesc}}</view></view><view class="consult-arrow">›</view></view>
 </view>

@@ -17,6 +17,10 @@
     "pages/itinerary/detail",
     "pages/luxury/detail",
     "pages/attraction/detail",
+    "pages/attraction/visitor-section",
+    "pages/audio/album",
+    "pages/audio/route",
+    "pages/audio/detail",
     "pages/city/index",
     "pages/city/spots"
   ],

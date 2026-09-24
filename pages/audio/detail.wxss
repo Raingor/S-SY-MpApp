@@ -1,0 +1,17 @@
+.audio-page { min-height: 100vh; background: #f3f6f8; padding-bottom: 60rpx; }
+.audio-nav { display: flex; align-items: center; gap: 26rpx; padding: 110rpx 32rpx 25rpx; background: #0b3c5d; color: white; font-size: 29rpx; }
+.audio-nav .sy-back-button { position: static; }
+.audio-cover { width: 100%; height: 320rpx; }
+.audio-card { margin: 24rpx; padding: 30rpx; border-radius: 18rpx; background: #fff; color: #17334b; }
+.audio-card .audio-cover { width: 160rpx; height: 160rpx; border-radius: 12rpx; margin-bottom: 22rpx; }
+.audio-title { font-size: 37rpx; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.audio-description { margin: 15rpx 0; font-size: 26rpx; color: #546675; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.audio-meta, .audio-notice { margin-top: 20rpx; color: #687d8a; font-size: 24rpx; line-height: 1.6; }
+.audio-button { margin-top: 26rpx; padding: 24rpx; text-align: center; border-radius: 12rpx; background: #1567a8; color: #fff; }
+.audio-button-full { background: #0b3c5d; }
+.audio-button-locked { background: #f1f4f7; color: #0b3c5d; }
+.audio-list-row { display: flex; justify-content: space-between; align-items: center; gap: 18rpx; padding: 24rpx 0; border-bottom: 1rpx solid #e5e9ec; font-size: 28rpx; }
+.audio-list-row:last-child { border: 0; }
+.audio-track-option { margin-top: 12rpx; padding: 14rpx 20rpx; border: 1rpx solid #d3dee7; border-radius: 10rpx; }
+.audio-selected { border-color: #1567a8; color: #1567a8; }
+.audio-simulation { margin-top: 20rpx; }
