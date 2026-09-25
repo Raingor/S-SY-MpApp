@@ -14,10 +14,6 @@ page { background: #111214; }
 .spot-category { display: inline-flex; padding: 8rpx 16rpx; border-radius: 8rpx; border: 1rpx solid rgba(255,255,255,.42); background: rgba(13,14,16,.48); color: #ddd8ca; font-size: 20rpx; letter-spacing: 1rpx; }
 .spot-title { margin-top: 17rpx; color: #fff; font-size: 53rpx; line-height: 1.28; letter-spacing: 1rpx; text-shadow: 0 3rpx 18rpx rgba(0,0,0,.55); }
 .spot-native { margin-top: 7rpx; color: rgba(245,243,236,.72); font-size: 23rpx; letter-spacing: 1.5rpx; }
-.detail-section-nav { position: sticky; top: 0; z-index: 10; height: 96rpx; padding: 0 20rpx; box-sizing: border-box; white-space: nowrap; background: rgba(17,18,20,.98); border-bottom: 1rpx solid #303135; }
-.detail-section-tab { display: inline-flex; height: 94rpx; align-items: center; justify-content: center; margin: 0 18rpx; color: #929398; font-size: 25rpx; white-space: nowrap; }
-.detail-section-tab-on { position: relative; color: #f6f5f2; }
-.detail-section-tab-on::after { position: absolute; left: 0; right: 0; bottom: 0; height: 6rpx; border-radius: 6rpx; background: #416dff; content: ''; }
 .detail-content { padding: 0 34rpx; }
 .detail-intro-block { padding: 47rpx 4rpx 40rpx; border-bottom: 1rpx solid #303135; }
 .detail-eyebrow { color: #9a9ba1; font-size: 19rpx; line-height: 1.5; letter-spacing: 2.5rpx; text-transform: uppercase; }
@@ -54,26 +50,64 @@ page { background: #111214; }
 .source-link { color: #9eacff; }
 .detail-caveat { margin-top: 18rpx; color: #77787e; font-size: 19rpx; line-height: 1.5; }
 .highlight-rail { width: calc(100% + 34rpx); white-space: nowrap; }
+.highlight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18rpx; }
 .highlight-card { display: inline-flex; flex-direction: column; vertical-align: top; width: 430rpx; min-height: 360rpx; margin-right: 18rpx; overflow: hidden; border: 1rpx solid #2c2d32; border-radius: 14rpx; background: #1b1c20; white-space: normal; }
+.highlight-grid .highlight-card { width: 100%; min-width: 0; min-height: 0; margin: 0; box-sizing: border-box; }
 .highlight-card-image { width: 100%; height: 215rpx; background: #24252a; }
 .highlight-card-copy { flex: 1; padding: 21rpx 23rpx 24rpx; }
 .highlight-name { color: #f2f1ec; font-size: 29rpx; line-height: 1.4; font-weight: 600; }
 .highlight-name text { margin-left: 12rpx; color: #8c9aff; font-size: 22rpx; }
 .highlight-desc { margin-top: 9rpx; color: #a3a4a9; font-size: 22rpx; line-height: 1.6; }
 .highlight-card-cta { margin-top: 15rpx; color: #9eacff; font-size: 21rpx; }
+.highlight-preview-overlay { position: fixed; z-index: 40; inset: 0; display: flex; align-items: center; justify-content: center; padding: 36rpx; box-sizing: border-box; background: rgba(0,0,0,.78); }
+.highlight-preview-modal { position: relative; width: 100%; max-height: 82vh; padding: 22rpx; box-sizing: border-box; overflow: hidden; border: 1rpx solid #3a3b42; border-radius: 18rpx; background: #1b1c20; }
+.highlight-preview-scroll { max-height: calc(82vh - 44rpx); }
+.highlight-preview-close { position: absolute; z-index: 2; top: 10rpx; right: 16rpx; width: 58rpx; height: 58rpx; border-radius: 50%; background: rgba(17,18,20,.78); color: #fff; font-size: 44rpx; line-height: 54rpx; text-align: center; }
+.highlight-preview-image { width: 100%; height: 430rpx; border-radius: 12rpx; background: #24252a; }
+.highlight-preview-title { margin-top: 22rpx; padding-right: 48rpx; color: #f2f1ec; font-size: 34rpx; line-height: 1.45; font-weight: 600; }
+.highlight-preview-desc { margin-top: 15rpx; color: #c0c0c5; font-size: 27rpx; line-height: 1.8; white-space: pre-wrap; }
+.highlight-preview-link { margin-top: 22rpx; padding: 18rpx 0 4rpx; border-top: 1rpx solid #303135; color: #9eacff; font-size: 25rpx; }
 .audio-how-card { padding: 7rpx 22rpx; border: 1rpx solid #303136; border-radius: 14rpx; background: #191a1e; }
 .audio-how-step { display: flex; gap: 17rpx; padding: 18rpx 0; border-bottom: 1rpx solid #2b2c31; color: #c5c5c9; font-size: 23rpx; line-height: 1.6; }
 .audio-how-step text { flex: 0 0 42rpx; color: #9498cb; font-size: 20rpx; letter-spacing: 1rpx; }
 .audio-how-step view { flex: 1; }
 .audio-how-note { padding: 17rpx 0; color: #8d8e94; font-size: 21rpx; line-height: 1.6; }
 .audio-track-list { margin-top: 16rpx; }
+.audio-track-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16rpx; }
 .audio-track-card { display: flex; align-items: center; gap: 16rpx; margin-top: 13rpx; padding: 20rpx; border: 1rpx solid #303136; border-radius: 14rpx; background: #1c1d21; }
+.audio-track-preview-card { display: block; min-width: 0; margin: 0; padding: 0; overflow: hidden; }
+.audio-track-cover { position: relative; width: 100%; height: 220rpx; overflow: hidden; background: #24252a; }
+.audio-track-cover image { width: 100%; height: 100%; }
+.audio-track-preview-card .audio-track-copy { padding: 16rpx; }
+.audio-preview-tag { position: absolute; top: 13rpx; right: 13rpx; padding: 6rpx 12rpx; border-radius: 18rpx; background: rgba(17,18,20,.82); color: #fff; font-size: 19rpx; }
+.audio-track-preview-card .audio-track-symbol { position: absolute; right: 13rpx; bottom: 13rpx; margin: 0; background: rgba(17,18,20,.76); color: #fff; }
 .audio-track-symbol { width: 54rpx; height: 54rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; background: #252b43; color: #aab5ff; font-size: 26rpx; }
 .audio-track-copy { flex: 1; min-width: 0; }
 .audio-track-title { color: #f1f0ed; font-size: 25rpx; line-height: 1.45; overflow-wrap: anywhere; }
 .audio-track-meta { margin-top: 5rpx; color: #92939a; font-size: 19rpx; }
 .audio-play { color: #aab5ff; font-size: 24rpx; }
 .route-list { border-top: 1rpx solid #303135; }
+.route-reference-list { display: grid; gap: 18rpx; border: 0; }
+.route-reference-card { position: relative; height: 390rpx; overflow: hidden; border: 1rpx solid #36383f; border-radius: 16rpx; background: #1d1e23; }
+.route-reference-image { position: absolute; inset: 0; width: 100%; height: 100%; }
+.route-reference-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,11,14,.10) 8%, rgba(10,11,14,.16) 36%, rgba(10,11,14,.90) 100%); }
+.route-reference-copy { position: absolute; inset: auto 25rpx 23rpx; }
+.demo-pill { display: inline-flex; padding: 6rpx 12rpx; border: 1rpx solid rgba(235,199,126,.54); border-radius: 20rpx; background: rgba(18,19,22,.72); color: #eccd92; font-size: 18rpx; }
+.route-reference-title { margin-top: 10rpx; color: #fff; font-size: 32rpx; line-height: 1.35; font-weight: 600; }
+.route-reference-description { display: -webkit-box; margin-top: 8rpx; overflow: hidden; color: rgba(255,255,255,.78); font-size: 20rpx; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.route-reference-footer { display: flex; align-items: center; justify-content: space-between; gap: 12rpx; margin-top: 16rpx; color: rgba(255,255,255,.72); font-size: 19rpx; }
+.route-reference-cta { padding: 10rpx 21rpx; border-radius: 30rpx; background: #3c67ed; color: #fff; font-size: 21rpx; }
+.guide-entry-card { position: relative; height: 330rpx; overflow: hidden; border: 1rpx solid #36383f; border-radius: 16rpx; background: #1c1d21; }
+.guide-entry-image { position: absolute; inset: 0; width: 100%; height: 100%; }
+.guide-entry-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,13,16,.92), rgba(12,13,16,.47) 67%, rgba(12,13,16,.26)); }
+.guide-entry-icon { position: absolute; top: 23rpx; left: 23rpx; width: 58rpx; height: 58rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(17,18,20,.78); color: #fff; font-size: 30rpx; }
+.audio-preview-tag { z-index: 1; }
+.guide-entry-copy { position: absolute; top: 99rpx; left: 26rpx; right: 24rpx; }
+.guide-entry-title { color: #fff; font-size: 31rpx; line-height: 1.4; font-weight: 600; }
+.guide-entry-desc { margin-top: 8rpx; color: rgba(255,255,255,.78); font-size: 21rpx; line-height: 1.5; }
+.guide-entry-copy .demo-data-note { margin-top: 7rpx; color: #eccd92; }
+.guide-entry-cta { margin-top: 17rpx; color: #c6d0ff; font-size: 21rpx; }
+.demo-data-note { margin-top: 10rpx; color: #c4a96e; font-size: 19rpx; line-height: 1.5; }
 .route-card { display: flex; align-items: center; gap: 19rpx; padding: 22rpx 8rpx; border-bottom: 1rpx solid #303135; }
 .route-card-number { width: 54rpx; height: 54rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 50%; background: #23253a; color: #aab4ff; font-size: 21rpx; }
 .route-card-copy { flex: 1; min-width: 0; color: #efeee9; font-size: 25rpx; }

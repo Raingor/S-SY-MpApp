@@ -1,0 +1,10 @@
+<view class="guide-collection-page">
+  <view class="guide-collection-nav"><view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="guide-collection-nav-title">{{title}}</view><view class="guide-collection-nav-space"></view></view>
+  <view class="guide-collection-subtitle">{{spotName}}</view>
+  <view class="guide-collection-search"><text class="guide-search-icon">⌕</text><input value="{{searchText}}" placeholder="{{i18n.heritage.searchGuidePoints}}" placeholder-class="guide-search-placeholder" bindinput="onSearchInput" confirm-type="search" /></view>
+  <view class="guide-collection-filters"><view class="guide-filter-chip {{filter === 'all' ? 'guide-filter-on' : ''}}" data-filter="all" bindtap="onFilterTap">{{i18n.heritage.allGuidePoints}}</view><view wx:if="{{!demoData}}" class="guide-filter-chip {{filter === 'audio' ? 'guide-filter-on' : ''}}" data-filter="audio" bindtap="onFilterTap">{{i18n.heritage.hasAudio}}</view><view wx:if="{{demoData}}" class="guide-demo-pill">{{i18n.heritage.demoData}}</view></view>
+  <view wx:if="{{loading}}" class="guide-collection-empty">{{i18n.loading}}</view>
+  <view wx:elif="{{failed}}" class="guide-collection-empty">{{i18n.heritage.networkFailed}}</view>
+  <view wx:elif="{{visibleItems.length}}" class="guide-point-grid"><view wx:for="{{visibleItems}}" wx:key="id" class="guide-point-card" data-id="{{item.id}}" data-point-id="{{item.pointId}}" bindtap="onItemTap"><view class="guide-point-image-wrap"><image wx:if="{{item.displayImage}}" class="guide-point-image" src="{{item.displayImage}}" mode="aspectFill"/><view class="guide-point-headphones">♫</view><view class="audio-preview-tag">{{i18n.heritage.preview}}</view><view wx:if="{{item.isDemo}}" class="guide-point-demo">{{i18n.heritage.demoData}}</view></view><view class="guide-point-copy"><view class="guide-point-title">{{item.displayTitle}}</view><view wx:if="{{item.displayDescription}}" class="guide-point-description">{{item.displayDescription}}</view></view></view></view>
+  <view wx:else class="guide-collection-empty">{{i18n.heritage.noAudio}}</view>
+</view>

@@ -8,11 +8,13 @@
     <view class="visitor-detail-content">
       <view class="visitor-detail-eyebrow">{{activeSection.displayTitle}}</view>
       <view class="visitor-detail-title serif">{{spot.displayName}} {{activeSection.displayTitle}}</view>
+      <view wx:if="{{activeSection.isDemo}}" class="visitor-detail-demo">{{i18n.heritage.demoData}}</view>
       <rich-text wx:if="{{activeSection.hasContent}}" class="visitor-detail-rich" nodes="{{activeSection.richNodes}}" bindtap="onRichTextTap" />
       <view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
       <image wx:if="{{activeKind === 'map' && activeSection.mapImage}}" class="visitor-detail-map" src="{{activeSection.mapImage}}" mode="widthFix" bindtap="onMapTap" />
       <view wx:if="{{activeKind === 'map' && activeSection.mapUrl}}" class="visitor-detail-map-link" bindtap="onMapTap"><text>⌖</text><view>{{activeSection.displayTitle}}</view><text>↗</text></view>
       <view wx:if="{{activeKind === 'map' && (activeSection.sourceUrl || activeSection.verifiedAt)}}" class="visitor-detail-source"><view wx:if="{{activeSection.sourceUrl}}" bindtap="onSourceTap">{{activeSection.sourceTitle || i18n.heritage.source}} ↗</view><text wx:if="{{activeSection.verifiedAt}}">{{i18n.heritage.verifiedAt}}：{{activeSection.verifiedAt}}</text></view>
+      <view wx:for="{{customSections}}" wx:key="id" class="visitor-detail-custom"><view class="visitor-detail-custom-title">{{item.displayTitle}}</view><rich-text wx:if="{{item.hasContent}}" class="visitor-detail-rich visitor-detail-custom-rich" nodes="{{item.richNodes}}" bindtap="onRichTextTap"/><view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view></view>
       <view class="visitor-detail-note">{{i18n.heritage.officialNotice}}</view>
     </view>
   </scroll-view>

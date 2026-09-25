@@ -20,6 +20,7 @@
     "pages/attraction/visitor-section",
     "pages/audio/album",
     "pages/audio/route",
+    "pages/audio/collection",
     "pages/audio/detail",
     "pages/city/index",
     "pages/city/spots"

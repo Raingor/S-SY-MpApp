@@ -15,8 +15,8 @@ Page({
   data: {
     locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, unavailable: false,
-    loading: true, playing: false, previewEnded: false, currentSeconds: 0,
-    fullPlayback: false, paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false
+    loading: true, playing: false, previewEnded: false, currentSeconds: 0, progressPercent: 0,
+    fullPlayback: false, paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
   },
   onLoad(options) {
     this.params = options || {};
@@ -25,12 +25,14 @@ Page({
     this.params.trackId = this.params.trackId || '';
     this.params.albumId = this.params.albumId || '';
     this.params.episodeId = this.params.episodeId || '';
+    this.params.category = ['expert', 'route'].includes(this.params.category) ? this.params.category : 'online';
     this.audio = wx.createInnerAudioContext();
     this.audio.autoplay = false;
     this.audio.onTimeUpdate(() => {
       const seconds = Number(this.audio.currentTime) || 0;
       if (!this.data.fullPlayback && seconds >= (this.data.access ? this.data.access.previewSeconds : 60)) return this.stopPreview();
-      this.setData({ currentSeconds: Math.floor(seconds) });
+      const total = Number(this.data.track && this.data.track.durationSeconds) || 0;
+      this.setData({ currentSeconds: Math.floor(seconds), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
     });
     // 部分 Android 机型支持系统进度拖动：即使控件触发 seek，也不得超过试看边界。
     if (this.audio.onSeeking) this.audio.onSeeking(() => {
@@ -43,50 +45,56 @@ Page({
     this.audio.onError(() => { this.audio.stop(); this.setData({ playing: false, accessError: true }); });
     this.loadData();
   },
-  onShow() { i18n.apply(this); this.localize(); if (this.data.track) this.refreshAccess(); },
+  onShow() { i18n.apply(this); this.localize(); if (this.data.track && !this.data.demoMode) this.refreshAccess(); },
   onHide() { this.stop(); },
   onUnload() { if (this.audio) { this.audio.stop(); this.audio.destroy(); } },
-  stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0 }); },
+  stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, progressPercent: 0 }); },
   stopPreview() {
     if (this.data.previewEnded) return;
-    this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, previewEnded: true });
+    this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, progressPercent: 0, previewEnded: true });
     if (this.audio) this.audio.stop();
     wx.showToast({ title: this.data.i18n.heritage.previewEnded, icon: 'none' });
   },
   onBack() { goBack(); },
   loadData() {
     this.stop();
-    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, previewEnded: false });
+    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, previewEnded: false, demoMode: false });
     content.loadContent((data, state) => {
-      let track = null; let point = null; let pointTracks = [];
-      if (state && state.source === 'remote') {
-        if (this.params.albumId && this.params.episodeId) {
-          const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
-          track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) && item.previewUrl);
-        } else {
-          const spot = content.getAttraction(this.params.attractionId, data);
-          point = spot && (spot.exhibits || []).find((item) => String(item.id) === String(this.params.pointId));
-          pointTracks = point ? (spot.audioGuides || []).filter((item) => String(item.exhibitId) === String(point.id) && item.previewUrl) : [];
+      let track = null; let point = null; let pointTracks = []; let spot = null;
+      if (this.params.albumId && this.params.episodeId && state && state.source === 'remote') {
+        const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
+        track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) && item.previewUrl);
+      } else {
+        spot = content.getAttraction(this.params.attractionId, data);
+        point = spot && (spot.exhibits || []).find((item) => String(item.id) === String(this.params.pointId));
+        if (spot && state && state.source === 'remote') {
+          pointTracks = point ? (spot.audioGuides || []).filter((item) => String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
           track = this.params.trackId
-            ? spot && (spot.audioGuides || []).find((item) => String(item.id) === String(this.params.trackId) && item.previewUrl)
+            ? (spot.audioGuides || []).find((item) => String(item.id) === String(this.params.trackId) && (item.isDemo === true || item.previewUrl))
             : pointTracks[0] || null;
           if (track && this.params.pointId && String(track.exhibitId) !== String(this.params.pointId)) track = null;
+          if (track && !point && track.exhibitId) point = (spot.exhibits || []).find((item) => String(item.id) === String(track.exhibitId)) || null;
         }
       }
       if (track && track.attractionId && !this.params.attractionId) this.params.attractionId = track.attractionId;
-      this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id });
+      this.spot = spot;
+      const demoMode = Boolean(track && track.isDemo === true);
+      this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.category });
       this.localize();
-      if (track && track.id) this.refreshAccess();
+      if (track && track.id && !demoMode) this.refreshAccess();
     }, true);
   },
   localize() {
     const { track, point, locale } = this.data;
+    const location = point && point.location;
+    const displayLocation = typeof location === 'string' ? location : [location && location.hall, location && location.floor].filter(Boolean).join(' · ');
     this.setData({
-      title: localized(point || track, point ? 'name' : 'title', locale),
-      description: localized(point || track, 'description', locale),
+      title: localized(track && track.isDemo ? track : (point || track), track && track.isDemo ? 'title' : (point ? 'name' : 'title'), locale),
+      description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
       duration: duration(track && track.durationSeconds),
       pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
-      cover: (track && track.cover) || (point && point.image) || ''
+      cover: (track && track.cover) || (point && point.image) || (this.spot && this.spot.image) || '',
+      displayLocation
     });
   },
   onPointTrackTap(e) {
@@ -98,7 +106,7 @@ Page({
   },
   refreshAccess() {
     const track = this.data.track;
-    if (!track || !track.id) return;
+    if (!track || !track.id || track.isDemo === true) return;
     this.stop();
     // 默认拒绝完整播放；授权接口返回新签名后才启用，绝不沿用过期 URL。
     this.setData({ access: null, accessError: false });

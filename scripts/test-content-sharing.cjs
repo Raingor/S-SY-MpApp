@@ -32,15 +32,15 @@ global.wx = {
 const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 function fixture() {
   return {
-    countries: [{ id: 'greece', name: '希腊' }], cities: [], guides: [], routes: [], sampleItineraries: [],
+    countries: [{ id: 'greece', name: '希腊' }], cities: [{ id: 'city-one' }, { id: 'city-two' }], guides: [], routes: [], sampleItineraries: [],
     attractions: [
       { id: 'spot & one', name: '测试景点', countryId: 'greece', image: './images/athens.webp', shareTitle: ' 后台分享文案 ', shareImage: './images/custom-share.jpg' },
       { id: 'old', name: '旧景点', countryId: 'greece', image: './images/delphi.webp' },
       { id: 'foreign', name: '跨国景点', countryId: 'italy' }
     ],
     destinations: [
-      { id: 'city-one', name: '同名目的地', type: 'culture', image: './images/uploaded.jpg', attractionId: 'spot & one' },
-      { id: 'city-two', name: '同名目的地', type: 'island', attractionId: '' }
+      { id: 'city-one', cityId: 'city-one', name: '同名目的地', type: 'culture', image: './images/uploaded.jpg', attractionId: 'spot & one' },
+      { id: 'city-two', cityId: 'city-two', name: '同名目的地', type: 'island', attractionId: '' }
     ]
   };
 }

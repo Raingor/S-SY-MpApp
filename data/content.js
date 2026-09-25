@@ -137,7 +137,7 @@ function adaptAttractions(remoteAttractions) {
     guide: { ...(item.guide || {}), mapImage: mapManagedImage(item.guide && item.guide.mapImage) },
     exhibits: (Array.isArray(item.exhibits) ? item.exhibits : []).filter(isPublished).map((point) => ({ ...point, image: mapManagedImage(point.image) })),
     routes: (Array.isArray(item.routes) ? item.routes : []).filter(isPublished),
-    audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : []).filter((track) => isPublished(track) && track.id && track.previewUrl).map((track) => ({ ...track, cover: mapManagedImage(track.cover) }))
+    audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : []).filter((track) => isPublished(track) && track.id && (track.previewUrl || track.isDemo === true)).map((track) => ({ ...track, cover: mapManagedImage(track.cover) }))
   }));
 }
 
@@ -439,6 +439,7 @@ function getHomeDestinations(source, locale, fallbackLabels) {
           return cityId ? {
             id: item.id,
             cityId,
+            attractionId: item.attractionId || '',
             attractionIds: item.attractionIds || (item.attractionId ? [item.attractionId] : []),
             name: item.name,
             en: item.en,

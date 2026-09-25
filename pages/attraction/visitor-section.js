@@ -24,6 +24,7 @@ Page({
     i18n: i18n.getMessages(),
     spot: null,
     sections: [],
+    customSections: [],
     activeKind: 'hours',
     activeSection: null,
     loading: true,
@@ -48,15 +49,10 @@ Page({
     if (!this.spotId) return this.setData({ loading: false, failed: true });
     this.setData({ loading: true, failed: false });
     content.loadContent((data, state) => {
-      // This view presents Website-authored visitor information only; do not substitute mirror facts.
-      if (!state || state.source !== 'remote') {
-        this.rawSpot = null;
-        return this.setData({ loading: false, failed: true, spot: null, sections: [], activeSection: null });
-      }
       const spot = content.getAttraction(this.spotId, data);
       if (!spot) {
         this.rawSpot = null;
-        return this.setData({ loading: false, failed: true, spot: null, sections: [], activeSection: null });
+        return this.setData({ loading: false, failed: true, spot: null, sections: [], customSections: [], activeSection: null });
       }
       this.rawSpot = spot;
       this.setData({ loading: false, failed: false });
@@ -78,6 +74,7 @@ Page({
       if (kind !== 'map') legacy = localized(info, kind, locale) || localized(guide, kind, locale);
       else legacy = localized(map, 'description', locale) || localized(info, 'map', locale) || localized(guide, 'map', locale);
       const richNodes = localizedRich(source, locale, legacy);
+      const isDemo = source.isDemo === true;
       const mapImage = kind === 'map' ? (map.image || info.mapImage || guide.mapImage || '') : '';
       const mapUrl = kind === 'map' ? (map.url || localized(info, 'mapUrl', locale) || guide.mapUrl || '') : '';
       return {
@@ -86,6 +83,7 @@ Page({
         icon: SECTION_ICONS[kind],
         displayTitle: localized(source, 'title', locale) || labels[kind] || kind,
         richNodes,
+        isDemo,
         hasContent: hasRich(richNodes),
         mapImage,
         mapUrl,
@@ -94,10 +92,15 @@ Page({
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
     });
+    const customSections = (spot.customSections || []).filter((item) => item && item.status === 'published').map((item) => {
+      const richNodes = localizedRich(item, locale, '');
+      return { ...item, displayTitle: localized(item, 'title', locale), richNodes, hasContent: hasRich(richNodes) };
+    }).filter((item) => item.displayTitle).sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
     const selected = sections.find((section) => section.kind === this.requestedKind) || sections[0];
     this.setData({
       spot: { ...spot, displayName: localized(spot, 'name', locale) || spot.name || '' },
       sections,
+      customSections,
       activeKind: selected.kind,
       activeSection: selected
     });

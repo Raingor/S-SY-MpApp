@@ -121,9 +121,9 @@ function isUnlocked(entitlements, attractionId) {
 function createOrder(productType, attractionId, callback) {
   request('/api/miniprogram/orders', 'POST', { productType, ...(attractionId ? { attractionId } : {}) }, (ok, data, res) => {
     if (!ok) return callback(false, data, res);
-    // 模拟订单明确没有 payment，不得调用 wx.requestPayment，也不能伪造已支付。
-    if (data.simulation && data.order && data.order.status === 'pending' && !data.payment) {
-      return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: true }, res);
+    // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
+    if (data.simulation) {
+      return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: Boolean(data.order && data.order.status === 'pending') }, res);
     }
     if (!data.payment) return callback(false, data, res);
     wx.requestPayment({

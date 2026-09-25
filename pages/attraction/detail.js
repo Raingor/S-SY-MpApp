@@ -21,6 +21,7 @@ Page({
     i18n: i18n.getMessages(),
     spot: null,
     showAllHighlights: false,
+    highlightPreview: null,
     guideTabs: [],
     guideIndex: 0
     ,related: []
@@ -34,7 +35,7 @@ Page({
     ,simulationMode: false
     ,pendingSimulationOrder: null
     ,simulationLoading: false
-    ,routes: [], exhibits: [], routeGuides: [], onlineGuides: [], expertGuides: [], visitorRows: [], visitorSections: [], customSections: [], visitorMap: '', visitorMapUrl: '', visitorMapLabel: '', visitorSource: '', visitorSourceLabel: '', visitorVerified: '', contentError: false, detailSections: [], activeDetailSection: 'overview'
+    ,routes: [], exhibits: [], onlineGuides: [], expertGuides: [], onlineDemo: false, expertDemo: false, visitorRows: [], visitorSections: [], visitorMap: '', visitorMapUrl: '', visitorMapLabel: '', visitorSource: '', visitorSourceLabel: '', visitorVerified: '', contentError: false
   },
 
   onLoad(options) {
@@ -85,11 +86,10 @@ Page({
       const source = sectionByKind.get(kind) || { kind };
       const map = source.map && typeof source.map === 'object' ? source.map : {};
       let richNodes = readRichContent(source);
-      // Compatibility with prior API fields; never invent information for a missing section.
       if (!hasRichContent(richNodes)) richNodes = this.localized(info, kind);
       if (kind === 'map' && !hasRichContent(richNodes)) richNodes = this.localized(map, 'description') || this.localized(info, 'map') || this.localized(guide, 'map');
       return {
-        ...source, kind, icon: visitorIcons[kind],
+        ...source, kind, icon: visitorIcons[kind], isDemo: source.isDemo === true,
         displayTitle: this.localized(source, 'title') || labels[kind],
         richNodes: richNodes || '',
         hasContent: hasRichContent(richNodes),
@@ -100,21 +100,21 @@ Page({
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
     });
-    const customSections = (Array.isArray(spot.customSections) ? spot.customSections : []).filter((section) => section && section.status === 'published').map((section) => {
-      const richNodes = readRichContent(section);
-      return { ...section, displayTitle: this.localized(section, 'title'), richNodes, hasContent: hasRichContent(richNodes) };
-    }).filter((section) => section.displayTitle).sort((a, b) => a.sort - b.sort);
     const exhibits = (spot.exhibits || []).map((point) => ({ ...point, displayName: this.localized(point, 'name'), displayDescription: this.localized(point, 'description') }));
-    const tracks = (spot.audioGuides || []).filter((track) => track && track.id && track.previewUrl && track.status !== 'draft').map((track) => ({ ...track, displayTitle: this.localized(track, 'title') }));
+    const tracks = (spot.audioGuides || []).filter((track) => track && track.id && (track.isDemo === true || track.previewUrl) && track.status !== 'draft').map((track) => {
+      const point = exhibits.find((item) => String(item.id) === String(track.exhibitId));
+      return { ...track, displayTitle: this.localized(track, 'title'), displayImage: track.image || track.cover || (point && point.image) || spot.image || '' };
+    });
     const highlights = (spot.highlights || []).map((item) => ({ ...item, displayName: this.localized(item, 'name'), displayDesc: this.localized(item, 'desc'), hasTarget: Boolean(item.exhibitId && exhibits.some((point) => String(point.id) === String(item.exhibitId))) }));
-    const localizedSpot = { ...spot, name: this.localized(spot, 'name'), summary: this.localized(spot, 'summary'), highlights };
-    const routes = (spot.routes || []).filter((route) => route && route.id && Array.isArray(route.pointIds) && route.pointIds.some((id) => exhibits.some((point) => String(point.id) === String(id)))).map((route) => ({ ...route, displayTitle: this.localized(route, 'title') }));
+    const localizedSpot = { ...spot, name: this.localized(spot, 'name'), summary: this.localized(spot, 'summary'), highlights, summaryIsDemo: spot.summaryIsDemo === true };
+    const routes = (spot.routes || []).filter((route) => route && route.id && Array.isArray(route.pointIds) && (route.isDemo === true || route.pointIds.some((id) => exhibits.some((point) => String(point.id) === String(id))))).map((route) => ({ ...route, displayTitle: this.localized(route, 'title'), displayDescription: this.localized(route, 'description'), displayImage: route.image || spot.image || '' }));
+    const onlineGuides = tracks.filter((track) => track.category === 'online');
+    const expertGuides = tracks.filter((track) => track.category === 'expert');
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       spot: localizedSpot,
       guideTabs: [],
       visitorSections,
-      customSections,
       visitorMap: visitorSections.find((section) => section.kind === 'map').mapImage,
       visitorMapUrl: visitorSections.find((section) => section.kind === 'map').mapUrl,
       visitorMapLabel: labels.map,
@@ -122,17 +122,10 @@ Page({
       visitorSourceLabel: visitorSections.find((section) => section.kind === 'map').sourceTitle,
       visitorVerified: visitorSections.find((section) => section.kind === 'map').verifiedAt,
       routes, exhibits,
-      detailSections: [
-        { id: 'overview', label: this.data.i18n.contentPage.about },
-        { id: 'highlights', label: this.data.i18n.heritage.highlights },
-        { id: 'audio', label: this.data.i18n.heritage.audioHow },
-        { id: 'visit', label: this.data.i18n.heritage.visitor },
-        { id: 'routes', label: this.data.i18n.heritage.routes }
-      ],
-      activeDetailSection: 'overview',
-      routeGuides: tracks.filter((track) => track.category === 'route'),
-      onlineGuides: tracks.filter((track) => track.category === 'online'),
-      expertGuides: tracks.filter((track) => track.category === 'expert'),
+      onlineGuides,
+      expertGuides,
+      onlineDemo: onlineGuides.some((item) => item.isDemo === true),
+      expertDemo: expertGuides.some((item) => item.isDemo === true),
       guideIndex: 0,
       showAllHighlights: false
       ,related: content.getAttractions(this.contentSource).filter((item) => item.id !== spot.id && item.city === spot.city).slice(0, 3)
@@ -171,19 +164,34 @@ Page({
     const href = e && e.detail && e.detail.href;
     if (/^https:\/\//i.test(href)) wx.setClipboardData({ data: href });
   },
-  onPointTap(e) {
-    const id = e.currentTarget.dataset.id;
-    if (id && this.data.exhibits.some((point) => String(point.id) === String(id))) wx.navigateTo({ url: '/pages/audio/detail?attractionId=' + encodeURIComponent(this.spotId) + '&pointId=' + encodeURIComponent(id) });
+  onHighlightTap(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    const highlight = this.data.spot && this.data.spot.highlights[index];
+    if (highlight) this.setData({ highlightPreview: highlight });
+  },
+  onCloseHighlightPreview() {
+    this.setData({ highlightPreview: null });
+  },
+  onPreviewPanelTap() {},
+  onPreviewHighlightImage(e) {
+    const image = e.currentTarget.dataset.src;
+    if (image) wx.previewImage({ current: image, urls: [image] });
+  },
+  onHighlightOnlineTap() {
+    const id = this.data.highlightPreview && this.data.highlightPreview.exhibitId;
+    if (!id || !this.data.exhibits.some((point) => String(point.id) === String(id))) return;
+    this.setData({ highlightPreview: null });
+    wx.navigateTo({ url: '/pages/audio/detail?attractionId=' + encodeURIComponent(this.spotId) + '&pointId=' + encodeURIComponent(id) });
   },
   onRouteTap(e) {
     const id = e.currentTarget.dataset.id;
     if (id) wx.navigateTo({ url: '/pages/audio/route?attractionId=' + encodeURIComponent(this.spotId) + '&id=' + encodeURIComponent(id) });
   },
-  onTrackTap(e) {
-    const id = e.currentTarget.dataset.id;
-    if (id) wx.navigateTo({ url: '/pages/audio/detail?attractionId=' + encodeURIComponent(this.spotId) + '&trackId=' + encodeURIComponent(id) });
+  onGuideCollectionTap(e) {
+    const category = e.currentTarget.dataset.category;
+    if (!['online', 'expert'].includes(category)) return;
+    wx.navigateTo({ url: '/pages/audio/collection?attractionId=' + encodeURIComponent(this.spotId) + '&category=' + encodeURIComponent(category) });
   },
-
   onShareAppMessage() {
     const spot = this.data.spot;
     const id = this.spotId || (spot && spot.id);
@@ -205,13 +213,6 @@ Page({
 
   onToggleHighlights() {
     this.setData({ showAllHighlights: !this.data.showAllHighlights });
-  },
-
-  onSectionTap(e) {
-    const id = e.currentTarget.dataset.id;
-    if (!id || !this.data.detailSections.some((item) => item.id === id)) return;
-    this.setData({ activeDetailSection: id });
-    wx.pageScrollTo({ selector: '#section-' + id, duration: 320 });
   },
 
   onGuideTap(e) {

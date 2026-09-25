@@ -1,0 +1,26 @@
+page { min-height: 100vh; background: #111214; }
+.guide-collection-page { min-height: 100vh; padding: 0 28rpx 70rpx; box-sizing: border-box; background: #111214; color: #f2f1ed; }
+.guide-collection-nav { display: flex; align-items: center; justify-content: space-between; height: 100rpx; padding-top: env(safe-area-inset-top); }
+.guide-collection-nav .sy-back-button { position: static; flex: 0 0 60rpx; width: 60rpx; height: 60rpx; }
+.guide-collection-nav-title { flex: 1; color: #f4f2ed; font-size: 30rpx; text-align: center; }
+.guide-collection-nav-space { flex: 0 0 60rpx; }
+.guide-collection-subtitle { margin: 5rpx 0 21rpx; color: #9b9ca2; font-size: 21rpx; }
+.guide-collection-search { display: flex; align-items: center; gap: 13rpx; height: 67rpx; padding: 0 20rpx; border-radius: 13rpx; background: #292a2f; }
+.guide-search-icon { color: #a7a8ae; font-size: 35rpx; }
+.guide-collection-search input { flex: 1; min-width: 0; color: #f1f0ed; font-size: 23rpx; }
+.guide-search-placeholder { color: #85868d; }
+.guide-collection-filters { display: flex; align-items: center; gap: 14rpx; margin: 22rpx 0 25rpx; }
+.guide-filter-chip { padding: 10rpx 18rpx; border: 1rpx solid #38393e; border-radius: 28rpx; color: #a5a6ac; font-size: 21rpx; }
+.guide-filter-on { border-color: #5277fa; background: #252c47; color: #e4e8ff; }
+.guide-demo-pill { margin-left: auto; color: #d8bb7d; font-size: 19rpx; }
+.guide-point-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18rpx; }
+.guide-point-card { min-width: 0; overflow: hidden; border-radius: 13rpx; background: #1b1c20; }
+.guide-point-image-wrap { position: relative; height: 270rpx; overflow: hidden; background: #25262b; }
+.guide-point-image { width: 100%; height: 100%; }
+.guide-point-headphones { position: absolute; top: 13rpx; right: 13rpx; width: 43rpx; height: 43rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(13,14,16,.74); color: #fff; font-size: 24rpx; }
+.guide-point-image-wrap .audio-preview-tag { position: absolute; top: 13rpx; right: 64rpx; padding: 7rpx 11rpx; border-radius: 20rpx; background: rgba(13,14,16,.78); color: #fff; font-size: 18rpx; }
+.guide-point-demo { position: absolute; bottom: 12rpx; left: 12rpx; padding: 5rpx 10rpx; border-radius: 18rpx; background: rgba(17,18,20,.80); color: #e4c982; font-size: 17rpx; }
+.guide-point-copy { padding: 16rpx 15rpx 19rpx; }
+.guide-point-title { color: #f1f0ec; font-size: 23rpx; line-height: 1.45; }
+.guide-point-description { display: -webkit-box; margin-top: 7rpx; overflow: hidden; color: #9b9ca2; font-size: 19rpx; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.guide-collection-empty { margin-top: 42rpx; padding: 28rpx 22rpx; border: 1rpx solid #303136; border-radius: 14rpx; color: #9b9ca2; font-size: 23rpx; line-height: 1.6; }

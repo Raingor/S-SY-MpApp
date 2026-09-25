@@ -373,18 +373,27 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 精选目的地严格进入城市页，再由城市页展示景点列表；只使用稳定 cityId，不按名称或数组位置猜测。
+  // 精选目的地只使用后台显式配置的 attractionId；不按名称、城市或数组位置猜景点。
   onDestTap(e) {
+    const attractionId = String(e.currentTarget.dataset.attractionId || '').trim();
+    const data = this.destinationContent;
+    const spot = attractionId && data && data.countryId === content.getSelectedCountryId()
+      ? content.getAttraction(attractionId, data)
+      : null;
+    if (!spot || spot.enabled === false || spot.published === false || ['draft', 'disabled', 'inactive', 'archived', 'unpublished'].includes(String(spot.status || '').toLowerCase()) || spot.countryId !== content.getSelectedCountryId()) {
+      wx.showToast({ title: this.data.locale === 'en' ? 'This destination is unavailable' : '该目的地暂不可用', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+  },
+
+  onCityTap(e) {
     const cityId = String(e.currentTarget.dataset.cityId || '').trim();
     const data = this.destinationContent;
     const city = cityId && data && data.countryId === content.getSelectedCountryId()
       ? content.getCities(data).find((item) => item.id === cityId)
       : null;
-    if (!city) {
-      wx.showToast({ title: this.data.locale === 'en' ? 'This destination is unavailable' : '该目的地暂不可用', icon: 'none' });
-      return;
-    }
-    wx.navigateTo({ url: '/pages/city/index?id=' + encodeURIComponent(city.id) });
+    if (city) wx.navigateTo({ url: '/pages/city/index?id=' + encodeURIComponent(city.id) });
   },
 
   // 页脚官网（复制域名）

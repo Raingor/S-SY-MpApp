@@ -22,7 +22,7 @@ const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 // 同时验证双 images/ 折叠、绝对 URL 保留、可空回退、暂无景点的 mykonos。
 const websiteFixture = {
   countries: [{ id: 'greece', name: '希腊' }],
-  cities: [], guides: [], routes: [], sampleItineraries: [],
+  cities: [{ id: 'athens' }, { id: 'mykonos' }], guides: [], routes: [], sampleItineraries: [],
   destinationCategories: [
     { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage', sort: 20, enabled: true },
     { key: 'island', name: '海岛度假', nameTw: '海島度假', nameEn: 'Island escapes', sort: 10, enabled: true },
@@ -42,10 +42,10 @@ const websiteFixture = {
     }
   ],
   destinations: [
-    { id: 'athens', name: '雅典', type: 'culture', image: './images/athens.webp', attractionId: 'acropolis' },
-    { id: 'mykonos', name: '米克诺斯', type: 'island', image: './images/destination-mu4yf709-f0dadc.jpg', attractionId: '' },
-    { id: 'double', name: '双目录测试', type: 'island', image: './images/images/double-path.jpg' },
-    { id: 'unknown', name: '未知分类', type: 'unknown', image: './images/unknown.jpg' }
+    { id: 'athens', cityId: 'athens', name: '雅典', type: 'culture', image: './images/athens.webp', attractionId: 'acropolis' },
+    { id: 'mykonos', cityId: 'mykonos', name: '米克诺斯', type: 'island', image: './images/destination-mu4yf709-f0dadc.jpg', attractionId: '' },
+    { id: 'double', cityId: 'mykonos', name: '双目录测试', type: 'island', image: './images/images/double-path.jpg' },
+    { id: 'unknown', cityId: 'athens', name: '未知分类', type: 'unknown', image: './images/unknown.jpg' }
   ]
 };
 
@@ -82,15 +82,16 @@ async function main() {
   assert.equal(old.shareImage, '', '可空回退空串');
 
   const groups = content.getHomeDestinations();
-  assert.deepEqual(groups.map((group) => group.key), ['island', 'culture'], '按 sort 排序并隐藏空/禁用分类');
-  assert.deepEqual(groups.map((group) => group.tab), ['海岛度假', '文明溯源'], '中文分类标签');
+  assert.deepEqual(groups.map((group) => group.key), ['island', 'culture', 'empty'], '按 sort 排序并隐藏禁用分类，保留空状态');
+  assert.deepEqual(groups.map((group) => group.tab), ['海岛度假', '文明溯源', '空分类'], '中文分类标签');
+  assert.equal(groups[2].tiles.length, 0, '空分类显示空状态');
   const findTile = (id) => groups.flatMap((g) => g.tiles).find((t) => t.id === id);
   assert.equal(findTile('athens').attractionId, 'acropolis', 'athens→acropolis 透传');
   assert.equal(findTile('mykonos').attractionId, '', 'mykonos 无关联');
   assert.equal(findTile('double').img, 'https://content.example/images/double-path.jpg', '双 images/ 折叠');
   assert.equal(findTile('unknown'), undefined, '未知 type 不误归类');
   const englishGroups = content.getHomeDestinations(undefined, 'en', { culture: 'Heritage', island: 'Island escapes' });
-  assert.deepEqual(englishGroups.map((group) => group.tab), ['Island escapes', 'Heritage'], '英文分类标签');
+  assert.deepEqual(englishGroups.map((group) => group.tab), ['Island escapes', 'Heritage', '空分类'], '英文分类标签');
 
   // 旧接口未返回 destinationCategories 时，回退既有双分类；未知 type 仍不归类。
   content.invalidate();

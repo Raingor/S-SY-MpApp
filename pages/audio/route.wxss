@@ -1,1 +1,40 @@
-@import "./detail.wxss";
+page { min-height: 100vh; background: #111214; }
+.route-detail-page { min-height: 100vh; padding-bottom: calc(125rpx + env(safe-area-inset-bottom)); box-sizing: border-box; background: #111214; color: #f1f0ec; }
+.route-detail-nav { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; height: 98rpx; padding: env(safe-area-inset-top) 28rpx 0; background: #111214; }
+.route-detail-nav .sy-back-button { position: static; flex: 0 0 60rpx; width: 60rpx; height: 60rpx; }
+.route-detail-nav-title { flex: 1; color: #f2f1ed; font-size: 29rpx; text-align: center; }
+.route-detail-nav-space { flex: 0 0 60rpx; }
+.route-detail-hero { position: relative; height: 410rpx; overflow: hidden; background: #202126; }
+.route-detail-hero-image { position: absolute; inset: 0; width: 100%; height: 100%; }
+.route-detail-hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,13,16,.05), rgba(12,13,16,.84)); }
+.route-detail-hero-copy { position: absolute; right: 30rpx; bottom: 30rpx; left: 30rpx; }
+.route-detail-demo { display: inline-flex; padding: 6rpx 12rpx; border: 1rpx solid rgba(235,199,126,.55); border-radius: 22rpx; color: #ebcb8b; font-size: 19rpx; }
+.route-detail-title { margin-top: 12rpx; color: #fff; font-size: 38rpx; line-height: 1.35; font-weight: 650; }
+.route-detail-hero-subtitle { margin-top: 5rpx; color: rgba(255,255,255,.73); font-size: 20rpx; letter-spacing: 2rpx; }
+.route-detail-body { padding: 0 28rpx; }
+.route-detail-description { padding: 27rpx 2rpx 31rpx; color: #c2c2c6; font-size: 24rpx; line-height: 1.8; }
+.route-map-card { overflow: hidden; border: 1rpx solid #34353b; border-radius: 15rpx; background: #191a1e; }
+.route-map-head { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 22rpx; }
+.route-map-eyebrow { color: #8f9097; font-size: 17rpx; letter-spacing: 2rpx; }
+.route-map-title { margin-top: 5rpx; color: #eeede9; font-size: 23rpx; }
+.route-map-compass { color: #b2b3b9; font-size: 18rpx; }
+.route-map-image { width: 100%; height: 265rpx; background: #24252a; }
+.route-map-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0; padding: 23rpx 19rpx; background-image: linear-gradient(rgba(255,255,255,.025) 1rpx, transparent 1rpx), linear-gradient(90deg, rgba(255,255,255,.025) 1rpx, transparent 1rpx); background-size: 28rpx 28rpx; }
+.route-map-step { position: relative; display: flex; min-width: 50%; align-items: center; gap: 11rpx; padding: 8rpx 0; }
+.route-map-node,.route-point-number { flex: 0 0 43rpx; width: 43rpx; height: 43rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #3f65eb; color: #fff; font-size: 20rpx; }
+.route-map-step-copy { min-width: 0; }
+.route-map-point-name { color: #e7e6e2; font-size: 20rpx; line-height: 1.4; }
+.route-map-point-location { margin-top: 4rpx; color: #888990; font-size: 17rpx; }
+.route-map-arrow { margin-left: 7rpx; color: #8494df; }
+.route-point-section { margin-top: 33rpx; }
+.route-point-heading { margin-bottom: 13rpx; color: #f0efeb; font-size: 26rpx; font-weight: 600; }
+.route-point-card { display: flex; align-items: center; gap: 14rpx; padding: 17rpx 0; border-bottom: 1rpx solid #2e2f34; }
+.route-point-number { background: #252a40; color: #b6c1ff; }
+.route-point-image { flex: 0 0 106rpx; width: 106rpx; height: 86rpx; border-radius: 8rpx; background: #24252a; }
+.route-point-copy { flex: 1; min-width: 0; }
+.route-point-description { display: -webkit-box; margin-top: 5rpx; overflow: hidden; color: #92939a; font-size: 19rpx; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.route-point-arrow { color: #a0a1a7; font-size: 31rpx; }
+.route-detail-bottom { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 18rpx 28rpx calc(18rpx + env(safe-area-inset-bottom)); border-top: 1rpx solid #303136; background: rgba(22,23,27,.97); }
+.route-detail-duration { flex: 1; color: #d8d8dc; font-size: 22rpx; line-height: 1.45; }
+.route-detail-open-map { min-width: 220rpx; padding: 20rpx 25rpx; border-radius: 38rpx; background: #3f67ee; color: #fff; font-size: 24rpx; text-align: center; }
+.route-detail-empty { margin: 30rpx 24rpx; padding: 30rpx; border: 1rpx solid #33343a; border-radius: 14rpx; color: #a4a5ab; font-size: 23rpx; line-height: 1.6; }
