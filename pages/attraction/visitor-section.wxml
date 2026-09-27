@@ -9,8 +9,14 @@
       <view class="visitor-detail-eyebrow">{{activeSection.displayTitle}}</view>
       <view class="visitor-detail-title serif">{{spot.displayName}} {{activeSection.displayTitle}}</view>
       <view wx:if="{{activeSection.isDemo}}" class="visitor-detail-demo">{{i18n.heritage.demoData}}</view>
-      <rich-text wx:if="{{activeSection.hasContent}}" class="visitor-detail-rich" nodes="{{activeSection.richNodes}}" bindtap="onRichTextTap" />
-      <view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
+      <view wx:if="{{activeKind === 'faq' && activeSection.faqItems.length}}" class="visitor-faq-list">
+        <view wx:for="{{activeSection.faqItems}}" wx:key="index" class="visitor-faq-item {{openFaqIndex === index ? 'visitor-faq-item-open' : ''}}" data-index="{{index}}" bindtap="onFaqTap">
+          <view class="visitor-faq-question"><text class="visitor-faq-q">Q</text><text class="visitor-faq-question-text">{{item.question}}</text><text class="visitor-faq-chevron">{{openFaqIndex === index ? '−' : '+'}}</text></view>
+          <view wx:if="{{openFaqIndex === index && (item.answer || item.isRich)}}" class="visitor-faq-answer"><text class="visitor-faq-a">A</text><rich-text wx:if="{{item.isRich}}" class="visitor-faq-answer-text visitor-faq-rich" nodes="{{item.richNodes}}" bindtap="onRichTextTap"/><text wx:else class="visitor-faq-answer-text">{{item.answer}}</text></view>
+        </view>
+      </view>
+      <rich-text wx:if="{{activeKind !== 'faq' && activeSection.hasContent}}" class="visitor-detail-rich" nodes="{{activeSection.richNodes}}" bindtap="onRichTextTap" />
+      <view wx:if="{{activeKind !== 'faq' && !activeSection.hasContent}}" class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
       <image wx:if="{{activeKind === 'map' && activeSection.mapImage}}" class="visitor-detail-map" src="{{activeSection.mapImage}}" mode="widthFix" bindtap="onMapTap" />
       <view wx:if="{{activeKind === 'map' && activeSection.mapUrl}}" class="visitor-detail-map-link" bindtap="onMapTap"><text>⌖</text><view>{{activeSection.displayTitle}}</view><text>↗</text></view>
       <view wx:if="{{activeKind === 'map' && (activeSection.sourceUrl || activeSection.verifiedAt)}}" class="visitor-detail-source"><view wx:if="{{activeSection.sourceUrl}}" bindtap="onSourceTap">{{activeSection.sourceTitle || i18n.heritage.source}} ↗</view><text wx:if="{{activeSection.verifiedAt}}">{{i18n.heritage.verifiedAt}}：{{activeSection.verifiedAt}}</text></view>

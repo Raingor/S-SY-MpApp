@@ -13,6 +13,23 @@
     <view class="hero-content"><view class="guide-name serif">{{i18n.guideService}}</view></view>
   </view>
 
+  <!-- 讲解页沿用后台发布的首页 Banner，图片与文案不在小程序内硬编码。 -->
+  <view wx:if="{{guideBanners.length}}" class="guide-banner-section">
+    <swiper class="guide-banner-swiper" autoplay="{{guideBanners.length > 1}}" circular="{{guideBanners.length > 1}}" interval="4500" duration="550" bindchange="onGuideBannerChange">
+      <swiper-item wx:for="{{guideBanners}}" wx:key="id">
+        <view class="guide-banner-slide">
+          <image class="guide-banner-image" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" />
+          <view class="guide-banner-shade"></view>
+          <view wx:if="{{item.title || item.description}}" class="guide-banner-copy">
+            <view wx:if="{{item.title}}" class="guide-banner-title serif">{{item.title}}</view>
+            <view wx:if="{{item.description}}" class="guide-banner-description">{{item.description}}</view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+    <view wx:if="{{guideBanners.length > 1}}" class="guide-banner-count">{{guideBannerCurrent + 1}} <text>/</text> {{guideBanners.length}}</view>
+  </view>
+
   <!-- ===== 古迹讲解服务分流 ===== -->
   <view class="guide-services">
     <view class="section-kicker">HERITAGE GUIDE</view>

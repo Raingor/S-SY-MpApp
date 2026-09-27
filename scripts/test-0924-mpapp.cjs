@@ -13,8 +13,10 @@ const detail = fs.readFileSync('pages/attraction/detail.wxml', 'utf8');
 const guide = fs.readFileSync('pages/guide/guide.wxml', 'utf8');
 assert(!knowledge.includes('knowledge-product-banner') && !knowledge.includes('knowledge-track-tabs'));
 assert(knowledge.includes('visibleAlbums') && knowledge.includes('noAlbums'));
-assert(detail.indexOf('VISIT THE MUSEUM') < detail.indexOf('MUST-SEE'));
-assert(detail.indexOf('MUST-SEE') < detail.indexOf('AUDIO GUIDE'));
+assert(detail.indexOf('pageCopy.sections.visitor.title') < detail.indexOf('pageCopy.sections.highlights.title'));
+assert(detail.indexOf('pageCopy.sections.highlights.title') < detail.indexOf('pageCopy.sections.audioHow.title'));
+assert(detail.includes('id="section-overview" class="detail-intro-block"><view class="detail-heading serif">{{pageCopy.sections.overview.title}}'));
+assert(!detail.includes('VISIT THE MUSEUM') && !detail.includes('MUST-SEE') && !detail.includes('AUDIO GUIDE'));
 assert(detail.includes('wx:for="{{visitorSections}}"') && !detail.includes('wx:for="{{customSections}}"'));
 const visitorCardMarkup = detail.split('\n').find((line) => line.includes('class="visitor-section-grid"')) || '';
 assert(visitorCardMarkup.includes('item.icon') && visitorCardMarkup.includes('item.displayTitle'));
@@ -65,6 +67,20 @@ const visitorFixture = {
     { id: 'custom-first', status: 'published', sort: 1, title: '前置', titleTw: '前置', titleEn: 'First', nodes: [{ type: 'text', text: 'first content' }], bodyHtml: 'first content' }
   ]
 };
+const pageCopyFixture = {
+  sections: {
+    overview: { label: { zh: '景点概览', tw: '景點概覽', en: 'Overview' }, subtitle: { zh: '认识景点', tw: '認識景點', en: 'Attraction summary' } },
+    visitor: { label: { zh: '参观指南', tw: '參觀指南', en: 'Visitor guide' }, subtitle: { zh: '实用信息', tw: '實用資訊', en: 'Practical information' }, notice: { zh: '以官方公告为准', tw: '以官方公告為準', en: 'Check official notices' } }
+  },
+  audioHow: { steps: [{ zh: '步骤一', tw: '步驟一', en: 'Step one' }], note: { zh: '演示不可播放', tw: '演示不可播放', en: 'Demo cannot play' } }
+};
+const pageCopyInstance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), locale: 'en' }, setData(next) { Object.assign(this.data, next); } };
+pageCopyInstance.applyPageCopy(pageCopyFixture);
+assert.equal(pageCopyInstance.data.pageCopy.sections.overview.title, 'Overview');
+assert.equal(pageCopyInstance.data.pageCopy.sections.visitor.notice, 'Check official notices');
+assert.equal(pageCopyInstance.data.pageCopy.audioHow.steps[0].number, '01');
+assert.equal(pageCopyInstance.data.pageCopy.audioHow.steps[0].text, 'Step one');
+assert.equal(pageCopyInstance.data.pageCopy.audioHow.note, 'Demo cannot play');
 function visitorSectionsFor(locale) {
   const instance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), locale, i18n: translations.getMessages(locale) }, setData(next) { Object.assign(this.data, next); } };
   instance.applySpot(visitorFixture);
@@ -78,6 +94,13 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
 assert.equal(visitorSectionsFor('zh-TW').visitorSections[0].richNodes[0].text, '繁體開放內容');
 assert.equal(visitorSectionsFor('en').visitorSections[0].richNodes[0].text, 'English hours');
 assert.equal(visitorSectionsFor('en').visitorSections[1].richNodes, '简体门票回退');
+const faqFixture = structuredClone(visitorFixture);
+faqFixture.visitorInfo.faq = '演示问题？演示回答';
+faqFixture.visitorInfoSections.push({ id: 'faq', kind: 'faq', title: '常见问题', titleEn: 'FAQ', isDemo: true });
+const faqCardInstance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), locale: 'zh-CN', i18n: translations.getMessages('zh-CN') }, setData(next) { Object.assign(this.data, next); } };
+faqCardInstance.applySpot(faqFixture);
+assert.equal(faqCardInstance.data.visitorSections.at(-1).kind, 'faq');
+assert.equal(faqCardInstance.data.visitorSections.at(-1).isDemo, true);
 const tapInstance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), visitorSections: visitorSectionsFor('zh-CN').visitorSections }, spotId: 'fixture-id' };
 tapInstance.onVisitorSectionTap({ currentTarget: { dataset: { kind: 'tickets' } } });
 assert.equal(detailNavigation[0].url, '/pages/attraction/visitor-section?id=fixture-id&kind=tickets');
@@ -106,6 +129,11 @@ assert.equal(visitorDetailInstance.data.sections.find((section) => section.kind 
 assert.deepEqual(Array.from(visitorDetailInstance.data.customSections, (section) => section.id), ['custom-first', 'custom-late']);
 assert.equal(visitorDetailInstance.data.customSections[0].displayTitle, '前置');
 assert(!visitorDetailInstance.data.customSections.some((section) => section.id === 'custom-draft'));
+visitorDetailInstance.requestedKind = 'faq';
+visitorDetailInstance.applySpot(faqFixture);
+assert.equal(visitorDetailInstance.data.activeSection.kind, 'faq');
+assert.equal(visitorDetailInstance.data.activeSection.isDemo, true);
+assert.equal(visitorDetailInstance.data.activeSection.faqItems.length, 1);
 visitorDetailInstance.data.locale = 'en';
 visitorDetailInstance.applySpot(visitorFixture);
 assert.equal(visitorDetailInstance.data.customSections[0].displayTitle, 'First');
@@ -155,7 +183,7 @@ const audioWx = {
   switchTab() {}, showModal() {}
 };
 const content = {
-  loadContent(cb) { cb({}, { source: 'remote' }); },
+  loadContent(cb) { cb({}, { source: 'remote', status: 'ready' }); },
   getAttraction() { return { id: 'sight-1', exhibits: [{ id: 'point-1', name: 'Point' }], audioGuides: tracks }; },
   getAudioAlbums() { return []; }
 };

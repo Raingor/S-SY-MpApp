@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], home: { eyebrow: '', title: '', description: '', banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -199,6 +199,52 @@ function adaptHome(remoteHome) {
   };
 }
 
+function adaptHeritageGuideBanners(remoteBanners) {
+  return (Array.isArray(remoteBanners) ? remoteBanners : [])
+    .filter((item) => item && item.enabled === true && typeof item.image === 'string' && item.image.trim())
+    .map((item, index) => ({
+      id: String(item.id || 'heritage-guide-banner-' + index),
+      img: mapManagedImage(item.image),
+      title: typeof item.title === 'string' ? item.title.trim() : '',
+      description: typeof item.description === 'string' ? item.description.trim() : '',
+      alt: typeof item.alt === 'string' ? item.alt.trim() : '',
+      sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
+    }))
+    .filter((item) => item.img)
+    .sort((a, b) => a.sort - b.sort);
+}
+
+const MINI_PROGRAM_SERVICE_KEYS = new Set(['customization', 'guide', 'vehicle', 'knowledge', 'business', 'travel-guide']);
+
+function adaptMiniProgramServiceEntries(remoteEntries) {
+  return (Array.isArray(remoteEntries) ? remoteEntries : [])
+    .filter((item) => item && item.enabled !== false && MINI_PROGRAM_SERVICE_KEYS.has(item.key))
+    .map((item, index) => ({
+      id: String(item.id || item.key),
+      key: item.key,
+      title: item.title && typeof item.title === 'object' ? { ...item.title } : {},
+      subtitle: item.subtitle && typeof item.subtitle === 'object' ? { ...item.subtitle } : {},
+      iconImage: mapManagedImage(item.iconImage),
+      sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
+    }))
+    .filter((item) => item.iconImage)
+    .sort((a, b) => a.sort - b.sort);
+}
+
+function getMiniProgramServiceEntries(source, locale = 'zh-CN') {
+  const data = getContent(source);
+  const localeKey = locale === 'zh-TW' ? 'zh-TW' : locale === 'en' ? 'en' : 'zh-CN';
+  const textForLocale = (value) => {
+    if (!value || typeof value !== 'object') return '';
+    return String(value[localeKey] || value['zh-CN'] || value.en || value['zh-TW'] || '').trim();
+  };
+  return (data.miniprogramServiceEntries || []).map((item) => ({
+    ...item,
+    label: textForLocale(item.title),
+    desc: textForLocale(item.subtitle)
+  })).filter((item) => item.label && item.desc);
+}
+
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
     id: destination.id,
@@ -284,6 +330,9 @@ function fetchContent() {
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
+            heritageGuideBanners: adaptHeritageGuideBanners(res.data.heritageGuideBanners),
+            miniprogramServiceEntries: adaptMiniProgramServiceEntries(res.data.miniprogramServiceEntries),
+            attractionDetailPage: res.data.attractionDetailPage && typeof res.data.attractionDetailPage === 'object' ? res.data.attractionDetailPage : null,
             home: adaptHome(res.data.home)
           };
           if (app && app.globalData) app.globalData.contentSettings = res.data.settings || {};
@@ -472,6 +521,7 @@ module.exports = {
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,
+  getMiniProgramServiceEntries,
   getCountries,
   getGuides,
   getGuide,

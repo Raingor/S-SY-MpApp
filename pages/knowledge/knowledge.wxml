@@ -9,8 +9,14 @@
   <view wx:if="{{contentError}}" class="knowledge-product-empty card">{{i18n.heritage.networkFailed}} <view bindtap="refresh">{{i18n.heritage.retry}} ›</view></view>
   <block wx:if="{{activePanel === 0}}">
     <view class="knowledge-product-intro"><view class="knowledge-product-title serif">{{i18n.heritage.sights}}</view><view class="knowledge-product-copy">{{i18n.heritage.sightsIntro}}</view></view>
-    <view class="knowledge-product-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchSights}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" /></view>
-    <scroll-view wx:if="{{!audioOnly && cities.length}}" class="knowledge-product-categories" scroll-x="true"><view class="knowledge-product-category {{!categoryId ? 'knowledge-product-category-on' : ''}}" data-id="" bindtap="onCategoryTap">{{i18n.heritage.allCities}}</view><view wx:for="{{cities}}" wx:key="id" class="knowledge-product-category {{categoryId === item.id ? 'knowledge-product-category-on' : ''}}" data-id="{{item.id}}" bindtap="onCategoryTap">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view></scroll-view>
+    <view class="knowledge-product-search knowledge-sights-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchSights}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" /></view>
+    <view wx:if="{{!audioOnly && cities.length}}" class="knowledge-product-categories">
+      <view class="knowledge-city-grid">
+        <view class="knowledge-product-category {{!categoryId ? 'knowledge-product-category-on' : ''}}" data-id="" bindtap="onCategoryTap" role="button" aria-label="{{i18n.heritage.allCities}}">{{i18n.heritage.allCities}}</view>
+        <view wx:for="{{visibleFilterCities}}" wx:key="id" class="knowledge-product-category {{categoryId === item.id ? 'knowledge-product-category-on' : ''}}" data-id="{{item.id}}" bindtap="onCategoryTap" role="button">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view>
+      </view>
+      <button wx:if="{{canExpandCities}}" class="knowledge-city-toggle" bindtap="onToggleCities" aria-expanded="{{citiesExpanded}}">{{citiesExpanded ? i18n.heritage.collapseCities : i18n.heritage.moreCities}}<view class="knowledge-city-chevron {{citiesExpanded ? 'knowledge-city-chevron-up' : ''}}"></view></button>
+    </view>
     <view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view>
     <view wx:elif="{{hotSpots.length}}" class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-id="{{item.id}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" /></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.displayName}}</view><view class="knowledge-hot-desc">{{item.displaySummary}}</view><view>{{i18n.heritage.visitorAndPreview}} ›</view></view></view></view>
     <view wx:else class="knowledge-product-empty card">{{audioOnly ? i18n.heritage.noPreviews : i18n.heritage.noSights}}</view>

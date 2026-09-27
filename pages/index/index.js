@@ -18,15 +18,8 @@ Page({
     countries: [],
     selectedCountry: null,
     selectedCountryLabel: '',
-    // 六大服务入口
-    entries: [
-      { key: 'customization', label: '行程定制', desc: '资讯咨询' },
-      { key: 'guide', label: '古迹讲解', desc: '预约咨询' },
-      { key: 'vehicle', label: '在地用车', desc: '资源对接' },
-      { key: 'knowledge', label: '文史知识库', desc: '免费预览' },
-      { key: 'business', label: '希腊商旅', desc: '随行咨询' },
-      { key: 'travel-guide', label: '出行指南', desc: '实用攻略' }
-    ],
+    // 服务入口只由 Website /api/content 提供；接口缺字段时不伪造本地内容。
+    entries: [],
     // 导游名片轮播：数据来自后台 /api/content，不再内嵌旧文案，避免后台修改后前台不同步。
     guides: [],
     guideCarouselEnabled: false,
@@ -222,14 +215,6 @@ Page({
   applyLocale() {
     const copy = i18n.apply(this);
     const locale = i18n.getLocale();
-    const entries = [
-      { key: 'customization', label: copy.customize, desc: copy.consultation },
-      { key: 'guide', label: copy.guideService, desc: copy.booking },
-      { key: 'vehicle', label: copy.vehicle, desc: copy.resources },
-      { key: 'knowledge', label: copy.knowledge, desc: copy.freePreview },
-      { key: 'business', label: copy.business, desc: copy.businessSupport },
-      { key: 'travel-guide', label: copy.travelGuide, desc: copy.practicalGuide }
-    ];
     const fallbackLabels = {
       culture: copy.civilization,
       island: copy.islands
@@ -238,7 +223,7 @@ Page({
       ? content.getHomeDestinations(this.destinationContent, locale, fallbackLabels)
       : null;
     this.setData({
-      entries,
+      entries: content.getMiniProgramServiceEntries(this.destinationContent, locale),
       ...(localizedDestinations
         ? {
             destinations: localizedDestinations,
@@ -269,6 +254,7 @@ Page({
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
+      const entries = content.getMiniProgramServiceEntries(data, this.data.locale);
       const destinations = content.getHomeDestinations(data, this.data.locale, {
         culture: this.data.locale === 'en' ? 'Heritage' : this.data.locale === 'zh-TW' ? '文明溯源' : '文明溯源',
         island: this.data.locale === 'en' ? 'Island escapes' : this.data.locale === 'zh-TW' ? '海島度假' : '海岛度假'
@@ -279,6 +265,7 @@ Page({
         selectedCountry,
         selectedCountryLabel: content.countryName(selectedCountry, this.data.locale),
         guides: guides,
+        entries,
         guideCarouselEnabled: guides.length > 1,
         routes: content.getReferenceList(data).slice(0, 4),
         destTabs: destinations.map((group) => group.tab),

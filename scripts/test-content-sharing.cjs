@@ -33,6 +33,10 @@ const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 function fixture() {
   return {
     countries: [{ id: 'greece', name: '希腊' }], cities: [{ id: 'city-one' }, { id: 'city-two' }], guides: [], routes: [], sampleItineraries: [],
+    attractionDetailPage: {
+      sections: Object.fromEntries(['overview', 'visitor', 'highlights', 'audioHow', 'route', 'online', 'expert'].map((key) => [key, { label: { zh: key + '标题', en: key + ' title' }, subtitle: { zh: key + '说明', en: key + ' description' } }])),
+      audioHow: { steps: [{ zh: '后台步骤', en: 'Backend step' }], note: { zh: '后台说明', en: 'Backend note' } }
+    },
     attractions: [
       { id: 'spot & one', name: '测试景点', countryId: 'greece', image: './images/athens.webp', shareTitle: ' 后台分享文案 ', shareImage: './images/custom-share.jpg' },
       { id: 'old', name: '旧景点', countryId: 'greece', image: './images/delphi.webp' },
@@ -100,9 +104,18 @@ async function main() {
   updated.attractions[0].shareImage = 'https://cdn.example/share.jpg';
   respond(updated);
   await Promise.resolve();
+  assert.equal(detail.data.pageCopy.sections.overview.title, 'overview标题');
+  assert.equal(detail.data.pageCopy.audioHow.steps[0].text, '后台步骤');
   assert.deepEqual(detail.onShareAppMessage(), {
     title: '新分享文字', path: '/pages/attraction/detail?id=spot%20%26%20one', imageUrl: 'https://cdn.example/share.jpg'
   });
+  detail.loadSpot();
+  const oldApi = fixture();
+  delete oldApi.attractionDetailPage;
+  respond(oldApi);
+  await Promise.resolve();
+  assert.equal(detail.data.spot, null, 'old API must not render a partially hardcoded attraction detail');
+  assert.equal(detail.data.contentError, true);
   detail.spotId = 'old';
   detail.applySpot(content.getAttraction('old', data));
   assert.equal(detail.onShareAppMessage().title, '旧景点 · ' + detail.data.i18n.commonSlogan);

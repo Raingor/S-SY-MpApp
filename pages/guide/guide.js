@@ -71,6 +71,8 @@ Page({
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
+    guideBanners: [],
+    guideBannerCurrent: 0,
     guide: {
       id: 'richard-li',
       avatar: '/assets/images/guide/richard-avatar.jpg',
@@ -157,8 +159,12 @@ Page({
   },
 
   loadManagedGuide() {
-    // 第二个参数 true：每次进入页都重新拉后端，跳过内存缓存，确保后台改导游信息后即时同步。
+    // 第二个参数 true：每次进入页都重新拉后端，确保后台更新的古迹讲解 Banner 即时同步。
     content.loadContent((data, state) => {
+      const guideBanners = state && state.reason === 'offline'
+        ? []
+        : (Array.isArray(data && data.heritageGuideBanners) ? data.heritageGuideBanners : []);
+      this.setData({ guideBanners, guideBannerCurrent: 0 });
       if (state && state.reason === 'offline') return;
       const remote = content.getGuide(this.guideId, data);
       if (!remote) return;
@@ -170,6 +176,10 @@ Page({
         reviews: Array.isArray(guide.reviews) && guide.reviews.length ? guide.reviews : this.data.reviews
       });
     }, true);
+  },
+
+  onGuideBannerChange(e) {
+    this.setData({ guideBannerCurrent: Number(e.detail.current) || 0 });
   },
 
   onBack() {

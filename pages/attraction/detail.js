@@ -36,6 +36,7 @@ Page({
     ,pendingSimulationOrder: null
     ,simulationLoading: false
     ,routes: [], exhibits: [], onlineGuides: [], expertGuides: [], onlineDemo: false, expertDemo: false, visitorRows: [], visitorSections: [], visitorMap: '', visitorMapUrl: '', visitorMapLabel: '', visitorSource: '', visitorSourceLabel: '', visitorVerified: '', contentError: false
+    ,pageCopy: { sections: {}, audioHow: { steps: [], note: '' } }
   },
 
   onLoad(options) {
@@ -43,17 +44,23 @@ Page({
     i18n.apply(this);
     this.spotId = (options && options.id) || '';
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
-    const spot = content.getAttraction(this.spotId);
-    if (spot) { this.applySpot(spot); this.loadPaidState(); }
   },
 
   loadSpot() {
     if (!this.spotId) return;
     content.loadContent((data, state) => {
+      const page = data && data.attractionDetailPage;
+      const requiredSections = ['overview', 'visitor', 'highlights', 'audioHow', 'route', 'online', 'expert'];
+      const hasPageCopy = page && page.sections && requiredSections.every((key) => page.sections[key] && page.sections[key].label) && page.audioHow && Array.isArray(page.audioHow.steps) && page.audioHow.steps.length > 0;
+      if (!state || state.source !== 'remote' || state.status !== 'ready' || !hasPageCopy) {
+        this.setData({ contentError: true, spot: null, guideTabs: [], related: [] });
+        return;
+      }
       const fresh = content.getAttraction(this.spotId, data);
-      this.setData({ contentError: state && state.status === 'contract-error' });
+      this.setData({ contentError: false });
       if (fresh) {
         this.contentSource = data;
+        this.applyPageCopy(data.attractionDetailPage);
         this.applySpot(fresh);
         this.loadPaidState();
       } else {
@@ -64,8 +71,22 @@ Page({
 
   onShow() {
     i18n.apply(this);
-    if (this.data.spot) this.applySpot(content.getAttraction(this.spotId, this.contentSource) || this.data.spot);
+    if (this.data.spot) {
+      this.applyPageCopy(this.contentSource && this.contentSource.attractionDetailPage);
+      this.applySpot(content.getAttraction(this.spotId, this.contentSource) || this.data.spot);
+    }
     this.loadSpot();
+  },
+
+  applyPageCopy(page) {
+    const locale = this.data.locale === 'en' ? 'en' : this.data.locale === 'zh-TW' ? 'tw' : 'zh';
+    const read = (entry) => entry && typeof entry === 'object' ? String(entry[locale] || entry.zh || '') : '';
+    const sections = {};
+    for (const [key, value] of Object.entries(page && page.sections || {})) {
+      sections[key] = { title: read(value.label), subtitle: read(value.subtitle), notice: read(value.notice) };
+    }
+    const audioHow = page && page.audioHow || {};
+    this.setData({ pageCopy: { sections, audioHow: { steps: (Array.isArray(audioHow.steps) ? audioHow.steps : []).map((step, index) => ({ number: String(index + 1).padStart(2, '0'), text: read(step) })), note: read(audioHow.note) } } });
   },
 
   applySpot(spot, statusBarHeight) {
@@ -100,6 +121,18 @@ Page({
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
     });
+    const faqContent = this.localized(spot.guide, 'faq') || this.localized(info, 'faq');
+    const faqSection = sourceSections.find((section) => section.kind === 'faq' || section.id === 'faq');
+    const hasFaqCustomSection = (spot.customSections || []).some((section) => /faq|常见问题|常見問題/i.test(this.localized(section, 'title')));
+    if (faqContent || hasFaqCustomSection) {
+      visitorSections.push({
+        kind: 'faq',
+        icon: '?',
+        displayTitle: this.localized(faqSection, 'title') || labels.faq || GUIDE_LABELS.faq,
+        isDemo: Boolean(faqSection && faqSection.isDemo),
+        hasContent: true
+      });
+    }
     const exhibits = (spot.exhibits || []).map((point) => ({ ...point, displayName: this.localized(point, 'name'), displayDescription: this.localized(point, 'description') }));
     const tracks = (spot.audioGuides || []).filter((track) => track && track.id && (track.isDemo === true || track.previewUrl) && track.status !== 'draft').map((track) => {
       const point = exhibits.find((item) => String(item.id) === String(track.exhibitId));

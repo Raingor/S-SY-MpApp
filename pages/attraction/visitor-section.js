@@ -3,7 +3,7 @@ const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
 
 const REQUIRED_KINDS = ['hours', 'tickets', 'transport', 'map'];
-const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖' };
+const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖', faq: '?' };
 
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
@@ -27,6 +27,7 @@ Page({
     customSections: [],
     activeKind: 'hours',
     activeSection: null,
+    openFaqIndex: -1,
     loading: true,
     failed: false
   },
@@ -49,6 +50,10 @@ Page({
     if (!this.spotId) return this.setData({ loading: false, failed: true });
     this.setData({ loading: true, failed: false });
     content.loadContent((data, state) => {
+      if (!state || state.source !== 'remote' || state.status !== 'ready') {
+        this.rawSpot = null;
+        return this.setData({ loading: false, failed: true, spot: null, sections: [], customSections: [], activeSection: null });
+      }
       const spot = content.getAttraction(this.spotId, data);
       if (!spot) {
         this.rawSpot = null;
@@ -94,16 +99,60 @@ Page({
     });
     const customSections = (spot.customSections || []).filter((item) => item && item.status === 'published').map((item) => {
       const richNodes = localizedRich(item, locale, '');
-      return { ...item, displayTitle: localized(item, 'title', locale), richNodes, hasContent: hasRich(richNodes) };
+      const displayTitle = localized(item, 'title', locale);
+      return { ...item, displayTitle, richNodes, hasContent: hasRich(richNodes), isFaq: /faq|常见问题|常見問題/i.test(displayTitle) };
     }).filter((item) => item.displayTitle).sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
+    const faqCustomSections = customSections.filter((item) => item.isFaq);
+    const ordinaryCustomSections = customSections.filter((item) => !item.isFaq);
+    const faqSection = byKind.get('faq');
+    const faqContent = localized(guide, 'faq', locale) || localized(info, 'faq', locale);
+    const faqItems = [
+      ...this.parseFaqItems(faqContent, locale),
+      ...faqCustomSections.map((item, index) => ({ question: item.displayTitle, richNodes: item.richNodes, isRich: true, index: `custom-${index}` }))
+    ];
+    if (faqItems.length) {
+      sections.push({
+        kind: 'faq',
+        icon: SECTION_ICONS.faq,
+        displayTitle: localized(faqSection, 'title', locale) || labels.faq || 'FAQ',
+        faqItems,
+        isDemo: Boolean(faqSection && faqSection.isDemo),
+        hasContent: true
+      });
+    }
     const selected = sections.find((section) => section.kind === this.requestedKind) || sections[0];
     this.setData({
       spot: { ...spot, displayName: localized(spot, 'name', locale) || spot.name || '' },
       sections,
-      customSections,
+      customSections: ordinaryCustomSections,
       activeKind: selected.kind,
-      activeSection: selected
+      activeSection: selected,
+      openFaqIndex: -1
     });
+  },
+
+  parseFaqItems(value, locale) {
+    const reminderLabel = locale === 'en' ? 'Visitor note' : locale === 'zh-TW' ? '參觀提醒' : '参观提醒';
+    return String(value || '')
+      .split(/[;；\n]+/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part, index) => {
+        const questionMark = part.search(/[?？]/);
+        if (questionMark >= 0) {
+          return {
+            question: part.slice(0, questionMark + 1).trim(),
+            answer: part.slice(questionMark + 1).trim(),
+            index: `text-${index}`
+          };
+        }
+        return { question: `${reminderLabel} ${index + 1}`, answer: part, index: `text-${index}` };
+      });
+  },
+
+  onFaqTap(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    this.setData({ openFaqIndex: this.data.openFaqIndex === index ? -1 : index });
   },
 
   onTabTap(e) {
@@ -111,7 +160,7 @@ Page({
     const section = this.data.sections.find((item) => item.kind === kind);
     if (!section) return;
     this.requestedKind = kind;
-    this.setData({ activeKind: kind, activeSection: section });
+    this.setData({ activeKind: kind, activeSection: section, openFaqIndex: -1 });
   },
 
   onMapTap() {

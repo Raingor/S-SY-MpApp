@@ -14,6 +14,12 @@ Page({
   refresh() {
     this.setData({ loading: true, points: [], failed: false });
     content.loadContent((data, state) => {
+      if (!state || state.source !== 'remote' || state.status !== 'ready') {
+        this.spot = null;
+        this.route = null;
+        this.setData({ loading: false, failed: true });
+        return this.localize();
+      }
       const spot = content.getAttraction(this.attractionId, data);
       this.spot = spot;
       if (!spot) {

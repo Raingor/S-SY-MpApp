@@ -342,6 +342,10 @@ Object.assign(messages['zh-CN'].guide, { bookingTitle: '提交线下陪同意向
 Object.assign(messages['zh-TW'].guide, { bookingTitle: '提交線下陪同意向', bookingSub: '請選擇期望日期並填寫需求，具體時間由顧問確認，日曆並非即時排班。', calendarNote: '請選擇期望日期', chooseDate: '請選擇期望日期', closingCopy: '提交預約後，顧問將進一步確認服務安排。', bottomBar: '線下陪同 · 預約諮詢' });
 Object.assign(messages.en.guide, { bookingTitle: 'Request an in-person guide', bookingSub: 'Choose a preferred date and send your request. A consultant will confirm availability; the calendar is not a live schedule.', calendarNote: 'Preferred date', chooseDate: 'Choose a preferred date', closingCopy: 'A consultant will confirm arrangements after your request.', bottomBar: 'In-person guide · request a time' });
 
+Object.assign(messages['zh-CN'].heritage, { moreCities: '更多城市', collapseCities: '收起城市' });
+Object.assign(messages['zh-TW'].heritage, { moreCities: '更多城市', collapseCities: '收起城市' });
+Object.assign(messages.en.heritage, { moreCities: 'More cities', collapseCities: 'Show less' });
+
 function getLocale() {
   const stored = wx.getStorageSync(STORAGE_KEY);
   return SUPPORTED_LOCALES.includes(stored) ? stored : 'zh-CN';

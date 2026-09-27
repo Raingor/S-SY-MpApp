@@ -26,7 +26,8 @@ Page({
     statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
     panelTabs: [], cities: [], sampleTrips: [], allHotSpots: [], hotSpots: [],
     albums: [], visibleAlbums: [], searchQuery: '', categoryId: '', audioOnly: false,
-    loading: true, contentError: false, offline: false
+    loading: true, contentError: false, offline: false,
+    citiesExpanded: false, visibleFilterCities: [], canExpandCities: false
   },
   onShareAppMessage() { return buildShareCard('/pages/knowledge/knowledge'); },
   onLoad(options) {
@@ -56,6 +57,7 @@ Page({
     this.filterItems();
   },
   filterItems() {
+    this.updateCityFilters();
     const { allHotSpots, albums, searchQuery, categoryId, locale, audioOnly } = this.data;
     this.setData({
       hotSpots: displaySpots(allHotSpots, searchQuery, categoryId, locale, audioOnly),
@@ -66,7 +68,18 @@ Page({
       })).filter((album) => !searchQuery || [album.title, album.displayTitle, album.displayDescription, ...(album.episodes || []).map((episode) => translated(episode, 'title', locale))].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()))
     });
   },
-  onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '', categoryId: '' }); this.filterItems(); },
+  updateCityFilters() {
+    const { cities, categoryId, citiesExpanded } = this.data;
+    const limit = 5;
+    const visibleFilterCities = citiesExpanded ? cities.slice() : cities.slice(0, limit);
+    const selected = cities.find((city) => city.id === categoryId);
+    if (!citiesExpanded && selected && !visibleFilterCities.some((city) => city.id === categoryId)) {
+      visibleFilterCities[visibleFilterCities.length - 1] = selected;
+    }
+    this.setData({ visibleFilterCities, canExpandCities: cities.length > limit });
+  },
+  onToggleCities() { this.setData({ citiesExpanded: !this.data.citiesExpanded }); this.updateCityFilters(); },
+  onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '', categoryId: '', citiesExpanded: false }); this.filterItems(); },
   onCategoryTap(e) { this.setData({ categoryId: e.currentTarget.dataset.id === this.data.categoryId ? '' : e.currentTarget.dataset.id }); this.filterItems(); },
   onSearchInput(e) { this.setData({ searchQuery: e.detail.value || '' }); this.filterItems(); },
   onSearchConfirm() {

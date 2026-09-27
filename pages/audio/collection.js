@@ -20,6 +20,11 @@ Page({
   loadItems() {
     this.setData({ loading: true, failed: false });
     content.loadContent((data, state) => {
+      if (!state || state.source !== 'remote' || state.status !== 'ready') {
+        this.spot = null;
+        this.setData({ loading: false, failed: true, items: [], visibleItems: [] });
+        return;
+      }
       const spot = content.getAttraction(this.attractionId, data);
       if (!spot) {
         this.setData({ loading: false, failed: true, items: [], visibleItems: [] });

@@ -65,7 +65,7 @@ Page({
         const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
         track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) && item.previewUrl);
       } else {
-        spot = content.getAttraction(this.params.attractionId, data);
+        spot = state && state.source === 'remote' && state.status === 'ready' ? content.getAttraction(this.params.attractionId, data) : null;
         point = spot && (spot.exhibits || []).find((item) => String(item.id) === String(this.params.pointId));
         if (spot && state && state.source === 'remote') {
           pointTracks = point ? (spot.audioGuides || []).filter((item) => String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
