@@ -173,7 +173,7 @@
       <view wx:if="{{destTab === gi}}">
         <block wx:if="{{group.tiles.length}}">
           <view class="dest-grid">
-            <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="id" data-attraction-id="{{item.attractionId}}" bindtap="onDestTap">
+            <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="id" data-city-id="{{item.cityId}}" bindtap="onDestTap">
               <image class="dest-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" lazy-load="{{true}}" />
               <view class="dest-mask"></view>
               <view class="dest-info">

@@ -40,6 +40,7 @@ function fixture() {
     attractions: [
       { id: 'spot & one', name: '测试景点', countryId: 'greece', image: './images/athens.webp', shareTitle: ' 后台分享文案 ', shareImage: './images/custom-share.jpg' },
       { id: 'old', name: '旧景点', countryId: 'greece', image: './images/delphi.webp' },
+      { id: 'city-two-spot', name: '第二城市景点', city: 'city-two', countryId: 'greece' },
       { id: 'foreign', name: '跨国景点', countryId: 'italy' }
     ],
     destinations: [
@@ -79,17 +80,29 @@ async function main() {
 
   const home = page('../pages/index/index');
   home.destinationContent = data;
-  const tap = (id) => home.onDestTap({ currentTarget: { dataset: { attractionId: id } } });
-  tap('spot & one');
-  assert.equal(navigations[0], '/pages/attraction/detail?id=spot%20%26%20one');
-  for (const id of ['', undefined, 'missing', 'foreign']) tap(id);
-  assert.equal(navigations.length, 1);
+  const tap = (id) => home.onDestTap({ currentTarget: { dataset: { cityId: id } } });
+  tap('city-one');
+  assert.equal(navigations[0], '/pages/city/spots?id=city-one');
+  tap('city-two');
+  assert.equal(navigations[1], '/pages/city/spots?id=city-two', 'a destination without a featured attraction still opens its city list');
+  for (const id of ['', undefined, 'missing']) tap(id);
+  assert.equal(navigations.length, 2);
   country = 'italy';
-  tap('spot & one');
-  assert.equal(navigations.length, 1);
+  tap('city-one');
+  assert.equal(navigations.length, 2);
   country = 'greece';
-  assert.equal(notices.length, 5);
-  assert.match(fs.readFileSync(require.resolve('../pages/index/index.wxml'), 'utf8'), /data-attraction-id="\{\{item.attractionId\}\}"/);
+  assert.equal(notices.length, 4);
+  assert.match(fs.readFileSync(require.resolve('../pages/index/index.wxml'), 'utf8'), /data-city-id="\{\{item.cityId\}\}"/);
+  const citySpots = page('../pages/city/spots');
+  citySpots.applyCity(content.getCities(data).find((item) => item.id === 'city-one'), undefined, data);
+  assert.deepEqual(citySpots.data.spots.map((item) => item.id), ['spot & one']);
+  citySpots.applyCity(content.getCities(data).find((item) => item.id === 'city-two'), undefined, data);
+  assert.deepEqual(citySpots.data.spots.map((item) => item.id), ['city-two-spot'], 'a city without featured attraction IDs still lists its attractions');
+  citySpots.applyCity(content.getCities(data).find((item) => item.id === 'city-one'), undefined, data);
+  citySpots.onSpotTap({ currentTarget: { dataset: { id: 'spot & one' } } });
+  assert.equal(navigations[2], '/pages/attraction/detail?id=spot%20%26%20one');
+  citySpots.onSpotTap({ currentTarget: { dataset: { id: 'old' } } });
+  assert.equal(navigations.length, 3, 'only a displayed city card can open a detail page');
   home.onShow();
   assert.equal(requests.length, 1, 'home onShow requests fresh content');
   respond(fixture());

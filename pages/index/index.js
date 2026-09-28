@@ -360,18 +360,18 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
-  // 精选目的地只使用后台显式配置的 attractionId；不按名称、城市或数组位置猜景点。
+  // 精选目的地先进入后台关联城市的景点列表，再由列表进入具体景点。
   onDestTap(e) {
-    const attractionId = String(e.currentTarget.dataset.attractionId || '').trim();
+    const cityId = String(e.currentTarget.dataset.cityId || '').trim();
     const data = this.destinationContent;
-    const spot = attractionId && data && data.countryId === content.getSelectedCountryId()
-      ? content.getAttraction(attractionId, data)
+    const city = cityId && data && data.countryId === content.getSelectedCountryId()
+      ? content.getCities(data).find((item) => item.id === cityId)
       : null;
-    if (!spot || spot.enabled === false || spot.published === false || ['draft', 'disabled', 'inactive', 'archived', 'unpublished'].includes(String(spot.status || '').toLowerCase()) || spot.countryId !== content.getSelectedCountryId()) {
+    if (!city) {
       wx.showToast({ title: this.data.locale === 'en' ? 'This destination is unavailable' : '该目的地暂不可用', icon: 'none' });
       return;
     }
-    wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(spot.id) });
+    wx.navigateTo({ url: '/pages/city/spots?id=' + encodeURIComponent(city.id) });
   },
 
   onCityTap(e) {

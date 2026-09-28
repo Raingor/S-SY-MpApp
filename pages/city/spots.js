@@ -49,8 +49,11 @@ Page({
     const attractionIds = destination && Array.isArray(destination.attractionIds)
       ? destination.attractionIds
       : null;
-    const spots = attractionIds
+    const featuredSpots = attractionIds && attractionIds.length
       ? content.getAttractionsByIds(attractionIds, this.contentSource)
+      : [];
+    const spots = featuredSpots.length
+      ? featuredSpots
       : content.getAttractionsByCity(city.id, this.contentSource);
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
@@ -96,7 +99,7 @@ Page({
   onSpotTap(e) {
     const id = String(e.currentTarget.dataset.id || '').trim();
     const spot = id ? content.getAttraction(id, this.contentSource) : null;
-    if (!spot || !this.data.city || spot.city !== this.data.city.id) {
+    if (!spot || !this.data.city || !this.data.spots.some((item) => item.id === id)) {
       wx.showToast({ title: this.data.locale === 'en' ? 'This sight is unavailable' : '该景点暂不可用', icon: 'none' });
       return;
     }
