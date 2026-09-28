@@ -1,14 +1,14 @@
 // 希腊旅行管家 · 小程序全局逻辑
 // 生产默认使用官网接口；本地联调时可替换为测试环境地址。
 const API_BASE = 'https://sy-greece.com';
-const BYPASS_ACCESS_CHECK_IN_TRIAL = true;
+const BYPASS_ACCESS_CHECK_IN_NON_RELEASE = true;
 const i18n = require('./utils/i18n');
 
-function isExperienceEnvironment() {
+function isNonReleaseEnvironment() {
   try {
     const accountInfo = wx.getAccountInfoSync && wx.getAccountInfoSync();
     const envVersion = accountInfo && accountInfo.miniProgram && accountInfo.miniProgram.envVersion;
-    return envVersion === 'trial';
+    return envVersion === 'develop' || envVersion === 'trial';
   } catch (e) {
     return false;
   }
@@ -16,7 +16,7 @@ function isExperienceEnvironment() {
 
 App({
   onLaunch() {
-    this.globalData.skipMiniprogramAccessCheck = BYPASS_ACCESS_CHECK_IN_TRIAL && isExperienceEnvironment();
+    this.globalData.skipMiniprogramAccessCheck = BYPASS_ACCESS_CHECK_IN_NON_RELEASE && isNonReleaseEnvironment();
     this.globalData.locale = i18n.getLocale();
     this.globalData.countryId = wx.getStorageSync('sy_mp_country_id') || 'greece';
     this.globalData.auth.accessToken = wx.getStorageSync('sy_mp_access_token') || '';
@@ -33,7 +33,7 @@ App({
     this.checkMiniprogramAccess();
   },
   checkMiniprogramAccess() {
-    // 体验版不受官网访问开关控制；开发版和正式版仍遵循后台门禁设置。
+    // 开发版和体验版不受官网访问开关控制；正式版仍遵循后台门禁设置。
     if (this.globalData && this.globalData.skipMiniprogramAccessCheck) return Promise.resolve(true);
     if (this._accessRequest) return this._accessRequest;
     const base = (this.globalData && this.globalData.apiBase) || API_BASE;

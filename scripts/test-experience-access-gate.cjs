@@ -68,24 +68,24 @@ async function runContentGate() {
 }
 
 async function main() {
-  const trial = await runAppGate('trial');
-  assert.equal(trial.app.globalData.skipMiniprogramAccessCheck, true);
-  assert.equal(trial.accessResult, true);
-  assert.equal(trial.requestCount, 0, 'experience build must not request the backend access switch');
-  assert.deepEqual(trial.redirects, []);
-
-  for (const envVersion of ['develop', 'release']) {
-    const controlled = await runAppGate(envVersion);
-    assert.equal(controlled.app.globalData.skipMiniprogramAccessCheck, false);
-    assert.equal(controlled.requestCount, 1, `${envVersion} must still request the backend access switch`);
-    assert.equal(controlled.accessResult, false);
-    assert.deepEqual(controlled.redirects, ['/pages/maintenance/maintenance']);
+  for (const envVersion of ['develop', 'trial']) {
+    const bypassed = await runAppGate(envVersion);
+    assert.equal(bypassed.app.globalData.skipMiniprogramAccessCheck, true);
+    assert.equal(bypassed.accessResult, true);
+    assert.equal(bypassed.requestCount, 0, `${envVersion} must not request the backend access switch`);
+    assert.deepEqual(bypassed.redirects, []);
   }
+
+  const release = await runAppGate('release');
+  assert.equal(release.app.globalData.skipMiniprogramAccessCheck, false);
+  assert.equal(release.requestCount, 1, 'release must still request the backend access switch');
+  assert.equal(release.accessResult, false);
+  assert.deepEqual(release.redirects, ['/pages/maintenance/maintenance']);
 
   const content = await runContentGate();
   assert.equal(content.result.state.status, 'ready', 'experience content must load when backend access is disabled');
   assert.equal(content.maintenanceCalls, 0, 'experience content must not enter maintenance from /api/content settings');
-  process.stdout.write('PASS: trial bypasses both backend maintenance gates; develop and release remain controlled.\n');
+  process.stdout.write('PASS: develop and trial bypass both backend maintenance gates; release remains controlled.\n');
 }
 
 main().catch((error) => {
