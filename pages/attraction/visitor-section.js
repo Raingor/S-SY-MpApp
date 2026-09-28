@@ -3,11 +3,15 @@ const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
 
 const REQUIRED_KINDS = ['hours', 'tickets', 'transport', 'map'];
-const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖', faq: '?' };
+const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖' };
 
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
   return item && (item[key + suffix] || item[key]) || '';
+}
+function isFaqSection(item, locale) {
+  const names = [localized(item, 'title', locale), item && item.title, item && item.titleTw, item && item.titleEn];
+  return /faq/i.test(`${item && item.id || ''} ${item && item.kind || ''}`) || names.some((name) => /faq|常见问题|常見問題|常见问答|常見問答/i.test(String(name || '')));
 }
 function hasRich(value) { return Array.isArray(value) ? value.length > 0 : Boolean(String(value || '').trim()); }
 function localizedRich(item, locale, legacy) {
@@ -15,6 +19,23 @@ function localizedRich(item, locale, legacy) {
   if (hasRich(nodes)) return nodes;
   const html = localized(item, 'bodyHtml', locale);
   return hasRich(html) ? html : (legacy || '');
+}
+function preserveLineBreaks(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap((node) => {
+      if (!node || typeof node !== 'object') return [node];
+      if (typeof node.text === 'string') {
+        const lines = node.text.split(/\r\n|\r|\n/);
+        return lines.flatMap((text, index) => [
+          { ...node, text },
+          ...(index < lines.length - 1 ? [{ name: 'br' }] : [])
+        ]);
+      }
+      if (Array.isArray(node.children)) return [{ ...node, children: preserveLineBreaks(node.children) }];
+      return [node];
+    });
+  }
+  return typeof value === 'string' ? value.replace(/\r\n|\r|\n/g, '<br/>') : value;
 }
 
 Page({
@@ -27,7 +48,6 @@ Page({
     customSections: [],
     activeKind: 'hours',
     activeSection: null,
-    openFaqIndex: -1,
     loading: true,
     failed: false
   },
@@ -78,7 +98,12 @@ Page({
       let legacy = '';
       if (kind !== 'map') legacy = localized(info, kind, locale) || localized(guide, kind, locale);
       else legacy = localized(map, 'description', locale) || localized(info, 'map', locale) || localized(guide, 'map', locale);
-      const richNodes = localizedRich(source, locale, legacy);
+      const sourceNodes = localized(source, 'nodes', locale);
+      const sourceHtml = localized(source, 'bodyHtml', locale);
+      const hasRichSource = hasRich(sourceNodes) || hasRich(sourceHtml);
+      let richNodes = localizedRich(source, locale, legacy);
+      const hoursText = kind === 'hours' && !hasRichSource ? legacy : '';
+      if (kind === 'hours') richNodes = hasRichSource ? preserveLineBreaks(richNodes) : '';
       const isDemo = source.isDemo === true;
       const mapImage = kind === 'map' ? (map.image || info.mapImage || guide.mapImage || '') : '';
       const mapUrl = kind === 'map' ? (map.url || localized(info, 'mapUrl', locale) || guide.mapUrl || '') : '';
@@ -88,6 +113,7 @@ Page({
         icon: SECTION_ICONS[kind],
         displayTitle: localized(source, 'title', locale) || labels[kind] || kind,
         richNodes,
+        hoursText,
         isDemo,
         hasContent: hasRich(richNodes),
         mapImage,
@@ -97,62 +123,20 @@ Page({
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
     });
-    const customSections = (spot.customSections || []).filter((item) => item && item.status === 'published').map((item) => {
+    const customSections = (spot.customSections || []).filter((item) => item && item.status === 'published' && !isFaqSection(item, locale)).map((item) => {
       const richNodes = localizedRich(item, locale, '');
       const displayTitle = localized(item, 'title', locale);
-      return { ...item, displayTitle, richNodes, hasContent: hasRich(richNodes), isFaq: /faq|常见问题|常見問題/i.test(displayTitle) };
-    }).filter((item) => item.displayTitle).sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
-    const faqCustomSections = customSections.filter((item) => item.isFaq);
-    const ordinaryCustomSections = customSections.filter((item) => !item.isFaq);
-    const faqSection = byKind.get('faq');
-    const faqContent = localized(guide, 'faq', locale) || localized(info, 'faq', locale);
-    const faqItems = [
-      ...this.parseFaqItems(faqContent, locale),
-      ...faqCustomSections.map((item, index) => ({ question: item.displayTitle, richNodes: item.richNodes, isRich: true, index: `custom-${index}` }))
-    ];
-    if (faqItems.length) {
-      sections.push({
-        kind: 'faq',
-        icon: SECTION_ICONS.faq,
-        displayTitle: localized(faqSection, 'title', locale) || labels.faq || 'FAQ',
-        faqItems,
-        isDemo: Boolean(faqSection && faqSection.isDemo),
-        hasContent: true
-      });
-    }
+      return { ...item, displayTitle, richNodes, hasContent: hasRich(richNodes) };
+    }).filter((item) => item.displayTitle)
+      .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
     const selected = sections.find((section) => section.kind === this.requestedKind) || sections[0];
     this.setData({
       spot: { ...spot, displayName: localized(spot, 'name', locale) || spot.name || '' },
       sections,
-      customSections: ordinaryCustomSections,
+      customSections,
       activeKind: selected.kind,
-      activeSection: selected,
-      openFaqIndex: -1
+      activeSection: selected
     });
-  },
-
-  parseFaqItems(value, locale) {
-    const reminderLabel = locale === 'en' ? 'Visitor note' : locale === 'zh-TW' ? '參觀提醒' : '参观提醒';
-    return String(value || '')
-      .split(/[;；\n]+/)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .map((part, index) => {
-        const questionMark = part.search(/[?？]/);
-        if (questionMark >= 0) {
-          return {
-            question: part.slice(0, questionMark + 1).trim(),
-            answer: part.slice(questionMark + 1).trim(),
-            index: `text-${index}`
-          };
-        }
-        return { question: `${reminderLabel} ${index + 1}`, answer: part, index: `text-${index}` };
-      });
-  },
-
-  onFaqTap(e) {
-    const index = Number(e.currentTarget.dataset.index);
-    this.setData({ openFaqIndex: this.data.openFaqIndex === index ? -1 : index });
   },
 
   onTabTap(e) {
@@ -160,7 +144,7 @@ Page({
     const section = this.data.sections.find((item) => item.kind === kind);
     if (!section) return;
     this.requestedKind = kind;
-    this.setData({ activeKind: kind, activeSection: section, openFaqIndex: -1 });
+    this.setData({ activeKind: kind, activeSection: section });
   },
 
   onMapTap() {

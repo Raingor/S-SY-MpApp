@@ -19,6 +19,7 @@ page { height: 100%; overflow: hidden; background: #111214; }
 .visitor-detail-title { margin-top: 21rpx; color: #f5f3ee; font-size: 46rpx; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .visitor-detail-demo { display: inline-flex; margin-top: 16rpx; padding: 6rpx 12rpx; border: 1rpx solid rgba(215,185,118,.34); border-radius: 20rpx; color: #d8c18d; font-size: 19rpx; }
 .visitor-detail-rich { display: block; margin-top: 47rpx; color: #e2e1df; font-size: 29rpx; line-height: 2; word-break: break-word; }
+.visitor-detail-hours { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .visitor-detail-empty { margin-top: 45rpx; padding: 24rpx 0; color: #999aa0; font-size: 27rpx; line-height: 1.8; }
 .visitor-detail-map { display: block; width: 100%; margin-top: 35rpx; }
 .visitor-detail-map-link { display: flex; align-items: center; gap: 17rpx; margin-top: 29rpx; padding: 24rpx; border: 1rpx solid #34353a; background: #1b1c20; color: #e7e6e2; font-size: 25rpx; }
@@ -29,14 +30,6 @@ page { height: 100%; overflow: hidden; background: #111214; }
 .visitor-detail-custom { margin-top: 35rpx; padding-top: 25rpx; border-top: 1rpx solid #34353a; }
 .visitor-detail-custom-title { color: #f3f1ec; font-size: 29rpx; font-weight: 600; }
 .visitor-detail-custom-rich { margin-top: 15rpx; }
-.visitor-faq-list { margin-top: 35rpx; border-top: 1rpx solid #34353a; }
-.visitor-faq-item { border-bottom: 1rpx solid #34353a; }
-.visitor-faq-question { display: flex; min-height: 96rpx; align-items: center; gap: 18rpx; padding: 18rpx 3rpx; box-sizing: border-box; }
-.visitor-faq-q, .visitor-faq-a { flex: 0 0 36rpx; color: #cbb47d; font-family: Georgia, serif; font-size: 25rpx; font-weight: 700; }
-.visitor-faq-question-text { flex: 1; color: #f1f0eb; font-size: 28rpx; line-height: 1.6; }
-.visitor-faq-chevron { width: 38rpx; color: #aaa9a1; font-size: 34rpx; text-align: center; }
-.visitor-faq-answer { display: flex; gap: 18rpx; padding: 0 42rpx 29rpx 3rpx; color: #c7c6c1; font-size: 26rpx; line-height: 1.8; }
-.visitor-faq-answer-text { flex: 1; white-space: pre-wrap; }
 .visitor-detail-note { margin-top: 42rpx; padding-top: 22rpx; border-top: 1rpx solid #34353a; color: #85868b; font-size: 21rpx; line-height: 1.7; }
 .visitor-detail-state { display: flex; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; gap: 28rpx; padding: 56rpx; box-sizing: border-box; background: #111214; color: #a5a6ac; font-size: 27rpx; text-align: center; }
 .visitor-detail-back-link { color: #b5baff; }

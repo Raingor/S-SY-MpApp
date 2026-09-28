@@ -11,7 +11,7 @@ const auth = require('../../utils/auth');
 const GUIDE_LABELS = {
   hours: '开放时间', tickets: '门票信息', transport: '交通信息', worth: '值得一去',
   services: '馆内服务', family: '亲子参观', map: '馆内地图', shop: '博物馆商店',
-  accessibility: '无障碍服务', exhibitions: '临时展览', faq: '常见问题', notices: '临时通知'
+  accessibility: '无障碍服务', exhibitions: '临时展览', notices: '临时通知'
 };
 
 Page({
@@ -20,6 +20,7 @@ Page({
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     spot: null,
+    loading: true,
     showAllHighlights: false,
     highlightPreview: null,
     guideTabs: [],
@@ -47,24 +48,28 @@ Page({
   },
 
   loadSpot() {
-    if (!this.spotId) return;
+    const requestId = (this._spotLoadRequestId || 0) + 1;
+    this._spotLoadRequestId = requestId;
+    if (!this.spotId) return this.setData({ loading: false, contentError: false, spot: null });
+    this.setData({ loading: true, contentError: false });
     content.loadContent((data, state) => {
+      if (requestId !== this._spotLoadRequestId) return;
       const page = data && data.attractionDetailPage;
       const requiredSections = ['overview', 'visitor', 'highlights', 'audioHow', 'route', 'online', 'expert'];
       const hasPageCopy = page && page.sections && requiredSections.every((key) => page.sections[key] && page.sections[key].label) && page.audioHow && Array.isArray(page.audioHow.steps) && page.audioHow.steps.length > 0;
       if (!state || state.source !== 'remote' || state.status !== 'ready' || !hasPageCopy) {
-        this.setData({ contentError: true, spot: null, guideTabs: [], related: [] });
+        this.setData({ loading: false, contentError: true, spot: null, guideTabs: [], related: [] });
         return;
       }
       const fresh = content.getAttraction(this.spotId, data);
-      this.setData({ contentError: false });
       if (fresh) {
         this.contentSource = data;
         this.applyPageCopy(data.attractionDetailPage);
         this.applySpot(fresh);
+        this.setData({ loading: false, contentError: false });
         this.loadPaidState();
       } else {
-        this.setData({ spot: null, guideTabs: [], related: [] });
+        this.setData({ loading: false, contentError: false, spot: null, guideTabs: [], related: [] });
       }
     }, true);
   },
@@ -121,18 +126,6 @@ Page({
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
     });
-    const faqContent = this.localized(spot.guide, 'faq') || this.localized(info, 'faq');
-    const faqSection = sourceSections.find((section) => section.kind === 'faq' || section.id === 'faq');
-    const hasFaqCustomSection = (spot.customSections || []).some((section) => /faq|常见问题|常見問題/i.test(this.localized(section, 'title')));
-    if (faqContent || hasFaqCustomSection) {
-      visitorSections.push({
-        kind: 'faq',
-        icon: '?',
-        displayTitle: this.localized(faqSection, 'title') || labels.faq || GUIDE_LABELS.faq,
-        isDemo: Boolean(faqSection && faqSection.isDemo),
-        hasContent: true
-      });
-    }
     const exhibits = (spot.exhibits || []).map((point) => ({ ...point, displayName: this.localized(point, 'name'), displayDescription: this.localized(point, 'description') }));
     const tracks = (spot.audioGuides || []).filter((track) => track && track.id && (track.isDemo === true || track.previewUrl) && track.status !== 'draft').map((track) => {
       const point = exhibits.find((item) => String(item.id) === String(track.exhibitId));

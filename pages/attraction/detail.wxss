@@ -122,6 +122,7 @@ page { background: #111214; }
 .related-item image { width: 115rpx; height: 85rpx; flex-shrink: 0; border-radius: 9rpx; background: #202125; }
 .related-name { flex: 1; color: #e5e4e0; font-size: 24rpx; }
 .spot-empty { min-height: 100vh; box-sizing: border-box; padding: 260rpx 64rpx 80rpx; background: #111214; color: #eee; text-align: center; }
+.spot-loading { min-height: 100vh; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 80rpx 48rpx; background: #111214; color: #999aa0; font-size: 26rpx; }
 .spot-empty-title { font-size: 38rpx; font-weight: 700; }
 .spot-empty-desc { margin-top: 18rpx; color: #999aa0; font-size: 26rpx; line-height: 1.7; }
 .spot-empty-action { display: flex; align-items: center; justify-content: center; height: 82rpx; margin-top: 44rpx; border-radius: 42rpx; background: #355fe9; color: #fff; font-size: 28rpx; }
