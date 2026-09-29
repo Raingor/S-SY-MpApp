@@ -127,7 +127,7 @@ Page({
       const richNodes = localizedRich(item, locale, '');
       const displayTitle = localized(item, 'title', locale);
       return { ...item, displayTitle, richNodes, hasContent: hasRich(richNodes) };
-    }).filter((item) => item.displayTitle)
+    }).filter((item) => item.displayTitle && !/faq|frequently\s+asked\s+questions|常见问题|常見問題/i.test(item.displayTitle))
       .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
     const selected = sections.find((section) => section.kind === this.requestedKind) || sections[0];
     this.setData({

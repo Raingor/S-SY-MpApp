@@ -1,6 +1,6 @@
 page { min-height: 100vh; background: #111214; }
 .guide-collection-page { min-height: 100vh; padding: 0 28rpx 70rpx; box-sizing: border-box; background: #111214; color: #f2f1ed; }
-.guide-collection-nav { display: flex; align-items: center; justify-content: space-between; height: 100rpx; padding-top: env(safe-area-inset-top); }
+.guide-collection-nav { display: flex; align-items: center; justify-content: space-between; height: 100rpx; }
 .guide-collection-nav .sy-back-button { position: static; flex: 0 0 60rpx; width: 60rpx; height: 60rpx; }
 .guide-collection-nav-title { flex: 1; color: #f4f2ed; font-size: 30rpx; text-align: center; }
 .guide-collection-nav-space { flex: 0 0 60rpx; }

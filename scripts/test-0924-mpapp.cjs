@@ -99,7 +99,7 @@ faqFixture.visitorInfo.faq = '演示问题？演示回答';
 faqFixture.visitorInfoSections.push({ id: 'faq', kind: 'faq', title: '常见问题', titleEn: 'FAQ', isDemo: true });
 const faqCardInstance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), locale: 'zh-CN', i18n: translations.getMessages('zh-CN') }, setData(next) { Object.assign(this.data, next); } };
 faqCardInstance.applySpot(faqFixture);
-assert(!faqCardInstance.data.visitorSections.some((section) => section.kind === 'faq'));
+assert.deepEqual(Array.from(faqCardInstance.data.visitorSections, (section) => section.kind), ['hours', 'tickets', 'transport', 'map']);
 const tapInstance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), visitorSections: visitorSectionsFor('zh-CN').visitorSections }, spotId: 'fixture-id' };
 tapInstance.onVisitorSectionTap({ currentTarget: { dataset: { kind: 'tickets' } } });
 assert.equal(detailNavigation[0].url, '/pages/attraction/visitor-section?id=fixture-id&kind=tickets');
@@ -152,6 +152,7 @@ richMultilineFixture.visitorInfoSections[0].nodes = [{ type: 'text', text: '每�
 const richMultilineInstance = { ...visitorDetailConfig, data: { ...structuredClone(visitorDetailConfig.data), locale: 'zh-CN', i18n: translations.getMessages('zh-CN') }, requestedKind: 'hours', setData(next) { Object.assign(this.data, next); } };
 richMultilineInstance.applySpot(richMultilineFixture);
 assert.deepEqual(Array.from(richMultilineInstance.data.activeSection.richNodes, (node) => node.name || node.text), ['每日 09:00-12:00', 'br', '每日 13:00-17:00']);
+assert(!visitorDetailWxml.includes("activeKind === 'faq'") && !visitorDetailWxml.includes('visitor-faq-'));
 visitorDetailInstance.data.locale = 'en';
 visitorDetailInstance.applySpot(visitorFixture);
 assert.equal(visitorDetailInstance.data.customSections[0].displayTitle, 'First');

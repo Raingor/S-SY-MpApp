@@ -8,8 +8,10 @@ function localized(item, key, locale) {
 }
 
 Page({
-  data: { locale: 'zh-CN', i18n: i18n.getMessages(), category: 'online', title: '', spotName: '', items: [], visibleItems: [], searchText: '', filter: 'all', demoData: false, loading: true, failed: false },
+  data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), category: 'online', title: '', spotName: '', items: [], visibleItems: [], searchText: '', filter: 'all', demoData: false, loading: true, failed: false },
   onLoad(options) {
+    const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     this.attractionId = options && options.attractionId || '';
     this.category = options && options.category === 'expert' ? 'expert' : 'online';
     this.setData({ category: this.category });

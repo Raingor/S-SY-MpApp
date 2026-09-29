@@ -1,4 +1,5 @@
 <view class="guide-collection-page">
+  <view style="height: {{statusBarHeight}}px;"></view>
   <view class="guide-collection-nav"><view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="guide-collection-nav-title">{{title}}</view><view class="guide-collection-nav-space"></view></view>
   <view class="guide-collection-subtitle">{{spotName}}</view>
   <view class="guide-collection-search"><text class="guide-search-icon">⌕</text><input value="{{searchText}}" placeholder="{{i18n.heritage.searchGuidePoints}}" placeholder-class="guide-search-placeholder" bindinput="onSearchInput" confirm-type="search" /></view>

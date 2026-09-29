@@ -34,7 +34,8 @@ const websiteFixture = {
       id: 'acropolis', name: '雅典卫城', countryId: 'greece',
       image: './images/athens.webp',
       shareTitle: ' 雅典卫城 · 众神栖居的圣岩 ',
-      shareImage: './images/share-acropolis.webp'
+      shareImage: './images/share-acropolis.webp',
+      highlights: [{ id: 'acropolis-highlight-1', name: '帕特农神庙', image: './images/highlights-managed-test.jpg' }]
     },
     {
       id: 'old', name: '旧景点', countryId: 'greece', image: './images/delphi.webp'
@@ -77,6 +78,7 @@ async function main() {
   const spot = content.getAttraction('acropolis');
   assert.equal(spot.shareTitle, '雅典卫城 · 众神栖居的圣岩', 'shareTitle 去空格');
   assert.equal(spot.shareImage, 'https://content.example/images/share-acropolis.webp', 'shareImage ./images 归一化');
+  assert.equal(spot.highlights[0].image, 'https://content.example/images/highlights-managed-test.jpg', 'Website attractions[].highlights[].image 经 adaptAttractions 后应为可展示 URL');
   const old = content.getAttraction('old');
   assert.equal(old.shareTitle, '', '可空回退空串');
   assert.equal(old.shareImage, '', '可空回退空串');
@@ -117,6 +119,6 @@ async function main() {
   const dbl = content.getAttraction('double');
   assert.equal(dbl.shareImage, 'https://content.example/images/double-path.jpg', 'images/images 折叠为 /images/');
 
-  console.log('PASS: Website 契约联调 — shareTitle/shareImage 可空回退、./images 归一化、绝对URL保留、双images/折叠、attractionId 显式关联透传');
+  console.log('PASS: Website 契约联调 — shareTitle/shareImage 回退、亮点图片 adaptAttractions URL 映射、./images 归一化、绝对URL保留、双images/折叠、attractionId 透传');
 }
 main().catch((e) => { console.error(e); process.exitCode = 1; });
