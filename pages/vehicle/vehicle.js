@@ -1,6 +1,6 @@
 // 服务3：在地用车资源对接咨询
-// 页面文案与三组选项全部来自后台「在地用车」板块（GET /api/content → vehicleService），
-// 未配置时显示占位提示，不使用本地文案冒充正式数据。
+// 页面文案、表单 UI 文案与三组选项来自后台「在地用车」板块（GET /api/content → vehicleService）；
+// 后台未配置的部分回退本地 i18n 与默认值，不使用本地文案冒充后台内容。
 const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
@@ -12,6 +12,16 @@ const content = require('../../data/content');
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
   return item && (item[key + suffix] || item[key]) || '';
+}
+
+function todayIso() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+// 'today' 由客户端解析为当天，避免后台日期写死后过期。
+function resolveDateStart(value) {
+  return value === 'today' || !value ? todayIso() : value;
 }
 
 // 选项仅作展示与回传：id 稳定、label 随语言；不做任何业务判断。
@@ -42,6 +52,9 @@ Page({
     peopleOptions: [],
     peopleIndex: 0,
     peopleLabel: '',
+    dateStart: '',
+    dateEnd: '',
+    copy: {},
     form: {
       date: '',
       duration: '',
@@ -76,11 +89,38 @@ Page({
     }, true);
   },
 
+  compileCopy(service, locale) {
+    const msgs = (service && this.data.i18n) || this.data.i18n;
+    const texts = msgs && msgs.forms ? msgs.forms : {};
+    const backend = service && service.form ? service.form : null;
+    const pick = (key, fallback) => (backend ? localized(backend, key, locale) : '') || fallback || '';
+    const showPhone = backend ? backend.contactPhone !== false : true;
+    const showWechat = backend ? backend.contactWechat !== false : true;
+    return {
+      formTitle: pick('title', texts.vehiclePlan),
+      formTip: pick('tip', texts.vehicleTip),
+      dateLabel: pick('dateLabel', texts.vehicleDate),
+      durationLabel: pick('durationLabel', texts.vehicleDuration),
+      vehicleLabel: pick('vehicleLabel', texts.vehicleType),
+      peopleLabel: pick('peopleLabel', texts.people),
+      routeLabel: pick('routeLabel', texts.vehicleRoute),
+      contactLabel: pick('contactLabel', texts.contactMethod),
+      submitLabel: pick('submitLabel', texts.submitVehicle),
+      routePlaceholder: pick('routePlaceholder', texts.vehicleRoutePlaceholder),
+      phonePlaceholder: pick('phonePlaceholder', texts.phonePlaceholderShort),
+      wechatPlaceholder: pick('wechatPlaceholder', texts.wechatPlaceholder),
+      routeRequired: backend ? backend.routeRequired !== false : true,
+      showPhone,
+      showWechat
+    };
+  },
+
   applyLocale() {
     i18n.apply(this);
     const locale = i18n.getLocale();
     const service = this.service || null;
     const configured = Boolean(service && localized(service, 'title', locale));
+    const copy = this.compileCopy(service, locale);
     const durationOptions = toOptionList(service && service.options && service.options.duration, locale);
     const vehicleOptions = toOptionList(service && service.options && service.options.vehicle, locale);
     const peopleOptions = toOptionList(service && service.options && service.options.people, locale);
@@ -90,11 +130,17 @@ Page({
     const vehicleTypeId = pickId(form.vehicleType, vehicleOptions);
     const peopleId = pickId(form.people, peopleOptions);
     const peopleIndex = Math.max(0, peopleOptions.findIndex((item) => item.id === peopleId));
+    const backendForm = service && service.form ? service.form : null;
+    const contactType = copy.showPhone ? 'phone' : 'wechat';
     this.setData({
       locale,
       service: configured ? service : null,
       configured,
       tags: configured ? tagList(service, locale) : [],
+      copy,
+      dateStart: backendForm ? resolveDateStart(backendForm.dateStart) : todayIso(),
+      // 无上限时给 picker 一个合法结束日期，避免属性为空。
+      dateEnd: backendForm && backendForm.dateEnd ? backendForm.dateEnd : '2099-12-31',
       durationOptions,
       vehicleOptions,
       peopleOptions,
@@ -102,7 +148,8 @@ Page({
       peopleLabel: peopleOptions[peopleIndex] ? peopleOptions[peopleIndex].label : '',
       'form.duration': durationId,
       'form.vehicleType': vehicleTypeId,
-      'form.people': peopleId
+      'form.people': peopleId,
+      'form.contactType': copy.showPhone && copy.showWechat ? form.contactType : contactType
     });
   },
 
@@ -143,10 +190,11 @@ Page({
 
   onSubmit() {
     const copy = this.data.i18n;
+    const pageCopy = this.data.copy || {};
     const { form } = this.data;
     const route = form.route.trim();
     const contact = form.contact.trim();
-    if (!route) return wx.showToast({ title: copy.validation.vehicleRoute, icon: 'none' });
+    if (pageCopy.routeRequired && !route) return wx.showToast({ title: copy.validation.vehicleRoute, icon: 'none' });
     if (!contact) return wx.showToast({ title: copy.validation.contact, icon: 'none' });
     if (form.contactType === 'phone' && !/^1[3-9]\d{9}$/.test(contact)) {
       return wx.showToast({ title: copy.validation.phoneFormat, icon: 'none' });

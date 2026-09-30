@@ -95,18 +95,6 @@
   font-size: 18rpx;
 }
 
-.iti-days {
-  position: absolute;
-  right: 20rpx;
-  bottom: 20rpx;
-  padding: 6rpx 18rpx;
-  border-radius: 22rpx;
-  background: rgba(198, 161, 91, 0.9);
-  color: #FFFFFF;
-  font-size: 18rpx;
-  font-weight: 600;
-}
-
 .iti-body { padding: 24rpx 28rpx 26rpx; }
 
 .iti-name { color: #0B3C5D; font-size: 32rpx; }
@@ -133,7 +121,17 @@
   font-weight: 600;
 }
 
-.iti-crowd { color: #8AA3B5; font-size: 21rpx; }
+.iti-crowd {
+  flex: 1;
+  min-width: 0;
+  max-height: 3em;
+  margin-left: 16rpx;
+  overflow: hidden;
+  color: #8AA3B5;
+  font-size: 21rpx;
+  line-height: 1.5;
+  text-align: right;
+}
 
 .iti-consult {
   display: flex;

@@ -28,6 +28,15 @@ const vehicleFixture = {
   note: ' 注意事项 ', noteTw: '', noteEn: '',
   disclaimer: '', disclaimerTw: '', disclaimerEn: '',
   images: ['./images/vehicle-1.jpg', 'https://cdn.example.com/vehicle-2.jpg', ''],
+  form: {
+    title: '用车需求表', titleTw: '用車需求表', titleEn: 'Transport request',
+    tip: '提交后 24 小时内联系', tipTw: '', tipEn: '',
+    dateLabel: '出行日期', durationLabel: '用车时长', vehicleLabel: '车型', peopleLabel: '人数',
+    routeLabel: '路线需求', contactLabel: '联系方式', submitLabel: '提交用车咨询',
+    routePlaceholder: '例如：机场接送', phonePlaceholder: '手机号', wechatPlaceholder: '微信号',
+    contactPhone: true, contactWechat: false, routeRequired: false,
+    dateStart: 'today', dateEnd: ''
+  },
   options: {
     vehicle: [
       { id: 'vehicle-business', label: '商务车型', labelTw: '商務車型', labelEn: 'Business vehicle', sort: 3, enabled: true },
@@ -93,11 +102,38 @@ async function main() {
   assert.deepEqual(Array.from(service.options.duration, (item) => item.id), ['duration-half-day', 'duration-one-day']);
   assert.deepEqual(Array.from(service.options.people, (item) => item.id), ['people-1-2', 'people-6-plus']);
   assert.equal(service.options.vehicle[0].labelEn, 'BMW SUV / 5 seats');
+  assert(service.form, 'vehicleService.form 应被适配');
+  assert.equal(service.form.title, '用车需求表');
+  assert.equal(service.form.routeLabel, '路线需求');
+  assert.equal(service.form.routeRequired, false);
+  assert.equal(service.form.contactWechat, false);
+  assert.equal(service.form.dateStart, 'today');
+  assert.equal(service.form.dateEnd, '');
+
+  // 表单开关与日期的边界处理：守卫在适配器层完成。
+  content.invalidate();
+  await loadFixture({ ...baseContract, vehicleService: { ...vehicleFixture, form: { contactPhone: false, contactWechat: false, dateStart: 'soon', dateEnd: '2026-13-99' } } });
+  const guarded = content.getVehicleService().form;
+  assert.equal(guarded.contactPhone, true, '两种联系方式都关闭时至少保留手机');
+  assert.equal(guarded.dateStart, 'today', '非法 dateStart 回退 today');
+  assert.equal(guarded.dateEnd, '', '非法 dateEnd 被清除');
+
+  content.invalidate();
+  await loadFixture({ ...baseContract, vehicleService: { ...vehicleFixture, form: { ...vehicleFixture.form, dateStart: '2026-10-10', dateEnd: '2026-01-01' } } });
+  assert.equal(content.getVehicleService().form.dateEnd, '', 'dateEnd 早于 dateStart 时被清除');
+
+  content.invalidate();
+  await loadFixture({ ...baseContract, vehicleService: vehicleFixture });
 
   // 旧接口（无 vehicleService）与后台禁用：都必须是明确的空值，不能拿本地文案冒充。
   content.invalidate();
   await loadFixture({ ...baseContract });
   assert.equal(content.getVehicleService(), null, '旧接口缺字段时返回 null');
+
+  // 无 form 子对象时仍是 null，页面按本地文案兜底。
+  content.invalidate();
+  await loadFixture({ ...baseContract, vehicleService: { ...vehicleFixture, form: undefined } });
+  assert.equal(content.getVehicleService().form, null, 'form 缺失时为 null');
 
   content.invalidate();
   await loadFixture({ ...baseContract, vehicleService: { ...vehicleFixture, enabled: false } });
@@ -177,6 +213,16 @@ async function main() {
   assert.equal(zhPage.data.form.vehicleType, 'vehicle-bmw-suv-5', '默认选中第一项（sort 升序）');
   assert.equal(zhPage.data.form.duration, 'duration-half-day');
   assert.equal(zhPage.data.peopleLabel, '1-2人');
+  const today = new Date();
+  const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  assert.equal(zhPage.data.copy.formTitle, '用车需求表', '后台表单标题覆盖本地文案');
+  assert.equal(zhPage.data.copy.vehicleLabel, '车型');
+  assert.equal(zhPage.data.copy.submitLabel, '提交用车咨询');
+  assert.equal(zhPage.data.copy.routeRequired, false, '后台关闭路线必填');
+  assert.equal(zhPage.data.copy.showWechat, false, '后台关闭微信联系方式');
+  assert.equal(zhPage.data.form.contactType, 'phone', '只保留手机时自动选中手机');
+  assert.equal(zhPage.data.dateStart, todayIso, 'dateStart=today 解析为当天');
+  assert.equal(zhPage.data.dateEnd, '2099-12-31', '未配置结束日期时不限制上限');
 
   const enPage = makePage('en');
   enPage.service = service;
@@ -184,6 +230,22 @@ async function main() {
   assert.deepEqual(Array.from(enPage.data.vehicleOptions, (item) => item.label), ['BMW SUV / 5 seats', 'Business vehicle'], '英文走 labelEn');
   assert.deepEqual(Array.from(enPage.data.durationOptions, (item) => item.label), ['Half day', '1 day']);
   assert.equal(enPage.data.peopleOptions[0].label, '1–2 people');
+  assert.equal(enPage.data.copy.formTitle, 'Transport request');
+  // tipEn 留空时按既有约定回退简体（与一期 Tw/En 回填行为一致）。
+  assert.equal(enPage.data.copy.formTip, '提交后 24 小时内联系');
+
+  // 无 form 子对象：整块回退本地 UI 文案与默认开关。
+  const fallbackPage = makePage('zh-CN');
+  fallbackPage.service = { ...service, form: null };
+  fallbackPage.applyLocale();
+  const zhForms = i18n.getMessages('zh-CN').forms;
+  assert.equal(fallbackPage.data.copy.formTitle, zhForms.vehiclePlan);
+  assert.equal(fallbackPage.data.copy.dateLabel, zhForms.vehicleDate);
+  assert.equal(fallbackPage.data.copy.routePlaceholder, zhForms.vehicleRoutePlaceholder);
+  assert.equal(fallbackPage.data.copy.routeRequired, true, '无 form 时路线默认必填');
+  assert.equal(fallbackPage.data.copy.showPhone && fallbackPage.data.copy.showWechat, true);
+  assert.equal(fallbackPage.data.dateStart, todayIso);
+  assert.equal(fallbackPage.data.dateEnd, '2099-12-31');
 
   const pendingPage = makePage('zh-CN');
   pendingPage.service = null;
@@ -209,9 +271,29 @@ async function main() {
   assert.equal(capturedPayload.bookingDate, '2026-10-01');
   assert.equal(capturedPayload.route, '雅典机场接送');
 
+  // routeRequired=false：路线留空也允许提交。
+  capturedPayload = null;
+  zhPage.data.form = { ...zhPage.data.form, route: '' };
+  zhPage.data.submitting = false;
+  zhPage.onSubmit();
+  assert(capturedPayload, 'routeRequired=false 时路线留空仍可提交');
+  assert.equal(capturedPayload.route, '');
+
+  // routeRequired=true：路线留空被拦截，不发请求。
+  capturedPayload = null;
+  toasts.length = 0;
+  const strictPage = makePage('zh-CN');
+  strictPage.service = { ...service, form: { ...service.form, routeRequired: true } };
+  strictPage.applyLocale();
+  strictPage.data.form = { date: '', duration: '', vehicleType: '', people: '', route: '   ', contactType: 'phone', contact: '13800000000' };
+  strictPage.onSubmit();
+  assert.equal(capturedPayload, null, '路线必填未通过时不应发请求');
+  assert.deepEqual(toasts, [i18n.getMessages('zh-CN').validation.vehicleRoute]);
+
   // 未选任何选项时（后台未配置选项）不应伪造 label，只提交空串与空 id。
   capturedPayload = null;
   const barePage = makePage('zh-CN');
+  barePage.applyLocale();
   barePage.data.form = { date: '', duration: '', vehicleType: '', people: '', route: '需要用车', contactType: 'phone', contact: '13800000000' };
   barePage.onSubmit();
   assert.equal(capturedPayload.vehicleType, '');

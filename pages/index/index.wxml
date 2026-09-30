@@ -168,14 +168,14 @@
         <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
           <view class="route-img-wrap">
             <image class="route-img" src="{{item.img}}" mode="aspectFill" />
-            <view class="route-tag">{{item.tag}}</view>
+            <view wx:if="{{item.days}}" class="route-tag">{{item.days}}{{locale === 'en' ? ' days' : '天'}}</view>
           </view>
           <view class="route-body">
             <view class="route-name ellipsis">{{item.name}}</view>
             <view class="route-highlights ellipsis">{{item.highlights}}</view>
             <view class="route-foot">
               <view class="btn-inquiry">{{i18n.viewReference}}</view>
-              <view class="route-crowd">{{item.crowd}}</view>
+              <view class="route-crowd ellipsis-2">{{item.crowd}}</view>
             </view>
           </view>
         </view>

@@ -265,6 +265,39 @@ function adaptVehicleTextList(value) {
     .map((item) => item.trim());
 }
 
+// 表单 UI 文案与开关：可选子对象，缺失时页面回退本地 i18n 与默认值。
+const VEHICLE_FORM_TEXT_KEYS = ['title', 'tip', 'dateLabel', 'durationLabel', 'vehicleLabel', 'peopleLabel', 'routeLabel', 'contactLabel', 'submitLabel', 'routePlaceholder', 'phonePlaceholder', 'wechatPlaceholder'];
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+function isIsoDate(value) {
+  if (!ISO_DATE.test(value)) return false;
+  const parsed = new Date(value + 'T00:00:00Z');
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function adaptVehicleForm(remote) {
+  if (!remote || typeof remote !== 'object') return null;
+  const text = (value) => (typeof value === 'string' ? value.trim() : '');
+  const form = {
+    contactPhone: remote.contactPhone !== false,
+    contactWechat: remote.contactWechat !== false,
+    routeRequired: remote.routeRequired !== false,
+    dateStart: text(remote.dateStart) || 'today',
+    dateEnd: text(remote.dateEnd)
+  };
+  for (const key of VEHICLE_FORM_TEXT_KEYS) {
+    form[key] = text(remote[key]);
+    form[key + 'Tw'] = text(remote[key + 'Tw']);
+    form[key + 'En'] = text(remote[key + 'En']);
+  }
+  // 至少保留一种联系方式，避免表单无法提交。
+  if (!form.contactPhone && !form.contactWechat) form.contactPhone = true;
+  if (form.dateStart !== 'today' && !isIsoDate(form.dateStart)) form.dateStart = 'today';
+  if (form.dateEnd && !isIsoDate(form.dateEnd)) form.dateEnd = '';
+  if (form.dateEnd && form.dateStart !== 'today' && form.dateEnd < form.dateStart) form.dateEnd = '';
+  return form;
+}
+
 function adaptVehicleService(remote) {
   if (!remote || typeof remote !== 'object') return null;
   const text = (value) => (typeof value === 'string' ? value.trim() : '');
@@ -279,6 +312,7 @@ function adaptVehicleService(remote) {
     note: text(remote.note), noteTw: text(remote.noteTw), noteEn: text(remote.noteEn),
     disclaimer: text(remote.disclaimer), disclaimerTw: text(remote.disclaimerTw), disclaimerEn: text(remote.disclaimerEn),
     images: adaptVehicleTextList(remote.images).map(mapManagedImage),
+    form: adaptVehicleForm(remote.form),
     options: {
       vehicle: adaptVehicleOptionList(options.vehicle),
       duration: adaptVehicleOptionList(options.duration),

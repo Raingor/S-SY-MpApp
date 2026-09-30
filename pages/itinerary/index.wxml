@@ -20,15 +20,14 @@
     <view class="iti-card card" hover-class="card-press" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
       <view class="iti-img-wrap">
         <image class="iti-img" src="{{item.img}}" mode="aspectFill" />
-        <view class="iti-tag">{{item.tag}}</view>
-        <view class="iti-days">{{item.days}}{{locale === 'en' ? ' days ' : '天'}}{{item.days - 1}}{{locale === 'en' ? ' nights' : '晚'}}</view>
+        <view wx:if="{{item.days}}" class="iti-tag">{{item.days}}{{locale === 'en' ? ' days' : '天'}}</view>
       </view>
       <view class="iti-body">
         <view class="iti-name serif">{{item.title}}</view>
         <view class="iti-highlights ellipsis">{{item.highlights}}</view>
         <view class="iti-foot">
           <view class="iti-cta">{{i18n.itineraryPage.cta}}</view>
-          <view class="iti-crowd">{{item.crowd}}</view>
+          <view class="iti-crowd ellipsis-2">{{item.crowd}}</view>
         </view>
       </view>
     </view>

@@ -648,8 +648,15 @@
 }
 
 .route-crowd {
+  flex: 1;
+  min-width: 0;
+  max-height: 2.9em;
+  margin-left: 16rpx;
+  overflow: hidden;
   font-size: 24rpx;
+  line-height: 1.45;
   color: var(--c-weak);
+  text-align: right;
 }
 
 /* ===== 5. 奢享体验 ===== */

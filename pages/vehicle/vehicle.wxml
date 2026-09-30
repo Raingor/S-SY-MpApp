@@ -22,52 +22,52 @@
   </view>
 
   <view class="consult-card">
-    <view class="consult-card-title serif">{{i18n.forms.vehiclePlan}}</view>
-    <view class="consult-card-tip">{{i18n.forms.vehicleTip}}</view>
+    <view class="consult-card-title serif">{{copy.formTitle}}</view>
+    <view class="consult-card-tip">{{copy.formTip}}</view>
 
     <view class="consult-field">
-      <view class="consult-label">{{i18n.forms.vehicleDate}}</view>
-      <picker mode="date" start="2026-09-14" bindchange="onDateChange">
+      <view class="consult-label">{{copy.dateLabel}}</view>
+      <picker mode="date" start="{{dateStart}}" end="{{dateEnd}}" bindchange="onDateChange">
         <view class="consult-picker">{{form.date || i18n.forms.chooseDate}}<text>›</text></view>
       </picker>
     </view>
 
     <view wx:if="{{durationOptions.length}}" class="consult-field">
-      <view class="consult-label">{{i18n.forms.vehicleDuration}}</view>
+      <view class="consult-label">{{copy.durationLabel}}</view>
       <view class="consult-options">
         <view wx:for="{{durationOptions}}" wx:key="id" class="consult-option {{form.duration === item.id ? 'consult-option-on' : ''}}" data-field="duration" data-value="{{item.id}}" bindtap="onOptionTap">{{item.label}}</view>
       </view>
     </view>
 
     <view wx:if="{{vehicleOptions.length}}" class="consult-field">
-      <view class="consult-label">{{i18n.forms.vehicleType}}</view>
+      <view class="consult-label">{{copy.vehicleLabel}}</view>
       <view class="consult-options">
         <view wx:for="{{vehicleOptions}}" wx:key="id" class="consult-option {{form.vehicleType === item.id ? 'consult-option-on' : ''}}" data-field="vehicleType" data-value="{{item.id}}" bindtap="onOptionTap">{{item.label}}</view>
       </view>
     </view>
 
     <view wx:if="{{peopleOptions.length}}" class="consult-field">
-      <view class="consult-label">{{i18n.forms.people}}</view>
+      <view class="consult-label">{{copy.peopleLabel}}</view>
       <picker range="{{peopleOptions}}" range-key="label" value="{{peopleIndex}}" bindchange="onPeopleChange">
         <view class="consult-picker">{{peopleLabel}}<text>⌄</text></view>
       </picker>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">{{i18n.forms.vehicleRoute}} <text>{{i18n.forms.industryRequired}}</text></view>
-      <textarea class="consult-textarea" maxlength="240" placeholder="{{i18n.forms.vehicleRoutePlaceholder}}" placeholder-class="consult-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
+      <view class="consult-label">{{copy.routeLabel}} <text wx:if="{{copy.routeRequired}}">{{i18n.forms.industryRequired}}</text></view>
+      <textarea class="consult-textarea" maxlength="240" placeholder="{{copy.routePlaceholder}}" placeholder-class="consult-placeholder" value="{{form.route}}" data-field="route" bindinput="onInput"></textarea>
     </view>
 
     <view class="consult-field">
-      <view class="consult-label">{{i18n.forms.contactMethod}} <text>{{i18n.forms.contactChoose}}</text></view>
+      <view class="consult-label">{{copy.contactLabel}} <text wx:if="{{copy.showPhone && copy.showWechat}}">{{i18n.forms.contactChoose}}</text></view>
       <view class="consult-contact-switch">
-        <view class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">{{i18n.profile.phone}}</view>
-        <view class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">{{i18n.forms.wechat}}</view>
+        <view wx:if="{{copy.showPhone}}" class="consult-contact-type {{form.contactType === 'phone' ? 'consult-contact-on' : ''}}" data-type="phone" bindtap="onContactTypeTap">{{i18n.profile.phone}}</view>
+        <view wx:if="{{copy.showWechat}}" class="consult-contact-type {{form.contactType === 'wechat' ? 'consult-contact-on' : ''}}" data-type="wechat" bindtap="onContactTypeTap">{{i18n.forms.wechat}}</view>
       </view>
-      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? i18n.forms.phonePlaceholderShort : i18n.forms.wechatPlaceholder}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
+      <input class="consult-input" type="{{form.contactType === 'phone' ? 'number' : 'text'}}" maxlength="{{form.contactType === 'phone' ? 11 : 40}}" placeholder="{{form.contactType === 'phone' ? copy.phonePlaceholder : copy.wechatPlaceholder}}" placeholder-class="consult-placeholder" value="{{form.contact}}" data-field="contact" bindinput="onInput" />
     </view>
 
-    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitVehicle}}</button>
+    <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : copy.submitLabel}}</button>
     <view wx:if="{{service.note}}" class="consult-note">{{service.note}}</view>
     <view wx:if="{{service.disclaimer}}" class="consult-note">{{service.disclaimer}}</view>
   </view>
