@@ -88,70 +88,6 @@
     </swiper-item>
   </swiper>
 
-  <!-- 甄选路线语音导览 -->
-  <view class="route-audio card">
-    <view class="route-audio-head">
-      <view>
-        <view class="eyebrow route-audio-kicker">{{i18n.routeAudio.kicker}}</view>
-        <view class="route-audio-title serif">{{i18n.routeAudio.title}}</view>
-        <view class="route-audio-desc">{{i18n.routeAudio.desc}}</view>
-      </view>
-      <view class="route-audio-mark">♫</view>
-    </view>
-    <view class="route-audio-controls">
-      <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
-        <view class="route-audio-icon {{routeAudioPlaying ? 'route-audio-icon-pause' : 'route-audio-icon-play'}}"></view>
-        <view class="route-audio-control-label">{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}</view>
-      </view>
-      <view class="route-audio-time">{{routeAudioCurrentTime}} <text>/ 1:00</text></view>
-      <view class="route-audio-restart" hover-class="route-audio-control-press" bindtap="onRouteAudioRestart" aria-label="{{i18n.routeAudio.restart}}">↺</view>
-    </view>
-    <view class="route-audio-progress"><view class="route-audio-progress-bar" style="width: {{routeAudioProgress}}%;"></view></view>
-    <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
-    <view class="route-audio-more" bindtap="onRouteAudioMore">{{i18n.routeAudio.more}} ›</view>
-  </view>
-
-  <!-- ===== 4. 甄选路线 ===== -->
-  <view class="section">
-    <view class="section-head">
-      <view>
-        <view class="eyebrow">SELECTED ROUTES</view>
-        <view class="section-title serif">{{i18n.selectedRoutes}}</view>
-      </view>
-      <view class="section-more" bindtap="onMoreRoutes">{{i18n.viewAllRoutes}} ›</view>
-    </view>
-
-    <scroll-view class="route-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" enable-flex="true">
-      <view class="route-scroll-track">
-        <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
-          <view class="route-img-wrap">
-            <image class="route-img" src="{{item.img}}" mode="aspectFill" />
-            <view class="route-tag">{{item.tag}}</view>
-          </view>
-          <view class="route-body">
-            <view class="route-name ellipsis">{{item.name}}</view>
-            <view class="route-highlights ellipsis">{{item.highlights}}</view>
-            <view class="route-foot">
-              <view class="btn-inquiry">{{i18n.viewReference}}</view>
-              <view class="route-crowd">{{item.crowd}}</view>
-            </view>
-          </view>
-        </view>
-        <view class="route-scroll-end-gap" aria-hidden="true"></view>
-      </view>
-    </scroll-view>
-
-    <!-- 定制行程入口（与路线区同屏，明显位置） -->
-    <view class="custom-trip-entry card" bindtap="onCustomTripTap">
-      <view class="custom-trip-main">
-        <view class="eyebrow custom-trip-kicker">CUSTOM ITINERARY</view>
-        <view class="custom-trip-title serif">{{i18n.customItinerary}}</view>
-        <view class="custom-trip-desc">{{i18n.customItineraryDesc}}</view>
-      </view>
-      <view class="custom-trip-arrow">›</view>
-    </view>
-  </view>
-
   <!-- ===== 4. 精选目的地 ===== -->
   <view class="section">
     <view class="section-head">
@@ -194,7 +130,71 @@
     </block>
   </view>
 
-  <!-- ===== 5. 奢享体验（目的地之后） ===== -->
+  <!-- 甄选路线语音导览 -->
+  <view class="route-audio card">
+    <view class="route-audio-head">
+      <view>
+        <view class="eyebrow route-audio-kicker">{{i18n.routeAudio.kicker}}</view>
+        <view class="route-audio-title serif">{{i18n.routeAudio.title}}</view>
+        <view class="route-audio-desc">{{i18n.routeAudio.desc}}</view>
+      </view>
+      <view class="route-audio-mark">♫</view>
+    </view>
+    <view class="route-audio-controls">
+      <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
+        <view class="route-audio-icon {{routeAudioPlaying ? 'route-audio-icon-pause' : 'route-audio-icon-play'}}"></view>
+        <view class="route-audio-control-label">{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}</view>
+      </view>
+      <view class="route-audio-time">{{routeAudioCurrentTime}} <text>/ 1:00</text></view>
+      <view class="route-audio-restart" hover-class="route-audio-control-press" bindtap="onRouteAudioRestart" aria-label="{{i18n.routeAudio.restart}}">↺</view>
+    </view>
+    <view class="route-audio-progress"><view class="route-audio-progress-bar" style="width: {{routeAudioProgress}}%;"></view></view>
+    <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
+    <view class="route-audio-more" bindtap="onRouteAudioMore">{{i18n.routeAudio.more}} ›</view>
+  </view>
+
+  <!-- ===== 5. 甄选路线 ===== -->
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="eyebrow">SELECTED ROUTES</view>
+        <view class="section-title serif">{{i18n.selectedRoutes}}</view>
+      </view>
+      <view class="section-more" bindtap="onMoreRoutes">{{i18n.viewAllRoutes}} ›</view>
+    </view>
+
+    <scroll-view class="route-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" enable-flex="true">
+      <view class="route-scroll-track">
+        <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
+          <view class="route-img-wrap">
+            <image class="route-img" src="{{item.img}}" mode="aspectFill" />
+            <view class="route-tag">{{item.tag}}</view>
+          </view>
+          <view class="route-body">
+            <view class="route-name ellipsis">{{item.name}}</view>
+            <view class="route-highlights ellipsis">{{item.highlights}}</view>
+            <view class="route-foot">
+              <view class="btn-inquiry">{{i18n.viewReference}}</view>
+              <view class="route-crowd">{{item.crowd}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="route-scroll-end-gap" aria-hidden="true"></view>
+      </view>
+    </scroll-view>
+
+    <!-- 定制行程入口（与路线区同屏，明显位置） -->
+    <view class="custom-trip-entry card" bindtap="onCustomTripTap">
+      <view class="custom-trip-main">
+        <view class="eyebrow custom-trip-kicker">CUSTOM ITINERARY</view>
+        <view class="custom-trip-title serif">{{i18n.customItinerary}}</view>
+        <view class="custom-trip-desc">{{i18n.customItineraryDesc}}</view>
+      </view>
+      <view class="custom-trip-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- ===== 6. 奢享体验（目的地之后） ===== -->
   <view class="section">
     <view class="section-head">
       <view>
@@ -221,7 +221,7 @@
     </scroll-view>
   </view>
 
-  <!-- ===== 6. 品牌页脚 ===== -->
+  <!-- ===== 7. 品牌页脚 ===== -->
   <view class="footer">
     <view class="footer-line"></view>
     <view class="footer-site" bindtap="onSiteTap">sy-greece.com</view>
