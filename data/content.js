@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, vehicleService: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -245,6 +245,48 @@ function getMiniProgramServiceEntries(source, locale = 'zh-CN') {
   })).filter((item) => item.label && item.desc);
 }
 
+// 后台「在地用车」板块：字段缺失（旧接口）时返回 null，由页面显示待配置占位，不用本地文案冒充。
+function adaptVehicleOptionList(remoteOptions) {
+  return (Array.isArray(remoteOptions) ? remoteOptions : [])
+    .filter((item) => item && item.enabled !== false && String(item.label || '').trim())
+    .map((item) => ({
+      id: String(item.id === undefined || item.id === null ? '' : item.id).trim(),
+      label: String(item.label || '').trim(),
+      labelTw: String(item.labelTw || '').trim(),
+      labelEn: String(item.labelEn || '').trim(),
+      sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : 0
+    }))
+    .sort((a, b) => a.sort - b.sort);
+}
+
+function adaptVehicleTextList(value) {
+  return (Array.isArray(value) ? value : [])
+    .filter((item) => typeof item === 'string' && item.trim())
+    .map((item) => item.trim());
+}
+
+function adaptVehicleService(remote) {
+  if (!remote || typeof remote !== 'object') return null;
+  const text = (value) => (typeof value === 'string' ? value.trim() : '');
+  const options = remote.options && typeof remote.options === 'object' ? remote.options : {};
+  return {
+    enabled: remote.enabled !== false,
+    sort: Number.isFinite(Number(remote.sort)) ? Number(remote.sort) : 0,
+    title: text(remote.title), titleTw: text(remote.titleTw), titleEn: text(remote.titleEn),
+    subtitle: text(remote.subtitle), subtitleTw: text(remote.subtitleTw), subtitleEn: text(remote.subtitleEn),
+    description: text(remote.description), descriptionTw: text(remote.descriptionTw), descriptionEn: text(remote.descriptionEn),
+    tags: adaptVehicleTextList(remote.tags), tagsTw: adaptVehicleTextList(remote.tagsTw), tagsEn: adaptVehicleTextList(remote.tagsEn),
+    note: text(remote.note), noteTw: text(remote.noteTw), noteEn: text(remote.noteEn),
+    disclaimer: text(remote.disclaimer), disclaimerTw: text(remote.disclaimerTw), disclaimerEn: text(remote.disclaimerEn),
+    images: adaptVehicleTextList(remote.images).map(mapManagedImage),
+    options: {
+      vehicle: adaptVehicleOptionList(options.vehicle),
+      duration: adaptVehicleOptionList(options.duration),
+      people: adaptVehicleOptionList(options.people)
+    }
+  };
+}
+
 function adaptDestinations(remoteDestinations) {
   return (remoteDestinations || []).map((destination) => ({
     id: destination.id,
@@ -332,6 +374,7 @@ function fetchContent() {
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
             heritageGuideBanners: adaptHeritageGuideBanners(res.data.heritageGuideBanners),
             miniprogramServiceEntries: adaptMiniProgramServiceEntries(res.data.miniprogramServiceEntries),
+            vehicleService: adaptVehicleService(res.data.vehicleService),
             attractionDetailPage: res.data.attractionDetailPage && typeof res.data.attractionDetailPage === 'object' ? res.data.attractionDetailPage : null,
             home: adaptHome(res.data.home)
           };
@@ -381,6 +424,10 @@ function getContent(source) {
 
 function getCountries(source) {
   return getContent(source).countries || [DEFAULT_COUNTRY];
+}
+
+function getVehicleService(source) {
+  return getContent(source).vehicleService || null;
 }
 
 function getGuides(source) {
@@ -522,6 +569,7 @@ module.exports = {
   getReferenceList,
   getHomeDestinations,
   getMiniProgramServiceEntries,
+  getVehicleService,
   getCountries,
   getGuides,
   getGuide,

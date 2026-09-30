@@ -10,13 +10,14 @@
     </view>
     <view class="consult-hero-body">
       <view class="consult-kicker">LOCAL MOBILITY CONSULTATION</view>
-      <view class="consult-title serif">{{i18n.vehicleTitle}}<br />{{i18n.vehicleSubtitle}}</view>
-      <view class="consult-subtitle">{{i18n.vehicleDescription}}</view>
-      <view class="consult-tag-row">
-        <view class="consult-tag">{{i18n.vehicleTag1}}</view>
-        <view class="consult-tag">{{i18n.vehicleTag2}}</view>
-        <view class="consult-tag">{{i18n.vehicleTag3}}</view>
-      </view>
+      <block wx:if="{{configured}}">
+        <view class="consult-title serif">{{service.title}}<br />{{service.subtitle}}</view>
+        <view wx:if="{{service.description}}" class="consult-subtitle">{{service.description}}</view>
+        <view wx:if="{{tags.length}}" class="consult-tag-row">
+          <view class="consult-tag" wx:for="{{tags}}" wx:key="*this">{{item}}</view>
+        </view>
+      </block>
+      <view wx:else class="consult-subtitle">{{i18n.vehiclePending}}</view>
     </view>
   </view>
 
@@ -31,24 +32,24 @@
       </picker>
     </view>
 
-    <view class="consult-field">
+    <view wx:if="{{durationOptions.length}}" class="consult-field">
       <view class="consult-label">{{i18n.forms.vehicleDuration}}</view>
       <view class="consult-options">
-        <view wx:for="{{durationOptions}}" wx:key="*this" class="consult-option {{form.duration === item ? 'consult-option-on' : ''}}" data-field="duration" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
+        <view wx:for="{{durationOptions}}" wx:key="id" class="consult-option {{form.duration === item.id ? 'consult-option-on' : ''}}" data-field="duration" data-value="{{item.id}}" bindtap="onOptionTap">{{item.label}}</view>
       </view>
     </view>
 
-    <view class="consult-field">
+    <view wx:if="{{vehicleOptions.length}}" class="consult-field">
       <view class="consult-label">{{i18n.forms.vehicleType}}</view>
       <view class="consult-options">
-        <view wx:for="{{vehicleOptions}}" wx:key="*this" class="consult-option {{form.vehicleType === item ? 'consult-option-on' : ''}}" data-field="vehicleType" data-value="{{item}}" bindtap="onOptionTap">{{item}}</view>
+        <view wx:for="{{vehicleOptions}}" wx:key="id" class="consult-option {{form.vehicleType === item.id ? 'consult-option-on' : ''}}" data-field="vehicleType" data-value="{{item.id}}" bindtap="onOptionTap">{{item.label}}</view>
       </view>
     </view>
 
-    <view class="consult-field">
+    <view wx:if="{{peopleOptions.length}}" class="consult-field">
       <view class="consult-label">{{i18n.forms.people}}</view>
-      <picker range="{{peopleOptions}}" value="0" bindchange="onPeopleChange">
-        <view class="consult-picker">{{form.people}}<text>⌄</text></view>
+      <picker range="{{peopleOptions}}" range-key="label" value="{{peopleIndex}}" bindchange="onPeopleChange">
+        <view class="consult-picker">{{peopleLabel}}<text>⌄</text></view>
       </picker>
     </view>
 
@@ -67,7 +68,8 @@
     </view>
 
     <button class="consult-submit" hover-class="consult-submit-hover" bindtap="onSubmit" disabled="{{submitting}}">{{submitting ? i18n.submitting : i18n.forms.submitVehicle}}</button>
-    <view class="consult-note">{{i18n.vehicleNote}}</view>
+    <view wx:if="{{service.note}}" class="consult-note">{{service.note}}</view>
+    <view wx:if="{{service.disclaimer}}" class="consult-note">{{service.disclaimer}}</view>
   </view>
   <view class="consult-footer">{{i18n.commonSlogan}}</view>
 </view>

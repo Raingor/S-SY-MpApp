@@ -1,4 +1,6 @@
 // 服务3：在地用车资源对接咨询
+// 页面文案与三组选项全部来自后台「在地用车」板块（GET /api/content → vehicleService），
+// 未配置时显示占位提示，不使用本地文案冒充正式数据。
 const { isSuccessfulLeadResponse, leadErrorMessage } = require('../../utils/lead-api');
 const auth = require('../../utils/auth');
 const app = getApp();
@@ -7,10 +9,24 @@ const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const content = require('../../data/content');
 
-function vehicleOptions(locale) {
-  if (locale === 'en') return { duration: ['Half day', '1 day', 'Multiple days'], vehicle: ['BMW SUV / 5 seats', 'Comfort sedan', 'Business vehicle'], people: ['1–2 people', '3–5 people', '6+ people'] };
-  if (locale === 'zh-TW') return { duration: ['半日', '1日', '多日'], vehicle: ['BMW SUV / 5座', '舒適型轎車', '商務車型'], people: ['1-2人', '3-5人', '6人以上'] };
-  return { duration: ['半日', '1日', '多日'], vehicle: ['宝马 SUV / 5座', '舒适型轿车', '商务车型'], people: ['1-2人', '3-5人', '6人以上'] };
+function localized(item, key, locale) {
+  const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
+  return item && (item[key + suffix] || item[key]) || '';
+}
+
+// 选项仅作展示与回传：id 稳定、label 随语言；不做任何业务判断。
+function toOptionList(options, locale) {
+  return (Array.isArray(options) ? options : []).map((item) => ({
+    id: item && item.id ? item.id : '',
+    label: localized(item, 'label', locale)
+  })).filter((item) => item.id && item.label);
+}
+
+function tagList(service, locale) {
+  const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
+  const localizedTags = Array.isArray(service['tags' + suffix]) ? service['tags' + suffix] : [];
+  const source = localizedTags.length ? localizedTags : (Array.isArray(service.tags) ? service.tags : []);
+  return source.filter((item) => typeof item === 'string' && item.trim());
 }
 
 Page({
@@ -18,14 +34,19 @@ Page({
     statusBarHeight: 20,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
-    durationOptions: ['半日', '1日', '多日'],
-    vehicleOptions: ['宝马 SUV / 5座', '舒适型轿车', '商务车型'],
-    peopleOptions: ['1-2人', '3-5人', '6人以上'],
+    configured: false,
+    service: null,
+    tags: [],
+    durationOptions: [],
+    vehicleOptions: [],
+    peopleOptions: [],
+    peopleIndex: 0,
+    peopleLabel: '',
     form: {
       date: '',
-      duration: '1日',
-      vehicleType: '宝马 SUV / 5座',
-      people: '1-2人',
+      duration: '',
+      vehicleType: '',
+      people: '',
       route: '',
       contactType: 'phone',
       contact: ''
@@ -44,16 +65,45 @@ Page({
   },
 
   onShow() {
-    this.applyLocale();
+    this.loadService();
+  },
+
+  loadService() {
+    content.loadContent((data) => {
+      const service = content.getVehicleService(data);
+      this.service = service && service.enabled !== false ? service : null;
+      this.applyLocale();
+    }, true);
   },
 
   applyLocale() {
-    const copy = i18n.apply(this);
-    const options = vehicleOptions(i18n.getLocale());
+    i18n.apply(this);
+    const locale = i18n.getLocale();
+    const service = this.service || null;
+    const configured = Boolean(service && localized(service, 'title', locale));
+    const durationOptions = toOptionList(service && service.options && service.options.duration, locale);
+    const vehicleOptions = toOptionList(service && service.options && service.options.vehicle, locale);
+    const peopleOptions = toOptionList(service && service.options && service.options.people, locale);
     const form = this.data.form || {};
-    const pick = (value, list, fallback = list[0]) => list.includes(value) ? value : fallback;
-    this.setData({ durationOptions: options.duration, vehicleOptions: options.vehicle, peopleOptions: options.people, 'form.duration': pick(form.duration, options.duration, options.duration[1]), 'form.vehicleType': pick(form.vehicleType, options.vehicle), 'form.people': pick(form.people, options.people) });
-    return copy;
+    const pickId = (value, list) => (list.some((item) => item.id === value) ? value : (list[0] ? list[0].id : ''));
+    const durationId = pickId(form.duration, durationOptions);
+    const vehicleTypeId = pickId(form.vehicleType, vehicleOptions);
+    const peopleId = pickId(form.people, peopleOptions);
+    const peopleIndex = Math.max(0, peopleOptions.findIndex((item) => item.id === peopleId));
+    this.setData({
+      locale,
+      service: configured ? service : null,
+      configured,
+      tags: configured ? tagList(service, locale) : [],
+      durationOptions,
+      vehicleOptions,
+      peopleOptions,
+      peopleIndex,
+      peopleLabel: peopleOptions[peopleIndex] ? peopleOptions[peopleIndex].label : '',
+      'form.duration': durationId,
+      'form.vehicleType': vehicleTypeId,
+      'form.people': peopleId
+    });
   },
 
   onBack() {
@@ -69,7 +119,13 @@ Page({
   },
 
   onPeopleChange(e) {
-    this.setData({ 'form.people': this.data.peopleOptions[Number(e.detail.value)] });
+    const index = Number(e.detail.value) || 0;
+    const option = this.data.peopleOptions[index];
+    this.setData({
+      peopleIndex: index,
+      peopleLabel: option ? option.label : '',
+      'form.people': option ? option.id : ''
+    });
   },
 
   onContactTypeTap(e) {
@@ -78,6 +134,11 @@ Page({
 
   onInput(e) {
     this.setData({ [`form.${e.currentTarget.dataset.field}`]: e.detail.value });
+  },
+
+  optionLabel(options, id) {
+    const found = (options || []).find((item) => item.id === id);
+    return found ? found.label : '';
   },
 
   onSubmit() {
@@ -94,6 +155,10 @@ Page({
 
     const apiBase = (app.globalData.apiBase || '').replace(/\/$/, '');
     if (!apiBase) return wx.showToast({ title: copy.validation.notConfigured, icon: 'none' });
+    // label 字段保持原样（后台「用车询盘」按 label 展示），同时回传稳定 id 供后台持久化。
+    const durationLabel = this.optionLabel(this.data.durationOptions, form.duration);
+    const vehicleTypeLabel = this.optionLabel(this.data.vehicleOptions, form.vehicleType);
+    const peopleLabel = this.optionLabel(this.data.peopleOptions, form.people);
     const payload = {
       source: 'miniprogram',
       platform: 'wechat-miniprogram',
@@ -101,10 +166,13 @@ Page({
       countryId: content.getSelectedCountryId(),
       destination: content.countryName((content.getCountries() || []).find((item) => item.id === content.getSelectedCountryId()), this.data.locale) || '希腊',
       bookingDate: form.date,
-      duration: form.duration,
-      vehicleType: form.vehicleType,
-      travelers: form.people,
-      people: form.people,
+      duration: durationLabel,
+      vehicleType: vehicleTypeLabel,
+      travelers: peopleLabel,
+      people: peopleLabel,
+      durationId: form.duration,
+      vehicleTypeId: form.vehicleType,
+      peopleId: form.people,
       route,
       contactType: form.contactType,
       contact
