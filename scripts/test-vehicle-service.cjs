@@ -215,14 +215,26 @@ async function main() {
   assert.equal(zhPage.data.peopleLabel, '1-2人');
   const today = new Date();
   const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const tomorrow = new Date();
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowIso = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
   assert.equal(zhPage.data.copy.formTitle, '用车需求表', '后台表单标题覆盖本地文案');
   assert.equal(zhPage.data.copy.vehicleLabel, '车型');
   assert.equal(zhPage.data.copy.submitLabel, '提交用车咨询');
   assert.equal(zhPage.data.copy.routeRequired, false, '后台关闭路线必填');
   assert.equal(zhPage.data.copy.showWechat, false, '后台关闭微信联系方式');
   assert.equal(zhPage.data.form.contactType, 'phone', '只保留手机时自动选中手机');
-  assert.equal(zhPage.data.dateStart, todayIso, 'dateStart=today 解析为当天');
+  assert.equal(zhPage.data.dateStart, tomorrowIso, 'dateStart=today 时将可选下限收紧为明天');
   assert.equal(zhPage.data.dateEnd, '2099-12-31', '未配置结束日期时不限制上限');
+  zhPage.onDateChange({ detail: { value: todayIso } });
+  assert.equal(zhPage.data.form.date, '', '日期变更处理器拒绝今天及历史日期');
+  assert(toasts.includes(i18n.getMessages('zh-CN').validation.vehicleDateFuture));
+
+  const staleStartPage = makePage('zh-CN');
+  staleStartPage.service = { ...service, form: { ...service.form, dateStart: '2020-01-01' } };
+  staleStartPage.applyLocale();
+  assert.equal(staleStartPage.data.dateStart, tomorrowIso, '后台配置的历史下限不能开放历史日期');
 
   const enPage = makePage('en');
   enPage.service = service;
@@ -244,7 +256,7 @@ async function main() {
   assert.equal(fallbackPage.data.copy.routePlaceholder, zhForms.vehicleRoutePlaceholder);
   assert.equal(fallbackPage.data.copy.routeRequired, true, '无 form 时路线默认必填');
   assert.equal(fallbackPage.data.copy.showPhone && fallbackPage.data.copy.showWechat, true);
-  assert.equal(fallbackPage.data.dateStart, todayIso);
+  assert.equal(fallbackPage.data.dateStart, tomorrowIso);
   assert.equal(fallbackPage.data.dateEnd, '2099-12-31');
 
   const pendingPage = makePage('zh-CN');
@@ -255,8 +267,19 @@ async function main() {
   assert.deepEqual(Array.from(pendingPage.data.durationOptions), [], '未配置时不显示任何本地选项');
   assert.deepEqual(Array.from(pendingPage.data.tags), []);
 
+  // 提交入口也拒绝历史日期，防止旧状态或非 picker 输入绕过下限。
+  capturedPayload = null;
+  toasts.length = 0;
+  const staleDatePage = makePage('zh-CN');
+  staleDatePage.service = service;
+  staleDatePage.applyLocale();
+  staleDatePage.data.form = { date: todayIso, duration: '', vehicleType: '', people: '', route: '路线', contactType: 'phone', contact: '13800000000' };
+  staleDatePage.onSubmit();
+  assert.equal(capturedPayload, null, '提交时拒绝历史日期');
+  assert.deepEqual(toasts, [i18n.getMessages('zh-CN').validation.vehicleDateFuture]);
+
   // 3) 提交：label 保持原样，同时回传稳定 id。
-  zhPage.data.form = { date: '2026-10-01', duration: 'duration-half-day', vehicleType: 'vehicle-bmw-suv-5', people: 'people-1-2', route: '雅典机场接送', contactType: 'phone', contact: '13800000000' };
+  zhPage.data.form = { date: tomorrowIso, duration: 'duration-half-day', vehicleType: 'vehicle-bmw-suv-5', people: 'people-1-2', route: '雅典机场接送', contactType: 'phone', contact: '13800000000' };
   zhPage.data.submitting = false;
   zhPage.onSubmit();
   assert(capturedPayload, '提交时应发出请求');
@@ -268,7 +291,7 @@ async function main() {
   assert.equal(capturedPayload.durationId, 'duration-half-day');
   assert.equal(capturedPayload.vehicleTypeId, 'vehicle-bmw-suv-5');
   assert.equal(capturedPayload.peopleId, 'people-1-2');
-  assert.equal(capturedPayload.bookingDate, '2026-10-01');
+  assert.equal(capturedPayload.bookingDate, tomorrowIso);
   assert.equal(capturedPayload.route, '雅典机场接送');
 
   // routeRequired=false：路线留空也允许提交。

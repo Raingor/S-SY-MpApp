@@ -14,14 +14,22 @@ function localized(item, key, locale) {
   return item && (item[key + suffix] || item[key]) || '';
 }
 
-function todayIso() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+function formatLocalDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-// 'today' 由客户端解析为当天，避免后台日期写死后过期。
+function tomorrowIso() {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + 1);
+  return formatLocalDate(date);
+}
+
+// 出行日期必须严格晚于今天；后台可进一步收紧到更晚日期，但不能放开历史日期。
 function resolveDateStart(value) {
-  return value === 'today' || !value ? todayIso() : value;
+  const tomorrow = tomorrowIso();
+  const configured = value && value !== 'today' ? value : tomorrow;
+  return configured > tomorrow ? configured : tomorrow;
 }
 
 // 选项仅作展示与回传：id 稳定、label 随语言；不做任何业务判断。
@@ -138,9 +146,11 @@ Page({
       configured,
       tags: configured ? tagList(service, locale) : [],
       copy,
-      dateStart: backendForm ? resolveDateStart(backendForm.dateStart) : todayIso(),
-      // 无上限时给 picker 一个合法结束日期，避免属性为空。
-      dateEnd: backendForm && backendForm.dateEnd ? backendForm.dateEnd : '2099-12-31',
+      dateStart: resolveDateStart(backendForm && backendForm.dateStart),
+      // 过期的后台上限不应重新开放历史日期；视为未设置上限。
+      dateEnd: backendForm && backendForm.dateEnd && backendForm.dateEnd >= resolveDateStart(backendForm.dateStart)
+        ? backendForm.dateEnd
+        : '2099-12-31',
       durationOptions,
       vehicleOptions,
       peopleOptions,
@@ -158,7 +168,11 @@ Page({
   },
 
   onDateChange(e) {
-    this.setData({ 'form.date': e.detail.value });
+    const value = String(e.detail.value || '');
+    if (value && value < this.data.dateStart) {
+      return wx.showToast({ title: this.data.i18n.validation.vehicleDateFuture, icon: 'none' });
+    }
+    this.setData({ 'form.date': value });
   },
 
   onOptionTap(e) {
@@ -194,6 +208,7 @@ Page({
     const { form } = this.data;
     const route = form.route.trim();
     const contact = form.contact.trim();
+    if (form.date && form.date < this.data.dateStart) return wx.showToast({ title: copy.validation.vehicleDateFuture, icon: 'none' });
     if (pageCopy.routeRequired && !route) return wx.showToast({ title: copy.validation.vehicleRoute, icon: 'none' });
     if (!contact) return wx.showToast({ title: copy.validation.contact, icon: 'none' });
     if (form.contactType === 'phone' && !/^1[3-9]\d{9}$/.test(contact)) {
