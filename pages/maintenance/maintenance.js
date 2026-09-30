@@ -1,16 +1,8 @@
-const app = getApp();
-
+// 维护页：全局小程序访问门禁已移除，本页不再读取运行时的门禁状态；
+// 保留为独立静态页面，供需要时人工跳转使用。
 Page({
   data: {
     title: '正在升级中',
     message: '小程序正在升级中，请稍后再试。'
-  },
-
-  onLoad() {
-    const access = app.globalData.miniprogramAccess || {};
-    this.setData({
-      title: access.title || '正在升级中',
-      message: access.message || '小程序正在升级中，请稍后再试。'
-    });
   }
 });

@@ -386,15 +386,6 @@ function fetchContent() {
       timeout: 8000,
       success: (res) => {
         if (res.statusCode === 200 && hasRemoteContract(res.data)) {
-          const accessBypassed = app && app.globalData && app.globalData.skipMiniprogramAccessCheck;
-          if (res.data.settings && res.data.settings.miniprogramAccess === false && !accessBypassed) {
-            cache = EMPTY_CONTENT;
-            remoteLoaded = false;
-            loadState = { source: 'remote', status: 'maintenance', reason: 'maintenance' };
-            if (app && typeof app.enterMaintenance === 'function') app.enterMaintenance(res.data.settings);
-            resolve({ data: EMPTY_CONTENT, state: loadState });
-            return;
-          }
           cache = {
             countryId,
             settings: res.data.settings || {},

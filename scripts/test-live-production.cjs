@@ -49,13 +49,17 @@ const content = loadModule('../data/content.js');
   const data = await new Promise((resolve) => { content.loadContent((d) => resolve(d), true); });
   const groups = content.getHomeDestinations(data, content.getLocale ? undefined : undefined, { culture: '文明溯源', island: '海岛度假', mountain: '山海遗堡' });
   const keys = groups.map((g) => g.key);
-  // Production currently only has culture + island published destinations, mountain hidden.
-  assert.deepStrictEqual(keys.sort(), ['culture', 'island'], 'mountain 应隐藏：生产仅返回 culture+island，Tab 应为这两个');
+  // 当前 production categories 可由后台调整；页面 Tab 必须与接口中启用分类的 key 集合一致。
+  const expectedKeys = (data.destinationCategories || [])
+    .filter((category) => category && category.enabled !== false)
+    .map((category) => category.key)
+    .sort();
+  assert.deepStrictEqual(keys.slice().sort(), expectedKeys, '页面 Tab 应与生产接口启用分类一致');
   const islandGroup = groups.find((g) => g.key === 'island');
   assert.equal(islandGroup.tab, '爱琴海境', 'island 三语名称 name 显示');
   const cultureNames = groups.find((g) => g.key === 'culture').tiles.map((t) => t.name);
   assert.ok(cultureNames.includes('雅典'), '雅典在 culture 分类瓷贴');
-  assert.equal(data.destinations.length === 8, true, '8 个目的地');
+  assert.ok(data.destinations.length > 0, '生产应返回至少一个目的地');
 
   // 2) Simulate Website "disabled a category" by feeding a contract with enabled:false island.
   const disabledData = {
@@ -78,5 +82,5 @@ const content = loadModule('../data/content.js');
   const allTiles = withUnknown.flatMap((g) => g.tiles);
   assert.ok(!allTiles.find((t) => t.id === 'u1'), '未知 type 不进入任何 Tab');
 
-  console.log('PASS: live production contract — mountain hidden, culture+island tabs, island tab name in zh, disabled category removed, unknown type excluded');
+  console.log('PASS: live production contract — enabled destination category tabs, localized label, disabled category removal, unknown type exclusion');
 })().catch((e) => { console.error('FAIL:', e.message); process.exitCode = 1; });

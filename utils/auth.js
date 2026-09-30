@@ -98,7 +98,8 @@ function login(callback, profile) {
             const savedUser = saveSession(res.data.accessToken, user);
             return callback(true, savedUser);
           }
-          callback(false, null, copy.networkError);
+          const message = res.data && (res.data.message || res.data.error);
+          callback(false, null, message || copy.networkError);
         },
         fail: () => callback(false, null, copy.networkError)
       });
