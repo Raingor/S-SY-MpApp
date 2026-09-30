@@ -27,7 +27,7 @@
 
     <view class="consult-field">
       <view class="consult-label">{{copy.dateLabel}}</view>
-      <picker mode="date" start="{{dateStart}}" end="{{dateEnd}}" bindchange="onDateChange">
+      <picker mode="multiSelector" range="{{datePickerRange}}" value="{{datePickerValue}}" bindcolumnchange="onDatePickerColumnChange" bindchange="onDateChange">
         <view class="consult-picker">{{form.date || i18n.forms.chooseDate}}<text>›</text></view>
       </picker>
     </view>

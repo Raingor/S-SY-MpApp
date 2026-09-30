@@ -32,6 +32,39 @@ function resolveDateStart(value) {
   return configured > tomorrow ? configured : tomorrow;
 }
 
+function dateParts(value) {
+  const [year, month, day] = String(value || '').split('-').map(Number);
+  return { year, month, day };
+}
+
+function daysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function buildDatePicker(start, end, target, locale) {
+  const min = dateParts(start);
+  const max = dateParts(end);
+  const years = Array.from({ length: max.year - min.year + 1 }, (_, index) => min.year + index);
+  const year = Math.min(max.year, Math.max(min.year, Number(target && target.year) || min.year));
+  const firstMonth = year === min.year ? min.month : 1;
+  const lastMonth = year === max.year ? max.month : 12;
+  const months = Array.from({ length: lastMonth - firstMonth + 1 }, (_, index) => firstMonth + index);
+  const month = Math.min(lastMonth, Math.max(firstMonth, Number(target && target.month) || firstMonth));
+  const firstDay = year === min.year && month === min.month ? min.day : 1;
+  const lastDay = year === max.year && month === max.month ? max.day : daysInMonth(year, month);
+  const days = Array.from({ length: lastDay - firstDay + 1 }, (_, index) => firstDay + index);
+  const day = Math.min(lastDay, Math.max(firstDay, Number(target && target.day) || firstDay));
+  const format = (number) => String(number).padStart(2, '0');
+  return {
+    range: [
+      years.map((item) => locale === 'en' ? String(item) : `${item}年`),
+      months.map((item) => locale === 'en' ? format(item) : `${format(item)}月`),
+      days.map((item) => locale === 'en' ? format(item) : `${format(item)}日`)
+    ],
+    value: [years.indexOf(year), months.indexOf(month), days.indexOf(day)]
+  };
+}
+
 // 选项仅作展示与回传：id 稳定、label 随语言；不做任何业务判断。
 function toOptionList(options, locale) {
   return (Array.isArray(options) ? options : []).map((item) => ({
@@ -62,6 +95,8 @@ Page({
     peopleLabel: '',
     dateStart: '',
     dateEnd: '',
+    datePickerRange: [[], [], []],
+    datePickerValue: [0, 0, 0],
     copy: {},
     form: {
       date: '',
@@ -139,6 +174,12 @@ Page({
     const peopleId = pickId(form.people, peopleOptions);
     const peopleIndex = Math.max(0, peopleOptions.findIndex((item) => item.id === peopleId));
     const backendForm = service && service.form ? service.form : null;
+    const dateStart = resolveDateStart(backendForm && backendForm.dateStart);
+    const configuredDateEnd = backendForm && backendForm.dateEnd;
+    const dateEnd = configuredDateEnd && configuredDateEnd >= dateStart ? configuredDateEnd : '2099-12-31';
+    const selectedDate = form.date >= dateStart && form.date <= dateEnd ? form.date : dateStart;
+    const initialDateParts = dateParts(selectedDate);
+    const datePicker = buildDatePicker(dateStart, dateEnd, initialDateParts, locale);
     const contactType = copy.showPhone ? 'phone' : 'wechat';
     this.setData({
       locale,
@@ -146,11 +187,11 @@ Page({
       configured,
       tags: configured ? tagList(service, locale) : [],
       copy,
-      dateStart: resolveDateStart(backendForm && backendForm.dateStart),
-      // 过期的后台上限不应重新开放历史日期；视为未设置上限。
-      dateEnd: backendForm && backendForm.dateEnd && backendForm.dateEnd >= resolveDateStart(backendForm.dateStart)
-        ? backendForm.dateEnd
-        : '2099-12-31',
+      dateStart,
+      dateEnd,
+      datePickerRange: datePicker.range,
+      datePickerValue: datePicker.value,
+      'form.date': form.date >= dateStart && form.date <= dateEnd ? form.date : '',
       durationOptions,
       vehicleOptions,
       peopleOptions,
@@ -167,9 +208,38 @@ Page({
     goBack();
   },
 
+  onDatePickerColumnChange(e) {
+    const column = Number(e.detail.column);
+    const index = Number(e.detail.value);
+    const ranges = this.data.datePickerRange;
+    const value = this.data.datePickerValue.slice();
+    value[column] = index;
+    const readPart = (columnIndex, valueIndex) => Number.parseInt(ranges[columnIndex][valueIndex], 10);
+    const target = {
+      year: readPart(0, value[0]),
+      month: readPart(1, value[1]),
+      day: readPart(2, value[2])
+    };
+    if (column === 0) target.year = readPart(0, index);
+    if (column === 1) target.month = readPart(1, index);
+    if (column === 2) target.day = readPart(2, index);
+    const picker = buildDatePicker(this.data.dateStart, this.data.dateEnd, target, this.data.locale);
+    this.setData({ datePickerRange: picker.range, datePickerValue: picker.value });
+  },
+
   onDateChange(e) {
-    const value = String(e.detail.value || '');
-    if (value && value < this.data.dateStart) {
+    let value = '';
+    if (Array.isArray(e.detail.value)) {
+      const indexes = e.detail.value;
+      const ranges = this.data.datePickerRange;
+      const year = Number.parseInt(ranges[0][indexes[0]], 10);
+      const month = Number.parseInt(ranges[1][indexes[1]], 10);
+      const day = Number.parseInt(ranges[2][indexes[2]], 10);
+      value = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    } else {
+      value = String(e.detail.value || '');
+    }
+    if (value && (value < this.data.dateStart || value > this.data.dateEnd)) {
       return wx.showToast({ title: this.data.i18n.validation.vehicleDateFuture, icon: 'none' });
     }
     this.setData({ 'form.date': value });

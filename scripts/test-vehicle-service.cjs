@@ -150,6 +150,7 @@ async function main() {
   const wxml = fs.readFileSync(path.resolve(__dirname, '../pages/vehicle/vehicle.wxml'), 'utf8');
   assert(!wxml.includes('i18n.vehicleTitle') && !wxml.includes('i18n.vehicleNote'), 'WXML 不再使用本地用车文案');
   assert(wxml.includes('i18n.vehiclePending') && wxml.includes('service.title') && wxml.includes('range-key="label"'));
+  assert(wxml.includes('mode="multiSelector"') && wxml.includes('bindcolumnchange="onDatePickerColumnChange"'), '日期选择使用动态受限列，历史年份/月不进入可选列表');
 
   let pageConfig = null;
   let capturedPayload = null;
@@ -227,8 +228,14 @@ async function main() {
   assert.equal(zhPage.data.form.contactType, 'phone', '只保留手机时自动选中手机');
   assert.equal(zhPage.data.dateStart, tomorrowIso, 'dateStart=today 时将可选下限收紧为明天');
   assert.equal(zhPage.data.dateEnd, '2099-12-31', '未配置结束日期时不限制上限');
+  const tomorrowParts = tomorrowIso.split('-').map(Number);
+  assert(!zhPage.data.datePickerRange[0].includes(`${tomorrowParts[0] - 1}年`), '日期选择器不提供上一年');
+  assert.equal(zhPage.data.datePickerRange[0][0], `${tomorrowParts[0]}年`, '年份列从允许日期的年份开始');
+  if (tomorrowParts[0] === today.getFullYear()) assert.equal(zhPage.data.datePickerRange[1][0], `${String(tomorrowParts[1]).padStart(2, '0')}月`, '月份列不提供过去月份');
+  zhPage.onDateChange({ detail: { value: zhPage.data.datePickerValue } });
+  assert.equal(zhPage.data.form.date, tomorrowIso, 'multiSelector 的初始可选值为下限日期');
   zhPage.onDateChange({ detail: { value: todayIso } });
-  assert.equal(zhPage.data.form.date, '', '日期变更处理器拒绝今天及历史日期');
+  assert.equal(zhPage.data.form.date, tomorrowIso, '日期变更处理器拒绝今天及历史日期并保留上次合法选择');
   assert(toasts.includes(i18n.getMessages('zh-CN').validation.vehicleDateFuture));
 
   const staleStartPage = makePage('zh-CN');
