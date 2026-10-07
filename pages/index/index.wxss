@@ -656,7 +656,8 @@
   font-size: 24rpx;
   line-height: 1.45;
   color: var(--c-weak);
-  text-align: right;
+  text-align: left;
+  overflow-wrap: break-word;
 }
 
 /* ===== 5. 奢享体验 ===== */

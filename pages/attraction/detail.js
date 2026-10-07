@@ -127,7 +127,9 @@ Page({
       };
     });
     const exhibits = (spot.exhibits || []).map((point) => ({ ...point, displayName: this.localized(point, 'name'), displayDescription: this.localized(point, 'description') }));
-    const tracks = (spot.audioGuides || []).filter((track) => track && track.id && (track.isDemo === true || track.previewUrl) && track.status !== 'draft').map((track) => {
+    const tracks = (spot.audioGuides || []).filter((track) => track && track.id &&
+      String(track.attractionId) === String(spot.id) && !track.albumId && ['route', 'online', 'expert'].includes(track.category) &&
+      (!track.status || track.status === 'published') && (track.isDemo === true || track.previewUrl)).map((track) => {
       const point = exhibits.find((item) => String(item.id) === String(track.exhibitId));
       return { ...track, displayTitle: this.localized(track, 'title'), displayImage: track.image || track.cover || (point && point.image) || spot.image || '' };
     });

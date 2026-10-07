@@ -13,12 +13,14 @@ function duration(value) { const seconds = Number(value); return Number.isFinite
 
 Page({
   data: {
-    locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
-    track: null, point: null, pointTracks: [], access: null, accessError: false, unavailable: false,
+    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
+    track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, previewEnded: false, currentSeconds: 0, progressPercent: 0,
     fullPlayback: false, paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
   },
   onLoad(options) {
+    const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.setData({ statusBarHeight: windowInfo.statusBarHeight || 20 });
     this.params = options || {};
     this.params.attractionId = this.params.attractionId || '';
     this.params.pointId = this.params.pointId || '';
@@ -26,6 +28,10 @@ Page({
     this.params.albumId = this.params.albumId || '';
     this.params.episodeId = this.params.episodeId || '';
     this.params.category = ['expert', 'route'].includes(this.params.category) ? this.params.category : 'online';
+    this.loadData();
+  },
+  ensureAudioContext() {
+    if (this.audio) return this.audio;
     this.audio = wx.createInnerAudioContext();
     this.audio.autoplay = false;
     this.audio.onTimeUpdate(() => {
@@ -43,11 +49,18 @@ Page({
       else this.setData({ playing: false });
     });
     this.audio.onError(() => { this.audio.stop(); this.setData({ playing: false, accessError: true }); });
-    this.loadData();
+    return this.audio;
   },
-  onShow() { i18n.apply(this); this.localize(); if (this.data.track && !this.data.demoMode) this.refreshAccess(); },
-  onHide() { this.stop(); },
-  onUnload() { if (this.audio) { this.audio.stop(); this.audio.destroy(); } },
+  onShow() { i18n.apply(this); this.localize(); },
+  onHide() {
+    this._accessRequestId = (this._accessRequestId || 0) + 1;
+    this.stop();
+    this.setData({ access: null, accessLoading: false });
+  },
+  onUnload() {
+    this._accessRequestId = (this._accessRequestId || 0) + 1;
+    if (this.audio) { this.audio.stop(); this.audio.destroy(); }
+  },
   stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, progressPercent: 0 }); },
   stopPreview() {
     if (this.data.previewEnded) return;
@@ -57,20 +70,26 @@ Page({
   },
   onBack() { goBack(); },
   loadData() {
+    this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
-    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, previewEnded: false, demoMode: false });
+    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false });
     content.loadContent((data, state) => {
       let track = null; let point = null; let pointTracks = []; let spot = null;
-      if (this.params.albumId && this.params.episodeId && state && state.source === 'remote') {
-        const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
-        track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) && item.previewUrl);
+      if (this.params.albumId || this.params.episodeId) {
+        if (this.params.albumId && this.params.episodeId && state && state.source === 'remote') {
+          const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
+          track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) &&
+            String(item.albumId) === String(album.id) && item.category === 'heritage' && !item.attractionId && item.previewUrl && item.isDemo !== true);
+        }
       } else {
         spot = state && state.source === 'remote' && state.status === 'ready' ? content.getAttraction(this.params.attractionId, data) : null;
         point = spot && (spot.exhibits || []).find((item) => String(item.id) === String(this.params.pointId));
         if (spot && state && state.source === 'remote') {
-          pointTracks = point ? (spot.audioGuides || []).filter((item) => String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
+          const belongsToSpot = (item) => String(item.attractionId) === String(spot.id) &&
+            ['route', 'online', 'expert'].includes(item.category) && !item.albumId;
+          pointTracks = point ? (spot.audioGuides || []).filter((item) => belongsToSpot(item) && String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
           track = this.params.trackId
-            ? (spot.audioGuides || []).find((item) => String(item.id) === String(this.params.trackId) && (item.isDemo === true || item.previewUrl))
+            ? (spot.audioGuides || []).find((item) => belongsToSpot(item) && String(item.id) === String(this.params.trackId) && (item.isDemo === true || item.previewUrl))
             : pointTracks[0] || null;
           if (track && this.params.pointId && String(track.exhibitId) !== String(this.params.pointId)) track = null;
           if (track && !point && track.exhibitId) point = (spot.exhibits || []).find((item) => String(item.id) === String(track.exhibitId)) || null;
@@ -79,9 +98,8 @@ Page({
       if (track && track.attractionId && !this.params.attractionId) this.params.attractionId = track.attractionId;
       this.spot = spot;
       const demoMode = Boolean(track && track.isDemo === true);
-      this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.category });
+      this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.albumId ? 'heritage' : this.params.category });
       this.localize();
-      if (track && track.id && !demoMode) this.refreshAccess();
     }, true);
   },
   localize() {
@@ -100,40 +118,52 @@ Page({
   onPointTrackTap(e) {
     const id = e.currentTarget.dataset.id;
     if (!id || !this.data.pointTracks.some((item) => String(item.id) === String(id))) return;
+    this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.params.trackId = String(id);
-    this.setData({ track: this.data.pointTracks.find((item) => String(item.id) === String(id)), previewEnded: false });
-    this.refreshAccess();
-  },
-  refreshAccess() {
-    const track = this.data.track;
-    if (!track || !track.id || track.isDemo === true) return;
     this.stop();
-    // 默认拒绝完整播放；授权接口返回新签名后才启用，绝不沿用过期 URL。
-    this.setData({ access: null, accessError: false });
+    this.setData({ track: this.data.pointTracks.find((item) => String(item.id) === String(id)), access: null, accessLoading: false, previewEnded: false });
+  },
+  refreshAccess(onReady) {
+    const track = this.data.track;
+    if (!track || !track.id || track.isDemo === true || this.data.accessLoading) return;
+    const requestId = (this._accessRequestId || 0) + 1;
+    this._accessRequestId = requestId;
+    this.stop();
+    // 点击时重新请求签名；不复用可能过期的完整播放 URL。
+    this.setData({ access: null, accessError: false, accessLoading: true });
     accessApi.getAccess(track.id, (ok, result, status) => {
-      if (!this.data.track || String(this.data.track.id) !== String(track.id)) return;
+      if (requestId !== this._accessRequestId || !this.data.track || String(this.data.track.id) !== String(track.id)) return;
       if (!ok) {
-        this.setData({ accessError: true, unavailable: status === 404, access: null });
+        this.setData({ accessError: true, accessLoading: false, unavailable: status === 404, access: null });
         return;
       }
-      this.setData({ access: result, unavailable: !result.previewUrl && !result.fullUrl });
+      this.setData({ access: result, accessLoading: false, unavailable: !result.previewUrl && !result.fullUrl });
+      if (typeof onReady === 'function') onReady(result);
     });
   },
   playPreview() {
-    const access = this.data.access;
-    if (!access || !access.previewUrl) return;
+    if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl) return;
     if (this.data.playing && !this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
-    this.stop();
-    this.audio.src = access.previewUrl;
-    this.audio.play();
-    this.setData({ playing: true, fullPlayback: false, previewEnded: false });
+    this.refreshAccess((access) => {
+      if (!access.previewUrl) return;
+      this.stop();
+      const audio = this.ensureAudioContext();
+      audio.src = access.previewUrl;
+      audio.play();
+      this.setData({ playing: true, fullPlayback: false, previewEnded: false });
+    });
   },
   playFull() {
-    // access.fullUrl 仅可由服务端核验商品规则后发放，订单结果本身不改变此状态。
-    const access = this.data.access;
-    if (!access || !access.fullUrl) return this.onUnlock();
+    if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl || this.data.track.unlockMode === 'locked') return;
     if (this.data.playing && this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
-    this.stop(); this.audio.src = access.fullUrl; this.audio.play(); this.setData({ playing: true, fullPlayback: true });
+    this.refreshAccess((access) => {
+      if (!access.fullUrl) return this.onUnlock();
+      this.stop();
+      const audio = this.ensureAudioContext();
+      audio.src = access.fullUrl;
+      audio.play();
+      this.setData({ playing: true, fullPlayback: true });
+    });
   },
   onUnlock() {
     const access = this.data.access;

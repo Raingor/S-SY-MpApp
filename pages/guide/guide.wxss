@@ -197,7 +197,7 @@
 
 .guide-service-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 18rpx;
   margin-top: 26rpx;
 }
@@ -211,7 +211,29 @@
 }
 
 .guide-service-offline {
-  background: linear-gradient(145deg, #FFFFFF, #F4F8FB);
+  min-height: 0;
+  padding: 34rpx 28rpx 32rpx;
+  border-color: #C6A15B;
+  background: #C6A15B;
+  box-shadow: 0 12rpx 28rpx rgba(9, 37, 58, 0.12);
+}
+
+.guide-service-offline .guide-service-index {
+  color: rgba(9, 37, 58, 0.62);
+}
+
+.guide-service-offline .guide-service-title {
+  margin-top: 18rpx;
+  color: #09253A;
+  font-size: 34rpx;
+}
+
+.guide-service-offline .guide-service-desc {
+  min-height: 0;
+  margin-top: 12rpx;
+  color: rgba(9, 37, 58, 0.78);
+  font-size: 24rpx;
+  line-height: 1.55;
 }
 
 .guide-service-live {
@@ -254,6 +276,24 @@
   color: #1567A8;
   font-size: 22rpx;
   font-weight: 600;
+}
+
+.guide-service-offline .guide-service-cta {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28rpx;
+  padding: 10rpx 14rpx;
+  border-radius: 40rpx;
+  background: #09253A;
+  color: #FFFFFF;
+  font-size: 25rpx;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: break-word;
 }
 
 .guide-service-live .guide-service-cta {

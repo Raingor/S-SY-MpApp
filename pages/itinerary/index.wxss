@@ -107,8 +107,10 @@
 
 .iti-foot {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12rpx 20rpx;
   margin-top: 20rpx;
 }
 
@@ -122,15 +124,15 @@
 }
 
 .iti-crowd {
-  flex: 1;
+  flex: 1 1 250rpx;
   min-width: 0;
   max-height: 3em;
-  margin-left: 16rpx;
   overflow: hidden;
   color: #8AA3B5;
   font-size: 21rpx;
   line-height: 1.5;
-  text-align: right;
+  text-align: left;
+  overflow-wrap: break-word;
 }
 
 .iti-consult {

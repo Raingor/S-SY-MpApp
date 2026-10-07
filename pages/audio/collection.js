@@ -18,9 +18,14 @@ Page({
     i18n.apply(this);
     this.loadItems();
   },
-  onShow() { i18n.apply(this); this.localize(); },
+  onShow() {
+    i18n.apply(this);
+    if (this._hasShown) this.loadItems();
+    else this.localize();
+    this._hasShown = true;
+  },
   loadItems() {
-    this.setData({ loading: true, failed: false });
+    this.setData({ loading: true, failed: false, items: [], visibleItems: [] });
     content.loadContent((data, state) => {
       if (!state || state.source !== 'remote' || state.status !== 'ready') {
         this.spot = null;
@@ -33,7 +38,9 @@ Page({
         return;
       }
       this.spot = spot;
-      const items = (spot.audioGuides || []).filter((item) => item && item.id && item.category === this.category && (item.isDemo === true || item.previewUrl) && item.status !== 'draft').map((item) => {
+      const items = (spot.audioGuides || []).filter((item) => item && item.id && item.category === this.category &&
+        String(item.attractionId) === String(spot.id) && !item.albumId && (!item.status || item.status === 'published') &&
+        (item.isDemo === true || item.previewUrl)).map((item) => {
         const point = (spot.exhibits || []).find((row) => String(row.id) === String(item.exhibitId));
         return { ...item, pointId: point && point.id || '', displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), displayImage: item.cover || (point && point.image) || spot.image || '', hasAudio: item.isDemo !== true && Boolean(item.previewUrl) };
       });
@@ -60,6 +67,7 @@ Page({
     this.setData({ visibleItems: items });
   },
   onItemTap(e) {
+    if (this.data.loading) return;
     const id = e.currentTarget.dataset.id;
     const pointId = e.currentTarget.dataset.pointId || '';
     const item = this.data.items.find((row) => String(row.id) === String(id));

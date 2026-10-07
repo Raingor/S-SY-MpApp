@@ -43,6 +43,7 @@ const load = () => new Promise((resolve) => content.loadContent(resolve, true));
   assert.strictEqual(routes[0].crowd, '适合短途建筑爱好者');
 
   const homeWxml = fs.readFileSync('pages/index/index.wxml', 'utf8');
+  const homeWxss = fs.readFileSync('pages/index/index.wxss', 'utf8');
   const homeJs = fs.readFileSync('pages/index/index.js', 'utf8');
   const listingWxml = fs.readFileSync('pages/itinerary/index.wxml', 'utf8');
   const listingJs = fs.readFileSync('pages/itinerary/index.js', 'utf8');
@@ -51,6 +52,9 @@ const load = () => new Promise((resolve) => content.loadContent(resolve, true));
   assert(homeWxml.includes("{{item.days}}{{locale === 'en' ? ' days' : '天'}}"), '首页卡片在原标签位显示本地化天数');
   assert(!homeWxml.includes('{{item.tag}}'), '首页路线卡片不再把主题 tag 当天数');
   assert(homeWxml.includes('class="route-crowd ellipsis-2"'), '首页适合人群最多两行');
+  const routeCrowdRule = homeWxss.match(/\.route-crowd\s*\{([^}]*)\}/)?.[1] || '';
+  assert.match(routeCrowdRule, /text-align:\s*left;/, '首页每张路线卡的适合人群说明与换行均左对齐');
+  assert.match(routeCrowdRule, /overflow-wrap:\s*break-word;/, '窄屏长说明可换行');
   assert(listingWxml.includes("{{item.days}}{{locale === 'en' ? ' days' : '天'}}"), '参考行程列表显示真实天数');
   assert(!listingWxml.includes('{{item.tag}}'), '参考行程列表卡片不再展示旧主题标签 badge');
   assert(listingWxml.includes('class="iti-crowd ellipsis-2"'), '列表适合人群最多两行');

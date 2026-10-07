@@ -13,6 +13,7 @@ function translated(item, key, locale) {
 function displaySpots(spots, query, category, locale, audioOnly) {
   const word = String(query || '').trim().toLowerCase();
   return (spots || []).filter((spot) => {
+    if (!spot || spot.status !== 'published') return false;
     if (audioOnly && !(spot.audioGuides || []).some((track) => track.id && track.previewUrl)) return false;
     if (category && spot.city !== category) return false;
     if (!word) return true;
@@ -36,11 +37,16 @@ Page({
     this.applyLocale();
     this.refresh();
   },
-  onShow() { this.applyLocale(); },
+  onShow() {
+    if (this._hasShown) this.refresh();
+    this._hasShown = true;
+    this.applyLocale();
+  },
   refresh() {
-    this.setData({ loading: true });
+    this.setData({ loading: true, allHotSpots: [], hotSpots: [], albums: [], visibleAlbums: [] });
     content.loadContent((data, state) => {
-      const spots = content.getAttractions(data);
+      // Website public contract: only status='published' attractions are visible.
+      const spots = content.getAttractions(data).filter((spot) => spot && spot.status === 'published');
       const albums = state && state.source === 'remote' ? content.getAudioAlbums(data) : [];
       this.setData({
         cities: content.getCities(data), sampleTrips: content.getReferenceList(data),
@@ -86,11 +92,17 @@ Page({
     if (this.data.activePanel !== 0 || !this.data.hotSpots.length) return;
     this.openSpot(this.data.hotSpots[0].id);
   },
-  openSpot(id) { if (id) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(id) }); },
+  openSpot(id) {
+    if (id && this.data.hotSpots.some((spot) => spot.id === id && spot.status === 'published')) {
+      wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(id) });
+    }
+  },
   onHotSpotTap(e) { this.openSpot(e.currentTarget.dataset.id); },
   onAlbumTap(e) {
     const id = e.currentTarget.dataset.id;
-    if (id) wx.navigateTo({ url: '/pages/audio/album?id=' + encodeURIComponent(id) });
+    if (!this.data.loading && this.data.visibleAlbums.some((album) => String(album.id) === String(id))) {
+      wx.navigateTo({ url: '/pages/audio/album?id=' + encodeURIComponent(id) });
+    }
   },
   onBack() { goBack(); },
   onCityTap(e) { wx.navigateTo({ url: '/pages/city/index?id=' + encodeURIComponent(e.currentTarget.dataset.id) }); },

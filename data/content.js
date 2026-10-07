@@ -100,11 +100,20 @@ function isPublished(item) {
   return item && item.enabled !== false && item.published !== false && !['draft', 'disabled', 'inactive', 'archived', 'unpublished'].includes(String(item.status || '').toLowerCase());
 }
 
+function isPublicAudioRecord(item) {
+  // Website strips status after applying the published filter; reject explicit non-published fixtures.
+  return item && (!Object.prototype.hasOwnProperty.call(item, 'status') || item.status === 'published') &&
+    item.enabled !== false && item.published !== false;
+}
+
 function adaptAudioAlbums(albums) {
-  return (Array.isArray(albums) ? albums : []).filter(isPublished).map((album) => ({
+  return (Array.isArray(albums) ? albums : []).filter((album) => isPublicAudioRecord(album) && album.id).map((album) => ({
     ...album,
     cover: mapManagedImage(album.cover || album.image),
-    episodes: (Array.isArray(album.episodes) ? album.episodes : []).filter((episode) => isPublished(episode) && episode.id && episode.previewUrl).map((episode) => ({ ...episode, cover: mapManagedImage(episode.cover) }))
+    episodes: (Array.isArray(album.episodes) ? album.episodes : [])
+      .filter((episode) => isPublicAudioRecord(episode) && episode.id && episode.category === 'heritage' &&
+        String(episode.albumId) === String(album.id) && !episode.attractionId && episode.isDemo !== true && episode.previewUrl)
+      .map((episode) => ({ ...episode, cover: mapManagedImage(episode.cover) }))
   })).filter((album) => album.episodes.length > 0);
 }
 
@@ -137,7 +146,10 @@ function adaptAttractions(remoteAttractions) {
     guide: { ...(item.guide || {}), mapImage: mapManagedImage(item.guide && item.guide.mapImage) },
     exhibits: (Array.isArray(item.exhibits) ? item.exhibits : []).filter(isPublished).map((point) => ({ ...point, image: mapManagedImage(point.image) })),
     routes: (Array.isArray(item.routes) ? item.routes : []).filter(isPublished),
-    audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : []).filter((track) => isPublished(track) && track.id && (track.previewUrl || track.isDemo === true)).map((track) => ({ ...track, cover: mapManagedImage(track.cover) }))
+    audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : [])
+      .filter((track) => isPublicAudioRecord(track) && track.id && ['route', 'online', 'expert'].includes(track.category) &&
+        String(track.attractionId) === String(item.id) && !track.albumId && (track.previewUrl || track.isDemo === true))
+      .map((track) => ({ ...track, cover: mapManagedImage(track.cover) }))
   }));
 }
 

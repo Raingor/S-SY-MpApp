@@ -52,7 +52,9 @@ Page({
   onPointTap(e) {
     const id = e.currentTarget.dataset.id;
     if (!id) return;
-    const track = (this.spot && this.spot.audioGuides || []).find((item) => item.category === 'route' && String(item.routeId) === String(this.routeId) && String(item.exhibitId) === String(id) && (item.isDemo === true || item.previewUrl));
+    const track = (this.spot && this.spot.audioGuides || []).find((item) => item.category === 'route' &&
+      String(item.attractionId) === String(this.spot.id) && !item.albumId && (!item.status || item.status === 'published') &&
+      String(item.routeId) === String(this.routeId) && String(item.exhibitId) === String(id) && (item.isDemo === true || item.previewUrl));
     const trackParam = track ? `&trackId=${encodeURIComponent(track.id)}` : '';
     wx.navigateTo({ url: `/pages/audio/detail?attractionId=${encodeURIComponent(this.attractionId)}&pointId=${encodeURIComponent(id)}&category=route${trackParam}` });
   },

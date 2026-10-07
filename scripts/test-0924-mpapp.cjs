@@ -193,10 +193,13 @@ assert.equal(accessReply({}, 404).ok, false);
 
 let pageConfig;
 let audio;
-const tracks = [{ id: 'track-1', category: 'online', previewUrl: '/preview', title: 'Test', exhibitId: 'point-1' }];
+const tracks = [{ id: 'track-1', category: 'online', attractionId: 'sight-1', albumId: null, previewUrl: '/preview', title: 'Test', exhibitId: 'point-1' }];
+const audioDetailMarkup = fs.readFileSync('pages/audio/detail.wxml', 'utf8');
+assert.match(audioDetailMarkup, /class="audio-experience-nav" style="top: \{\{statusBarHeight \+ 8\}\}px;"/, '全屏封面返回按钮必须位于真实状态栏下方');
 let response = { access: 'preview', unlockMode: 'attraction', previewSeconds: 60, previewUrl: '/preview', fullUrl: null };
 let showToastCount = 0;
 const audioWx = {
+  getWindowInfo: () => ({ statusBarHeight: 44 }),
   createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
   showToast: () => showToastCount++,
   switchTab() {}, showModal() {}
@@ -220,7 +223,8 @@ vm.runInNewContext(source, {
 });
 const instance = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
 instance.onLoad({ attractionId: 'sight-1', pointId: 'point-1' });
-assert(instance.data.track && !instance.data.access.fullUrl);
+assert.equal(instance.data.statusBarHeight, 44);
+assert(instance.data.track && instance.data.access === null && !audio);
 instance.playPreview();
 assert(audio.played && !instance.data.fullPlayback);
 audio.currentTime = 59.9; audio.timeUpdate();
