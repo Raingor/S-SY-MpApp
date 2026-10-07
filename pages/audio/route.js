@@ -8,8 +8,14 @@ function localized(item, key, locale) {
 }
 
 Page({
-  data: { locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', durationLabel: '', coverImage: '', mapImage: '', mapUrl: '', points: [], isDemo: false, loading: true, failed: false },
-  onLoad(options) { this.attractionId = options && options.attractionId || ''; this.routeId = options && options.id || ''; this.refresh(); },
+  data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', durationLabel: '', coverImage: '', mapImage: '', mapUrl: '', points: [], isDemo: false, loading: true, failed: false },
+  onLoad(options) {
+    const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.attractionId = options && options.attractionId || '';
+    this.routeId = options && options.id || '';
+    this.refresh();
+  },
   onShow() { i18n.apply(this); this.localize(); },
   refresh() {
     this.setData({ loading: true, points: [], failed: false });

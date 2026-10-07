@@ -4,8 +4,13 @@ const { goBack } = require('../../utils/navigation');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 Page({
-  data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], loading: true, failed: false },
-  onLoad(options) { this.albumId = (options && options.id) || ''; this.refresh(); },
+  data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], loading: true, failed: false },
+  onLoad(options) {
+    const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.albumId = (options && options.id) || '';
+    this.refresh();
+  },
   onShow() {
     i18n.apply(this);
     if (this._hasShown) this.refresh();

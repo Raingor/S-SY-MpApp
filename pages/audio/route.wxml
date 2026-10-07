@@ -1,4 +1,5 @@
 <view class="route-detail-page">
+  <view style="height: {{statusBarHeight}}px;"></view>
   <view class="route-detail-nav"><view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="route-detail-nav-title">{{i18n.heritage.routes}}</view><view class="route-detail-nav-space"></view></view>
   <view wx:if="{{loading}}" class="route-detail-empty">{{i18n.loading}}</view>
   <view wx:elif="{{!title}}" class="route-detail-empty">{{failed ? i18n.heritage.networkFailed : i18n.heritage.noRoutes}}</view>
