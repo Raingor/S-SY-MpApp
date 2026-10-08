@@ -19,13 +19,20 @@ Page({
       list: content.getReferenceList()
     });
     i18n.apply(this);
+    this.reload();
+  },
+
+  // 后台补录参考行程后进入或返回本页都重新拉取，避免内存缓存导致新行程不显示。
+  reload() {
     content.loadContent((data) => {
       this.setData({ list: content.getReferenceList(data) });
-    });
+    }, true);
   },
 
   onShow() {
     i18n.apply(this);
+    if (this._hasShown) this.reload();
+    this._hasShown = true;
   },
 
   onShareAppMessage() {

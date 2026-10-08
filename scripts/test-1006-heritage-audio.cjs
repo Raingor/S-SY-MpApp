@@ -4,6 +4,19 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const origin = 'http://fixture.invalid';
+const moduleCache = new Map();
+function loadModule(filename, overrides = {}) {
+  const candidate = fs.existsSync(filename) ? filename : `${filename}.js`;
+  const resolved = path.resolve(candidate);
+  if (moduleCache.has(resolved)) return moduleCache.get(resolved).exports;
+  const module = { exports: {} };
+  moduleCache.set(resolved, module);
+  const localRequire = (id) => Object.prototype.hasOwnProperty.call(overrides, id)
+    ? overrides[id]
+    : id.startsWith('.') ? loadModule(path.resolve(path.dirname(resolved), id)) : require(id);
+  vm.runInThisContext('(function(require,module,exports){\n' + fs.readFileSync(resolved, 'utf8') + '\n})', { filename: resolved })(localRequire, module, module.exports);
+  return module.exports;
+}
 const requests = [];
 const navigation = [];
 const playback = { created: 0, played: 0, destroyed: 0 };
@@ -19,14 +32,15 @@ const crossTrack = track('other-1', 'online', { attractionId: 'other', albumId: 
 const base = () => ({ settings: {}, countries: [], guides: [], cities: [], routes: [], destinations: [], sampleItineraries: [],
   audioAlbums: [], attractions: [] });
 let response = base();
-global.getApp = () => ({ globalData: { apiBase: origin } });
+const appInstance = { globalData: { apiBase: origin, pendingAudioAlbum: null } };
+global.getApp = () => appInstance;
 global.wx = {
   getStorageSync: () => '', getSystemInfoSync: () => ({ statusBarHeight: 20 }),
   showToast() {}, showModal() {}, navigateTo({ url }) { navigation.push(url); },
   request(options) {
     assert(options.url.startsWith(origin + '/'), `non-fixture request: ${options.url}`);
     requests.push({ url: options.url, method: options.method });
-    if (options.url === `${origin}/api/content?country=greece`) {
+    if (options.url === `${origin}/api/content?country=greece&includeAttractionDetails=false`) {
       if (failContent) options.fail({ errMsg: 'fixture offline' });
       else options.success({ statusCode: 200, data: response });
     } else if (/^http:\/\/fixture\.invalid\/api\/miniprogram\/audio\/[\w-]+\/access$/.test(options.url)) {
@@ -45,7 +59,7 @@ global.wx = {
       play() { playback.played++; }, pause() {}, stop() {}, destroy() { playback.destroyed++; } };
   }
 };
-const content = require('../data/content');
+const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 const i18n = { getMessages: () => ({ heritage: { sights: '景点讲解', history: '希腊文史', previewEnded: '试听结束' } }),
   apply(page) { page.setData({ locale: 'zh-CN', i18n: this.getMessages() }); return this.getMessages(); } };
 function pageFrom(relative) {
@@ -55,7 +69,10 @@ function pageFrom(relative) {
     require(id) {
       if (id.includes('data/content')) return content;
       if (id.includes('utils/i18n')) return i18n;
-      if (id.includes('utils/audio-access')) return require('../utils/audio-access');
+      if (id.includes('utils/audio-access')) return loadModule(path.resolve(__dirname, '../utils/audio-access.js'), {
+        './auth': { getAccessToken: () => '', isSimulationToken: () => false },
+        './paid-content': {}
+      });
       if (id.includes('utils/auth')) return { getAccessToken: () => '' };
       if (id.includes('utils/share')) return { buildShareCard: () => ({}) };
       if (id.includes('utils/navigation')) return { goBack() {} };
@@ -66,6 +83,19 @@ function pageFrom(relative) {
   return { ...definition, data: { ...definition.data }, setData(next) { Object.assign(this.data, next); } };
 }
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+const knowledgeMarkup = fs.readFileSync(path.join(__dirname, '../pages/knowledge/knowledge.wxml'), 'utf8');
+const knowledgeStyles = fs.readFileSync(path.join(__dirname, '../pages/knowledge/knowledge.wxss'), 'utf8');
+const albumMarkup = fs.readFileSync(path.join(__dirname, '../pages/audio/album.wxml'), 'utf8');
+assert.match(knowledgeMarkup, /knowledge-nav sy-nav" style="padding-right: \{\{menuRightSpace\}\}px;/, 'knowledge header reserves space for the WeChat capsule');
+assert.match(knowledgeStyles, /\.heritage-album\s*\{[^}]*display:\s*block/s, 'heritage cards stack vertically');
+const attractionMarkup = fs.readFileSync(path.join(__dirname, '../pages/attraction/detail.wxml'), 'utf8');
+const audioDetailMarkup = fs.readFileSync(path.join(__dirname, '../pages/audio/detail.wxml'), 'utf8');
+assert.match(attractionMarkup, /class="guide-entry-card" data-category="online" bindtap="onGuideCollectionTap"/, 'Online Preview opens the online guide-point collection');
+assert.doesNotMatch(attractionMarkup, /online-preview-track|onOnlinePreviewTap/, 'audio is not played directly from the attraction card');
+assert.match(audioDetailMarkup, /class="audio-controls"/, 'the audio player is shown after opening an individual guide point');
+assert(knowledgeMarkup.indexOf('class="heritage-album-cover"') < knowledgeMarkup.indexOf('class="heritage-album-body"'), 'heritage card renders image before text');
+assert.match(knowledgeStyles, /\.heritage-album-body\s*\{[^}]*padding:\s*26rpx 30rpx 30rpx/s, 'album text has interior spacing');
+assert.match(albumMarkup, /class="audio-cover" src="\{\{album\.cover\}\}"/, 'album detail binds its image to the normalized cover URL');
 (async () => {
   const knowledge = pageFrom('pages/knowledge/knowledge.js');
   knowledge.onLoad({ panel: '1' }); knowledge.onShow(); await tick();
@@ -74,7 +104,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
   assert.equal(playback.created, 0);
 
   response = { ...base(), audioAlbums: [{ id: 'hidden-album', status: 'unpublished', episodes: [track('hidden-episode', 'heritage', { albumId: 'hidden-album' })] },
-    { id: 'history', title: '希腊历史的15个地方', description: '专辑说明', episodes: [
+    { id: 'history', title: '希腊历史的15个地方', description: '专辑说明', cover: 'https://sy-greece.com/images/history-cover.jpg', episodes: [
     albumTrack,
     track('wrong-album', 'heritage', { albumId: 'another', attractionId: null }),
     track('draft', 'heritage', { albumId: 'history', status: 'draft', attractionId: null }),
@@ -97,10 +127,13 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
   assert.equal(knowledge.data.visibleAlbums.length, 1);
   knowledge.onAlbumTap({ currentTarget: { dataset: { id: 'history' } } });
   assert.equal(navigation.at(-1), '/pages/audio/album?id=history');
+  assert.equal(appInstance.globalData.pendingAudioAlbum.album.cover, 'https://sy-greece.com/images/history-cover.jpg', 'the already-rendered album cover is preserved for the detail route');
 
   const album = pageFrom('pages/audio/album.js');
   album.onLoad({ id: 'history' }); album.onShow(); await tick();
   assert.equal(album.data.episodes.length, 1);
+  assert.equal(album.data.album.cover, 'https://sy-greece.com/images/history-cover.jpg', 'album detail keeps the visible list cover while refreshing remote data');
+  assert.equal(appInstance.globalData.pendingAudioAlbum, null, 'one-shot album cover handoff is cleared after consumption');
   album.onEpisodeTap({ currentTarget: { dataset: { id: 'history-1' } } });
   assert.equal(navigation.at(-1), '/pages/audio/detail?albumId=history&episodeId=history-1');
   assert.equal(playback.created, 0, 'listing never creates audio context');
@@ -109,6 +142,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
   albumDetail.onLoad({ albumId: 'history', episodeId: 'history-1' }); await tick();
   assert.equal(albumDetail.data.track.id, 'history-1');
   assert.equal(albumDetail.data.demoCategory, 'heritage');
+  assert.equal(albumDetail.data.cover, 'https://sy-greece.com/images/history-cover.jpg', 'album episode uses the album cover when the episode has no individual cover');
   assert.equal(requests.length, beforeAlbumDetail + 1, 'page load only fetches public content, never audio access');
   assert.equal(albumDetail.data.access, null);
   albumDetail.onShow();
@@ -224,7 +258,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
   assert.equal(album.data.failed, true, 'offline album page shows a loading failure, not an unpublished-album empty state');
   assert(requests.every((item) => item.url.startsWith(origin + '/')));
   assert(requests.every((item) => item.method === 'GET'));
-  const contentGets = requests.filter((item) => item.url.endsWith('/api/content?country=greece')).length;
+  const contentGets = requests.filter((item) => item.url.endsWith('/api/content?country=greece&includeAttractionDetails=false')).length;
   const accessGets = requests.length - contentGets;
   console.log(`PASS: empty/published/search/album relation/attraction exact ID/offline/lazy audio; ${contentGets} fixture content GET + ${accessGets} fixture access GET, 0 real requests`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

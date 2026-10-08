@@ -1,14 +1,21 @@
+const app = getApp();
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 Page({
-  data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], loading: true, failed: false },
+  data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], loading: true, failed: false, statusBarHeight: 20 },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     this.albumId = (options && options.id) || '';
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    const pending = app.globalData.pendingAudioAlbum;
+    if (pending && pending.id === String(this.albumId) && pending.album) {
+      this.setData({ album: pending.album, episodes: pending.album.episodes || [] });
+      this.localize();
+      app.globalData.pendingAudioAlbum = null;
+    }
     this.refresh();
   },
   onShow() {
@@ -18,10 +25,13 @@ Page({
     this.localize();
   },
   refresh() {
-    this.setData({ loading: true, album: null, episodes: [], failed: false });
+    this.setData({ loading: true, failed: false });
     content.loadContent((data, state) => {
-      const album = state && state.source === 'remote' && content.getAudioAlbums(data).find((item) => String(item.id) === String(this.albumId));
-      this.setData({ album: album || null, loading: false, failed: !state || state.source !== 'remote' || state.status !== 'ready' });
+      const verifiedResponse = Boolean(state && state.source === 'remote' && state.status === 'ready');
+      const album = verifiedResponse
+        ? content.getAudioAlbums(data).find((item) => String(item.id) === String(this.albumId)) || null
+        : this.data.album;
+      this.setData({ album, episodes: album ? album.episodes : [], loading: false, failed: !verifiedResponse });
       this.localize();
     }, true);
   },

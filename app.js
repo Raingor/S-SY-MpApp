@@ -24,6 +24,7 @@ App({
       user: null
     },
     contentSettings: {},
+    pendingAudioAlbum: null,
     pendingLeadType: '',
     locale: 'zh-CN',
     countryId: 'greece',

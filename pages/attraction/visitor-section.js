@@ -63,7 +63,9 @@ Page({
 
   onShow() {
     i18n.apply(this);
-    if (this.rawSpot) this.applySpot(this.rawSpot);
+    if (this._hasShown) this.loadSpot();
+    else if (this.rawSpot) this.applySpot(this.rawSpot);
+    this._hasShown = true;
   },
 
   loadSpot() {

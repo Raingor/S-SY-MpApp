@@ -100,6 +100,12 @@ function isPublished(item) {
   return item && item.enabled !== false && item.published !== false && !['draft', 'disabled', 'inactive', 'archived', 'unpublished'].includes(String(item.status || '').toLowerCase());
 }
 
+// 后台草稿/下架内容不得下发到前台；离线镜像与旧接口无 status 字段时视为公开，保持离线可用。
+function isPublicRecord(item) {
+  return item && (!Object.prototype.hasOwnProperty.call(item, 'status') || String(item.status).trim().toLowerCase() === 'published') &&
+    item.enabled !== false && item.published !== false;
+}
+
 function isPublicAudioRecord(item) {
   // Website strips status after applying the published filter; reject explicit non-published fixtures.
   return item && (!Object.prototype.hasOwnProperty.call(item, 'status') || item.status === 'published') &&
@@ -118,7 +124,7 @@ function adaptAudioAlbums(albums) {
 }
 
 function adaptAttractions(remoteAttractions) {
-  return (remoteAttractions || []).map((item) => ({
+  return (Array.isArray(remoteAttractions) ? remoteAttractions : []).filter(isPublicRecord).map((item) => ({
     ...item,
     sizeLabel: item.sizeLabel || item.scale || '大型',
     image: mapImage(item.image),
@@ -155,7 +161,7 @@ function adaptAttractions(remoteAttractions) {
 
 // 后端 sampleItineraries → 页面所需参考行程结构
 function adaptSampleTrips(remoteTrips) {
-  return (remoteTrips || []).map((trip) => ({
+  return (Array.isArray(remoteTrips) ? remoteTrips : []).filter(isPublicRecord).map((trip) => ({
     id: trip.id,
     type: 'reference',
     title: trip.title || trip.name,
@@ -334,7 +340,7 @@ function adaptVehicleService(remote) {
 }
 
 function adaptDestinations(remoteDestinations) {
-  return (remoteDestinations || []).map((destination) => ({
+  return (Array.isArray(remoteDestinations) ? remoteDestinations : []).filter(isPublicRecord).map((destination) => ({
     id: destination.id,
     cityId: typeof destination.cityId === 'string' ? destination.cityId.trim() : '',
     attractionId: typeof destination.attractionId === 'string' ? destination.attractionId.trim() : '',
@@ -393,7 +399,7 @@ function fetchContent() {
   const countryId = getSelectedCountryId();
   fetching = new Promise((resolve) => {
     wx.request({
-      url: base + '/api/content?country=' + encodeURIComponent(countryId),
+      url: base + '/api/content?country=' + encodeURIComponent(countryId) + '&includeAttractionDetails=false',
       method: 'GET',
       timeout: 8000,
       success: (res) => {

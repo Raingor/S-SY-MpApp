@@ -24,7 +24,7 @@ function displaySpots(spots, query, category, locale, audioOnly) {
 
 Page({
   data: {
-    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
+    statusBarHeight: 20, menuRightSpace: 112, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
     panelTabs: [], cities: [], sampleTrips: [], allHotSpots: [], hotSpots: [],
     albums: [], visibleAlbums: [], searchQuery: '', categoryId: '', audioOnly: false,
     loading: true, contentError: false, offline: false,
@@ -33,7 +33,10 @@ Page({
   onShareAppMessage() { return buildShareCard('/pages/knowledge/knowledge'); },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20, activePanel: options && options.panel === '1' ? 1 : 0, audioOnly: Boolean(options && options.audioOnly === '1') });
+    const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+    const windowWidth = sys.windowWidth || (wx.getSystemInfoSync && wx.getSystemInfoSync().windowWidth) || 375;
+    const menuRightSpace = menu ? Math.max(88, windowWidth - menu.left + 12) : 112;
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20, menuRightSpace, activePanel: options && options.panel === '1' ? 1 : 0, audioOnly: Boolean(options && options.audioOnly === '1') });
     this.applyLocale();
     this.refresh();
   },
@@ -100,7 +103,10 @@ Page({
   onHotSpotTap(e) { this.openSpot(e.currentTarget.dataset.id); },
   onAlbumTap(e) {
     const id = e.currentTarget.dataset.id;
-    if (!this.data.loading && this.data.visibleAlbums.some((album) => String(album.id) === String(id))) {
+    const album = this.data.visibleAlbums.find((item) => String(item.id) === String(id));
+    if (!this.data.loading && album) {
+      // Keep the cover already rendered in the list available while the detail page refreshes content.
+      app.globalData.pendingAudioAlbum = { id: String(album.id), album };
       wx.navigateTo({ url: '/pages/audio/album?id=' + encodeURIComponent(id) });
     }
   },

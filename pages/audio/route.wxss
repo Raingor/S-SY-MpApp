@@ -1,6 +1,7 @@
 page { min-height: 100vh; background: #111214; }
 .route-detail-page { min-height: 100vh; padding-bottom: calc(125rpx + env(safe-area-inset-bottom)); box-sizing: border-box; background: #111214; color: #f1f0ec; }
-.route-detail-nav { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; height: 98rpx; padding: 0 28rpx; background: #111214; }
+.route-detail-top-inset { background: #111214; }
+.route-detail-nav { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; height: 98rpx; padding: 0 28rpx; background: #111214; box-sizing: border-box; }
 .route-detail-nav .sy-back-button { position: static; flex: 0 0 60rpx; width: 60rpx; height: 60rpx; }
 .route-detail-nav-title { flex: 1; color: #f2f1ed; font-size: 29rpx; text-align: center; }
 .route-detail-nav-space { flex: 0 0 60rpx; }
