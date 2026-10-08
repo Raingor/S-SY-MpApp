@@ -198,6 +198,7 @@ const audioDetailMarkup = fs.readFileSync('pages/audio/detail.wxml', 'utf8');
 assert.match(audioDetailMarkup, /class="audio-experience-nav" style="top: \{\{statusBarHeight \+ 8\}\}px;"/, '全屏封面返回按钮必须位于真实状态栏下方');
 let response = { access: 'preview', unlockMode: 'attraction', previewSeconds: 60, previewUrl: '/preview', fullUrl: null };
 let showToastCount = 0;
+let backCalled = false;
 const audioWx = {
   getWindowInfo: () => ({ statusBarHeight: 44 }),
   createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
@@ -218,7 +219,8 @@ vm.runInNewContext(source, {
     if (name.includes('audio-access')) return { getAccess: (_id, cb) => cb(true, { mode: response.unlockMode, access: response.access, fullUrl: response.access === 'full' ? response.fullUrl : '', previewUrl: response.previewUrl, previewSeconds: Math.min(response.previewSeconds, 60) }, 200) };
     if (name.includes('paid-content')) return { fetchConfig() { throw Error('No purchase without user interaction'); } };
     if (name.includes('auth')) return auth;
-    return { goBack() {} };
+    if (name.includes('utils/navigation')) return { goBack() { assert(audio.stopped, 'audio stops before back navigation'); backCalled = true; } };
+    return {};
   }, wx: audioWx
 });
 const instance = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
@@ -243,5 +245,12 @@ instance.refreshAccess();
 assert.equal(instance.data.access.fullUrl, response.fullUrl);
 instance.playFull();
 assert(instance.data.fullPlayback && audio.src === response.fullUrl);
+audio.stopped = false;
+const accessRequestId = instance._accessRequestId;
+instance.onBack();
+assert(audio.stopped, 'back tap stops the active audio context');
+assert(backCalled, 'back navigation runs after stopping audio');
+assert(instance._accessRequestId > accessRequestId, 'back tap invalidates a pending access callback');
+assert.equal(instance.data.access, null);
 instance.onUnload();
 console.log('PASS: visitor-card navigation, section tabs, tri-language rich content/fallback, fixed/custom sections, empty states, no-video paywall guard, audio access and preview boundaries');

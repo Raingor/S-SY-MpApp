@@ -87,14 +87,15 @@ const knowledgeMarkup = fs.readFileSync(path.join(__dirname, '../pages/knowledge
 const knowledgeStyles = fs.readFileSync(path.join(__dirname, '../pages/knowledge/knowledge.wxss'), 'utf8');
 const albumMarkup = fs.readFileSync(path.join(__dirname, '../pages/audio/album.wxml'), 'utf8');
 assert.match(knowledgeMarkup, /knowledge-nav sy-nav" style="padding-right: \{\{menuRightSpace\}\}px;/, 'knowledge header reserves space for the WeChat capsule');
-assert.match(knowledgeStyles, /\.heritage-album\s*\{[^}]*display:\s*block/s, 'heritage cards stack vertically');
+assert.match(knowledgeStyles, /\.heritage-album\s*\{[^}]*display:\s*flex/s, 'heritage album cards use a compact horizontal layout');
 const attractionMarkup = fs.readFileSync(path.join(__dirname, '../pages/attraction/detail.wxml'), 'utf8');
 const audioDetailMarkup = fs.readFileSync(path.join(__dirname, '../pages/audio/detail.wxml'), 'utf8');
 assert.match(attractionMarkup, /class="guide-entry-card" data-category="online" bindtap="onGuideCollectionTap"/, 'Online Preview opens the online guide-point collection');
 assert.doesNotMatch(attractionMarkup, /online-preview-track|onOnlinePreviewTap/, 'audio is not played directly from the attraction card');
-assert.match(audioDetailMarkup, /class="audio-controls"/, 'the audio player is shown after opening an individual guide point');
+assert.match(audioDetailMarkup, /class="audio-player-controls"/, 'the audio player is shown after opening an individual guide point');
 assert(knowledgeMarkup.indexOf('class="heritage-album-cover"') < knowledgeMarkup.indexOf('class="heritage-album-body"'), 'heritage card renders image before text');
-assert.match(knowledgeStyles, /\.heritage-album-body\s*\{[^}]*padding:\s*26rpx 30rpx 30rpx/s, 'album text has interior spacing');
+assert.match(knowledgeStyles, /\.heritage-album-cover\s*\{[^}]*width:\s*188rpx;[^}]*height:\s*188rpx/s, 'knowledge album art uses a square thumbnail');
+assert.match(knowledgeStyles, /\.heritage-album-body\s*\{[^}]*padding:\s*0/s, 'horizontal album text aligns without extra inset');
 assert.match(albumMarkup, /class="audio-cover" src="\{\{album\.cover\}\}"/, 'album detail binds its image to the normalized cover URL');
 (async () => {
   const knowledge = pageFrom('pages/knowledge/knowledge.js');

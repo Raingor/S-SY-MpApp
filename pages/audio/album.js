@@ -5,7 +5,7 @@ const { goBack } = require('../../utils/navigation');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 Page({
-  data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], loading: true, failed: false, statusBarHeight: 20 },
+  data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], visibleEpisodes: [], firstEpisode: null, searching: false, searchValue: '', activeTab: 'episodes', scrollIntoView: '', loading: true, failed: false, statusBarHeight: 20 },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.albumId = (options && options.id) || '';
@@ -38,11 +38,38 @@ Page({
   localize() {
     if (!this.data.album) return;
     const { album, locale } = this.data;
+    const author = tr(album, 'author', locale) || tr(album, 'artist', locale) || tr(album, 'narrator', locale) || album.author || album.artist || album.narrator || '';
+    const episodes = (album.episodes || []).map((item, index) => ({ ...item, episodeIndex: index + 1, displayTitle: tr(item, 'title', locale), displayDescription: tr(item, 'description', locale), displayDuration: duration(item.durationSeconds) }));
     this.setData({
-      album: { ...album, displayTitle: tr(album, 'title', locale), displayDescription: tr(album, 'description', locale) },
-      totalDuration: duration((album.episodes || []).reduce((sum, item) => sum + (Number(item.durationSeconds) || 0), 0)),
-      episodes: (album.episodes || []).map((item) => ({ ...item, displayTitle: tr(item, 'title', locale), displayDescription: tr(item, 'description', locale), displayDuration: duration(item.durationSeconds) }))
+      album: { ...album, displayTitle: tr(album, 'title', locale), displayDescription: tr(album, 'description', locale), displayAuthor: author, displayTags: Array.isArray(album.tags) ? album.tags.filter((tag) => typeof tag === 'string' && tag.trim()) : [] },
+      totalDuration: duration(episodes.reduce((sum, item) => sum + (Number(item.durationSeconds) || 0), 0)),
+      episodes,
+      firstEpisode: episodes[0] || null,
+      visibleEpisodes: this.filterEpisodes(episodes, this.data.searchValue)
     });
+  },
+  filterEpisodes(episodes, value) {
+    const query = String(value || '').trim().toLocaleLowerCase();
+    if (!query) return episodes;
+    return episodes.filter((item) => `${item.displayTitle || ''} ${item.displayDescription || ''}`.toLocaleLowerCase().includes(query));
+  },
+  onToggleSearch() {
+    const searching = !this.data.searching;
+    this.setData({ searching, searchValue: '', visibleEpisodes: this.data.episodes });
+  },
+  onSearchInput(e) {
+    const searchValue = e.detail.value || '';
+    this.setData({ searchValue, visibleEpisodes: this.filterEpisodes(this.data.episodes, searchValue) });
+  },
+  onAlbumTabTap(e) {
+    const section = e.currentTarget.dataset.section;
+    if (!['intro', 'episodes'].includes(section)) return;
+    this.setData({ activeTab: section, scrollIntoView: section === 'intro' ? 'album-intro' : 'episode-list' });
+  },
+  onStartAlbum() {
+    const episode = this.data.firstEpisode;
+    if (!episode || this.data.loading) return;
+    wx.navigateTo({ url: `/pages/audio/detail?albumId=${encodeURIComponent(this.albumId)}&episodeId=${encodeURIComponent(episode.id)}&autoplay=1` });
   },
   onEpisodeTap(e) {
     const id = e.currentTarget.dataset.id;

@@ -1,0 +1,41 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+
+const playerMarkup = fs.readFileSync('pages/audio/detail.wxml', 'utf8');
+const playerStyles = fs.readFileSync('pages/audio/detail.wxss', 'utf8');
+const playerJs = fs.readFileSync('pages/audio/detail.js', 'utf8');
+const albumMarkup = fs.readFileSync('pages/audio/album.wxml', 'utf8');
+const albumStyles = fs.readFileSync('pages/audio/album.wxss', 'utf8');
+const albumJs = fs.readFileSync('pages/audio/album.js', 'utf8');
+const knowledgeMarkup = fs.readFileSync('pages/knowledge/knowledge.wxml', 'utf8');
+const knowledgeStyles = fs.readFileSync('pages/knowledge/knowledge.wxss', 'utf8');
+
+assert.match(playerMarkup, /class="audio-player-artwork"/);
+assert.match(playerMarkup, /class="audio-player-cover"[^>]*mode="aspectFill"/);
+assert.match(playerMarkup, /class="audio-player-cover audio-cover-placeholder"/);
+assert.match(playerMarkup, /class="audio-player-slider"[^>]*bindchange="onSeekChange"/);
+assert.match(playerMarkup, /bindtap="onSpeedTap"/);
+assert.match(playerMarkup, /class="audio-skip-control"[^>]*data-offset="-15"/);
+assert.match(playerMarkup, /class="audio-round-control" bindtap="onPlayerToggle"/);
+assert.match(playerStyles, /\.audio-player-artwork\s*\{[^}]*width:\s*88vw;[^}]*height:\s*88vw;/s);
+assert.match(playerStyles, /\.audio-round-control\s*\{[^}]*width:\s*140rpx;[^}]*height:\s*140rpx;/s);
+assert.match(playerJs, /onSeekChange\(e\)/);
+assert.match(playerJs, /onSeekOffset\(e\)/);
+assert.match(playerJs, /previewLimit - 1/, 'seek and skip remain inside the preview window');
+assert.match(playerJs, /onSpeedTap\(\)/);
+assert.match(albumMarkup, /class="audio-cover"/);
+assert.match(albumMarkup, /class="audio-episode-card"/);
+assert.match(albumMarkup, /class="audio-album-tabs"/);
+assert.match(albumMarkup, /class="audio-episode-tools"/);
+assert.match(albumMarkup, /class="audio-album-bottom-actions"/);
+assert.match(albumMarkup, /class="audio-album-play-button" bindtap="onStartAlbum"/);
+assert.match(albumStyles, /\.audio-cover\s*\{[^}]*width:\s*220rpx;[^}]*height:\s*220rpx;/s);
+assert.match(albumJs, /onStartAlbum\(\)/);
+assert.match(albumJs, /autoplay=1/);
+assert.match(playerJs, /this\.autoPlayRequested = this\.params\.autoplay === '1'/);
+assert.match(playerJs, /if \(track && track\.previewUrl && !demoMode\) this\.playPreview\(\)/);
+assert.match(knowledgeMarkup, /class="heritage-album-cover"[^>]*mode="aspectFill"/);
+assert.match(knowledgeStyles, /\.heritage-album\s*\{[^}]*display:\s*flex/s);
+assert.match(knowledgeStyles, /\.heritage-album-cover\s*\{[^}]*width:\s*188rpx;[^}]*height:\s*188rpx;/s);
+
+console.log('PASS: audio player controls and preview boundary; literature album detail, episode search/list and explicit first-episode preview layout');

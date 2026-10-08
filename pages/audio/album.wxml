@@ -1,1 +1,80 @@
-<view class="audio-page"><view class="audio-album-top-inset" style="height: {{statusBarHeight}}px;"></view><view class="audio-nav"><view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><text>{{i18n.heritage.history}}</text><view class="audio-nav-spacer"></view></view><view wx:if="{{loading}}" class="audio-card">{{i18n.loading}}</view><view wx:elif="{{album}}"><view class="audio-card"><image wx:if="{{album.cover}}" class="audio-cover" src="{{album.cover}}" mode="aspectFill"/><view class="audio-title">{{album.displayTitle}}</view><view class="audio-description">{{album.displayDescription}}</view><view class="audio-meta">{{episodes.length}} {{i18n.heritage.episodes}}<text wx:if="{{totalDuration}}"> · {{i18n.heritage.duration}} {{totalDuration}}</text></view></view><view wx:if="{{episodes.length}}" class="audio-card"><view wx:for="{{episodes}}" wx:key="id" class="audio-list-row" data-id="{{item.id}}" bindtap="onEpisodeTap"><view>{{index + 1}} · {{item.displayTitle}}<view class="audio-description">{{item.displayDescription}} <text wx:if="{{item.displayDuration}}">· {{item.displayDuration}}</text></view></view><text>›</text></view></view><view wx:else class="audio-card">{{i18n.heritage.noAudio}}</view></view><view wx:else class="audio-card">{{failed ? i18n.heritage.networkFailed : i18n.heritage.noAlbums}}</view></view>
+<view class="audio-page">
+  <view class="audio-album-top-inset" style="height: {{statusBarHeight}}px;"></view>
+  <view class="audio-nav">
+    <view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view>
+    <view class="audio-nav-spacer"></view>
+  </view>
+
+  <view wx:if="{{loading && !album}}" class="audio-album-state">{{i18n.loading}}</view>
+  <view wx:elif="{{album}}" class="audio-album-body">
+    <scroll-view class="audio-album-scroll" scroll-y="true" scroll-into-view="{{scrollIntoView}}">
+      <view id="album-intro" class="audio-album-overview">
+        <view class="audio-album-head">
+          <image wx:if="{{album.cover}}" class="audio-cover" src="{{album.cover}}" mode="aspectFill" />
+          <view wx:else class="audio-cover audio-cover-placeholder"><text>希</text></view>
+          <view class="audio-album-heading">
+            <view class="audio-album-kicker">{{i18n.heritage.history}}</view>
+            <view class="audio-title">{{album.displayTitle}}</view>
+            <view wx:if="{{album.displayAuthor}}" class="audio-album-author">{{album.displayAuthor}}</view>
+          </view>
+        </view>
+
+        <view class="audio-album-stats">
+          <view class="audio-album-stat">
+            <text class="audio-album-stat-value">{{episodes.length}}</text>
+            <text class="audio-album-stat-label">{{i18n.heritage.episodes}}</text>
+          </view>
+          <view class="audio-album-stat-divider"></view>
+          <view class="audio-album-stat">
+            <text class="audio-album-stat-value">{{totalDuration || '—'}}</text>
+            <text class="audio-album-stat-label">{{i18n.heritage.duration}}</text>
+          </view>
+        </view>
+
+        <view wx:if="{{album.displayTags.length}}" class="audio-album-tags">
+          <text wx:for="{{album.displayTags}}" wx:key="*this" class="audio-album-tag">{{item}}</text>
+        </view>
+        <view wx:if="{{album.displayDescription}}" class="audio-album-description-card">
+          <view class="audio-album-description-label">{{i18n.heritage.albumIntro}}</view>
+          <view class="audio-description">{{album.displayDescription}}</view>
+        </view>
+      </view>
+
+      <view class="audio-album-tabs">
+        <view class="audio-album-tab {{activeTab === 'episodes' ? 'audio-album-tab-active' : ''}}" data-section="episodes" bindtap="onAlbumTabTap">{{i18n.heritage.program}}</view>
+        <view wx:if="{{album.displayDescription}}" class="audio-album-tab {{activeTab === 'intro' ? 'audio-album-tab-active' : ''}}" data-section="intro" bindtap="onAlbumTabTap">{{i18n.heritage.albumIntro}}</view>
+      </view>
+
+      <view id="episode-list" class="audio-episode-card">
+        <view class="audio-episode-heading">
+          <view class="audio-episode-heading-title">{{i18n.heritage.program}}</view>
+          <view class="audio-episode-heading-count">{{visibleEpisodes.length}} / {{episodes.length}}</view>
+        </view>
+        <view class="audio-episode-tools">
+          <view class="audio-album-order">☰ {{i18n.heritage.albumOrder}}</view>
+          <view class="audio-episode-search">
+            <input wx:if="{{searching}}" class="audio-episode-search-input" value="{{searchValue}}" placeholder="{{i18n.heritage.searchAlbums}}" confirm-type="search" bindinput="onSearchInput" />
+            <view class="audio-episode-search-button" bindtap="onToggleSearch">⌕</view>
+          </view>
+          <view class="audio-episode-total">{{episodes.length}} {{i18n.heritage.episodes}}</view>
+        </view>
+        <view wx:for="{{visibleEpisodes}}" wx:key="id" class="audio-list-row" data-id="{{item.id}}" bindtap="onEpisodeTap">
+          <text class="audio-episode-index">{{item.episodeIndex}}</text>
+          <view class="audio-episode-copy">
+            <view class="audio-episode-title">{{item.displayTitle}}</view>
+            <view wx:if="{{item.displayDuration}}" class="audio-episode-duration">◷ {{item.displayDuration}}</view>
+          </view>
+          <text class="audio-episode-arrow">›</text>
+        </view>
+        <view wx:if="{{!visibleEpisodes.length}}" class="audio-album-state">{{searchValue ? i18n.heritage.noEpisodeResults : i18n.heritage.noAudio}}</view>
+      </view>
+      <view class="audio-album-scroll-end"></view>
+    </scroll-view>
+  </view>
+  <view wx:else class="audio-album-state">{{failed ? i18n.heritage.networkFailed : i18n.heritage.noAlbums}}</view>
+
+  <view wx:if="{{album && episodes.length}}" class="audio-album-bottom-actions">
+    <button class="audio-album-about-button" data-section="intro" bindtap="onAlbumTabTap">{{i18n.heritage.albumIntro}}</button>
+    <button class="audio-album-play-button" bindtap="onStartAlbum">{{i18n.heritage.previewFirstEpisode}}</button>
+  </view>
+</view>

@@ -10,12 +10,13 @@ function localized(item, key, locale) {
   return item && (item[key + suffix] || item[key]) || '';
 }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
+function formatTime(value) { const seconds = Math.max(0, Math.floor(Number(value) || 0)); return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; }
 
 Page({
   data: {
     statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
-    loading: true, playing: false, previewEnded: false, currentSeconds: 0, progressPercent: 0,
+    loading: true, playing: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
   },
   onLoad(options) {
@@ -27,6 +28,7 @@ Page({
     this.params.trackId = this.params.trackId || '';
     this.params.albumId = this.params.albumId || '';
     this.params.episodeId = this.params.episodeId || '';
+    this.autoPlayRequested = this.params.autoplay === '1';
     this.params.category = ['expert', 'route'].includes(this.params.category) ? this.params.category : 'online';
     this.loadData();
   },
@@ -34,11 +36,12 @@ Page({
     if (this.audio) return this.audio;
     this.audio = wx.createInnerAudioContext();
     this.audio.autoplay = false;
+    this.audio.playbackRate = this.data.playbackRate;
     this.audio.onTimeUpdate(() => {
       const seconds = Number(this.audio.currentTime) || 0;
       if (!this.data.fullPlayback && seconds >= (this.data.access ? this.data.access.previewSeconds : 60)) return this.stopPreview();
       const total = Number(this.data.track && this.data.track.durationSeconds) || 0;
-      this.setData({ currentSeconds: Math.floor(seconds), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
+      this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
     });
     // 部分 Android 机型支持系统进度拖动：即使控件触发 seek，也不得超过试看边界。
     if (this.audio.onSeeking) this.audio.onSeeking(() => {
@@ -66,18 +69,23 @@ Page({
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     if (this.audio) { this.audio.stop(); this.audio.destroy(); }
   },
-  stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, progressPercent: 0 }); },
+  stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
   stopPreview() {
     if (this.data.previewEnded) return;
-    this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, progressPercent: 0, previewEnded: true });
+    this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0, previewEnded: true });
     if (this.audio) this.audio.stop();
     wx.showToast({ title: this.data.i18n.heritage.previewEnded, icon: 'none' });
   },
-  onBack() { goBack(); },
+  onBack() {
+    this._accessRequestId = (this._accessRequestId || 0) + 1;
+    this.stop();
+    this.setData({ access: null, accessLoading: false });
+    goBack();
+  },
   loadData() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
-    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false });
+    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false, durationSeconds: 0, remainingTime: '0:00' });
     content.loadContent((data, state) => {
       let track = null; let point = null; let pointTracks = []; let spot = null;
       this.albumCover = '';
@@ -107,6 +115,10 @@ Page({
       const demoMode = Boolean(track && track.isDemo === true);
       this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.albumId ? 'heritage' : this.params.category });
       this.localize();
+      if (this.autoPlayRequested) {
+        this.autoPlayRequested = false;
+        if (track && track.previewUrl && !demoMode) this.playPreview();
+      }
     }, true);
   },
   localize() {
@@ -116,9 +128,11 @@ Page({
     this.setData({
       title: localized(track && track.isDemo ? track : (point || track), track && track.isDemo ? 'title' : (point ? 'name' : 'title'), locale),
       description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
-      duration: duration(track && track.durationSeconds),
-      pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
       cover: (track && track.cover) || (point && point.image) || this.albumCover || (this.spot && this.spot.image) || '',
+      duration: duration(track && track.durationSeconds),
+      durationSeconds: Number(track && track.durationSeconds) || 0,
+      remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
+      pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
       displayLocation
     });
   },
@@ -147,6 +161,37 @@ Page({
       this.setData({ access: result, accessLoading: false, unavailable: !result.previewUrl && !result.fullUrl });
       if (typeof onReady === 'function') onReady(result);
     });
+  },
+  onPlayerToggle() {
+    if (this.data.playing && this.audio) { this.audio.pause(); return this.setData({ playing: false }); }
+    if (this.data.fullPlayback) return this.playFull();
+    this.playPreview();
+  },
+  onSeekChange(e) {
+    if (!this.audio || !this.data.access || !this.data.track) return;
+    const total = Number(this.data.durationSeconds) || 0;
+    const previewLimit = Math.max(0, Number(this.data.access.previewSeconds) || Number(this.data.track.previewSeconds) || 60);
+    const max = this.data.fullPlayback ? total : Math.min(total || previewLimit, Math.max(0, previewLimit - 1));
+    const seconds = Math.min(max, Math.max(0, Number(e.detail.value) || 0));
+    this.audio.seek(seconds);
+    this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
+  },
+  onSeekOffset(e) {
+    if (!this.audio || !this.data.access || !this.data.track) return;
+    const total = Number(this.data.durationSeconds) || 0;
+    const previewLimit = Math.max(0, Number(this.data.access.previewSeconds) || Number(this.data.track.previewSeconds) || 60);
+    const max = this.data.fullPlayback ? total : Math.min(total || previewLimit, Math.max(0, previewLimit - 1));
+    const offset = Number(e.currentTarget.dataset.offset) || 0;
+    const seconds = Math.min(max, Math.max(0, this.data.currentSeconds + offset));
+    this.audio.seek(seconds);
+    this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
+  },
+  onSpeedTap() {
+    const speeds = [1, 1.25, 1.5, 2];
+    const index = speeds.indexOf(Number(this.data.playbackRate));
+    const playbackRate = speeds[(index + 1) % speeds.length];
+    if (this.audio) this.audio.playbackRate = playbackRate;
+    this.setData({ playbackRate });
   },
   playPreview() {
     if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl) return;

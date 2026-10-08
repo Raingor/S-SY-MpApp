@@ -1,8 +1,59 @@
 <view class="audio-experience-page">
-  <view class="audio-experience-hero"><image wx:if="{{cover}}" class="audio-experience-cover" src="{{cover}}" mode="aspectFill"/><view class="audio-experience-shade"></view><view class="audio-experience-nav" style="top: {{statusBarHeight + 8}}px;"><view class="audio-back" bindtap="onBack"><view class="sy-back-chevron"></view></view><text>{{i18n.brand}}</text><view class="audio-nav-spacer"></view></view><view class="audio-experience-caption"><view class="audio-caption-kicker">{{demoMode ? i18n.heritage.demoData : (demoCategory === 'heritage' ? i18n.heritage.history : (demoCategory === 'expert' ? i18n.heritage.expert : (demoCategory === 'route' ? i18n.heritage.routes : i18n.heritage.online)))}}</view><view class="audio-experience-title">{{title}}</view><view wx:if="{{point.author}}" class="audio-experience-subtitle">{{point.author}}</view></view></view>
-  <view wx:if="{{loading}}" class="audio-experience-panel audio-panel-loading">{{i18n.loading}}</view>
-  <view wx:else class="audio-experience-panel">
-    <block wx:if="{{demoMode}}"><view class="audio-panel-heading">{{demoCategory === 'expert' ? i18n.heritage.expert : (demoCategory === 'route' ? i18n.heritage.routes : i18n.heritage.online)}}</view><view wx:if="{{description}}" class="audio-experience-description">{{description}}</view><view wx:if="{{displayLocation}}" class="audio-experience-location">⌖ {{displayLocation}}</view><view class="audio-demo-notice">{{i18n.heritage.demoAudioPending}}</view></block>
-    <block wx:else><view wx:if="{{description}}" class="audio-experience-description">{{description}}</view><view wx:if="{{track.language || duration}}" class="audio-experience-location">{{track.language}}<text wx:if="{{duration}}"> · {{i18n.heritage.duration}} {{duration}}</text></view><view wx:if="{{pointTracks.length > 1}}" class="audio-point-tracks"><view wx:for="{{pointTracks}}" wx:key="id" class="audio-track-option {{track.id === item.id ? 'audio-selected' : ''}}" data-id="{{item.id}}" bindtap="onPointTrackTap">{{item.displayTitle}}</view></view><view wx:if="{{unavailable}}" class="audio-demo-notice">{{i18n.heritage.noAudio}}</view><view wx:elif="{{accessError}}" class="audio-demo-notice">{{i18n.heritage.networkFailed}} <text bindtap="refreshAccess">{{i18n.heritage.retry}} ›</text></view><view wx:else><view class="audio-progress-row"><view class="audio-progress-track"><view class="audio-progress-fill" style="width: {{progressPercent}}%;"></view></view><text>{{currentSeconds}}s</text></view><view class="audio-controls"><view wx:if="{{track && track.previewUrl}}" class="audio-round-control" bindtap="playPreview">{{playing && !fullPlayback ? 'Ⅱ' : '▶'}}</view><view wx:if="{{track && track.previewUrl}}" class="audio-preview-control" bindtap="playPreview">{{accessLoading ? i18n.loading : (playing && !fullPlayback ? i18n.heritage.pause : i18n.heritage.preview)}} · {{track.previewSeconds || 60}}s</view><view wx:if="{{track && track.previewUrl && track.unlockMode !== 'locked'}}" class="audio-full-control" bindtap="playFull">{{playing && fullPlayback ? i18n.heritage.pause : (track.unlockMode === 'free' ? i18n.heritage.full : i18n.heritage.unlockRequired)}}</view><view wx:elif="{{track && track.previewUrl}}" class="audio-full-control audio-control-locked">{{i18n.heritage.previewOnly}}</view></view><view wx:if="{{previewEnded}}" class="audio-demo-notice">{{i18n.heritage.previewEnded}}</view></view><view wx:if="{{pendingOrder && simulation}}" class="audio-simulation"><view>{{i18n.paidContent.simulationTitle}}</view><button data-outcome="paid" bindtap="onSimulationPay">{{i18n.paidContent.simulationSuccess}}</button><button data-outcome="failed" bindtap="onSimulationPay">{{i18n.paidContent.simulationFailure}}</button></view></block>
+  <view class="audio-experience-nav" style="top: {{statusBarHeight + 8}}px;">
+    <view class="audio-back" bindtap="onBack"><view class="sy-back-chevron"></view></view>
+    <text>{{i18n.brand}}</text>
+    <view class="audio-nav-spacer"></view>
+  </view>
+
+  <scroll-view wx:if="{{!loading}}" class="audio-detail-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + 100}}px;">
+    <view class="audio-detail-content">
+      <view class="audio-player-artwork">
+        <image wx:if="{{cover}}" class="audio-player-cover" src="{{cover}}" mode="aspectFill" />
+        <view wx:else class="audio-player-cover audio-cover-placeholder">
+          <view class="audio-wave-mark"><view class="audio-wave-dot"></view><view class="audio-wave-bar audio-wave-bar-short"></view><view class="audio-wave-bar audio-wave-bar-tall"></view><view class="audio-wave-bar audio-wave-bar-mid"></view><view class="audio-wave-bar audio-wave-bar-short"></view></view>
+        </view>
+      </view>
+
+      <view class="audio-track-heading">
+        <view class="audio-track-title">{{title}}</view>
+        <view wx:if="{{point.author || displayLocation}}" class="audio-track-subtitle">{{point.author || displayLocation}}</view>
+      </view>
+
+      <view wx:if="{{pointTracks.length > 1}}" class="audio-point-tracks">
+        <view wx:for="{{pointTracks}}" wx:key="id" class="audio-track-option {{track.id === item.id ? 'audio-selected' : ''}}" data-id="{{item.id}}" bindtap="onPointTrackTap">{{item.displayTitle}}</view>
+      </view>
+
+      <view wx:if="{{demoMode}}" class="audio-player-notice">{{i18n.heritage.demoAudioPending}}</view>
+      <view wx:elif="{{unavailable}}" class="audio-player-notice">{{i18n.heritage.noAudio}}</view>
+      <view wx:elif="{{accessError}}" class="audio-player-notice">{{i18n.heritage.networkFailed}} <text bindtap="refreshAccess">{{i18n.heritage.retry}} ›</text></view>
+      <view wx:if="{{pendingOrder && simulation}}" class="audio-simulation">
+        <view>{{i18n.paidContent.simulationTitle}}</view>
+        <button data-outcome="paid" bindtap="onSimulationPay">{{i18n.paidContent.simulationSuccess}}</button>
+        <button data-outcome="failed" bindtap="onSimulationPay">{{i18n.paidContent.simulationFailure}}</button>
+      </view>
+    </view>
+  </scroll-view>
+  <view wx:else class="audio-panel-loading">{{i18n.loading}}</view>
+
+  <view wx:if="{{!loading && !demoMode && !unavailable && !accessError && track && track.previewUrl}}" class="audio-player-dock">
+    <slider class="audio-player-slider" min="0" max="{{durationSeconds || 1}}" value="{{currentSeconds}}" bindchange="onSeekChange" activeColor="#303030" backgroundColor="#E4E4E4" block-color="#222222" block-size="13" disabled="{{!access}}" />
+    <view class="audio-player-times">
+      <text>{{currentTime}}</text>
+      <view class="audio-speed-button" bindtap="onSpeedTap"><text>{{playbackRate}}×</text><text class="audio-speed-label">{{i18n.heritage.speed}}</text></view>
+      <text>-{{remainingTime}}</text>
+    </view>
+    <view class="audio-player-controls">
+      <view class="audio-skip-control" data-offset="-15" bindtap="onSeekOffset"><text class="audio-skip-icon">↶</text><text class="audio-skip-seconds">15</text></view>
+      <view class="audio-track-step audio-track-step-disabled"><text>◀|</text></view>
+      <view class="audio-round-control" bindtap="onPlayerToggle"><text>{{playing ? 'Ⅱ' : '▶'}}</text></view>
+      <view class="audio-track-step audio-track-step-disabled"><text>|▶</text></view>
+      <view class="audio-skip-control" data-offset="30" bindtap="onSeekOffset"><text class="audio-skip-icon">↷</text><text class="audio-skip-seconds">30</text></view>
+    </view>
+    <view class="audio-player-actions">
+      <text class="audio-preview-caption">{{i18n.heritage.preview}} · {{track.previewSeconds || 60}}s</text>
+      <view wx:if="{{track.unlockMode !== 'locked'}}" class="audio-full-action" bindtap="playFull">{{accessLoading ? i18n.loading : (track.unlockMode === 'free' ? i18n.heritage.full : i18n.heritage.unlockRequired)}}</view>
+      <text wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</text>
+    </view>
+    <view wx:if="{{previewEnded}}" class="audio-preview-ended">{{i18n.heritage.previewEnded}}</view>
   </view>
 </view>
