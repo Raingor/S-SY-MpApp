@@ -28,16 +28,21 @@
 
 .knowledge-nav {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   height: 82rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 18rpx;
+  box-sizing: border-box;
   color: rgba(255, 255, 255, 0.82);
 }
 
 .knowledge-brand {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 360rpx;
+  margin-right: auto;
   overflow: hidden;
   font-size: 26rpx;
   font-weight: 600;
@@ -341,10 +346,10 @@
   text-align: center;
 }
 
-.heritage-albums { padding: 0 30rpx 30rpx; }
-.heritage-album { display: flex; gap: 24rpx; margin-bottom: 20rpx; padding: 24rpx; }
-.heritage-album-cover { width: 130rpx; height: 130rpx; flex-shrink: 0; border-radius: 12rpx; }
-.heritage-album-body { flex: 1; min-width: 0; }
+.heritage-albums { padding: 0 32rpx 30rpx; }
+.heritage-album { display: block; overflow: hidden; margin: 0 0 24rpx; padding: 0; }
+.heritage-album-cover { display: block; width: 100%; height: 340rpx; border-radius: 0; background: #E8EEF2; }
+.heritage-album-body { min-width: 0; padding: 26rpx 30rpx 30rpx; box-sizing: border-box; }
 .heritage-album-title { color: #0B3C5D; font-size: 31rpx; font-weight: 600; }
-.heritage-album-desc { margin-top: 10rpx; color: #5B6B7A; font-size: 24rpx; line-height: 1.5; overflow-wrap: anywhere; }
+.heritage-album-desc { margin: 12rpx 2rpx 0; color: #5B6B7A; font-size: 24rpx; line-height: 1.65; overflow-wrap: anywhere; }
 .heritage-album-meta { margin-top: 10rpx; color: #1567A8; font-size: 23rpx; }

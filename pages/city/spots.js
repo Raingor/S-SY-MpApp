@@ -27,16 +27,23 @@ Page({
     const city = cities.find((item) => item.id === this.cityId) || null;
     if (city) this.applyCity(city, sys.statusBarHeight || 20);
     else this.setData({ city: null, spots: [] });
+    this.reload();
+  },
+
+  // 后台补录景点/讲解点后进入或返回本页都重新拉取，避免内存缓存导致新景点不显示。
+  reload() {
     content.loadContent((data) => {
       const fresh = content.getCities(data);
       const updated = fresh.find((item) => item.id === this.cityId) || null;
       if (updated) this.applyCity(updated, undefined, data);
       else this.setData({ city: null, spots: [] });
-    });
+    }, true);
   },
 
   onShow() {
     i18n.apply(this);
+    if (this._hasShown) this.reload();
+    this._hasShown = true;
   },
 
   applyCity(city, statusBarHeight, source) {

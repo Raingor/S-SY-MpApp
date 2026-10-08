@@ -114,6 +114,8 @@ Page({
     }
 
     // id：先展示本地镜像避免空白，但接口内容成功后必须以服务端数据为准。
+    // force=true：后台补录/修改参考行程后，再次进入详情必须拉取最新内容。
+    this.itineraryId = id;
     const local = mirror.getItinerary(id);
     applyItinerary.call(this, local, statusBarHeight);
     content.loadContent((data, state) => {
@@ -122,11 +124,23 @@ Page({
       // 只有网络离线时允许继续使用本地镜像；契约错误不能伪装成正式内容。
       if (local && state && state.reason === 'offline') return;
       if (!local || (state && state.reason === 'contract')) applyItinerary.call(this, null, statusBarHeight);
-    });
+    }, true);
   },
 
   onShow() {
     i18n.apply(this);
+    if (!this._hasShown) { this._hasShown = true; return; }
+    this.reload();
+  },
+
+  // 后台补录/修改后返回本页时重新拉取，避免内存缓存导致内容不同步（定制行程走 token 接口，不在此列）。
+  reload() {
+    const id = this.itineraryId;
+    if (!id) return;
+    content.loadContent((data) => {
+      const remote = (data.sampleItineraries || []).find((item) => item.id === id);
+      if (remote) applyItinerary.call(this, remote, this.data.statusBarHeight);
+    }, true);
   },
 
   fetchTripByToken(token, statusBarHeight) {

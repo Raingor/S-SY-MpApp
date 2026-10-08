@@ -51,7 +51,12 @@ Page({
     this.audio.onError(() => { this.audio.stop(); this.setData({ playing: false, accessError: true }); });
     return this.audio;
   },
-  onShow() { i18n.apply(this); this.localize(); },
+  onShow() {
+    i18n.apply(this);
+    if (this._hasShown) this.loadData();
+    else this.localize();
+    this._hasShown = true;
+  },
   onHide() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
@@ -75,9 +80,11 @@ Page({
     this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false });
     content.loadContent((data, state) => {
       let track = null; let point = null; let pointTracks = []; let spot = null;
+      this.albumCover = '';
       if (this.params.albumId || this.params.episodeId) {
         if (this.params.albumId && this.params.episodeId && state && state.source === 'remote') {
           const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
+          this.albumCover = album && album.cover || '';
           track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) &&
             String(item.albumId) === String(album.id) && item.category === 'heritage' && !item.attractionId && item.previewUrl && item.isDemo !== true);
         }
@@ -111,7 +118,7 @@ Page({
       description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
       duration: duration(track && track.durationSeconds),
       pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
-      cover: (track && track.cover) || (point && point.image) || (this.spot && this.spot.image) || '',
+      cover: (track && track.cover) || (point && point.image) || this.albumCover || (this.spot && this.spot.image) || '',
       displayLocation
     });
   },

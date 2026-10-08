@@ -22,10 +22,16 @@ Page({
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     this.applyLocale();
-    content.loadContent((data) => this.setData({ spots: content.getAttractions(data).slice(0, 20) }), true);
   },
 
-  onShow() { this.applyLocale(); },
+  onShow() {
+    this.applyLocale();
+    this.loadSpots();
+  },
+
+  loadSpots() {
+    content.loadContent((data) => this.setData({ spots: content.getAttractions(data).slice(0, 20) }), true);
+  },
 
   applyLocale() {
     const copy = i18n.apply(this);

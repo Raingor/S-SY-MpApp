@@ -8,9 +8,20 @@ function localized(item, key, locale) {
 }
 
 Page({
-  data: { locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', durationLabel: '', coverImage: '', mapImage: '', mapUrl: '', points: [], isDemo: false, loading: true, failed: false },
-  onLoad(options) { this.attractionId = options && options.attractionId || ''; this.routeId = options && options.id || ''; this.refresh(); },
-  onShow() { i18n.apply(this); this.localize(); },
+  data: { locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', durationLabel: '', coverImage: '', mapImage: '', mapUrl: '', points: [], isDemo: false, loading: true, failed: false, statusBarHeight: 20 },
+  onLoad(options) {
+    const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    this.attractionId = options && options.attractionId || '';
+    this.routeId = options && options.id || '';
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.refresh();
+  },
+  onShow() {
+    i18n.apply(this);
+    if (this._hasShown) this.refresh();
+    else this.localize();
+    this._hasShown = true;
+  },
   refresh() {
     this.setData({ loading: true, points: [], failed: false });
     content.loadContent((data, state) => {

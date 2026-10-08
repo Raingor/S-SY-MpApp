@@ -1,7 +1,7 @@
 <view class="knowledge-page">
   <view class="knowledge-hero">
     <view style="height: {{statusBarHeight}}px;"></view>
-    <view class="knowledge-nav sy-nav"><view class="knowledge-back sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="knowledge-brand">{{i18n.brand}}</view></view>
+    <view class="knowledge-nav sy-nav" style="padding-right: {{menuRightSpace}}px;"><view class="knowledge-back sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="knowledge-brand">{{i18n.brand}}</view></view>
     <view class="knowledge-hero-body"><view class="knowledge-kicker">GREEK HERITAGE</view><view class="knowledge-title serif">{{i18n.knowledgePage.title}}</view><view class="knowledge-subtitle">{{i18n.heritage.libraryIntro}}</view></view>
   </view>
   <view class="knowledge-panel-tabs" role="tablist"><view wx:for="{{panelTabs}}" wx:key="*this" class="knowledge-panel-tab {{activePanel === index ? 'knowledge-panel-tab-active' : ''}}" data-index="{{index}}" bindtap="onPanelTap" role="tab" aria-selected="{{activePanel === index}}"><view class="knowledge-panel-tab-index">0{{index + 1}}</view><view>{{item}}</view></view></view>
