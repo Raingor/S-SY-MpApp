@@ -141,6 +141,7 @@ Page({
         paid.createOrder(productType, target, (created, result) => {
           this.setData({ purchaseLoading: false, simulationMode: Boolean(config.simulation) });
           if (result && result.pendingSimulation && result.order) return this.setData({ pendingSimulationOrder: result.order });
+          if (result && result.code === 'PAYMENT_CANCELLED') return;
           if (!created) return wx.showModal({ title: this.data.i18n.submitFailed, content: result && (result.error || result.message) || this.data.i18n.contentPage.cityPurchaseFailed, confirmText: this.data.i18n.know, showCancel: false });
           if (result && result.paymentStatus === 'pending') {
             this.setData({ showCityPaywall: false });

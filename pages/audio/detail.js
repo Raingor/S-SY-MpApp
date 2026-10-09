@@ -449,6 +449,7 @@ Page({
     const target = product === 'attraction' ? this.params.attractionId : product === 'album' ? { albumId: this.params.albumId } : '';
     paid.createOrder(product, target, (ok, result) => {
       this.setData({ purchaseLoading: false });
+      if (result && result.code === 'PAYMENT_CANCELLED') return;
       if (result && result.pendingSimulation && result.order) return this.setData({ pendingOrder: result.order });
       if (!ok) return wx.showToast({ title: this.data.i18n.submitFailed, icon: 'none' });
       this.refreshAccess();

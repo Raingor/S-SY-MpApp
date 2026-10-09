@@ -148,7 +148,15 @@ function createOrder(productType, target, callback) {
         if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
         callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
       }),
-      fail: (error) => callback(false, { ...data, error: error && error.errMsg }, res)
+      fail: (error) => {
+        const errorMessage = String(error && error.errMsg || '');
+        const cancelled = /requestPayment:fail\s+cancel/i.test(errorMessage);
+        callback(false, {
+          ...data,
+          error: errorMessage,
+          code: cancelled ? 'PAYMENT_CANCELLED' : 'PAYMENT_FAILED'
+        }, res);
+      }
     });
   });
 }

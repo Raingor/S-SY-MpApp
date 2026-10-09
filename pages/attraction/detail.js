@@ -288,6 +288,7 @@ Page({
       if (data && data.pendingSimulation && data.order) {
         return this.setData({ pendingSimulationOrder: data.order });
       }
+      if (data && data.code === 'PAYMENT_CANCELLED') return;
       if (!ok) return wx.showModal({ title: this.data.i18n.submitFailed, content: data.error || this.data.i18n.paidContent.payUnavailable, confirmText: this.data.i18n.know, showCancel: false });
       if (data && data.paymentStatus === 'pending') {
         this.setData({ showPurchaseModal: false, pendingSimulationOrder: null });

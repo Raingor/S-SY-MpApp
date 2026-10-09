@@ -81,6 +81,7 @@ Page({
     paidContent.createOrder(productType, '', (ok, data) => {
       this.setData({ membershipLoading: false });
       if (!ok) {
+        if (data && data.code === 'PAYMENT_CANCELLED') return;
         if (data && data.code === 'PHONE_BIND_REQUIRED') this.setData({ phoneBound: false });
         return wx.showModal({
           title: this.data.i18n.submitFailed,
