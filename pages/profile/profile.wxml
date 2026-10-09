@@ -12,11 +12,14 @@
           </view>
           <view class="head-info">
             <view class="nick-row">
-              <text class="nick">{{user.nickname}}</text>
-              <view wx:if="{{user.member}}" class="member-badge">✦ {{user.member}}</view>
+              <text class="nick {{memberStatus ? 'nick-member' : ''}}">{{user.nickname}}</text>
+              <view wx:if="{{memberStatus}}" class="member-badge">✦ VIP</view>
               <text class="edit-profile" bindtap="onEditProfile">{{i18n.profile.change}}</text>
             </view>
-            <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}<text wx:if="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text></view>
+            <view class="verified-row">
+              <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}<text wx:if="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text></view>
+              <block wx:if="{{memberStatus}}" wx:for="{{membershipProducts}}" wx:key="productType"><button wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{i18n.paidContent.renewShort}}</button></block>
+            </view>
           </view>
         </view>
 
@@ -45,18 +48,10 @@
     <button class="bind-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{authLoading}}" disabled="{{authLoading}}">{{phoneBound ? i18n.profile.reauthorize : i18n.profile.bind}}</button>
   </view>
 
-  <view wx:if="{{loggedIn}}" class="knowledge-member-card card {{memberStatus ? 'knowledge-member-card-active' : ''}}">
-    <view wx:if="{{memberStatus}}" class="knowledge-member-active-top">
-      <view class="eyebrow">KNOWLEDGE MEMBERSHIP</view>
-      <view class="knowledge-member-active-row">
-        <view class="knowledge-member-identity"><text class="knowledge-member-title serif">{{i18n.paidContent.memberAnnual}}</text><view class="knowledge-member-vip"><text>✦</text> VIP</view></view>
-        <block wx:for="{{membershipProducts}}" wx:key="productType"><button wx:if="{{item.productType === 'annualMembership'}}" class="knowledge-member-renew-active" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{i18n.paidContent.renewShort}} · ¥{{item.price}}</button></block>
-      </view>
-      <view class="knowledge-member-desc">{{memberDescription}}</view>
-    </view>
-    <view wx:else class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberHeadline || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
+  <view wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card">
+    <view class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberHeadline || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
     <view class="knowledge-stats"><view><text>{{purchasedCount}}</text><label>{{i18n.paidContent.purchased}}</label></view><view><text>{{favoriteCount}}</text><label>{{i18n.profileDetail.favorites || '收藏'}}</label></view><view><text>{{liveBookingCount}}</text><label>{{i18n.liveBooking.title}}</label></view><view><text>{{historyCount}}</text><label>{{i18n.profileDetail.history || '观看历史'}}</label></view></view>
-    <button wx:if="{{!memberStatus}}" wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{item.displayName}} · ¥{{item.price}}</button>
+    <button wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{item.displayName}} · ¥{{item.price}}</button>
   </view>
 
   <view wx:if="{{simulationEnabled && !loggedIn}}" class="simulation-login-card card">

@@ -40,10 +40,11 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
 const profileSource = fs.readFileSync('pages/profile/profile.js', 'utf8');
 assert.match(profileSource, /const memberStatus = entitlements\.member \? `\$\{copy\.memberAnnual\}/, 'profile membership title always uses annual membership wording');
 const profileMarkup = fs.readFileSync('pages/profile/profile.wxml', 'utf8');
-assert(profileMarkup.includes('{{i18n.paidContent.renewShort}} · ¥{{item.price}}'), 'active members get the renewal action and configured price');
+assert(profileMarkup.includes('{{i18n.paidContent.renewShort}}') && profileMarkup.includes('class="member-renew-mini"'), 'active members get a compact renewal action in the header');
 assert(profileMarkup.includes('wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card"'), 'profile hides the phone binding card when the phone is already bound');
-assert(profileMarkup.includes('knowledge-member-vip') && profileMarkup.includes('knowledge-member-renew-active'), 'active annual members get a VIP badge and adjacent renewal action');
-assert(profileMarkup.includes('wx:if="{{!memberStatus}}" wx:for="{{membershipProducts}}"'), 'ordinary users see the annual membership purchase action');
+assert(profileMarkup.includes('nick {{memberStatus ? \'nick-member\' : \'\'}}') && profileMarkup.includes('class="member-badge">✦ VIP'), 'active annual members get a gold nickname and VIP badge in the profile header');
+assert(profileMarkup.includes('class="verified-row"') && profileMarkup.includes('class="member-renew-mini"') && profileMarkup.includes('wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card"'), 'active members renew in the phone row and do not see the purchase card');
+assert(profileMarkup.includes('wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action"'), 'ordinary users see the annual membership purchase card');
 let detailConfig;
 const detailNavigation = [];
 const paidStateCalls = { config: 0, entitlements: 0 };
