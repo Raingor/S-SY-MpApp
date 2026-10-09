@@ -40,10 +40,13 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
 const profileSource = fs.readFileSync('pages/profile/profile.js', 'utf8');
 assert.match(profileSource, /const memberStatus = entitlements\.member \? `\$\{copy\.memberAnnual\}/, 'profile membership title always uses annual membership wording');
 const profileMarkup = fs.readFileSync('pages/profile/profile.wxml', 'utf8');
-assert(profileMarkup.includes('{{i18n.paidContent.renewShort}}') && profileMarkup.includes('class="member-renew-mini"'), 'active members get a compact renewal action in the header');
+const profileStyles = fs.readFileSync('pages/profile/profile.wxss', 'utf8');
+assert(profileMarkup.includes('{{i18n.paidContent.renewShort}}') && profileMarkup.includes('class="member-renew-mini '), 'active members get a compact renewal action in the header');
 assert(profileMarkup.includes('wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card"'), 'profile hides the phone binding card when the phone is already bound');
 assert(profileMarkup.includes('nick {{memberStatus ? \'nick-member\' : \'\'}}') && profileMarkup.includes('class="member-badge">✦ VIP'), 'active annual members get a gold nickname and VIP badge in the profile header');
-assert(profileMarkup.includes('class="verified-row"') && profileMarkup.includes('class="member-renew-mini"') && profileMarkup.includes('wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card"'), 'active members renew in the phone row and do not see the purchase card');
+assert(profileMarkup.includes('class="verified-row"') && profileMarkup.includes('class="member-actions-row"') && profileMarkup.includes('class="member-renew-mini'), 'active members get separate phone and compact renewal rows');
+assert(profileStyles.includes('width: 144rpx;') && profileStyles.includes('.member-actions-row'), 'renewal action stays compact on its own row');
+assert(profileMarkup.includes('wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card"'), 'active members do not see the purchase card');
 assert(profileMarkup.includes('wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action"'), 'ordinary users see the annual membership purchase card');
 let detailConfig;
 const detailNavigation = [];
