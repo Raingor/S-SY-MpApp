@@ -46,6 +46,8 @@ assert(profileMarkup.includes('wx:if="{{loggedIn && !phoneBound}}" class="phone-
 assert(profileMarkup.includes('nick {{memberStatus ? \'nick-member\' : \'\'}}') && profileMarkup.includes('class="member-badge">✦ VIP'), 'active annual members get a gold nickname and VIP badge in the profile header');
 assert(profileMarkup.includes('class="verified-row"') && profileMarkup.includes('class="member-actions-row"') && profileMarkup.includes('class="member-renew-mini'), 'active members get separate phone and compact renewal rows');
 assert(profileMarkup.includes('wx:if="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}'), 'bound profile shows the masked number without the bound-phone label');
+assert(profileMarkup.includes('class="avatar-picker" bindtap="onEditProfile"') && !profileMarkup.includes('class="edit-profile"') && !profileMarkup.includes('class="avatar-edit-badge"'), 'avatar opens profile editing without a separate edit button');
+assert.match(profileSource, /onEditProfile\(\)\s*\{[\s\S]*?url: '\/pages\/profile\/edit\/edit'/, 'avatar profile action opens the profile editor');
 assert(profileStyles.includes('width: 144rpx;') && profileStyles.includes('.member-actions-row'), 'renewal action stays compact on its own row');
 assert(profileMarkup.includes('wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card"'), 'active members do not see the purchase card');
 assert(profileMarkup.includes('wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action"'), 'ordinary users see the annual membership purchase card');

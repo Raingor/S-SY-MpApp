@@ -176,20 +176,6 @@
   opacity: 0.78;
 }
 
-.avatar-edit-badge {
-  position: absolute;
-  right: -8rpx;
-  bottom: -2rpx;
-  padding: 6rpx 10rpx;
-  border: 2rpx solid #FFFFFF;
-  border-radius: 18rpx;
-  background: var(--c-primary);
-  color: #FFFFFF;
-  font-size: 18rpx;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .head-info {
   flex: 1;
   min-width: 0;
@@ -249,16 +235,6 @@
 }
 .nick-member { color: #F0CF7D; }
 
-.edit-profile {
-  flex: 0 0 auto;
-  margin-left: auto;
-  padding: 4rpx 14rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.58);
-  border-radius: 20rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 21rpx;
-}
-
 /* 沙金会员标 */
 .member-badge {
   flex: 0 0 auto;
@@ -304,8 +280,6 @@
 .verified {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 25rpx;
   color: rgba(255, 255, 255, 0.75);
@@ -314,7 +288,7 @@
 
 .member-actions-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-top: 14rpx;
 }
 

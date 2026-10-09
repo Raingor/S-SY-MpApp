@@ -28,7 +28,6 @@ Page({
     historyCount: 0,
     purchasedCourses: [],
     knowledgeOrders: [],
-    avatarUploading: false,
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     languageOptions: i18n.languageOptions(),
@@ -266,43 +265,6 @@ Page({
     if (!locale || locale === i18n.getLocale()) return;
     i18n.setLocale(locale);
     wx.reLaunch({ url: '/pages/profile/profile' });
-  },
-
-  onAvatarTap() {
-    if (this.data.avatarUploading) return;
-    const choose = (filePath) => this.uploadAvatarFile(filePath);
-    if (wx.chooseMedia) {
-      return wx.chooseMedia({
-        count: 1,
-        mediaType: ['image'],
-        sourceType: ['album', 'camera'],
-        success: (res) => choose(res.tempFiles && res.tempFiles[0] && res.tempFiles[0].tempFilePath)
-      });
-    }
-    wx.chooseImage({ count: 1, sourceType: ['album', 'camera'], success: (res) => choose(res.tempFilePaths && res.tempFilePaths[0]) });
-  },
-
-  uploadAvatarFile(filePath) {
-    if (!filePath || this.data.avatarUploading) return;
-    const previousAvatar = this.data.user.avatar;
-    this.setData({ avatarUploading: true, 'user.avatar': filePath });
-    const upload = (path) => auth.uploadAvatar(path, (ok, user, message) => {
-      this.setData({
-        avatarUploading: false,
-        ...(ok && user ? { user: { ...this.data.user, ...user } } : { 'user.avatar': previousAvatar })
-      });
-      wx.showToast({ title: ok ? this.data.i18n.profile.avatarUpdated : (message || this.data.i18n.profile.avatarUploadFailed), icon: ok ? 'success' : 'none' });
-    });
-    if (wx.compressImage) {
-      wx.compressImage({
-        src: filePath,
-        quality: 85,
-        success: (res) => upload(res.tempFilePath || filePath),
-        fail: () => upload(filePath)
-      });
-    } else {
-      upload(filePath);
-    }
   },
 
   onGetPhoneNumber(e) {

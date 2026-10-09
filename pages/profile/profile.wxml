@@ -6,9 +6,8 @@
     <view class="head-inner">
       <view wx:if="{{loggedIn}}">
         <view class="head-row">
-          <view class="avatar-picker" bindtap="onAvatarTap" hover-class="avatar-picker-hover" aria-label="更换头像">
+          <view class="avatar-picker" bindtap="onEditProfile" hover-class="avatar-picker-hover" aria-label="{{i18n.profile.editProfile}}">
             <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
-            <view class="avatar-edit-badge">{{avatarUploading ? i18n.profile.avatarUploading : i18n.profile.avatarChange}}</view>
           </view>
           <view class="head-info">
             <view class="nick-row">
@@ -17,7 +16,6 @@
             </view>
             <view class="verified-row">
               <view class="verified"><text wx:if="{{!phoneBound}}">{{i18n.profile.phoneRequired}}</text><text wx:if="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}</text><text wx:elif="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text><text wx:elif="{{phoneBound}}">{{i18n.profile.phoneBound}}</text></view>
-              <text class="edit-profile" bindtap="onEditProfile">{{i18n.profile.change}}</text>
             </view>
             <view wx:if="{{memberStatus}}" class="member-actions-row"><block wx:for="{{membershipProducts}}" wx:key="productType"><view wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini {{membershipLoading || !membershipCanRenew ? 'member-renew-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" role="button" aria-label="{{i18n.paidContent.renewMembership}}">{{i18n.paidContent.renewShort}}</view></block></view>
           </view>
