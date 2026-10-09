@@ -38,7 +38,7 @@ const PAGE_COPY = {
 };
 
 // 后台「补录」新增的一套完整内容：新城市 + 新目的地 + 新景点（含讲解点/路线/音频/亮点）
-const NEW_CITY = { id: 'newcity', name: '新城市', nameEn: 'New City', status: 'published', countryId: 'greece', mosaic: ['newcity.webp'], subtitle: '新目的地', description: '补录测试', price: '¥0.01' };
+const NEW_CITY = { id: 'newcity', name: '新城市', nameEn: 'New City', status: 'published', countryId: 'greece', mosaic: ['newcity.webp'], subtitle: '新目的地', description: '补录测试', price: '¥0.01', priceCny: 0.01, currency: 'CNY' };
 const NEW_SPOT = {
   id: 'newspot', name: '新景点', en: 'New Spot', city: 'newcity', status: 'published',
   image: 'newspot.jpg', summary: '新景点简介', category: '古迹', sizeLabel: '大型',
@@ -87,7 +87,12 @@ global.wx = {
   getWindowInfo: () => ({ statusBarHeight: 20, windowWidth: 375 }), getMenuButtonBoundingClientRect: () => ({ left: 281 }),
   showToast() {}, showModal() {}, switchTab() {}, previewImage() {}, setClipboardData() {}, pageScrollTo() {},
   navigateTo({ url }) { navigation.push(url); },
-  createInnerAudioContext() { return { autoplay: false, currentTime: 0, onTimeUpdate() {}, onSeeking() {}, onEnded() {}, onError() {}, play() {}, pause() {}, stop() {}, destroy() {} }; },
+  createInnerAudioContext() {
+    const audio = { autoplay: false, currentTime: 0, onTimeUpdate() {}, onSeeking() {}, onWaiting() {}, onEnded() {}, onError() {}, pause() {}, stop() {}, destroy() {} };
+    audio.onPlay = (callback) => { audio._onPlay = callback; };
+    audio.play = () => { if (audio._onPlay) audio._onPlay(); };
+    return audio;
+  },
   request(options) {
     assert(options.url.startsWith(ORIGIN + '/'), `非 fixture 请求：${options.url}`);
     requests.push({ url: options.url, at: Date.now() });
@@ -125,10 +130,14 @@ function resolveModule(id) {
   if (id.includes('utils/audio-access')) return {
     getAccess(id, cb) {
       // 播放地址由 /access 回查下发；这里直接给出可播放的试听地址。
-      cb(true, { mode: 'attraction', access: 'preview', reason: '', previewUrl: `${ORIGIN}/api/miniprogram/audio/${id}/preview`, fullUrl: '', previewSeconds: 30 }, 200);
+      cb(true, { mode: 'attraction', access: id === 'new-expert' ? 'preview' : 'full', reason: '', previewUrl: `${ORIGIN}/api/miniprogram/audio/${id}/preview`, fullUrl: `${ORIGIN}/api/miniprogram/audio/${id}/full`, fullUrlValidUntil: Date.now() + 60000, previewSeconds: 30 }, 200);
     }
   };
-  if (id.includes('utils/price')) return { formatCnyPrice: (c) => (c && c.price) || '' };
+  if (id.includes('utils/city-commerce')) return {
+    loadCityState(cityId, callback) { callback({ priceDisplay: '', unlocked: false, member: false, simulation: false, products: {} }); },
+    buildPurchaseOptions: () => []
+  };
+  if (id.includes('utils/price')) return { formatCnyPrice: (c) => c && String(c.currency || '').toUpperCase() === 'CNY' && c.priceCny !== undefined && c.priceCny !== null && c.priceCny !== '' ? (String(c.priceCny).startsWith('¥') ? String(c.priceCny) : `¥${c.priceCny}`) : '' };
   if (id.includes('utils/lead-api')) return { submitLead: () => {} };
   if (id.includes('data/mirror-itineraries')) return { SERVICE_KEYS: [], getItinerary: () => NEW_TRIP, getReferenceList: () => [] };
   if (id.includes('data/luxury')) return { getLuxuryCards: () => [] };
@@ -138,7 +147,7 @@ function resolveModule(id) {
 function pageFrom(rel) {
   let def;
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, rel), 'utf8'), {
-    Page(c) { def = c; }, wx: global.wx, getApp: global.getApp, require: resolveModule, setTimeout
+    Page(c) { def = c; }, wx: global.wx, getApp: global.getApp, require: resolveModule, setTimeout, clearTimeout
   }, { filename: rel });
   return { ...def, data: { ...def.data }, setData(n) { Object.assign(this.data, n); } };
 }
@@ -213,6 +222,7 @@ async function boot(page, args) {
   const cityPage = pageFrom('pages/city/index.js');
   await boot(cityPage, { id: 'newcity' });
   assert(cityPage.data.city && cityPage.data.city.id === 'newcity', '城市页加载新城市');
+  assert.equal(cityPage.data.cityPriceDisplay, '', '城市商品接口未返回价格时不回退到城市内容 priceCny');
 
   const spotsPage = pageFrom('pages/city/spots.js');
   await boot(spotsPage, { id: 'newcity' });
