@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 
 const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
-for (const route of ['pages/audio/album', 'pages/audio/route', 'pages/audio/detail', 'pages/attraction/visitor-section']) {
+for (const route of ['pages/audio/album', 'pages/audio/route', 'pages/audio/detail', 'pages/attraction/visitor-section', 'pages/membership/shop']) {
   assert(app.pages.includes(route));
   for (const ext of ['js', 'json', 'wxml', 'wxss']) assert(fs.existsSync(route + '.' + ext));
 }
@@ -35,22 +35,28 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   const p = translations.getMessages(locale).paidContent;
   for (const key of ['paywallTitle', 'paywallSubtitle', 'paywallFeature', 'paywallLater']) assert(p[key], `${locale}: paidContent.${key}`);
   for (const key of ['member', 'memberAnnual', 'memberLifetime', 'memberUnlocked', 'renewMembership', 'renewShort']) assert(p[key], `${locale}: annual membership copy ${key}`);
+  for (const key of ['vipShopTitle', 'vipShopPlanList', 'vipShopBuy', 'vipShopNoPlans', 'vipShopDuration', 'vipShopFootnote', 'viewVipPlans']) assert(p[key], `${locale}: VIP shop copy ${key}`);
   assert(!/lifetime|终身|終身/i.test(`${p.member} ${p.memberAnnual} ${p.memberLifetime} ${p.memberUnlocked} ${p.renewMembership} ${p.renewShort}`), `${locale}: mini program membership copy must use annual wording`);
 }
 const profileSource = fs.readFileSync('pages/profile/profile.js', 'utf8');
 assert.match(profileSource, /const memberStatus = entitlements\.member \? `\$\{copy\.memberAnnual\}/, 'profile membership title always uses annual membership wording');
 const profileMarkup = fs.readFileSync('pages/profile/profile.wxml', 'utf8');
 const profileStyles = fs.readFileSync('pages/profile/profile.wxss', 'utf8');
-assert(profileMarkup.includes('{{i18n.paidContent.renewShort}}') && profileMarkup.includes('class="member-renew-mini '), 'active members get a compact renewal action in the header');
+assert(!profileMarkup.includes('member-renew-mini') && !profileStyles.includes('.member-renew-mini'), 'profile header no longer shows a separate renewal button');
 assert(profileMarkup.includes('wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card"'), 'profile hides the phone binding card when the phone is already bound');
-assert(profileMarkup.includes('nick {{memberStatus ? \'nick-member\' : \'\'}}') && profileMarkup.includes('class="member-badge">✦ VIP'), 'active annual members get a gold nickname and VIP badge in the profile header');
-assert(profileMarkup.includes('class="nick-row"') && profileMarkup.includes('class="member-badge">✦ VIP') && profileMarkup.includes('class="member-renew-mini'), 'active members get renewal beside the VIP badge');
+assert(profileMarkup.includes('nick {{memberStatus ? \'nick-member\' : \'\'}}') && profileMarkup.includes('class="member-badge" bindtap="onVipTap"') && profileMarkup.includes('✦ VIP'), 'active annual members get a gold nickname and clickable VIP badge in the profile header');
+assert(profileMarkup.includes('class="nick-row"') && profileMarkup.includes('class="member-badge" bindtap="onVipTap"') && profileMarkup.includes('✦ VIP'), 'the VIP badge opens the membership selection page');
 assert(profileMarkup.includes('class="verified-row"') && profileMarkup.includes('wx:if="{{user.phoneFull && phoneBound}}">{{user.phoneFull}}') && profileMarkup.includes('wx:elif="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}'), 'phone appears below membership identity and prefers the full number');
 assert(profileMarkup.includes('class="avatar-picker" bindtap="onEditProfile"') && !profileMarkup.includes('class="edit-profile"') && !profileMarkup.includes('class="avatar-edit-badge"'), 'avatar opens profile editing without a separate edit button');
 assert.match(profileSource, /onEditProfile\(\)\s*\{[\s\S]*?url: '\/pages\/profile\/edit\/edit'/, 'avatar profile action opens the profile editor');
-assert(profileStyles.includes('width: 120rpx;') && profileStyles.includes('margin-top: 36rpx;'), 'member header leaves capsule space and keeps renewal compact');
+assert(profileStyles.includes('margin-top: 36rpx;'), 'member header leaves capsule space');
 assert(profileMarkup.includes('wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card"'), 'active members do not see the purchase card');
-assert(profileMarkup.includes('wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action"'), 'ordinary users see the annual membership purchase card');
+assert(profileMarkup.includes('class="knowledge-member-action" bindtap="onVipTap"') && profileMarkup.includes('viewVipPlans'), 'ordinary users can open the VIP selection page from the membership card');
+const vipShopMarkup = fs.readFileSync('pages/membership/shop.wxml', 'utf8');
+const vipShopSource = fs.readFileSync('pages/membership/shop.js', 'utf8');
+assert(vipShopMarkup.includes('wx:for="{{plans}}"') && vipShopMarkup.includes('{{item.displayPrice}}') && vipShopMarkup.includes('data-product-type="{{item.productType}}"'), 'VIP shop lists all configured membership products and prices');
+assert(vipShopSource.includes("['membership', 'annualMembership'].includes(product.productType)") && vipShopSource.includes('product.enabled !== false'), 'VIP shop includes each enabled membership product from backend config');
+assert.match(vipShopSource, /paidContent\.createOrder\(productType, ''/, 'VIP plan selection uses the real membership order flow');
 let detailConfig;
 const detailNavigation = [];
 const paidStateCalls = { config: 0, entitlements: 0 };

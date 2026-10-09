@@ -1,0 +1,45 @@
+<view class="vip-shop-page">
+  <view class="vip-shop-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="vip-shop-nav-inner">
+      <view class="vip-shop-back sy-back-button" bindtap="onBack" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view>
+      <text class="vip-shop-nav-title">{{i18n.paidContent.vipShopTitle}}</text>
+      <view class="vip-shop-nav-space"></view>
+    </view>
+  </view>
+
+  <view class="vip-shop-hero">
+    <view class="vip-shop-orbit vip-shop-orbit-one"></view>
+    <view class="vip-shop-orbit vip-shop-orbit-two"></view>
+    <view class="vip-shop-kicker">KNOWLEDGE MEMBERSHIP</view>
+    <view class="vip-shop-emblem"><text>✦</text><text>VIP</text></view>
+    <view class="vip-shop-headline serif">{{i18n.paidContent.vipShopSubtitle}}</view>
+    <view class="vip-shop-benefit"><text>✦</text>{{i18n.paidContent.vipShopBenefits}}</view>
+    <view wx:if="{{memberActive}}" class="vip-shop-active">{{i18n.paidContent.memberUnlocked}}</view>
+  </view>
+
+  <view class="vip-shop-section-head">
+    <view class="vip-shop-section-title serif">{{i18n.paidContent.vipShopPlanList}}</view>
+    <view class="vip-shop-section-note">{{i18n.paidContent.memberDesc}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="vip-shop-state">{{i18n.loading}}</view>
+  <view wx:elif="{{plans.length}}" class="vip-shop-plan-list">
+    <view wx:for="{{plans}}" wx:key="productType" class="vip-shop-plan {{item.productType === 'annualMembership' ? 'vip-shop-plan-featured' : ''}} {{membershipLoading || !membershipCanRenew ? 'vip-shop-plan-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onPlanTap" role="button">
+      <view class="vip-shop-plan-top">
+        <view class="vip-shop-plan-copy">
+          <view class="vip-shop-plan-name">{{item.displayName}}<text wx:if="{{item.productType === 'annualMembership'}}" class="vip-shop-plan-mark">VIP</text></view>
+          <view class="vip-shop-plan-desc">{{item.description}}</view>
+        </view>
+        <view class="vip-shop-plan-price">{{item.displayPrice}}</view>
+      </view>
+      <view class="vip-shop-plan-bottom">
+        <text wx:if="{{item.durationDays}}">{{item.durationLabel}}</text>
+        <text wx:else>{{i18n.paidContent.vipShopBenefits}}</text>
+        <view class="vip-shop-plan-action">{{memberActive ? i18n.paidContent.vipShopRenew : i18n.paidContent.vipShopBuy}} <text>›</text></view>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="vip-shop-state vip-shop-empty">{{i18n.paidContent.vipShopNoPlans}}</view>
+
+  <view class="vip-shop-footnote">{{i18n.paidContent.vipShopFootnote}}</view>
+</view>

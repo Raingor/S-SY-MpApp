@@ -12,8 +12,7 @@
           <view class="head-info">
             <view class="nick-row">
               <text class="nick {{memberStatus ? 'nick-member' : ''}}">{{user.nickname}}</text>
-              <view wx:if="{{memberStatus}}" class="member-badge">✦ VIP</view>
-              <block wx:if="{{memberStatus}}" wx:for="{{membershipProducts}}" wx:key="productType"><view wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini {{membershipLoading || !membershipCanRenew ? 'member-renew-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" role="button" aria-label="{{i18n.paidContent.renewMembership}}">{{i18n.paidContent.renewShort}}</view></block>
+              <view wx:if="{{memberStatus}}" class="member-badge" bindtap="onVipTap" hover-class="member-badge-hover" role="button" aria-label="{{i18n.paidContent.vipShopTitle}}">✦ VIP</view>
             </view>
             <view class="verified-row">
               <view class="verified"><text wx:if="{{!phoneBound}}">{{i18n.profile.phoneRequired}}</text><text wx:if="{{user.phoneFull && phoneBound}}">{{user.phoneFull}}</text><text wx:elif="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}</text><text wx:elif="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text><text wx:elif="{{phoneBound}}">{{i18n.profile.phoneBound}}</text></view>
@@ -49,7 +48,7 @@
   <view wx:if="{{loggedIn && !memberStatus}}" class="knowledge-member-card card">
     <view class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberHeadline || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
     <view class="knowledge-stats"><view><text>{{purchasedCount}}</text><label>{{i18n.paidContent.purchased}}</label></view><view><text>{{favoriteCount}}</text><label>{{i18n.profileDetail.favorites || '收藏'}}</label></view><view><text>{{liveBookingCount}}</text><label>{{i18n.liveBooking.title}}</label></view><view><text>{{historyCount}}</text><label>{{i18n.profileDetail.history || '观看历史'}}</label></view></view>
-    <button wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{item.displayName}} · ¥{{item.price}}</button>
+    <button class="knowledge-member-action" bindtap="onVipTap">{{i18n.paidContent.viewVipPlans}}</button>
   </view>
 
   <view wx:if="{{simulationEnabled && !loggedIn}}" class="simulation-login-card card">

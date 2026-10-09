@@ -12,11 +12,7 @@ Page({
     loggedIn: false,
     phoneBound: false,
     authLoading: false,
-    membershipConfigured: false,
-    membershipLoading: false,
-    membershipProducts: [],
     memberHeadline: '',
-    membershipCanRenew: true,
     memberDescription: '',
     simulationEnabled: false,
     simulationPhone: '13800138000',
@@ -115,15 +111,12 @@ Page({
       this.loadKnowledgeState();
       if (loggedIn) this.refreshStats();
     });
-    paidContent.fetchConfig((ok, config) => this.setData({ simulationEnabled: Boolean(config.simulation), membershipConfigured: ok || config.configured }));
+    paidContent.fetchConfig((ok, config) => this.setData({ simulationEnabled: Boolean(config.simulation) }));
   },
 
   loadKnowledgeState() {
-    paidContent.fetchConfig((ok, config) => {
-      const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
-      const products = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)).map((product) => ({ ...product, displayName: memberTitle }));
-      this.setData({ membershipConfigured: ok || config.configured, membershipProducts: products, memberHeadline: memberTitle });
-    });
+    const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
+    this.setData({ memberHeadline: memberTitle });
     paidContent.fetchEntitlements((ok, entitlements) => {
       const copy = this.data.i18n.paidContent;
       const expires = String(entitlements.memberExpiresAt || '').slice(0, 10);
@@ -131,7 +124,6 @@ Page({
       const memberDescription = entitlements.member && expires ? (copy.memberExpires || 'Active through {date}').replace('{date}', expires) : entitlements.member ? copy.memberUnlocked : copy.memberDesc;
       this.setData({
         memberStatus,
-        membershipCanRenew: entitlements.membershipCanRenew !== false,
         memberDescription,
         purchasedCount: (entitlements.purchases || []).length,
         favoriteCount: (entitlements.favorites || []).length,
@@ -208,41 +200,8 @@ Page({
     wx.navigateTo({ url: '/pages/profile/edit/edit' });
   },
 
-  onKnowledgeTap(e) {
-    const productType = e && e.currentTarget && e.currentTarget.dataset.productType;
-    if (!productType) return;
-    if (!this.data.membershipConfigured) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
-    if (!auth.getAccessToken()) return this.onWechatLogin();
-    if (!this.data.phoneBound) {
-      return wx.showModal({
-        title: this.data.i18n.profile.bindPhone,
-        content: this.data.i18n.profile.bindPhoneDesc,
-        confirmText: this.data.i18n.profile.bind,
-        cancelText: this.data.i18n.know,
-        success: (res) => {
-          if (res.confirm) wx.pageScrollTo({ scrollTop: 0, duration: 200 });
-        }
-      });
-    }
-    if (!this.data.membershipCanRenew || this.data.membershipLoading) return;
-    this.setData({ membershipLoading: true });
-    paidContent.createOrder(productType, '', (ok, data) => {
-      this.setData({ membershipLoading: false });
-      if (!ok) {
-        if (data && data.code === 'PHONE_BIND_REQUIRED') this.setData({ phoneBound: false });
-        return wx.showModal({
-          title: this.data.i18n.submitFailed,
-          content: (data && (data.error || data.message)) || this.data.i18n.paidContent.payUnavailable,
-          confirmText: this.data.i18n.know,
-          showCancel: false
-        });
-      }
-      this.loadKnowledgeState();
-      if (data && data.paymentStatus === 'pending') {
-        return wx.showToast({ title: this.data.i18n.paidContent.paymentPending, icon: 'none' });
-      }
-      wx.showToast({ title: this.data.i18n.paidContent.memberUnlocked, icon: 'success' });
-    });
+  onVipTap() {
+    wx.navigateTo({ url: '/pages/membership/shop' });
   },
 
   onSimulationPhoneInput(e) { this.setData({ simulationPhone: e.detail.value }); },

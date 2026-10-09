@@ -248,27 +248,7 @@
   letter-spacing: 1rpx;
   box-shadow: 0 6rpx 14rpx rgba(198, 161, 91, 0.4);
 }
-.member-renew-mini {
-  display: inline-flex;
-  box-sizing: border-box;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 120rpx;
-  min-width: 120rpx;
-  height: 50rpx;
-  margin: 0;
-  padding: 0;
-  border: 1rpx solid rgba(240,207,125,.86);
-  border-radius: 26rpx;
-  background: rgba(240,207,125,.16);
-  color: #F5D98F;
-  font-size: 22rpx;
-  line-height: 48rpx;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.member-renew-disabled { opacity: .55; }
+.member-badge-hover { opacity: .8; }
 
 .verified-row {
   display: flex;
