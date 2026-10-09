@@ -14,7 +14,7 @@ function loadModule(filename, overrides = {}) {
   const localRequire = (id) => Object.prototype.hasOwnProperty.call(overrides, id)
     ? overrides[id]
     : id.startsWith('.') ? loadModule(path.resolve(path.dirname(resolved), id)) : require(id);
-  vm.runInThisContext('(function(require,module,exports){\n' + fs.readFileSync(resolved, 'utf8') + '\n})', { filename: resolved })(localRequire, module, module.exports);
+  vm.runInThisContext('(function(require,module,exports,setTimeout,clearTimeout){\n' + fs.readFileSync(resolved, 'utf8') + '\n})', { filename: resolved })(localRequire, module, module.exports, global.setTimeout, global.clearTimeout);
   return module.exports;
 }
 const requests = [];
@@ -66,6 +66,7 @@ function pageFrom(relative) {
   let definition;
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', relative), 'utf8'), {
     Page(config) { definition = config; }, wx: global.wx, getApp: global.getApp,
+    setTimeout: global.setTimeout, clearTimeout: global.clearTimeout,
     require(id) {
       if (id.includes('data/content')) return content;
       if (id.includes('utils/i18n')) return i18n;
@@ -83,6 +84,10 @@ function pageFrom(relative) {
   return { ...definition, data: { ...definition.data }, setData(next) { Object.assign(this.data, next); } };
 }
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+let previewTimerId = 0;
+const previewTimers = new Map();
+global.setTimeout = (fn, delay) => { const id = ++previewTimerId; previewTimers.set(id, { fn, delay }); return id; };
+global.clearTimeout = (id) => previewTimers.delete(id);
 const knowledgeMarkup = fs.readFileSync(path.join(__dirname, '../pages/knowledge/knowledge.wxml'), 'utf8');
 const knowledgeStyles = fs.readFileSync(path.join(__dirname, '../pages/knowledge/knowledge.wxss'), 'utf8');
 const albumMarkup = fs.readFileSync(path.join(__dirname, '../pages/audio/album.wxml'), 'utf8');

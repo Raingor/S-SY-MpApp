@@ -198,12 +198,16 @@ const audioDetailMarkup = fs.readFileSync('pages/audio/detail.wxml', 'utf8');
 assert.match(audioDetailMarkup, /class="audio-experience-nav" style="top: \{\{statusBarHeight \+ 8\}\}px;"/, '全屏封面返回按钮必须位于真实状态栏下方');
 let response = { access: 'preview', unlockMode: 'attraction', previewSeconds: 60, previewUrl: '/preview', fullUrl: null };
 let showToastCount = 0;
+let showModalCount = 0;
+let lastModal;
+let nextTimerId = 1;
+const timers = new Map();
 let backCalled = false;
 const audioWx = {
   getWindowInfo: () => ({ statusBarHeight: 44 }),
   createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
   showToast: () => showToastCount++,
-  switchTab() {}, showModal() {}
+  switchTab() {}, showModal(options) { showModalCount++; lastModal = options; }
 };
 const content = {
   loadContent(cb) { cb({}, { source: 'remote', status: 'ready' }); },
@@ -221,7 +225,9 @@ vm.runInNewContext(source, {
     if (name.includes('auth')) return auth;
     if (name.includes('utils/navigation')) return { goBack() { assert(audio.stopped, 'audio stops before back navigation'); backCalled = true; } };
     return {};
-  }, wx: audioWx
+  }, wx: audioWx,
+  setTimeout(fn, delay) { const id = nextTimerId++; timers.set(id, { fn, delay }); return id; },
+  clearTimeout(id) { timers.delete(id); }
 });
 const instance = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
 instance.onLoad({ attractionId: 'sight-1', pointId: 'point-1' });
@@ -229,15 +235,27 @@ assert.equal(instance.data.statusBarHeight, 44);
 assert(instance.data.track && instance.data.access === null && !audio);
 instance.playPreview();
 assert(audio.played && !instance.data.fullPlayback);
+assert.equal([...timers.values()][0].delay, 60000, 'preview duration is measured as real playback time');
 audio.currentTime = 59.9; audio.timeUpdate();
 assert(instance.data.playing);
-audio.currentTime = 60; audio.seeking();
+audio.currentTime = 60; audio.timeUpdate();
+assert(!instance.data.previewEnded && instance.data.playing, '2x media progress does not end a 60-second preview early');
+const firstPreviewTimer = [...timers.values()][0]; timers.clear(); firstPreviewTimer.fn();
 assert(audio.stopped && instance.data.previewEnded && !instance.data.playing);
-assert.equal(showToastCount, 1);
+assert.equal(showModalCount, 1);
+assert.equal(lastModal.title, translations.getMessages('en').heritage.previewEnded);
+assert.equal(lastModal.confirmText, translations.getMessages('en').heritage.unlockNow);
+assert.equal(showToastCount, 0);
+assert.match(audioDetailMarkup, /<view class="audio-player-actions">/, 'unlock action remains visible after preview ends');
+assert.doesNotMatch(audioDetailMarkup, /audio-preview-ended-card/, 'preview-ended guidance is a modal rather than an inline card');
+assert.match(fs.readFileSync('pages/audio/detail.wxss', 'utf8'), /\.audio-full-action\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;[^}]*justify-content:\s*center;/s, 'the initial unlock button label is centered');
 instance.playPreview();
 audio.currentTime = 60; audio.timeUpdate();
+assert(!instance.data.previewEnded && instance.data.playing);
+const secondPreviewTimer = [...timers.values()][0]; timers.clear(); secondPreviewTimer.fn();
 assert(instance.data.previewEnded && !instance.data.playing);
-assert.equal(showToastCount, 2);
+assert.equal(showModalCount, 2);
+assert.equal(showToastCount, 0);
 instance.playFull();
 assert(!instance.data.fullPlayback);
 response = { ...response, access: 'full', fullUrl: 'https://example.com/signed' };

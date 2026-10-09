@@ -49,20 +49,33 @@ Page({
     this.audio.playbackRate = this.data.playbackRate;
     this.audio.onTimeUpdate(() => {
       const seconds = Number(this.audio.currentTime) || 0;
-      if (!this.data.fullPlayback && seconds >= (this.data.access ? this.data.access.previewSeconds : 60)) return this.stopPreview();
       const total = Number(this.data.track && this.data.track.durationSeconds) || 0;
       this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
     });
-    // 部分 Android 机型支持系统进度拖动：即使控件触发 seek，也不得超过试看边界。
-    if (this.audio.onSeeking) this.audio.onSeeking(() => {
-      if (!this.data.fullPlayback && this.audio.currentTime >= (this.data.access ? this.data.access.previewSeconds : 60)) this.stopPreview();
-    });
     this.audio.onEnded(() => {
-      if (this.data.playing && !this.data.fullPlayback) this.setData({ playing: false, previewEnded: true });
-      else this.setData({ playing: false });
+      this._pausePreviewTimer();
+      this.setData({ playing: false });
     });
-    this.audio.onError(() => { this.audio.stop(); this.setData({ playing: false, accessError: true }); });
+    this.audio.onError(() => { this._pausePreviewTimer(); this.audio.stop(); this.setData({ playing: false, accessError: true }); });
     return this.audio;
+  },
+  _clearPreviewTimer() {
+    if (this._previewTimer) clearTimeout(this._previewTimer);
+    this._previewTimer = null;
+    this._previewTimerStartedAt = 0;
+  },
+  _startPreviewTimer(reset) {
+    this._clearPreviewTimer();
+    const previewSeconds = Math.min(60, Math.max(1, Number(this.data.access && this.data.access.previewSeconds) || Number(this.data.track && this.data.track.previewSeconds) || 60));
+    if (reset || !Number.isFinite(this._previewRemainingMs) || this._previewRemainingMs <= 0) this._previewRemainingMs = previewSeconds * 1000;
+    this._previewTimerStartedAt = Date.now();
+    this._previewTimer = setTimeout(() => this.stopPreview(), this._previewRemainingMs);
+  },
+  _pausePreviewTimer() {
+    if (this._previewTimer && this._previewTimerStartedAt) {
+      this._previewRemainingMs = Math.max(0, this._previewRemainingMs - (Date.now() - this._previewTimerStartedAt));
+    }
+    this._clearPreviewTimer();
   },
   onShow() {
     i18n.apply(this);
@@ -72,19 +85,31 @@ Page({
   },
   onHide() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
+    this._pausePreviewTimer();
     this.stop();
     this.setData({ access: null, accessLoading: false });
   },
   onUnload() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
+    this._clearPreviewTimer();
     if (this.audio) { this.audio.stop(); this.audio.destroy(); }
   },
-  stop() { if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
+  stop(preservePreviewTime) { this._clearPreviewTimer(); if (!preservePreviewTime) this._previewRemainingMs = null; if (this.audio) this.audio.stop(); this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
   stopPreview() {
     if (this.data.previewEnded) return;
-    this.setData({ playing: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0, previewEnded: true });
+    this._clearPreviewTimer();
+    this._previewRemainingMs = 0;
+    this.setData({ playing: false, fullPlayback: false, previewEnded: true });
     if (this.audio) this.audio.stop();
-    wx.showToast({ title: this.data.i18n.heritage.previewEnded, icon: 'none' });
+    const locked = this.data.track && this.data.track.unlockMode === 'locked';
+    const modal = {
+      title: this.data.i18n.heritage.previewEnded,
+      content: locked ? this.data.i18n.heritage.previewOnly : this.data.i18n.paidContent.trialEndedDesc,
+      showCancel: !locked,
+      success: (choice) => { if (choice.confirm && !locked) this.onFullAccessTap(); }
+    };
+    if (!locked) modal.confirmText = this.data.i18n.heritage.unlockNow;
+    wx.showModal(modal);
   },
   onBack() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
@@ -157,12 +182,12 @@ Page({
     this.setData({ track, access: null, accessLoading: false, previewEnded: false, fullActionText: fullActionText(track, null, this.data.i18n) });
     this.localize();
   },
-  refreshAccess(onReady) {
+  refreshAccess(onReady, preservePreviewTime) {
     const track = this.data.track;
     if (!track || !track.id || track.isDemo === true || this.data.accessLoading) return;
     const requestId = (this._accessRequestId || 0) + 1;
     this._accessRequestId = requestId;
-    this.stop();
+    this.stop(Boolean(preservePreviewTime));
     // 点击时重新请求签名；不复用可能过期的完整播放 URL。
     this.setData({ access: null, accessError: false, accessLoading: true });
     accessApi.getAccess(track.id, (ok, result, status) => {
@@ -176,7 +201,11 @@ Page({
     });
   },
   onPlayerToggle() {
-    if (this.data.playing && this.audio) { this.audio.pause(); return this.setData({ playing: false }); }
+    if (this.data.playing && this.audio) {
+      this.audio.pause();
+      if (!this.data.fullPlayback) this._pausePreviewTimer();
+      return this.setData({ playing: false });
+    }
     if (this.data.fullPlayback) return this.playFull();
     this.playPreview();
   },
@@ -215,12 +244,13 @@ Page({
     if (this.data.playing && !this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     this.refreshAccess((access) => {
       if (!access.previewUrl) return;
-      this.stop();
+      this.stop(true);
       const audio = this.ensureAudioContext();
       audio.src = access.previewUrl;
       audio.play();
+      this._startPreviewTimer(false);
       this.setData({ playing: true, fullPlayback: false, previewEnded: false });
-    });
+    }, true);
   },
   playFull() {
     if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl || this.data.track.unlockMode === 'locked') return;
