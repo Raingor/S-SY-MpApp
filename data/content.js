@@ -90,7 +90,8 @@ function mapManagedImage(path) {
 function adaptCities(remoteCities) {
   return (remoteCities || []).map((city) => {
     const mosaic = (Array.isArray(city.mosaic) ? city.mosaic : []).map(mapManagedImage).filter(Boolean).slice(0, 4);
-    return { ...city, cover: mosaic[0] || '', mosaic };
+    const coverImage = mapManagedImage(city.coverImage || '');
+    return { ...city, coverImage, cover: coverImage || mosaic[0] || '', mosaic };
   });
 }
 

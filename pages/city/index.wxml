@@ -10,7 +10,8 @@
 
   <!-- 拼贴 Mosaic 主视觉 + 暗色遮罩 + 大字标题 -->
   <view class="city-mosaic">
-    <view class="mosaic-grid">
+    <image wx:if="{{city.coverImage}}" class="city-cover-image" src="{{city.coverImage}}" mode="aspectFill" />
+    <view wx:else class="mosaic-grid">
       <view class="mosaic-cell" wx:for="{{city.mosaic}}" wx:key="*this">
         <image src="{{item}}" mode="aspectFill" />
       </view>
