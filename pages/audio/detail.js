@@ -53,7 +53,7 @@ Page({
       this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
     });
     this.audio.onEnded(() => {
-      this._pausePreviewTimer();
+      // 试听音源可能略短于 60 秒；自然结束后保留剩余计时，仍在试听额度到期时提示。
       this.setData({ playing: false });
     });
     this.audio.onError(() => { this._pausePreviewTimer(); this.audio.stop(); this.setData({ playing: false, accessError: true }); });
