@@ -34,11 +34,13 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
   const p = translations.getMessages(locale).paidContent;
   for (const key of ['paywallTitle', 'paywallSubtitle', 'paywallFeature', 'paywallLater']) assert(p[key], `${locale}: paidContent.${key}`);
-  for (const key of ['member', 'memberAnnual', 'memberLifetime', 'memberUnlocked']) assert(p[key], `${locale}: annual membership copy ${key}`);
-  assert(!/lifetime|终身|終身/i.test(`${p.member} ${p.memberAnnual} ${p.memberLifetime} ${p.memberUnlocked}`), `${locale}: mini program membership copy must use annual wording`);
+  for (const key of ['member', 'memberAnnual', 'memberLifetime', 'memberUnlocked', 'renewMembership']) assert(p[key], `${locale}: annual membership copy ${key}`);
+  assert(!/lifetime|终身|終身/i.test(`${p.member} ${p.memberAnnual} ${p.memberLifetime} ${p.memberUnlocked} ${p.renewMembership}`), `${locale}: mini program membership copy must use annual wording`);
 }
 const profileSource = fs.readFileSync('pages/profile/profile.js', 'utf8');
 assert.match(profileSource, /const memberStatus = entitlements\.member \? `\$\{copy\.memberAnnual\}/, 'profile membership title always uses annual membership wording');
+const profileMarkup = fs.readFileSync('pages/profile/profile.wxml', 'utf8');
+assert(profileMarkup.includes('{{memberStatus ? i18n.paidContent.renewMembership : item.displayName}}'), 'profile switches the membership CTA to renew after access is active');
 let detailConfig;
 const detailNavigation = [];
 const paidStateCalls = { config: 0, entitlements: 0 };

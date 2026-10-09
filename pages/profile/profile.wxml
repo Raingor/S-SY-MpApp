@@ -48,7 +48,7 @@
   <view wx:if="{{loggedIn}}" class="knowledge-member-card card">
     <view class="knowledge-member-top"><view><view class="eyebrow">KNOWLEDGE MEMBERSHIP</view><view class="knowledge-member-title serif">{{memberStatus || memberHeadline || i18n.paidContent.member}}</view><view class="knowledge-member-desc">{{memberStatus ? memberDescription : i18n.paidContent.memberDesc}}</view></view><view class="knowledge-member-mark">✦</view></view>
     <view class="knowledge-stats"><view><text>{{purchasedCount}}</text><label>{{i18n.paidContent.purchased}}</label></view><view><text>{{favoriteCount}}</text><label>{{i18n.profileDetail.favorites || '收藏'}}</label></view><view><text>{{liveBookingCount}}</text><label>{{i18n.liveBooking.title}}</label></view><view><text>{{historyCount}}</text><label>{{i18n.profileDetail.history || '观看历史'}}</label></view></view>
-    <button wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{item.displayName}} · ¥{{item.price}}</button>
+    <button wx:for="{{membershipProducts}}" wx:key="productType" class="knowledge-member-action" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" loading="{{membershipLoading}}" disabled="{{membershipLoading || !membershipCanRenew}}">{{memberStatus ? i18n.paidContent.renewMembership : item.displayName}} · ¥{{item.price}}</button>
   </view>
 
   <view wx:if="{{simulationEnabled && !loggedIn}}" class="simulation-login-card card">
