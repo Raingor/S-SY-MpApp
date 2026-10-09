@@ -128,6 +128,8 @@ function adaptAttractions(remoteAttractions) {
     ...item,
     sizeLabel: item.sizeLabel || item.scale || '大型',
     image: mapImage(item.image),
+    onlineCoverImage: mapManagedImage(item.onlineCoverImage),
+    expertCoverImage: mapManagedImage(item.expertCoverImage),
     shareTitle: typeof item.shareTitle === 'string' ? item.shareTitle.trim() : '',
     shareImage: mapManagedImage(item.shareImage),
     videoUrl: item.videoUrl || item.video || '',
