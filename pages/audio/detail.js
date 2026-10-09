@@ -11,13 +11,23 @@ function localized(item, key, locale) {
 }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 function formatTime(value) { const seconds = Math.max(0, Math.floor(Number(value) || 0)); return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; }
+function fullActionText(track, access, messages) {
+  const heritage = messages && messages.heritage || {};
+  const paidContent = messages && messages.paidContent || {};
+  if (access && access.access === 'full') return heritage.full || '';
+  const mode = access && access.mode || track && track.unlockMode;
+  if (mode === 'membership') return paidContent.member || heritage.unlockRequired || '';
+  if (mode === 'attraction') return paidContent.buySpot || heritage.unlockRequired || '';
+  if (mode === 'free') return heritage.full || '';
+  return heritage.unlockRequired || '';
+}
 
 Page({
   data: {
     statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
-    fullPlayback: false, paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
+    fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
   },
   onLoad(options) {
     const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -129,6 +139,7 @@ Page({
       title: localized(track && track.isDemo ? track : (point || track), track && track.isDemo ? 'title' : (point ? 'name' : 'title'), locale),
       description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
       cover: (track && track.cover) || (point && point.image) || this.albumCover || (this.spot && this.spot.image) || '',
+      fullActionText: fullActionText(track, this.data.access, this.data.i18n),
       duration: duration(track && track.durationSeconds),
       durationSeconds: Number(track && track.durationSeconds) || 0,
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
@@ -142,7 +153,9 @@ Page({
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.params.trackId = String(id);
     this.stop();
-    this.setData({ track: this.data.pointTracks.find((item) => String(item.id) === String(id)), access: null, accessLoading: false, previewEnded: false });
+    const track = this.data.pointTracks.find((item) => String(item.id) === String(id));
+    this.setData({ track, access: null, accessLoading: false, previewEnded: false, fullActionText: fullActionText(track, null, this.data.i18n) });
+    this.localize();
   },
   refreshAccess(onReady) {
     const track = this.data.track;
@@ -158,7 +171,7 @@ Page({
         this.setData({ accessError: true, accessLoading: false, unavailable: status === 404, access: null });
         return;
       }
-      this.setData({ access: result, accessLoading: false, unavailable: !result.previewUrl && !result.fullUrl });
+      this.setData({ access: result, accessLoading: false, unavailable: !result.previewUrl && !result.fullUrl, fullActionText: fullActionText(track, result, this.data.i18n) });
       if (typeof onReady === 'function') onReady(result);
     });
   },
@@ -166,6 +179,10 @@ Page({
     if (this.data.playing && this.audio) { this.audio.pause(); return this.setData({ playing: false }); }
     if (this.data.fullPlayback) return this.playFull();
     this.playPreview();
+  },
+  onFullAccessTap() {
+    if (this.data.accessLoading || this.data.purchaseLoading) return;
+    this.playFull();
   },
   onSeekChange(e) {
     if (!this.audio || !this.data.access || !this.data.track) return;
@@ -214,12 +231,15 @@ Page({
       const audio = this.ensureAudioContext();
       audio.src = access.fullUrl;
       audio.play();
-      this.setData({ playing: true, fullPlayback: true });
+      this.setData({ playing: true, fullPlayback: true, previewEnded: false });
     });
   },
   onUnlock() {
     const access = this.data.access;
-    if (!access || !['attraction', 'membership'].includes(access.mode)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    if (!access || !['attraction', 'membership'].includes(access.mode)) {
+      const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
+      return wx.showToast({ title, icon: 'none' });
+    }
     if (access.mode === 'attraction' && !this.params.attractionId) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
     if (!auth.getAccessToken()) return wx.switchTab({ url: '/pages/profile/profile' });
     auth.ensurePhoneBound((ready) => {

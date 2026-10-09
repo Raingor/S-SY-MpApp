@@ -49,11 +49,16 @@
       <view class="audio-track-step audio-track-step-disabled"><text>|▶</text></view>
       <view class="audio-skip-control" data-offset="30" bindtap="onSeekOffset"><text class="audio-skip-icon">↷</text><text class="audio-skip-seconds">30</text></view>
     </view>
-    <view class="audio-player-actions">
+    <view wx:if="{{!previewEnded}}" class="audio-player-actions">
       <text class="audio-preview-caption">{{i18n.heritage.preview}} · {{track.previewSeconds || 60}}s</text>
-      <view wx:if="{{track.unlockMode !== 'locked'}}" class="audio-full-action" bindtap="playFull">{{accessLoading ? i18n.loading : (track.unlockMode === 'free' ? i18n.heritage.full : i18n.heritage.unlockRequired)}}</view>
-      <text wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</text>
+      <button wx:if="{{track.unlockMode !== 'locked'}}" class="audio-full-action" hover-class="audio-full-action-hover" disabled="{{accessLoading || purchaseLoading}}" bindtap="onFullAccessTap">{{accessLoading ? i18n.loading : fullActionText}}</button>
+      <view wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</view>
     </view>
-    <view wx:if="{{previewEnded}}" class="audio-preview-ended">{{i18n.heritage.previewEnded}}</view>
+    <view wx:if="{{previewEnded}}" class="audio-preview-ended-card">
+      <view class="audio-preview-ended-title">{{i18n.heritage.previewEnded}}</view>
+      <view wx:if="{{track.unlockMode !== 'locked'}}" class="audio-preview-ended-copy">{{i18n.paidContent.trialEndedDesc}}</view>
+      <view wx:else class="audio-preview-ended-copy">{{i18n.heritage.previewOnly}}</view>
+      <button wx:if="{{track.unlockMode !== 'locked'}}" class="audio-unlock-button" hover-class="audio-unlock-button-hover" disabled="{{accessLoading || purchaseLoading}}" bindtap="onFullAccessTap">{{accessLoading ? i18n.loading : fullActionText}}</button>
+    </view>
   </view>
 </view>
