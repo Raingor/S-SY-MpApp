@@ -37,7 +37,7 @@
     </view>
   </view>
 
-  <view wx:if="{{loggedIn}}" class="phone-bind-card card">
+  <view wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card">
     <view class="phone-bind-copy">
       <view class="phone-bind-title">{{phoneBound ? i18n.profile.changePhone : i18n.profile.bindPhone}}</view>
       <view class="phone-bind-desc">{{phoneBound ? i18n.profile.changePhoneDesc : i18n.profile.bindPhoneDesc}}</view>

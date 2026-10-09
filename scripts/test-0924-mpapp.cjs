@@ -41,6 +41,7 @@ const profileSource = fs.readFileSync('pages/profile/profile.js', 'utf8');
 assert.match(profileSource, /const memberStatus = entitlements\.member \? `\$\{copy\.memberAnnual\}/, 'profile membership title always uses annual membership wording');
 const profileMarkup = fs.readFileSync('pages/profile/profile.wxml', 'utf8');
 assert(profileMarkup.includes('{{memberStatus ? i18n.paidContent.renewMembership : item.displayName}}'), 'profile switches the membership CTA to renew after access is active');
+assert(profileMarkup.includes('wx:if="{{loggedIn && !phoneBound}}" class="phone-bind-card card"'), 'profile hides the phone binding card when the phone is already bound');
 let detailConfig;
 const detailNavigation = [];
 const paidStateCalls = { config: 0, entitlements: 0 };
