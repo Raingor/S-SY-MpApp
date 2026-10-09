@@ -64,10 +64,13 @@ Page({
     this._previewTimer = null;
     this._previewTimerStartedAt = 0;
   },
+  _previewLimitMs() {
+    const seconds = Math.min(60, Math.max(1, Number(this.data.access && this.data.access.previewSeconds) || Number(this.data.track && this.data.track.previewSeconds) || 60));
+    return seconds * 1000;
+  },
   _startPreviewTimer(reset) {
     this._clearPreviewTimer();
-    const previewSeconds = Math.min(60, Math.max(1, Number(this.data.access && this.data.access.previewSeconds) || Number(this.data.track && this.data.track.previewSeconds) || 60));
-    if (reset || !Number.isFinite(this._previewRemainingMs) || this._previewRemainingMs <= 0) this._previewRemainingMs = previewSeconds * 1000;
+    if (reset || !Number.isFinite(this._previewRemainingMs) || this._previewRemainingMs <= 0) this._previewRemainingMs = this._previewLimitMs();
     this._previewTimerStartedAt = Date.now();
     this._previewTimer = setTimeout(() => this.stopPreview(), this._previewRemainingMs);
   },
@@ -76,6 +79,24 @@ Page({
       this._previewRemainingMs = Math.max(0, this._previewRemainingMs - (Date.now() - this._previewTimerStartedAt));
     }
     this._clearPreviewTimer();
+  },
+  _chargePreviewSeek(targetSeconds) {
+    if (this.data.fullPlayback || !this.data.access) return false;
+    const audioSeconds = Number(this.audio && this.audio.currentTime);
+    const currentSeconds = Number.isFinite(audioSeconds) ? audioSeconds : Number(this.data.currentSeconds) || 0;
+    const skippedSeconds = Math.max(0, Number(targetSeconds) - currentSeconds);
+    if (!skippedSeconds) return false;
+    const wasPlaying = this.data.playing;
+    if (wasPlaying) this._pausePreviewTimer();
+    if (!Number.isFinite(this._previewRemainingMs)) this._previewRemainingMs = this._previewLimitMs();
+    const rate = Math.max(1, Number(this.data.playbackRate) || 1);
+    this._previewRemainingMs = Math.max(0, this._previewRemainingMs - skippedSeconds / rate * 1000);
+    if (this._previewRemainingMs <= 0) {
+      this.stopPreview();
+      return true;
+    }
+    if (wasPlaying) this._startPreviewTimer(false);
+    return false;
   },
   onShow() {
     i18n.apply(this);
@@ -219,6 +240,7 @@ Page({
     const previewLimit = Math.max(0, Number(this.data.access.previewSeconds) || Number(this.data.track.previewSeconds) || 60);
     const max = this.data.fullPlayback ? total : Math.min(total || previewLimit, Math.max(0, previewLimit - 1));
     const seconds = Math.min(max, Math.max(0, Number(e.detail.value) || 0));
+    if (this._chargePreviewSeek(seconds)) return;
     this.audio.seek(seconds);
     this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
   },
@@ -229,6 +251,7 @@ Page({
     const max = this.data.fullPlayback ? total : Math.min(total || previewLimit, Math.max(0, previewLimit - 1));
     const offset = Number(e.currentTarget.dataset.offset) || 0;
     const seconds = Math.min(max, Math.max(0, this.data.currentSeconds + offset));
+    if (this._chargePreviewSeek(seconds)) return;
     this.audio.seek(seconds);
     this.setData({ currentSeconds: Math.floor(seconds), currentTime: formatTime(seconds), remainingTime: formatTime(Math.max(0, total - seconds)), progressPercent: total ? Math.min(100, seconds / total * 100) : 0 });
   },

@@ -205,7 +205,7 @@ const timers = new Map();
 let backCalled = false;
 const audioWx = {
   getWindowInfo: () => ({ statusBarHeight: 44 }),
-  createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
+  createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, seek(seconds) { this.currentTime = seconds; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
   showToast: () => showToastCount++,
   switchTab() {}, showModal(options) { showModalCount++; lastModal = options; }
 };
@@ -253,8 +253,10 @@ assert.match(audioDetailMarkup, /<view class="audio-player-actions">/, 'unlock a
 assert.doesNotMatch(audioDetailMarkup, /audio-preview-ended-card/, 'preview-ended guidance is a modal rather than an inline card');
 assert.match(fs.readFileSync('pages/audio/detail.wxss', 'utf8'), /\.audio-full-action\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;[^}]*justify-content:\s*center;/s, 'the initial unlock button label is centered');
 instance.playPreview();
-audio.currentTime = 60; audio.timeUpdate();
+audio.currentTime = 0;
+instance.onSeekChange({ detail: { value: 50 } });
 assert(!instance.data.previewEnded && instance.data.playing);
+assert.equal([...timers.values()][0].delay, 10000, 'seeking forward to 50 seconds consumes 50 seconds of preview allowance at 1x');
 const secondPreviewTimer = [...timers.values()][0]; timers.clear(); secondPreviewTimer.fn();
 assert(instance.data.previewEnded && !instance.data.playing);
 assert.equal(showModalCount, 2);
