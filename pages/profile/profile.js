@@ -128,9 +128,8 @@ Page({
     paidContent.fetchEntitlements((ok, entitlements) => {
       const copy = this.data.i18n.paidContent;
       const expires = String(entitlements.memberExpiresAt || '').slice(0, 10);
-      const annual = Boolean(entitlements.memberExpiresAt);
-      const memberStatus = entitlements.member ? `${annual ? copy.memberAnnual : copy.memberLifetime}${expires ? ` · ${expires}` : ''}` : '';
-      const memberDescription = entitlements.member && annual ? (copy.memberExpires || 'Active through {date}').replace('{date}', expires) : entitlements.member ? copy.memberUnlocked : copy.memberDesc;
+      const memberStatus = entitlements.member ? `${copy.memberAnnual}${expires ? ` · ${expires}` : ''}` : '';
+      const memberDescription = entitlements.member && expires ? (copy.memberExpires || 'Active through {date}').replace('{date}', expires) : entitlements.member ? copy.memberUnlocked : copy.memberDesc;
       this.setData({
         memberStatus,
         membershipCanRenew: entitlements.membershipCanRenew !== false,
