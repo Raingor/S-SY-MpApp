@@ -288,6 +288,14 @@ Page({
     if (this.data.playing && !this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     this.refreshAccess((access) => {
       if (!access.previewUrl) return;
+      if (access.access === 'full') {
+        if (!access.fullUrl) return this.setData({ accessError: true, playing: false });
+        this.stop();
+        const audio = this.ensureAudioContext();
+        audio.src = access.fullUrl;
+        audio.play();
+        return this.setData({ playing: true, fullPlayback: true, previewEnded: false });
+      }
       this.stop(true);
       const audio = this.ensureAudioContext();
       audio.src = access.previewUrl;

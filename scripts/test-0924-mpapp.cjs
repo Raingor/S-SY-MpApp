@@ -31,7 +31,7 @@ vm.runInNewContext(fs.readFileSync('utils/i18n.js', 'utf8'), { module: i18nModul
 const translations = i18nModule.exports;
 for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   const h = translations.getMessages(locale).heritage;
-  for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
+  for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'fullAccess', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
   const p = translations.getMessages(locale).paidContent;
   for (const key of ['paywallTitle', 'paywallSubtitle', 'paywallFeature', 'paywallLater']) assert(p[key], `${locale}: paidContent.${key}`);
   for (const key of ['member', 'memberAnnual', 'memberLifetime', 'memberUnlocked', 'renewMembership', 'renewShort']) assert(p[key], `${locale}: annual membership copy ${key}`);
@@ -282,6 +282,7 @@ assert(!instance.data.unlockOptions.some((option) => option.product === 'members
 assert.equal(showModalCount, 0, 'preview completion does not use the native confirmation modal');
 assert.equal(showToastCount, 0);
 assert.match(audioDetailMarkup, /<view class="audio-player-actions">/, 'unlock action remains visible after preview ends');
+assert(audioDetailMarkup.includes('access.access === \'full\'') && audioDetailMarkup.includes('i18n.heritage.fullAccess'), 'active entitlement is labeled full access instead of a preview');
 assert.match(audioDetailMarkup, /class="audio-paywall-sheet"/, 'preview completion opens the custom guided unlock sheet');
 assert.doesNotMatch(audioDetailMarkup, /audio-preview-ended-card/, 'preview-ended guidance is not an inline card');
 assert.match(fs.readFileSync('pages/audio/detail.wxss', 'utf8'), /\.audio-full-action\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;[^}]*justify-content:\s*center;/s, 'the initial unlock button label is centered');
@@ -304,6 +305,13 @@ assert.equal(showToastCount, 2, 'both selected products reach the existing payme
 instance.playFull();
 assert(!instance.data.fullPlayback);
 response = { ...response, access: 'full', fullUrl: 'https://example.com/signed' };
+const entitledPreview = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
+entitledPreview.data.track = instance.data.track;
+entitledPreview.data.durationSeconds = instance.data.durationSeconds;
+entitledPreview.playPreview();
+assert(entitledPreview.data.fullPlayback && entitledPreview.audio.src === response.fullUrl, 'entitled members who tap play start full playback without the preview timer');
+assert.equal(timers.size, 0, 'full member playback does not start a preview countdown');
+audio = instance.audio;
 instance.refreshAccess();
 assert.equal(instance.data.access.fullUrl, response.fullUrl);
 instance.playFull();
