@@ -4,6 +4,12 @@ const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
+function accessLabel(item, heritage, locale) {
+  if (item.unlockMode === 'free') return heritage.freeBadge;
+  if (item.unlockMode === 'locked') return heritage.previewOnlyShort;
+  const seconds = Math.min(60, Math.max(1, Number(item.previewSeconds) || 60));
+  return locale === 'en' ? `${heritage.preview} · ${seconds}${heritage.secondsUnit}` : `${heritage.preview} ${seconds}${heritage.secondsUnit}`;
+}
 Page({
   data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], visibleEpisodes: [], firstEpisode: null, searching: false, searchValue: '', activeTab: 'episodes', scrollIntoView: '', loading: true, failed: false, statusBarHeight: 20 },
   onLoad(options) {
@@ -39,7 +45,7 @@ Page({
     if (!this.data.album) return;
     const { album, locale } = this.data;
     const author = tr(album, 'author', locale) || tr(album, 'artist', locale) || tr(album, 'narrator', locale) || album.author || album.artist || album.narrator || '';
-    const episodes = (album.episodes || []).map((item, index) => ({ ...item, episodeIndex: index + 1, displayTitle: tr(item, 'title', locale), displayDescription: tr(item, 'description', locale), displayDuration: duration(item.durationSeconds) }));
+    const episodes = (album.episodes || []).map((item, index) => ({ ...item, episodeIndex: index + 1, displayTitle: tr(item, 'title', locale), displayDescription: tr(item, 'description', locale), displayDuration: duration(item.durationSeconds), accessLabel: accessLabel(item, this.data.i18n.heritage, locale) }));
     this.setData({
       album: { ...album, displayTitle: tr(album, 'title', locale), displayDescription: tr(album, 'description', locale), displayAuthor: author, displayTags: Array.isArray(album.tags) ? album.tags.filter((tag) => typeof tag === 'string' && tag.trim()) : [] },
       totalDuration: duration(episodes.reduce((sum, item) => sum + (Number(item.durationSeconds) || 0), 0)),

@@ -6,6 +6,12 @@ function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
   return item && (item[key + suffix] || item[key]) || '';
 }
+function audioAccessLabel(item, heritage, locale) {
+  if (item.unlockMode === 'free') return heritage.freeBadge;
+  if (item.unlockMode === 'locked') return heritage.previewOnlyShort;
+  const seconds = Math.min(60, Math.max(1, Number(item.previewSeconds) || 60));
+  return locale === 'en' ? `${heritage.preview} · ${seconds}${heritage.secondsUnit}` : `${heritage.preview} ${seconds}${heritage.secondsUnit}`;
+}
 
 Page({
   data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), category: 'online', title: '', spotName: '', items: [], visibleItems: [], searchText: '', filter: 'all', demoData: false, loading: true, failed: false },
@@ -42,7 +48,7 @@ Page({
         String(item.attractionId) === String(spot.id) && !item.albumId && (!item.status || item.status === 'published') &&
         (item.isDemo === true || item.previewUrl)).map((item) => {
         const point = (spot.exhibits || []).find((row) => String(row.id) === String(item.exhibitId));
-        return { ...item, pointId: point && point.id || '', displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), displayImage: item.cover || (point && point.image) || spot.image || '', hasAudio: item.isDemo !== true && Boolean(item.previewUrl) };
+        return { ...item, pointId: point && point.id || '', displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), displayImage: item.cover || (point && point.image) || spot.image || '', accessLabel: audioAccessLabel(item, this.data.i18n.heritage, this.data.locale), hasAudio: item.isDemo !== true && Boolean(item.previewUrl) };
       });
       this.setData({ items, demoData: items.some((item) => item.isDemo === true), loading: false, failed: false, spotName: localized(spot, 'name', this.data.locale) });
       this.localize();
@@ -51,7 +57,7 @@ Page({
   localize() {
     if (!this.spot) return;
     const title = this.category === 'expert' ? this.data.i18n.heritage.expert : this.data.i18n.heritage.online;
-    const items = (this.data.items || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale) }));
+    const items = (this.data.items || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), accessLabel: audioAccessLabel(item, this.data.i18n.heritage, this.data.locale) }));
     this.setData({ title, spotName: localized(this.spot, 'name', this.data.locale), items });
     this.applyFilter();
   },

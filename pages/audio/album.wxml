@@ -63,6 +63,7 @@
           <view class="audio-episode-copy">
             <view class="audio-episode-title">{{item.displayTitle}}</view>
             <view wx:if="{{item.displayDuration}}" class="audio-episode-duration">◷ {{item.displayDuration}}</view>
+            <view class="audio-episode-access">{{item.accessLabel}}</view>
           </view>
           <text class="audio-episode-arrow">›</text>
         </view>
@@ -75,6 +76,6 @@
 
   <view wx:if="{{album && episodes.length}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" data-section="intro" bindtap="onAlbumTabTap">{{i18n.heritage.albumIntro}}</button>
-    <button class="audio-album-play-button" bindtap="onStartAlbum">{{i18n.heritage.previewFirstEpisode}}</button>
+    <button class="audio-album-play-button" bindtap="onStartAlbum">{{firstEpisode && firstEpisode.unlockMode === 'free' ? i18n.heritage.freeFirstEpisode : i18n.heritage.previewFirstEpisode}}</button>
   </view>
 </view>

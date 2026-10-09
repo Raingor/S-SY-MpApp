@@ -89,6 +89,7 @@ page { height: 100%; background: #FFFFFF; }
 .audio-episode-copy { flex: 1; min-width: 0; }
 .audio-episode-title { color: #353535; font-size: 25rpx; line-height: 1.5; font-weight: 500; overflow-wrap: anywhere; }
 .audio-episode-duration { margin-top: 7rpx; color: #A0A0A0; font-size: 19rpx; }
+.audio-episode-access { margin-top: 7rpx; color: #657a78; font-size: 19rpx; }
 .audio-episode-arrow { flex: 0 0 24rpx; color: #B9B9B9; font-family: Georgia,serif; font-size: 34rpx; text-align: right; }
 .audio-album-state { padding: 60rpx 28rpx; color: #858585; font-size: 23rpx; text-align: center; }
 .audio-album-scroll-end { height: 32rpx; }

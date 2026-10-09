@@ -14,11 +14,11 @@ function formatTime(value) { const seconds = Math.max(0, Math.floor(Number(value
 function fullActionText(track, access, messages) {
   const heritage = messages && messages.heritage || {};
   const paidContent = messages && messages.paidContent || {};
-  if (access && access.access === 'full') return heritage.full || '';
   const mode = access && access.mode || track && track.unlockMode;
+  if (access && access.access === 'full') return mode === 'free' ? heritage.freeFull || heritage.full || '' : heritage.full || '';
   if (mode === 'membership') return paidContent.member || heritage.unlockRequired || '';
   if (mode === 'attraction') return paidContent.buySpot || heritage.unlockRequired || '';
-  if (mode === 'free') return heritage.full || '';
+  if (mode === 'free') return heritage.freeFull || heritage.full || '';
   return heritage.unlockRequired || '';
 }
 
@@ -284,6 +284,7 @@ Page({
   },
   playPreview() {
     if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl) return;
+    if (this.data.track.unlockMode === 'free') return this.playFull();
     if (this.data.playing && !this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     this.refreshAccess((access) => {
       if (!access.previewUrl) return;

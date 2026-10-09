@@ -50,7 +50,9 @@
       <view class="audio-skip-control" data-offset="30" bindtap="onSeekOffset"><text class="audio-skip-icon">↷</text><text class="audio-skip-seconds">30</text></view>
     </view>
     <view class="audio-player-actions">
-      <text class="audio-preview-caption">{{i18n.heritage.preview}} · {{track.previewSeconds || 60}}s</text>
+      <text wx:if="{{track.unlockMode === 'free'}}" class="audio-preview-caption">{{i18n.heritage.freeBadge}}</text>
+      <text wx:elif="{{track.unlockMode === 'locked'}}" class="audio-preview-caption">{{i18n.heritage.previewOnlyShort}}</text>
+      <text wx:else class="audio-preview-caption">{{i18n.heritage.preview}} · {{track.previewSeconds || 60}}s</text>
       <button wx:if="{{track.unlockMode !== 'locked'}}" class="audio-full-action" hover-class="audio-full-action-hover" disabled="{{accessLoading || purchaseLoading}}" bindtap="onFullAccessTap">{{accessLoading ? i18n.loading : fullActionText}}</button>
       <view wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</view>
     </view>
