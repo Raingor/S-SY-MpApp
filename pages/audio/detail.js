@@ -28,7 +28,8 @@ Page({
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
-    showUnlockPaywall: false, paywallLoading: false, unlockOptions: []
+    showUnlockPaywall: false, paywallLoading: false, unlockOptions: [],
+    paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: ''
   },
   onLoad(options) {
     const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -126,7 +127,13 @@ Page({
     this.openUnlockPaywall();
   },
   openUnlockPaywall() {
-    this.setData({ showUnlockPaywall: true, paywallLoading: true, unlockOptions: [] });
+    this._paywallAuthRequestId = (this._paywallAuthRequestId || 0) + 1;
+    const authRequestId = this._paywallAuthRequestId;
+    this.setData({ showUnlockPaywall: true, paywallLoading: true, unlockOptions: [], paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: '' });
+    auth.getUserState((loggedIn, user) => {
+      if (authRequestId !== this._paywallAuthRequestId || !this.data.showUnlockPaywall) return;
+      this.setData({ paywallAuthState: loggedIn ? (user && user.phoneBound ? 'ready' : 'phone') : 'login' });
+    });
     paid.fetchConfig((ok, config) => {
       if (!this.data.showUnlockPaywall) return;
       const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
@@ -144,12 +151,49 @@ Page({
       this.setData({ paywallLoading: false, unlockOptions, paidConfig: config || null, simulation: Boolean(config && config.simulation) });
     });
   },
-  onUnlockPaywallClose() { this.setData({ showUnlockPaywall: false }); },
+  onUnlockPaywallClose() {
+    this._paywallAuthRequestId = (this._paywallAuthRequestId || 0) + 1;
+    this.setData({ showUnlockPaywall: false });
+  },
   onUnlockOptionTap(e) {
     const product = e.currentTarget.dataset.product;
     if (!this.data.unlockOptions.some((item) => item.product === product) || this.data.purchaseLoading) return;
+    if (this.data.paywallAuthState === 'checking' || this.data.paywallAuthState === 'login') return this.setData({ paywallAuthState: 'login' });
+    if (this.data.paywallAuthState === 'phone') return;
     this.setData({ showUnlockPaywall: false });
     this.onUnlock(product);
+  },
+  onPaywallLogin() {
+    if (this.data.paywallAuthLoading) return;
+    this._paywallAuthRequestId = (this._paywallAuthRequestId || 0) + 1;
+    const authRequestId = this._paywallAuthRequestId;
+    this.setData({ paywallAuthLoading: true, paywallAuthError: '' });
+    auth.login((ok, user, message) => {
+      if (authRequestId !== this._paywallAuthRequestId || !this.data.showUnlockPaywall) return;
+      this.setData({
+        paywallAuthLoading: false,
+        paywallAuthState: ok ? (user && user.phoneBound ? 'ready' : 'phone') : 'login',
+        paywallAuthError: ok ? '' : (message || this.data.i18n.profile.loginFailed)
+      });
+    });
+  },
+  onPaywallGetPhoneNumber(e) {
+    const code = e.detail && e.detail.code;
+    if (!code || !/^getPhoneNumber:ok/.test(e.detail.errMsg || '')) {
+      return this.setData({ paywallAuthError: this.data.i18n.validation.phoneAuthRequired });
+    }
+    if (this.data.paywallAuthLoading) return;
+    this._paywallAuthRequestId = (this._paywallAuthRequestId || 0) + 1;
+    const authRequestId = this._paywallAuthRequestId;
+    this.setData({ paywallAuthLoading: true, paywallAuthError: '' });
+    auth.bindPhone(code, (ok, user, message) => {
+      if (authRequestId !== this._paywallAuthRequestId || !this.data.showUnlockPaywall) return;
+      this.setData({
+        paywallAuthLoading: false,
+        paywallAuthState: ok && user && user.phoneBound ? 'ready' : 'phone',
+        paywallAuthError: ok ? '' : (message || this.data.i18n.profile.phoneBindFailed)
+      });
+    });
   },
   noop() {},
   onBack() {
@@ -325,9 +369,13 @@ Page({
     const product = productChoice || (access.mode === 'attraction' ? 'attraction' : 'annualMembership');
     const allowedProducts = access.mode === 'attraction' ? ['attraction', 'annualMembership'] : ['annualMembership'];
     if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
-    if (!auth.getAccessToken()) return wx.switchTab({ url: '/pages/profile/profile' });
-    auth.ensurePhoneBound((ready) => {
-      if (!ready) return;
+    if (!auth.getAccessToken()) {
+      this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
+      return;
+    }
+    auth.getUserState((loggedIn, user) => {
+      if (!loggedIn) return this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
+      if (!user || !user.phoneBound) return this.setData({ showUnlockPaywall: true, paywallAuthState: 'phone' });
       paid.fetchConfig((ok, config) => {
         if (!ok || !config.products || !config.products[product] || config.products[product].enabled === false) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         this.setData({ paidConfig: config, simulation: Boolean(config.simulation) });

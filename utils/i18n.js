@@ -339,17 +339,23 @@ Object.assign(messages.en.heritage, { audioGuideUsage: 'Audio guide instructions
 Object.assign(messages['zh-CN'].paidContent, {
   paywallEyebrow: '完整讲解 · 选择你的权益', paywallTitle: '试听已结束', paywallSubtitle: '解锁后，继续聆听完整讲解',
   paywallFeature: '完整音频 · 随时继续收听', paywallRecommended: '覆盖更多景点', paywallPriceLoading: '正在加载当前权益价格…',
-  paywallUnavailable: '暂时无法获取购买方案，请稍后重试。', paywallFootnote: '选择方案后将验证登录与手机号，再进入支付。', paywallLater: '稍后再听'
+  paywallUnavailable: '暂时无法获取购买方案，请稍后重试。', paywallFootnote: '登录并授权手机号后，选择方案即可进入支付。', paywallLater: '稍后再听',
+  paywallAuthChecking: '正在确认登录状态…', paywallLoginTitle: '登录后继续解锁', paywallLoginDesc: '无需离开此页，微信登录后即可继续选择讲解权益。', paywallLoginButton: '微信一键登录',
+  paywallPhoneTitle: '再验证手机号即可购买', paywallPhoneDesc: '微信登录已完成，授权手机号后可继续支付。', paywallPhoneButton: '授权手机号，继续购买'
 });
 Object.assign(messages['zh-TW'].paidContent, {
   paywallEyebrow: '完整講解 · 選擇你的權益', paywallTitle: '試聽已結束', paywallSubtitle: '解鎖後，繼續收聽完整講解',
   paywallFeature: '完整音頻 · 隨時繼續收聽', paywallRecommended: '涵蓋更多景點', paywallPriceLoading: '正在載入目前權益價格…',
-  paywallUnavailable: '暫時無法取得購買方案，請稍後重試。', paywallFootnote: '選擇方案後將驗證登入與手機號，再進入付款。', paywallLater: '稍後再聽'
+  paywallUnavailable: '暫時無法取得購買方案，請稍後重試。', paywallFootnote: '登入並授權手機號後，選擇方案即可進入付款。', paywallLater: '稍後再聽',
+  paywallAuthChecking: '正在確認登入狀態…', paywallLoginTitle: '登入後繼續解鎖', paywallLoginDesc: '無需離開此頁，微信登入後即可繼續選擇講解權益。', paywallLoginButton: '微信一鍵登入',
+  paywallPhoneTitle: '再驗證手機號即可購買', paywallPhoneDesc: '微信登入已完成，授權手機號後即可繼續付款。', paywallPhoneButton: '授權手機號，繼續購買'
 });
 Object.assign(messages.en.paidContent, {
   paywallEyebrow: 'FULL AUDIO · CHOOSE YOUR ACCESS', paywallTitle: 'Your preview has ended', paywallSubtitle: 'Unlock the complete guide and keep listening',
   paywallFeature: 'Full recording · Resume anytime', paywallRecommended: 'More sights included', paywallPriceLoading: 'Loading current access options…',
-  paywallUnavailable: 'Purchase options are unavailable right now. Try again later.', paywallFootnote: 'Sign-in and phone verification are required before payment.', paywallLater: 'Maybe later'
+  paywallUnavailable: 'Purchase options are unavailable right now. Try again later.', paywallFootnote: 'Sign in and verify your phone, then choose a plan to continue.', paywallLater: 'Maybe later',
+  paywallAuthChecking: 'Checking your sign-in status…', paywallLoginTitle: 'Sign in to continue', paywallLoginDesc: 'Stay on this page. Sign in with WeChat to choose an audio plan.', paywallLoginButton: 'Sign in with WeChat',
+  paywallPhoneTitle: 'Verify your phone to purchase', paywallPhoneDesc: 'You are signed in. Authorize your phone number to continue.', paywallPhoneButton: 'Verify phone and continue'
 });
 Object.assign(messages['zh-CN'].paidContent, { memberAnnual: '年会员', memberLifetime: '年会员', memberUnlocked: '年会员已解锁', renewMembership: '续费年会员', renewShort: '续费', memberExpires: '有效至 {date}' });
 Object.assign(messages['zh-TW'].paidContent, { memberAnnual: '年會員', memberLifetime: '年會員', memberUnlocked: '年會員已解鎖', renewMembership: '續費年會員', renewShort: '續費', memberExpires: '有效至 {date}' });

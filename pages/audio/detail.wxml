@@ -75,6 +75,23 @@
           <view class="audio-paywall-feature-desc">{{i18n.paidContent.paywallFeature}}</view>
         </view>
       </view>
+      <view wx:if="{{paywallAuthState === 'checking'}}" class="audio-paywall-auth-state">{{i18n.paidContent.paywallAuthChecking}}</view>
+      <view wx:elif="{{paywallAuthState === 'login'}}" class="audio-paywall-auth-card">
+        <view class="audio-paywall-auth-copy">
+          <view class="audio-paywall-auth-title">{{i18n.paidContent.paywallLoginTitle}}</view>
+          <view class="audio-paywall-auth-desc">{{i18n.paidContent.paywallLoginDesc}}</view>
+        </view>
+        <button class="audio-paywall-auth-button" bindtap="onPaywallLogin" loading="{{paywallAuthLoading}}" disabled="{{paywallAuthLoading}}">{{i18n.paidContent.paywallLoginButton}}</button>
+        <view wx:if="{{paywallAuthError}}" class="audio-paywall-auth-error">{{paywallAuthError}}</view>
+      </view>
+      <view wx:elif="{{paywallAuthState === 'phone'}}" class="audio-paywall-auth-card">
+        <view class="audio-paywall-auth-copy">
+          <view class="audio-paywall-auth-title">{{i18n.paidContent.paywallPhoneTitle}}</view>
+          <view class="audio-paywall-auth-desc">{{i18n.paidContent.paywallPhoneDesc}}</view>
+        </view>
+        <button class="audio-paywall-auth-button" open-type="getPhoneNumber" bindgetphonenumber="onPaywallGetPhoneNumber" loading="{{paywallAuthLoading}}" disabled="{{paywallAuthLoading}}">{{i18n.paidContent.paywallPhoneButton}}</button>
+        <view wx:if="{{paywallAuthError}}" class="audio-paywall-auth-error">{{paywallAuthError}}</view>
+      </view>
       <view wx:if="{{paywallLoading}}" class="audio-paywall-loading">{{i18n.paidContent.paywallPriceLoading}}</view>
       <view wx:elif="{{unlockOptions.length}}" class="audio-paywall-options">
         <view wx:for="{{unlockOptions}}" wx:key="product" class="audio-paywall-plan {{item.featured ? 'audio-paywall-plan-featured' : ''}}" data-product="{{item.product}}" bindtap="onUnlockOptionTap">
