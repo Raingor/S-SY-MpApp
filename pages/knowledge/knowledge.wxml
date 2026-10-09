@@ -8,20 +8,17 @@
   <view wx:if="{{offline}}" class="knowledge-product-empty card">{{i18n.heritage.offlineNotice}}</view>
   <view wx:if="{{contentError}}" class="knowledge-product-empty card">{{i18n.heritage.networkFailed}} <view bindtap="refresh">{{i18n.heritage.retry}} ›</view></view>
   <block wx:if="{{activePanel === 0}}">
-    <view class="knowledge-product-intro"><view class="knowledge-product-title serif">{{i18n.heritage.sights}}</view><view class="knowledge-product-copy">{{i18n.heritage.sightsIntro}}</view></view>
-    <view class="knowledge-product-search knowledge-sights-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchSights}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" /></view>
-    <view wx:if="{{!audioOnly && cities.length}}" class="knowledge-product-categories">
-      <view class="knowledge-city-grid">
-        <view class="knowledge-product-category {{!categoryId ? 'knowledge-product-category-on' : ''}}" data-id="" bindtap="onCategoryTap" role="button" aria-label="{{i18n.heritage.allCities}}">{{i18n.heritage.allCities}}</view>
-        <view wx:for="{{visibleFilterCities}}" wx:key="id" class="knowledge-product-category {{categoryId === item.id ? 'knowledge-product-category-on' : ''}}" data-id="{{item.id}}" bindtap="onCategoryTap" role="button">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view>
-      </view>
-      <button wx:if="{{canExpandCities}}" class="knowledge-city-toggle" bindtap="onToggleCities" aria-expanded="{{citiesExpanded}}">{{citiesExpanded ? i18n.heritage.collapseCities : i18n.heritage.moreCities}}<view class="knowledge-city-chevron {{citiesExpanded ? 'knowledge-city-chevron-up' : ''}}"></view></button>
-    </view>
-    <view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view>
-    <view wx:elif="{{hotSpots.length}}" class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-id="{{item.id}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" /></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.displayName}}</view><view class="knowledge-hot-desc">{{item.displaySummary}}</view><view>{{i18n.heritage.visitorAndPreview}} ›</view></view></view></view>
-    <view wx:else class="knowledge-product-empty card">{{audioOnly ? i18n.heritage.noPreviews : i18n.heritage.noSights}}</view>
-    <block wx:if="{{!audioOnly}}">
-      <view wx:if="{{cities.length}}" class="knowledge-catalog"><view class="knowledge-heading serif">{{i18n.knowledgePage.cities}}</view><view class="city-grid"><view class="city-card card" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap"><image wx:if="{{item.cover}}" class="city-card-img" src="{{item.cover}}" mode="aspectFill" /><view class="city-card-mask"></view><view class="city-card-info"><view class="city-card-name serif">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view><view class="city-card-sub">{{item.subtitle}}</view></view><view class="city-card-arrow">›</view></view></view></view>
+    <block wx:if="{{audioOnly}}">
+      <view class="knowledge-product-intro"><view class="knowledge-product-title serif">{{i18n.heritage.sights}}</view><view class="knowledge-product-copy">{{i18n.heritage.sightsIntro}}</view></view>
+      <view class="knowledge-product-search knowledge-sights-search card"><input value="{{searchQuery}}" confirm-type="search" placeholder="{{i18n.heritage.searchSights}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm" /></view>
+      <view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view>
+      <view wx:elif="{{hotSpots.length}}" class="knowledge-hot-grid"><view wx:for="{{hotSpots}}" wx:key="id" class="knowledge-hot-card card" data-id="{{item.id}}" bindtap="onHotSpotTap"><view class="knowledge-hot-image"><image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" /></view><view class="knowledge-hot-body"><view class="knowledge-hot-name serif">{{item.displayName}}</view><view class="knowledge-hot-desc">{{item.displaySummary}}</view><view>{{i18n.heritage.visitorAndPreview}} ›</view></view></view></view>
+      <view wx:else class="knowledge-product-empty card">{{i18n.heritage.noPreviews}}</view>
+    </block>
+    <block wx:else>
+      <view wx:if="{{loading}}" class="knowledge-product-empty card">{{i18n.loading}}</view>
+      <view wx:elif="{{cities.length}}" class="knowledge-catalog"><view class="knowledge-heading serif">{{i18n.knowledgePage.cities}}</view><view class="city-grid"><view class="city-card card" wx:for="{{cities}}" wx:key="id" data-id="{{item.id}}" bindtap="onCityTap"><image wx:if="{{item.cover}}" class="city-card-img" src="{{item.cover}}" mode="aspectFill" /><view class="city-card-mask"></view><view class="city-card-info"><view class="city-card-name serif">{{locale === 'en' ? (item.nameEn || item.name) : (locale === 'zh-TW' ? (item.nameTw || item.name) : item.name)}}</view><view class="city-card-sub">{{item.subtitle}}</view></view><view class="city-card-arrow">›</view></view></view></view>
+      <view wx:else class="knowledge-product-empty card">{{i18n.heritage.noSights}}</view>
       <view wx:if="{{sampleTrips.length}}" class="trip-section"><view class="knowledge-heading serif">{{i18n.knowledgePage.trips}}</view><view class="trip-row card" wx:for="{{sampleTrips}}" wx:key="id" data-id="{{item.id}}" bindtap="onTripTap"><image wx:if="{{item.img}}" class="trip-thumb" src="{{item.img}}" mode="aspectFill" /><view class="trip-info"><view class="trip-name ellipsis">{{item.title}}</view><view class="trip-highlights ellipsis">{{item.highlights}}</view></view><view class="trip-arrow">›</view></view><view class="trip-more" bindtap="onMoreTrips">{{i18n.knowledgePage.viewTrips}} ›</view></view>
     </block>
   </block>

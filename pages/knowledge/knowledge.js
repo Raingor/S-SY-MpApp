@@ -10,12 +10,11 @@ function translated(item, key, locale) {
   return (item && (item[key + suffix] || item[key])) || '';
 }
 
-function displaySpots(spots, query, category, locale, audioOnly) {
+function displaySpots(spots, query, locale, audioOnly) {
   const word = String(query || '').trim().toLowerCase();
   return (spots || []).filter((spot) => {
     if (!spot || spot.status !== 'published') return false;
     if (audioOnly && !(spot.audioGuides || []).some((track) => track.id && track.previewUrl)) return false;
-    if (category && spot.city !== category) return false;
     if (!word) return true;
     return [translated(spot, 'name', locale), spot.name, spot.en, translated(spot, 'summary', locale), spot.category, spot.city,
       ...(spot.highlights || []).map((h) => translated(h, 'name', locale))].filter(Boolean).join(' ').toLowerCase().includes(word);
@@ -26,9 +25,8 @@ Page({
   data: {
     statusBarHeight: 20, menuRightSpace: 112, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
     panelTabs: [], cities: [], sampleTrips: [], allHotSpots: [], hotSpots: [],
-    albums: [], visibleAlbums: [], searchQuery: '', categoryId: '', audioOnly: false,
-    loading: true, contentError: false, offline: false,
-    citiesExpanded: false, visibleFilterCities: [], canExpandCities: false
+    albums: [], visibleAlbums: [], searchQuery: '', audioOnly: false,
+    loading: true, contentError: false, offline: false
   },
   onShareAppMessage() { return buildShareCard('/pages/knowledge/knowledge'); },
   onLoad(options) {
@@ -66,10 +64,9 @@ Page({
     this.filterItems();
   },
   filterItems() {
-    this.updateCityFilters();
-    const { allHotSpots, albums, searchQuery, categoryId, locale, audioOnly } = this.data;
+    const { allHotSpots, albums, searchQuery, locale, audioOnly } = this.data;
     this.setData({
-      hotSpots: displaySpots(allHotSpots, searchQuery, categoryId, locale, audioOnly),
+      hotSpots: displaySpots(allHotSpots, searchQuery, locale, audioOnly),
       visibleAlbums: (albums || []).map((album) => ({ ...album,
         displayTitle: translated(album, 'title', locale),
         displayDescription: translated(album, 'description', locale),
@@ -77,19 +74,7 @@ Page({
       })).filter((album) => !searchQuery || [album.title, album.displayTitle, album.displayDescription, ...(album.episodes || []).map((episode) => translated(episode, 'title', locale))].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()))
     });
   },
-  updateCityFilters() {
-    const { cities, categoryId, citiesExpanded } = this.data;
-    const limit = 5;
-    const visibleFilterCities = citiesExpanded ? cities.slice() : cities.slice(0, limit);
-    const selected = cities.find((city) => city.id === categoryId);
-    if (!citiesExpanded && selected && !visibleFilterCities.some((city) => city.id === categoryId)) {
-      visibleFilterCities[visibleFilterCities.length - 1] = selected;
-    }
-    this.setData({ visibleFilterCities, canExpandCities: cities.length > limit });
-  },
-  onToggleCities() { this.setData({ citiesExpanded: !this.data.citiesExpanded }); this.updateCityFilters(); },
-  onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '', categoryId: '', citiesExpanded: false }); this.filterItems(); },
-  onCategoryTap(e) { this.setData({ categoryId: e.currentTarget.dataset.id === this.data.categoryId ? '' : e.currentTarget.dataset.id }); this.filterItems(); },
+  onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '' }); this.filterItems(); },
   onSearchInput(e) { this.setData({ searchQuery: e.detail.value || '' }); this.filterItems(); },
   onSearchConfirm() {
     if (this.data.activePanel !== 0 || !this.data.hotSpots.length) return;
