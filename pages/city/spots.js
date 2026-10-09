@@ -15,7 +15,6 @@ Page({
     i18n: i18n.getMessages(),
     city: null,
     spots: [],
-    cityPriceDisplay: '',
     cityUnlocked: false,
     cityMember: false,
     cityPurchaseOptions: [],
@@ -91,7 +90,7 @@ Page({
     const cityId = this.cityId;
     cityCommerce.loadCityState(cityId, (state) => {
       if (this.cityId !== cityId) return;
-      this.setData({ cityPriceDisplay: state.priceDisplay, cityUnlocked: state.unlocked, cityMember: state.member, simulationMode: state.simulation, cityPurchaseOptions: cityCommerce.buildPurchaseOptions(state.products, this.data.city && this.data.city.name, this.data.i18n.contentPage) });
+      this.setData({ cityUnlocked: state.unlocked, cityMember: state.member, simulationMode: state.simulation, cityPurchaseOptions: cityCommerce.buildPurchaseOptions(state.products, this.data.city && this.data.city.name, this.data.i18n.contentPage) });
     });
   },
 

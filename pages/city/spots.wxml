@@ -8,7 +8,6 @@
     <view class="spots-title">{{city.name}}</view>
     <view class="spots-buy" bindtap="onBuy">
       <view>{{cityUnlocked ? i18n.contentPage.cityUnlocked : i18n.contentPage.buySpots}}</view>
-      <view wx:if="{{cityPriceDisplay && !cityUnlocked}}" class="spots-buy-price">{{cityPriceDisplay}}</view>
     </view>
   </view>
 
