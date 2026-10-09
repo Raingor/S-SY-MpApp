@@ -219,3 +219,10 @@ page { background: #10131A; }
   color: #FFFFFF;
   font-size: 28rpx;
 }
+
+.city-simulation-overlay { position: fixed; z-index: 20; inset: 0; display: flex; align-items: center; justify-content: center; padding: 40rpx; background: rgba(0, 0, 0, 0.68); }
+.city-simulation-modal { width: 100%; box-sizing: border-box; padding: 36rpx; border-radius: 24rpx; background: #F8F7F3; color: #26333B; }
+.city-simulation-title { font-size: 32rpx; font-weight: 700; }
+.city-simulation-order { margin: 16rpx 0 24rpx; color: #68747A; font-size: 25rpx; }
+.city-simulation-button { margin: 14rpx 0 0; border-radius: 40rpx; background: #176BAA; color: #FFFFFF; font-size: 27rpx; }
+.city-simulation-button.secondary { background: #E8E9E8; color: #37454D; }

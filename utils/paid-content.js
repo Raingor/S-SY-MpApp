@@ -30,6 +30,13 @@ function configFromContent(settings) {
   };
 }
 
+function productPriceDisplay(product) {
+  if (!product || product.enabled === false || product.price === undefined || product.price === null || String(product.price).trim() === '') return '';
+  const currency = String(product.currency || 'CNY').toUpperCase();
+  const price = String(product.price).replace(/^¥\s*/, '');
+  return currency === 'CNY' ? `¥${price}` : `${currency} ${price}`;
+}
+
 function fetchConfig(callback) {
   request('/api/miniprogram/knowledge/config', 'GET', null, (ok, data, res) => {
     if (ok && data) return callback(true, { ...configFromContent(data), ...data }, res);
@@ -91,6 +98,9 @@ function fetchEntitlements(callback) {
       memberExpiresAt: data.memberExpiresAt || '',
       membershipCanRenew: data.membershipCanRenew !== false,
       purchases: data.purchases || data.unlockedAttractions || [],
+      unlockedAttractions: data.unlockedAttractions || data.purchases || [],
+      unlockedCities: data.unlockedCities || [],
+      unlockedAlbums: data.unlockedAlbums || [],
       favorites: data.favorites || [],
       history: data.history || [],
       orders: data.orders || []
@@ -120,8 +130,11 @@ function isUnlocked(entitlements, attractionId) {
   return Boolean(entitlements && (entitlements.member || hasPurchase(entitlements, attractionId)));
 }
 
-function createOrder(productType, attractionId, callback) {
-  request('/api/miniprogram/orders', 'POST', { productType, ...(attractionId ? { attractionId } : {}) }, (ok, data, res) => {
+function createOrder(productType, target, callback) {
+  const purchaseTarget = target && typeof target === 'object'
+    ? target
+    : (target ? { attractionId: target } : {});
+  request('/api/miniprogram/orders', 'POST', { productType, ...purchaseTarget }, (ok, data, res) => {
     if (!ok) return callback(false, data, res);
     // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
     if (data.simulation) {
@@ -162,4 +175,4 @@ function resetSimulation(callback) {
   });
 }
 
-module.exports = { fetchConfig, startSimulationSession, fetchOrders, fetchOrder, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };
+module.exports = { fetchConfig, productPriceDisplay, startSimulationSession, fetchOrders, fetchOrder, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };

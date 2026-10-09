@@ -88,11 +88,10 @@ function mapManagedImage(path) {
 
 // 后端 cities：mosaic 为图片路径数组
 function adaptCities(remoteCities) {
-  return (remoteCities || []).map((city) => ({
-    ...city,
-    cover: mapImage((city.mosaic || [])[0]),
-    mosaic: (city.mosaic || []).map(mapImage)
-  }));
+  return (remoteCities || []).map((city) => {
+    const mosaic = (Array.isArray(city.mosaic) ? city.mosaic : []).map(mapManagedImage).filter(Boolean).slice(0, 4);
+    return { ...city, cover: mosaic[0] || '', mosaic };
+  });
 }
 
 // 后端 attractions：sizeLabel 可能写作 scale

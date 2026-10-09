@@ -42,13 +42,23 @@
   <!-- 底部双 CTA -->
   <view class="city-cta">
     <view class="cta-buy" hover-class="city-cta-press" bindtap="onBuy">
-      <view class="cta-label">{{i18n.contentPage.buy}}</view>
-      <view wx:if="{{city.priceDisplay}}" class="cta-sub">{{city.priceDisplay}}</view>
+      <view class="cta-label">{{cityUnlocked ? i18n.contentPage.cityUnlocked : i18n.contentPage.buy}}</view>
+      <view wx:if="{{cityUnlocked && cityMember}}" class="cta-sub">{{i18n.paidContent.memberUnlocked}}</view>
+      <view wx:elif="{{cityUnlocked}}" class="cta-sub">{{i18n.contentPage.cityUnlocked}}</view>
+      <view wx:elif="{{cityPriceDisplay}}" class="cta-sub">{{cityPriceDisplay}}</view>
       <view wx:else class="cta-sub">{{i18n.contentPage.priceUnavailable}}</view>
     </view>
     <view class="cta-view" hover-class="city-cta-press" bindtap="onView">
       <view class="cta-label">{{i18n.contentPage.viewSpots}}</view>
       <view class="cta-sub">{{i18n.contentPage.freeBrowse}}</view>
+    </view>
+  </view>
+  <view wx:if="{{pendingSimulationOrder && simulationMode}}" class="city-simulation-overlay" catchtap="noop">
+    <view class="city-simulation-modal" catchtap="noop">
+      <view class="city-simulation-title">{{i18n.paidContent.simulationTitle}}</view>
+      <view class="city-simulation-order">{{city.name}} · {{cityPriceDisplay}}</view>
+      <button class="city-simulation-button" data-outcome="paid" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationSuccess}}</button>
+      <button class="city-simulation-button secondary" data-outcome="failed" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationFailure}}</button>
     </view>
   </view>
 </view>

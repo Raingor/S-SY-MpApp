@@ -21,7 +21,7 @@ function getAccess(id, callback) {
         if (response.statusCode !== 200 || !raw || typeof raw !== 'object') return callback(false, null, response.statusCode);
         const mode = raw.unlockMode;
         callback(true, {
-          mode: ['free', 'attraction', 'membership', 'locked'].includes(mode) ? mode : 'locked',
+          mode: ['free', 'attraction', 'membership', 'album', 'locked'].includes(mode) ? mode : 'locked',
           access: raw.access === 'full' ? 'full' : 'preview',
           reason: raw.reason || '',
           previewUrl: absoluteUrl(raw.previewUrl, base),

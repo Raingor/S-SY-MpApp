@@ -18,6 +18,7 @@ function fullActionText(track, access, messages) {
   if (access && access.access === 'full') return mode === 'free' ? heritage.freeFull || heritage.full || '' : heritage.full || '';
   if (mode === 'membership') return paidContent.member || heritage.unlockRequired || '';
   if (mode === 'attraction') return paidContent.buySpot || heritage.unlockRequired || '';
+  if (mode === 'album') return paidContent.buyAlbum || heritage.unlockRequired || '';
   if (mode === 'free') return heritage.freeFull || heritage.full || '';
   return heritage.unlockRequired || '';
 }
@@ -137,15 +138,15 @@ Page({
     paid.fetchConfig((ok, config) => {
       if (!this.data.showUnlockPaywall) return;
       const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
-      const choices = accessMode === 'attraction' ? ['attraction', 'annualMembership'] : accessMode === 'membership' ? ['annualMembership'] : [];
+      const choices = accessMode === 'attraction' ? ['attraction', 'annualMembership'] : accessMode === 'album' ? ['album', 'annualMembership'] : accessMode === 'membership' ? ['annualMembership'] : [];
       const messages = this.data.i18n.paidContent || {};
       const products = config && config.products || {};
       const unlockOptions = choices.filter((product) => products[product] && products[product].enabled !== false && products[product].price !== undefined && products[product].price !== null)
         .map((product) => ({
           product,
-          title: product === 'attraction' ? messages.buySpot : (products[product].name || messages.memberAnnual || messages.member),
-          description: product === 'attraction' ? messages.buySpotDesc : messages.memberDesc,
-          priceDisplay: `¥${String(products[product].price).replace(/^¥\s*/, '')}`,
+          title: product === 'attraction' ? messages.buySpot : product === 'album' ? messages.buyAlbum : (products[product].name || messages.memberAnnual || messages.member),
+          description: product === 'attraction' ? messages.buySpotDesc : product === 'album' ? messages.buyAlbumDesc : messages.memberDesc,
+          priceDisplay: paid.productPriceDisplay(products[product]),
           featured: product === 'annualMembership'
         }));
       this.setData({ paywallLoading: false, unlockOptions, paidConfig: config || null, simulation: Boolean(config && config.simulation) });
@@ -362,13 +363,13 @@ Page({
   },
   onUnlock(productChoice) {
     const access = this.data.access;
-    if (!access || !['attraction', 'membership'].includes(access.mode)) {
+    if (!access || !['attraction', 'membership', 'album'].includes(access.mode)) {
       const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
       return wx.showToast({ title, icon: 'none' });
     }
-    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : 'annualMembership');
-    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'annualMembership'] : ['annualMembership'];
-    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : access.mode === 'album' ? 'album' : 'annualMembership');
+    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'annualMembership'] : access.mode === 'album' ? ['album', 'annualMembership'] : ['annualMembership'];
+    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId) || (product === 'album' && !this.params.albumId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
     if (!auth.getAccessToken()) {
       this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
       return;
@@ -386,7 +387,8 @@ Page({
   createOrder(product) {
     if (this.data.purchaseLoading) return;
     this.setData({ purchaseLoading: true });
-    paid.createOrder(product, product === 'attraction' ? this.params.attractionId : '', (ok, result) => {
+    const target = product === 'attraction' ? this.params.attractionId : product === 'album' ? { albumId: this.params.albumId } : '';
+    paid.createOrder(product, target, (ok, result) => {
       this.setData({ purchaseLoading: false });
       if (result && result.pendingSimulation && result.order) return this.setData({ pendingOrder: result.order });
       if (!ok) return wx.showToast({ title: this.data.i18n.submitFailed, icon: 'none' });

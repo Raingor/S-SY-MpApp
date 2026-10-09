@@ -6,7 +6,10 @@
       <view class="sy-back-chevron"></view>
     </view>
     <view class="spots-title">{{city.name}}</view>
-    <view class="spots-buy" bindtap="onBuy">{{i18n.contentPage.buySpots}}</view>
+    <view class="spots-buy" bindtap="onBuy">
+      <view>{{cityUnlocked ? i18n.contentPage.cityUnlocked : i18n.contentPage.buySpots}}</view>
+      <view wx:if="{{cityPriceDisplay && !cityUnlocked}}" class="spots-buy-price">{{cityPriceDisplay}}</view>
+    </view>
   </view>
 
   <!-- 景点卡片列表 -->
@@ -34,6 +37,14 @@
   </view>
 
   <view class="spots-footer">{{i18n.commonSlogan}}</view>
+  <view wx:if="{{pendingSimulationOrder && simulationMode}}" class="city-simulation-overlay" catchtap="noop">
+    <view class="city-simulation-modal" catchtap="noop">
+      <view class="city-simulation-title">{{i18n.paidContent.simulationTitle}}</view>
+      <view class="city-simulation-order">{{city.name}} · {{cityPriceDisplay}}</view>
+      <button class="city-simulation-button" data-outcome="paid" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationSuccess}}</button>
+      <button class="city-simulation-button secondary" data-outcome="failed" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationFailure}}</button>
+    </view>
+  </view>
 </view>
 <view wx:else class="spots-empty spots-page-empty">
   <view class="spots-empty-title">{{i18n.contentPage.destinationEmpty}}</view>
