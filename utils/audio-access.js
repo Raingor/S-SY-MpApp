@@ -27,7 +27,8 @@ function getAccess(id, callback) {
           previewUrl: absoluteUrl(raw.previewUrl, base),
           // 即便服务端意外同时回了签名字段，也只有 access=full 才允许客户端消费。
           fullUrl: raw.access === 'full' ? absoluteUrl(raw.fullUrl, base) : '',
-          previewSeconds: Math.min(60, Math.max(0, Number(raw.previewSeconds) || 60))
+          previewSeconds: Math.min(60, Math.max(0, Number(raw.previewSeconds) || 60)),
+          fullUrlValidUntil: raw.access === 'full' && Number(raw.expiresIn) > 0 ? Date.now() + Number(raw.expiresIn) * 1000 : 0
         }, 200);
       },
       fail: () => callback(false, null, 0)

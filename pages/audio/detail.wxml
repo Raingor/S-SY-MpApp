@@ -45,7 +45,7 @@
     <view class="audio-player-controls">
       <view class="audio-skip-control" data-offset="-15" bindtap="onSeekOffset"><text class="audio-skip-icon">↶</text><text class="audio-skip-seconds">15</text></view>
       <view class="audio-track-step audio-track-step-disabled"><text>◀|</text></view>
-      <view class="audio-round-control" bindtap="onPlayerToggle"><text>{{playing ? 'Ⅱ' : '▶'}}</text></view>
+      <view class="audio-round-control" bindtap="onPlayerToggle"><text>{{audioLoading ? '…' : (playing ? 'Ⅱ' : '▶')}}</text></view>
       <view class="audio-track-step audio-track-step-disabled"><text>|▶</text></view>
       <view class="audio-skip-control" data-offset="30" bindtap="onSeekOffset"><text class="audio-skip-icon">↷</text><text class="audio-skip-seconds">30</text></view>
     </view>
