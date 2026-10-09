@@ -55,4 +55,37 @@
       <view wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</view>
     </view>
   </view>
+
+  <view wx:if="{{showUnlockPaywall}}" class="audio-paywall-mask" bindtap="onUnlockPaywallClose" catchtouchmove="noop">
+    <view class="audio-paywall-sheet" catchtap="noop">
+      <view class="audio-paywall-topbar">
+        <view class="audio-paywall-handle"></view>
+        <view class="audio-paywall-close" bindtap="onUnlockPaywallClose">×</view>
+      </view>
+      <view class="audio-paywall-eyebrow">{{i18n.paidContent.paywallEyebrow}}</view>
+      <view class="audio-paywall-title">{{i18n.paidContent.paywallTitle}}</view>
+      <view class="audio-paywall-subtitle">{{i18n.paidContent.paywallSubtitle}}</view>
+      <view class="audio-paywall-feature">
+        <view class="audio-paywall-feature-mark">✦</view>
+        <view class="audio-paywall-feature-copy">
+          <view class="audio-paywall-track-title">{{title}}</view>
+          <view class="audio-paywall-feature-desc">{{i18n.paidContent.paywallFeature}}</view>
+        </view>
+      </view>
+      <view wx:if="{{paywallLoading}}" class="audio-paywall-loading">{{i18n.paidContent.paywallPriceLoading}}</view>
+      <view wx:elif="{{unlockOptions.length}}" class="audio-paywall-options">
+        <view wx:for="{{unlockOptions}}" wx:key="product" class="audio-paywall-plan {{item.featured ? 'audio-paywall-plan-featured' : ''}}" data-product="{{item.product}}" bindtap="onUnlockOptionTap">
+          <view class="audio-paywall-plan-copy">
+            <view class="audio-paywall-plan-title">{{item.title}}<text wx:if="{{item.featured}}" class="audio-paywall-plan-badge">{{i18n.paidContent.paywallRecommended}}</text></view>
+            <view class="audio-paywall-plan-desc">{{item.description}}</view>
+          </view>
+          <view class="audio-paywall-plan-price">{{item.priceDisplay}}<text>›</text></view>
+        </view>
+      </view>
+      <view wx:elif="{{track.unlockMode === 'locked'}}" class="audio-paywall-empty">{{i18n.heritage.previewOnly}}</view>
+      <view wx:else class="audio-paywall-empty">{{i18n.paidContent.paywallUnavailable}}</view>
+      <view class="audio-paywall-footnote">{{i18n.paidContent.paywallFootnote}}</view>
+      <view class="audio-paywall-later" bindtap="onUnlockPaywallClose">{{i18n.paidContent.paywallLater}}</view>
+    </view>
+  </view>
 </view>

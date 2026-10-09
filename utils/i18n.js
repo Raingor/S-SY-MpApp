@@ -336,6 +336,21 @@ Object.keys(heritageTranslations).forEach((locale) => { messages[locale].heritag
 Object.assign(messages['zh-CN'].heritage, { audioGuideUsage: '语音导览使用指南', onlinePreview: '线上预览' });
 Object.assign(messages['zh-TW'].heritage, { audioGuideUsage: '語音導覽使用指南', onlinePreview: '線上預覽' });
 Object.assign(messages.en.heritage, { audioGuideUsage: 'Audio guide instructions', onlinePreview: 'Online preview' });
+Object.assign(messages['zh-CN'].paidContent, {
+  paywallEyebrow: '完整讲解 · 选择你的权益', paywallTitle: '试听已结束', paywallSubtitle: '解锁后，继续聆听完整讲解',
+  paywallFeature: '完整音频 · 随时继续收听', paywallRecommended: '覆盖更多景点', paywallPriceLoading: '正在加载当前权益价格…',
+  paywallUnavailable: '暂时无法获取购买方案，请稍后重试。', paywallFootnote: '选择方案后将验证登录与手机号，再进入支付。', paywallLater: '稍后再听'
+});
+Object.assign(messages['zh-TW'].paidContent, {
+  paywallEyebrow: '完整講解 · 選擇你的權益', paywallTitle: '試聽已結束', paywallSubtitle: '解鎖後，繼續收聽完整講解',
+  paywallFeature: '完整音頻 · 隨時繼續收聽', paywallRecommended: '涵蓋更多景點', paywallPriceLoading: '正在載入目前權益價格…',
+  paywallUnavailable: '暫時無法取得購買方案，請稍後重試。', paywallFootnote: '選擇方案後將驗證登入與手機號，再進入付款。', paywallLater: '稍後再聽'
+});
+Object.assign(messages.en.paidContent, {
+  paywallEyebrow: 'FULL AUDIO · CHOOSE YOUR ACCESS', paywallTitle: 'Your preview has ended', paywallSubtitle: 'Unlock the complete guide and keep listening',
+  paywallFeature: 'Full recording · Resume anytime', paywallRecommended: 'More sights included', paywallPriceLoading: 'Loading current access options…',
+  paywallUnavailable: 'Purchase options are unavailable right now. Try again later.', paywallFootnote: 'Sign-in and phone verification are required before payment.', paywallLater: 'Maybe later'
+});
 Object.assign(messages['zh-CN'].heritage, { demoData: '演示数据', demoRouteMeta: '演示路线 · 非官方推荐', routeDetails: '路线详情', viewGuidePoints: '查看全部讲解点', searchGuidePoints: '搜索讲解点', allGuidePoints: '全部讲解点', hasAudio: '有音频', routeOrderMap: '路线顺序示意 · 非实时地图', openMap: '查看地图', demoAudioPending: '演示条目：Website 尚未发布对应音频，暂不能播放。', demoAudioHint: '此页为功能示意，暂未接入正式音频。' });
 Object.assign(messages['zh-TW'].heritage, { demoData: '示範資料', demoRouteMeta: '示範路線 · 非官方推薦', routeDetails: '路線詳情', viewGuidePoints: '查看全部講解點', searchGuidePoints: '搜尋講解點', allGuidePoints: '全部講解點', hasAudio: '有音頻', routeOrderMap: '路線順序示意 · 非即時地圖', openMap: '查看地圖', demoAudioPending: '示範項目：Website 尚未發布對應音頻，目前不可播放。', demoAudioHint: '此頁為功能示意，尚未接入正式音頻。' });
 Object.assign(messages.en.heritage, { demoData: 'Demo content', demoRouteMeta: 'Demo route · not an official recommendation', routeDetails: 'Route details', viewGuidePoints: 'View all guide points', searchGuidePoints: 'Search guide points', allGuidePoints: 'All guide points', hasAudio: 'Audio available', routeOrderMap: 'Route order diagram · not live navigation', openMap: 'View map', demoAudioPending: 'Demo item: Website has not published its audio yet; playback is unavailable.', demoAudioHint: 'Functional preview only; official audio is not connected.' });

@@ -27,7 +27,8 @@ Page({
     statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
-    fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online'
+    fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
+    showUnlockPaywall: false, paywallLoading: false, unlockOptions: []
   },
   onLoad(options) {
     const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
@@ -108,7 +109,7 @@ Page({
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this._pausePreviewTimer();
     this.stop();
-    this.setData({ access: null, accessLoading: false });
+    this.setData({ access: null, accessLoading: false, showUnlockPaywall: false });
   },
   onUnload() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
@@ -122,16 +123,35 @@ Page({
     this._previewRemainingMs = 0;
     this.setData({ playing: false, fullPlayback: false, previewEnded: true });
     if (this.audio) this.audio.stop();
-    const locked = this.data.track && this.data.track.unlockMode === 'locked';
-    const modal = {
-      title: this.data.i18n.heritage.previewEnded,
-      content: locked ? this.data.i18n.heritage.previewOnly : this.data.i18n.paidContent.trialEndedDesc,
-      showCancel: !locked,
-      success: (choice) => { if (choice.confirm && !locked) this.onFullAccessTap(); }
-    };
-    if (!locked) modal.confirmText = this.data.i18n.heritage.unlockNow;
-    wx.showModal(modal);
+    this.openUnlockPaywall();
   },
+  openUnlockPaywall() {
+    this.setData({ showUnlockPaywall: true, paywallLoading: true, unlockOptions: [] });
+    paid.fetchConfig((ok, config) => {
+      if (!this.data.showUnlockPaywall) return;
+      const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
+      const choices = accessMode === 'attraction' ? ['attraction', 'membership'] : accessMode === 'membership' ? ['membership'] : [];
+      const messages = this.data.i18n.paidContent || {};
+      const products = config && config.products || {};
+      const unlockOptions = choices.filter((product) => products[product] && products[product].price !== undefined && products[product].price !== null)
+        .map((product) => ({
+          product,
+          title: product === 'attraction' ? messages.buySpot : messages.member,
+          description: product === 'attraction' ? messages.buySpotDesc : messages.memberDesc,
+          priceDisplay: `¥${String(products[product].price).replace(/^¥\s*/, '')}`,
+          featured: product === 'membership'
+        }));
+      this.setData({ paywallLoading: false, unlockOptions, paidConfig: config || null, simulation: Boolean(config && config.simulation) });
+    });
+  },
+  onUnlockPaywallClose() { this.setData({ showUnlockPaywall: false }); },
+  onUnlockOptionTap(e) {
+    const product = e.currentTarget.dataset.product;
+    if (!this.data.unlockOptions.some((item) => item.product === product) || this.data.purchaseLoading) return;
+    this.setData({ showUnlockPaywall: false });
+    this.onUnlock(product);
+  },
+  noop() {},
   onBack() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
@@ -141,7 +161,7 @@ Page({
   loadData() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
-    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false, durationSeconds: 0, remainingTime: '0:00' });
+    this.setData({ loading: true, track: null, point: null, access: null, unavailable: false, accessError: false, accessLoading: false, previewEnded: false, demoMode: false, durationSeconds: 0, remainingTime: '0:00', showUnlockPaywall: false, paywallLoading: false, unlockOptions: [] });
     content.loadContent((data, state) => {
       let track = null; let point = null; let pointTracks = []; let spot = null;
       this.albumCover = '';
@@ -200,7 +220,7 @@ Page({
     this.params.trackId = String(id);
     this.stop();
     const track = this.data.pointTracks.find((item) => String(item.id) === String(id));
-    this.setData({ track, access: null, accessLoading: false, previewEnded: false, fullActionText: fullActionText(track, null, this.data.i18n) });
+    this.setData({ track, access: null, accessLoading: false, previewEnded: false, showUnlockPaywall: false, unlockOptions: [], fullActionText: fullActionText(track, null, this.data.i18n) });
     this.localize();
   },
   refreshAccess(onReady, preservePreviewTime) {
@@ -279,7 +299,7 @@ Page({
     if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl || this.data.track.unlockMode === 'locked') return;
     if (this.data.playing && this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     this.refreshAccess((access) => {
-      if (!access.fullUrl) return this.onUnlock();
+      if (!access.fullUrl) return this.openUnlockPaywall();
       this.stop();
       const audio = this.ensureAudioContext();
       audio.src = access.fullUrl;
@@ -287,25 +307,22 @@ Page({
       this.setData({ playing: true, fullPlayback: true, previewEnded: false });
     });
   },
-  onUnlock() {
+  onUnlock(productChoice) {
     const access = this.data.access;
     if (!access || !['attraction', 'membership'].includes(access.mode)) {
       const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
       return wx.showToast({ title, icon: 'none' });
     }
-    if (access.mode === 'attraction' && !this.params.attractionId) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : 'membership');
+    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'membership'] : ['membership'];
+    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
     if (!auth.getAccessToken()) return wx.switchTab({ url: '/pages/profile/profile' });
     auth.ensurePhoneBound((ready) => {
       if (!ready) return;
       paid.fetchConfig((ok, config) => {
-        const product = access.mode === 'attraction' ? 'attraction' : 'membership';
         if (!ok || !config.products || !config.products[product]) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         this.setData({ paidConfig: config, simulation: Boolean(config.simulation) });
-        wx.showModal({
-          title: this.data.i18n.heritage.unlockRequired,
-          content: `${product === 'attraction' ? this.data.i18n.paidContent.buySpot : this.data.i18n.paidContent.member} ¥${config.products[product].price}`,
-          success: (choice) => { if (choice.confirm) this.createOrder(product); }
-        });
+        this.createOrder(product);
       });
     });
   },

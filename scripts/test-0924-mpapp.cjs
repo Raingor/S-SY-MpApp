@@ -32,6 +32,8 @@ const translations = i18nModule.exports;
 for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   const h = translations.getMessages(locale).heritage;
   for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
+  const p = translations.getMessages(locale).paidContent;
+  for (const key of ['paywallTitle', 'paywallSubtitle', 'paywallFeature', 'paywallLater']) assert(p[key], `${locale}: paidContent.${key}`);
 }
 let detailConfig;
 const detailNavigation = [];
@@ -166,7 +168,7 @@ assert.deepEqual(paidStateCalls, { config: 1, entitlements: 1 });
 
 const requests = [];
 const wx = { request: (options) => { requests.push(options); } };
-const auth = { getAccessToken: () => '', isSimulationToken: () => false };
+const auth = { getAccessToken: () => 'fixture-token', isSimulationToken: () => false, ensurePhoneBound(callback) { callback(true); } };
 const access = (() => {
   const file = fs.readFileSync('utils/audio-access.js', 'utf8');
   const module = { exports: {} };
@@ -199,7 +201,7 @@ assert.match(audioDetailMarkup, /class="audio-experience-nav" style="top: \{\{st
 let response = { access: 'preview', unlockMode: 'attraction', previewSeconds: 60, previewUrl: '/preview', fullUrl: null };
 let showToastCount = 0;
 let showModalCount = 0;
-let lastModal;
+const orderAttempts = [];
 let nextTimerId = 1;
 const timers = new Map();
 let backCalled = false;
@@ -207,7 +209,7 @@ const audioWx = {
   getWindowInfo: () => ({ statusBarHeight: 44 }),
   createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, seek(seconds) { this.currentTime = seconds; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
   showToast: () => showToastCount++,
-  switchTab() {}, showModal(options) { showModalCount++; lastModal = options; }
+  switchTab() {}, showModal() { showModalCount++; }
 };
 const content = {
   loadContent(cb) { cb({}, { source: 'remote', status: 'ready' }); },
@@ -221,7 +223,10 @@ vm.runInNewContext(source, {
     if (name.includes('data/content')) return content;
     if (name.includes('utils/i18n')) return { getMessages: () => translations.getMessages('en'), apply: () => translations.getMessages('en') };
     if (name.includes('audio-access')) return { getAccess: (_id, cb) => cb(true, { mode: response.unlockMode, access: response.access, fullUrl: response.access === 'full' ? response.fullUrl : '', previewUrl: response.previewUrl, previewSeconds: Math.min(response.previewSeconds, 60) }, 200) };
-    if (name.includes('paid-content')) return { fetchConfig() { throw Error('No purchase without user interaction'); } };
+    if (name.includes('paid-content')) return {
+      fetchConfig(callback) { callback(true, { simulation: false, products: { attraction: { price: '¥15' }, membership: { price: 99 } } }); },
+      createOrder(product, attractionId, callback) { orderAttempts.push({ product, attractionId }); callback(true, { paymentStatus: 'pending' }); }
+    };
     if (name.includes('auth')) return auth;
     if (name.includes('utils/navigation')) return { goBack() { assert(audio.stopped, 'audio stops before back navigation'); backCalled = true; } };
     return {};
@@ -245,13 +250,17 @@ assert(!instance.data.previewEnded && !instance.data.playing, 'natural preview-s
 assert.equal(timers.size, 1);
 const firstPreviewTimer = [...timers.values()][0]; timers.clear(); firstPreviewTimer.fn();
 assert(audio.stopped && instance.data.previewEnded && !instance.data.playing);
-assert.equal(showModalCount, 1);
-assert.equal(lastModal.title, translations.getMessages('en').heritage.previewEnded);
-assert.equal(lastModal.confirmText, translations.getMessages('en').heritage.unlockNow);
+assert.equal(instance.data.showUnlockPaywall, true);
+assert.equal(instance.data.unlockOptions.length, 2);
+assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥15', 'paywall prices display the currency symbol once');
+assert.equal(showModalCount, 0, 'preview completion does not use the native confirmation modal');
 assert.equal(showToastCount, 0);
 assert.match(audioDetailMarkup, /<view class="audio-player-actions">/, 'unlock action remains visible after preview ends');
-assert.doesNotMatch(audioDetailMarkup, /audio-preview-ended-card/, 'preview-ended guidance is a modal rather than an inline card');
+assert.match(audioDetailMarkup, /class="audio-paywall-sheet"/, 'preview completion opens the custom guided unlock sheet');
+assert.doesNotMatch(audioDetailMarkup, /audio-preview-ended-card/, 'preview-ended guidance is not an inline card');
 assert.match(fs.readFileSync('pages/audio/detail.wxss', 'utf8'), /\.audio-full-action\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;[^}]*justify-content:\s*center;/s, 'the initial unlock button label is centered');
+instance.onUnlockPaywallClose();
+assert.equal(instance.data.showUnlockPaywall, false);
 instance.playPreview();
 audio.currentTime = 0;
 instance.onSeekChange({ detail: { value: 50 } });
@@ -259,8 +268,11 @@ assert(!instance.data.previewEnded && instance.data.playing);
 assert.equal([...timers.values()][0].delay, 10000, 'seeking forward to 50 seconds consumes 50 seconds of preview allowance at 1x');
 const secondPreviewTimer = [...timers.values()][0]; timers.clear(); secondPreviewTimer.fn();
 assert(instance.data.previewEnded && !instance.data.playing);
-assert.equal(showModalCount, 2);
-assert.equal(showToastCount, 0);
+assert.equal(instance.data.showUnlockPaywall, true);
+instance.onUnlockOptionTap({ currentTarget: { dataset: { product: 'attraction' } } });
+assert.deepEqual(orderAttempts[0], { product: 'attraction', attractionId: 'sight-1' }, 'custom paywall option reaches the existing single-sight order flow');
+assert.equal(showModalCount, 0);
+assert.equal(showToastCount, 1, 'existing order flow reports its payment-pending status');
 instance.playFull();
 assert(!instance.data.fullPlayback);
 response = { ...response, access: 'full', fullUrl: 'https://example.com/signed' };
