@@ -37,12 +37,29 @@
   </view>
 
   <view class="spots-footer">{{i18n.commonSlogan}}</view>
-  <view wx:if="{{pendingSimulationOrder && simulationMode}}" class="city-simulation-overlay" catchtap="noop">
-    <view class="city-simulation-modal" catchtap="noop">
-      <view class="city-simulation-title">{{i18n.paidContent.simulationTitle}}</view>
-      <view class="city-simulation-order">{{city.name}} · {{cityPriceDisplay}}</view>
-      <button class="city-simulation-button" data-outcome="paid" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationSuccess}}</button>
-      <button class="city-simulation-button secondary" data-outcome="failed" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationFailure}}</button>
+  <view wx:if="{{showCityPaywall}}" class="city-paywall-overlay" catchtap="onCityPaywallClose">
+    <view class="city-paywall-sheet" catchtap="noop">
+      <view class="city-paywall-topbar"><view class="city-paywall-handle"></view><view class="city-paywall-close" bindtap="onCityPaywallClose">×</view></view>
+      <view class="city-paywall-eyebrow">{{i18n.contentPage.cityPaywallEyebrow}}</view>
+      <view class="city-paywall-title">{{city.name}} · {{i18n.contentPage.cityPaywallTitle}}</view>
+      <view class="city-paywall-subtitle">{{i18n.contentPage.cityPaywallSubtitle}}</view>
+      <view wx:if="{{!pendingSimulationOrder}}" class="city-purchase-options">
+        <view wx:for="{{cityPurchaseOptions}}" wx:key="product" class="city-purchase-option {{item.featured ? 'featured' : ''}} {{!item.available ? 'unavailable' : ''}}" data-product="{{item.product}}" bindtap="onCityProductTap">
+          <view class="city-purchase-copy">
+            <view class="city-purchase-name">{{item.title}}<text wx:if="{{item.featured}}" class="city-purchase-badge">VIP</text></view>
+            <view class="city-purchase-desc">{{item.description}}</view>
+          </view>
+          <view class="city-purchase-price">{{item.priceDisplay}} <text>›</text></view>
+        </view>
+      </view>
+      <view wx:if="{{pendingSimulationOrder && simulationMode}}" class="city-simulation-box">
+        <view class="city-simulation-title">{{i18n.paidContent.simulationTitle}}</view>
+        <view class="city-simulation-order">{{selectedCityProductTitle}}</view>
+        <button class="city-simulation-button" data-outcome="paid" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationSuccess}}</button>
+        <button class="city-simulation-button secondary" data-outcome="failed" bindtap="onSimulationPay" loading="{{purchaseLoading}}">{{i18n.paidContent.simulationFailure}}</button>
+      </view>
+      <view wx:if="{{!pendingSimulationOrder}}" class="city-paywall-footnote">{{i18n.contentPage.cityPaywallFootnote}}</view>
+      <view wx:if="{{!pendingSimulationOrder}}" class="city-paywall-later" bindtap="onCityPaywallClose">{{i18n.contentPage.cityPaywallClose}}</view>
     </view>
   </view>
 </view>

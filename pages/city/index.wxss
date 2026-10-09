@@ -220,8 +220,27 @@ page { background: #10131A; }
   font-size: 28rpx;
 }
 
-.city-simulation-overlay { position: fixed; z-index: 20; inset: 0; display: flex; align-items: center; justify-content: center; padding: 40rpx; background: rgba(0, 0, 0, 0.68); }
-.city-simulation-modal { width: 100%; box-sizing: border-box; padding: 36rpx; border-radius: 24rpx; background: #F8F7F3; color: #26333B; }
+.city-paywall-overlay { position: fixed; z-index: 20; inset: 0; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.62); }
+.city-paywall-sheet { width: 100%; max-height: 84vh; overflow-y: auto; box-sizing: border-box; padding: 12rpx 32rpx calc(36rpx + env(safe-area-inset-bottom)); border-radius: 36rpx 36rpx 0 0; background: #F8F7F3; color: #26333B; }
+.city-paywall-topbar { height: 42rpx; display: flex; align-items: center; justify-content: center; position: relative; }
+.city-paywall-handle { width: 68rpx; height: 8rpx; border-radius: 8rpx; background: #D6D5D0; }
+.city-paywall-close { position: absolute; right: 0; top: -4rpx; padding: 8rpx 4rpx; color: #68747A; font-size: 46rpx; line-height: 1; }
+.city-paywall-eyebrow { margin-top: 14rpx; color: #A8894E; font-size: 21rpx; font-weight: 700; letter-spacing: 2rpx; }
+.city-paywall-title { margin-top: 12rpx; color: #202B32; font-size: 38rpx; font-weight: 700; }
+.city-paywall-subtitle { margin-top: 10rpx; color: #7B858A; font-size: 25rpx; }
+.city-purchase-options { margin-top: 28rpx; }
+.city-purchase-option { min-height: 112rpx; display: flex; align-items: center; justify-content: space-between; gap: 18rpx; margin-top: 16rpx; padding: 22rpx 24rpx; border: 2rpx solid #E1E3E2; border-radius: 22rpx; background: #FFFFFF; box-sizing: border-box; }
+.city-purchase-option.featured { border-color: #D4B16C; background: #FFFEFB; }
+.city-purchase-option.unavailable { opacity: 0.72; }
+.city-purchase-copy { flex: 1; min-width: 0; }
+.city-purchase-name { color: #2B3940; font-size: 28rpx; font-weight: 700; }
+.city-purchase-badge { margin-left: 12rpx; padding: 4rpx 11rpx; border-radius: 18rpx; background: #EEE3CC; color: #91713D; font-size: 18rpx; }
+.city-purchase-desc { margin-top: 8rpx; color: #818A8D; font-size: 22rpx; line-height: 1.5; }
+.city-purchase-price { flex-shrink: 0; color: #176BAA; font-size: 31rpx; font-weight: 700; }
+.city-purchase-price text { color: #9AA7AA; font-size: 36rpx; }
+.city-paywall-footnote { margin-top: 22rpx; color: #A0A5A5; font-size: 20rpx; text-align: center; }
+.city-paywall-later { padding: 26rpx 0 2rpx; color: #6F7A7E; font-size: 25rpx; text-align: center; }
+.city-simulation-box { margin-top: 26rpx; padding: 24rpx; border-radius: 20rpx; background: #ECEBE6; }
 .city-simulation-title { font-size: 32rpx; font-weight: 700; }
 .city-simulation-order { margin: 16rpx 0 24rpx; color: #68747A; font-size: 25rpx; }
 .city-simulation-button { margin: 14rpx 0 0; border-radius: 40rpx; background: #176BAA; color: #FFFFFF; font-size: 27rpx; }

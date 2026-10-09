@@ -18,6 +18,9 @@ Page({
     cityPriceDisplay: '',
     cityUnlocked: false,
     cityMember: false,
+    cityPurchaseOptions: [],
+    showCityPaywall: false,
+    selectedCityProductTitle: '',
     purchaseLoading: false,
     simulationMode: false,
     pendingSimulationOrder: null
@@ -88,7 +91,7 @@ Page({
     const cityId = this.cityId;
     cityCommerce.loadCityState(cityId, (state) => {
       if (this.cityId !== cityId) return;
-      this.setData({ cityPriceDisplay: state.priceDisplay, cityUnlocked: state.unlocked, cityMember: state.member, simulationMode: state.simulation });
+      this.setData({ cityPriceDisplay: state.priceDisplay, cityUnlocked: state.unlocked, cityMember: state.member, simulationMode: state.simulation, cityPurchaseOptions: cityCommerce.buildPurchaseOptions(state.products, this.data.city && this.data.city.name, this.data.i18n.contentPage) });
     });
   },
 
@@ -109,34 +112,56 @@ Page({
     wx.switchTab({ url: '/pages/index/index' });
   },
 
-  // 城市导览包由服务端按 cityId 计价。
+  // 先展示城市包和年会员权益，再由用户选择购买方案。
   onBuy() {
     const city = this.data.city;
     if (!city) return;
     if (this.data.cityUnlocked) return wx.showToast({ title: this.data.i18n.contentPage.cityUnlocked, icon: 'none' });
     if (this.data.purchaseLoading) return;
+    const fallbackOptions = cityCommerce.buildPurchaseOptions({}, city.name, this.data.i18n.contentPage);
+    this.setData({ showCityPaywall: true, pendingSimulationOrder: null, cityPurchaseOptions: this.data.cityPurchaseOptions.length ? this.data.cityPurchaseOptions : fallbackOptions });
+    cityCommerce.loadCityState(city.id, (state) => {
+      const cityPurchaseOptions = cityCommerce.buildPurchaseOptions(state.products, city.name, this.data.i18n.contentPage);
+      this.setData({ cityPurchaseOptions, simulationMode: state.simulation });
+    });
+  },
+
+  onCityProductTap(e) {
+    const productType = e.currentTarget.dataset.product;
+    if (!this.data.cityPurchaseOptions.some((item) => item.product === productType && item.available) || this.data.purchaseLoading) {
+      return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
+    }
     auth.ensurePhoneBound(() => {
-      this.setData({ purchaseLoading: true });
+      const city = this.data.city;
+      if (!city) return;
+      const selectedOption = this.data.cityPurchaseOptions.find((item) => item.product === productType);
+      this.setData({ purchaseLoading: true, selectedCityProductTitle: selectedOption.title });
       paid.fetchConfig((ok, config) => {
-        const product = config && config.products && config.products.city;
+        const product = config && config.products && config.products[productType];
         if (!ok || !product || product.enabled === false) {
           this.setData({ purchaseLoading: false });
           return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         }
-        paid.createOrder('city', { cityId: city.id }, (created, result) => {
+        const target = productType === 'city' ? { cityId: city.id } : '';
+        paid.createOrder(productType, target, (created, result) => {
           this.setData({ purchaseLoading: false, simulationMode: Boolean(config.simulation) });
           if (result && result.pendingSimulation && result.order) return this.setData({ pendingSimulationOrder: result.order });
           if (!created) return wx.showModal({ title: this.data.i18n.submitFailed, content: result && (result.error || result.message) || this.data.i18n.contentPage.cityPurchaseFailed, confirmText: this.data.i18n.know, showCancel: false });
           if (result && result.paymentStatus === 'pending') {
+            this.setData({ showCityPaywall: false });
             this.refreshCityCommerce();
             return wx.showToast({ title: this.data.i18n.paidContent.paymentPending, icon: 'none' });
           }
-          this.setData({ pendingSimulationOrder: null });
+          this.setData({ showCityPaywall: false, pendingSimulationOrder: null });
           this.refreshCityCommerce();
-          wx.showToast({ title: this.data.i18n.paidContent.purchased, icon: 'success' });
+          wx.showToast({ title: productType === 'annualMembership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
         });
       });
     });
+  },
+
+  onCityPaywallClose() {
+    if (!this.data.purchaseLoading) this.setData({ showCityPaywall: false, pendingSimulationOrder: null });
   },
 
   onSimulationPay(e) {
@@ -149,8 +174,9 @@ Page({
       if (!ok) return wx.showToast({ title: this.data.i18n.submitFailed, icon: 'none' });
       this.setData({ pendingSimulationOrder: null });
       if (outcome === 'failed') return wx.showToast({ title: this.data.i18n.paidContent.simulationFailure, icon: 'none' });
+      this.setData({ showCityPaywall: false });
       this.refreshCityCommerce();
-      wx.showToast({ title: this.data.i18n.paidContent.purchased, icon: 'success' });
+      wx.showToast({ title: order.productType === 'annualMembership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
     });
   },
 
