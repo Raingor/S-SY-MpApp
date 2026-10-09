@@ -16,7 +16,7 @@
               <view wx:if="{{memberStatus}}" class="member-badge">✦ VIP</view>
             </view>
             <view class="verified-row">
-              <view class="verified">{{phoneBound ? i18n.profile.phoneBound : i18n.profile.phoneRequired}}<text wx:if="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text></view>
+              <view class="verified"><text wx:if="{{!phoneBound}}">{{i18n.profile.phoneRequired}}</text><text wx:if="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}</text><text wx:elif="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text><text wx:elif="{{phoneBound}}">{{i18n.profile.phoneBound}}</text></view>
               <text class="edit-profile" bindtap="onEditProfile">{{i18n.profile.change}}</text>
             </view>
             <view wx:if="{{memberStatus}}" class="member-actions-row"><block wx:for="{{membershipProducts}}" wx:key="productType"><view wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini {{membershipLoading || !membershipCanRenew ? 'member-renew-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" role="button" aria-label="{{i18n.paidContent.renewMembership}}">{{i18n.paidContent.renewShort}}</view></block></view>
