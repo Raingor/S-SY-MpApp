@@ -88,6 +88,8 @@ function fetchEntitlements(callback) {
       simulation: Boolean(data.simulation),
       member: Boolean(data.member || data.isMember || data.membership),
       memberLabel: data.memberLabel || '',
+      memberExpiresAt: data.memberExpiresAt || '',
+      membershipCanRenew: data.membershipCanRenew !== false,
       purchases: data.purchases || data.unlockedAttractions || [],
       favorites: data.favorites || [],
       history: data.history || [],

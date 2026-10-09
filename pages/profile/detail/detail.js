@@ -44,7 +44,7 @@ function formatDateTime(value) {
 function paymentOrderView(item, copy) {
   return {
     ...item,
-    displayTitle: item.name || (item.productType === 'membership' ? copy.paidContent.member : copy.paidContent.video),
+    displayTitle: item.name || (['membership', 'annualMembership'].includes(item.productType) ? copy.paidContent.member : copy.paidContent.video),
     displayStatus: paymentStatus(item.status, copy.profileDetail),
     displayCreated: formatDateTime(item.createdAt),
     displayPaid: formatDateTime(item.paidAt),

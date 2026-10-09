@@ -14,6 +14,10 @@ Page({
     authLoading: false,
     membershipConfigured: false,
     membershipLoading: false,
+    membershipProducts: [],
+    memberHeadline: '',
+    membershipCanRenew: true,
+    memberDescription: '',
     simulationEnabled: false,
     simulationPhone: '13800138000',
     simulationLoading: false,
@@ -116,11 +120,20 @@ Page({
   },
 
   loadKnowledgeState() {
-    paidContent.fetchConfig((ok, config) => this.setData({ membershipConfigured: ok || config.configured }));
+    paidContent.fetchConfig((ok, config) => {
+      const products = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType));
+      this.setData({ membershipConfigured: ok || config.configured, membershipProducts: products, memberHeadline: products[0] && products[0].name || this.data.i18n.paidContent.member });
+    });
     paidContent.fetchEntitlements((ok, entitlements) => {
       const copy = this.data.i18n.paidContent;
+      const expires = String(entitlements.memberExpiresAt || '').slice(0, 10);
+      const annual = Boolean(entitlements.memberExpiresAt);
+      const memberStatus = entitlements.member ? `${annual ? copy.memberAnnual : copy.memberLifetime}${expires ? ` · ${expires}` : ''}` : '';
+      const memberDescription = entitlements.member && annual ? (copy.memberExpires || 'Active through {date}').replace('{date}', expires) : entitlements.member ? copy.memberUnlocked : copy.memberDesc;
       this.setData({
-        memberStatus: entitlements.member ? copy.memberUnlocked : '',
+        memberStatus,
+        membershipCanRenew: entitlements.membershipCanRenew !== false,
+        memberDescription,
         purchasedCount: (entitlements.purchases || []).length,
         favoriteCount: (entitlements.favorites || []).length,
         historyCount: (entitlements.history || []).length
@@ -130,7 +143,7 @@ Page({
         const attraction = item.attractionId ? content.getAttraction(item.attractionId) : null;
         return {
           id: item.orderId || item.attractionId || item.productType,
-          title: item.productType === 'membership' ? copy.member : (attraction && attraction.name) || item.attractionId || copy.video,
+          title: item.name || (['membership', 'annualMembership'].includes(item.productType) ? copy.member : (attraction && attraction.name) || item.attractionId || copy.video),
           status: item.status || 'paid',
           purchasedAt: item.purchasedAt || ''
         };
@@ -196,7 +209,9 @@ Page({
     wx.navigateTo({ url: '/pages/profile/edit/edit' });
   },
 
-  onKnowledgeTap() {
+  onKnowledgeTap(e) {
+    const productType = e && e.currentTarget && e.currentTarget.dataset.productType;
+    if (!productType) return;
     if (!this.data.membershipConfigured) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
     if (!auth.getAccessToken()) return this.onWechatLogin();
     if (!this.data.phoneBound) {
@@ -210,9 +225,9 @@ Page({
         }
       });
     }
-    if (this.data.memberStatus || this.data.membershipLoading) return;
+    if (!this.data.membershipCanRenew || this.data.membershipLoading) return;
     this.setData({ membershipLoading: true });
-    paidContent.createOrder('membership', '', (ok, data) => {
+    paidContent.createOrder(productType, '', (ok, data) => {
       this.setData({ membershipLoading: false });
       if (!ok) {
         if (data && data.code === 'PHONE_BIND_REQUIRED') this.setData({ phoneBound: false });

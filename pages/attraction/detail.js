@@ -27,6 +27,7 @@ Page({
     guideIndex: 0
     ,related: []
     ,paidConfig: { trialSeconds: 0, configured: false }
+    ,membershipProducts: []
     ,entitlements: { member: false, purchases: [] }
     ,isVideoUnlocked: false
     ,trialEnded: false
@@ -164,7 +165,7 @@ Page({
     // These endpoints are only needed by the video-paywall UI. Ordinary attraction details
     // (including local content fixtures) must not call disabled purchase/entitlement APIs.
     if (!this.data.spot || !this.data.spot.videoUrl) return;
-    paidContent.fetchConfig((ok, config) => this.setData({ paidConfig: config, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable }));
+    paidContent.fetchConfig((ok, config) => this.setData({ paidConfig: config, membershipProducts: Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)), simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable }));
     paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
   },
 
@@ -291,7 +292,7 @@ Page({
       }
       this.setData({ showPurchaseModal: false, trialEnded: false, pendingSimulationOrder: null });
       this.loadPaidState();
-      wx.showToast({ title: productType === 'membership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
+      wx.showToast({ title: ['membership', 'annualMembership'].includes(productType) ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
     });
   },
 
@@ -309,7 +310,7 @@ Page({
       }
       this.setData({ showPurchaseModal: false, trialEnded: false, pendingSimulationOrder: null });
       this.loadPaidState();
-      wx.showToast({ title: order.productType === 'membership' ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
+      wx.showToast({ title: ['membership', 'annualMembership'].includes(order.productType) ? this.data.i18n.paidContent.memberUnlocked : this.data.i18n.paidContent.purchased, icon: 'success' });
     });
   },
 
