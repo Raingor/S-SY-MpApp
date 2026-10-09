@@ -165,7 +165,11 @@ Page({
     // These endpoints are only needed by the video-paywall UI. Ordinary attraction details
     // (including local content fixtures) must not call disabled purchase/entitlement APIs.
     if (!this.data.spot || !this.data.spot.videoUrl) return;
-    paidContent.fetchConfig((ok, config) => this.setData({ paidConfig: config, membershipProducts: Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)), simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable }));
+    paidContent.fetchConfig((ok, config) => {
+      const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
+      const membershipProducts = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)).map((product) => ({ ...product, displayName: memberTitle }));
+      this.setData({ paidConfig: config, membershipProducts, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable });
+    });
     paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
   },
 

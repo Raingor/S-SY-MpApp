@@ -34,6 +34,8 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
   const p = translations.getMessages(locale).paidContent;
   for (const key of ['paywallTitle', 'paywallSubtitle', 'paywallFeature', 'paywallLater']) assert(p[key], `${locale}: paidContent.${key}`);
+  for (const key of ['member', 'memberAnnual', 'memberUnlocked']) assert(p[key], `${locale}: annual membership copy ${key}`);
+  assert(!/lifetime|终身|終身/i.test(`${p.member} ${p.memberAnnual} ${p.memberUnlocked}`), `${locale}: current membership offer must not say lifetime`);
 }
 let detailConfig;
 const detailNavigation = [];
@@ -224,7 +226,7 @@ vm.runInNewContext(source, {
     if (name.includes('utils/i18n')) return { getMessages: () => translations.getMessages('en'), apply: () => translations.getMessages('en') };
     if (name.includes('audio-access')) return { getAccess: (_id, cb) => cb(true, { mode: response.unlockMode, access: response.access, fullUrl: response.access === 'full' ? response.fullUrl : '', previewUrl: response.previewUrl, previewSeconds: Math.min(response.previewSeconds, 60) }, 200) };
     if (name.includes('paid-content')) return {
-      fetchConfig(callback) { callback(true, { simulation: false, products: { attraction: { price: '¥15' }, membership: { price: 99 } } }); },
+      fetchConfig(callback) { callback(true, { simulation: false, products: { attraction: { price: '¥9.9', enabled: true }, membership: { name: '终身会员', price: 99, enabled: false }, annualMembership: { name: '年会员', price: 199, enabled: true } } }); },
       createOrder(product, attractionId, callback) { orderAttempts.push({ product, attractionId }); callback(true, { paymentStatus: 'pending' }); }
     };
     if (name.includes('auth')) return auth;
@@ -252,7 +254,11 @@ const firstPreviewTimer = [...timers.values()][0]; timers.clear(); firstPreviewT
 assert(audio.stopped && instance.data.previewEnded && !instance.data.playing);
 assert.equal(instance.data.showUnlockPaywall, true);
 assert.equal(instance.data.unlockOptions.length, 2);
-assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥15', 'paywall prices display the currency symbol once');
+assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥9.9', 'single-sight price uses the configured amount');
+assert.equal(instance.data.unlockOptions[1].product, 'annualMembership', 'paywall offers the annual membership product type');
+assert.equal(instance.data.unlockOptions[1].title, '年会员', 'paywall uses the enabled annual product name');
+assert.equal(instance.data.unlockOptions[1].priceDisplay, '¥199', 'paywall reads the annual membership price');
+assert(!instance.data.unlockOptions.some((option) => option.product === 'membership'), 'disabled lifetime membership is excluded');
 assert.equal(showModalCount, 0, 'preview completion does not use the native confirmation modal');
 assert.equal(showToastCount, 0);
 assert.match(audioDetailMarkup, /<view class="audio-player-actions">/, 'unlock action remains visible after preview ends');
@@ -269,10 +275,12 @@ assert.equal([...timers.values()][0].delay, 10000, 'seeking forward to 50 second
 const secondPreviewTimer = [...timers.values()][0]; timers.clear(); secondPreviewTimer.fn();
 assert(instance.data.previewEnded && !instance.data.playing);
 assert.equal(instance.data.showUnlockPaywall, true);
+instance.onUnlockOptionTap({ currentTarget: { dataset: { product: 'annualMembership' } } });
+assert.deepEqual(orderAttempts[0], { product: 'annualMembership', attractionId: '' }, 'custom paywall annual plan reaches the annual-membership order flow');
 instance.onUnlockOptionTap({ currentTarget: { dataset: { product: 'attraction' } } });
-assert.deepEqual(orderAttempts[0], { product: 'attraction', attractionId: 'sight-1' }, 'custom paywall option reaches the existing single-sight order flow');
+assert.deepEqual(orderAttempts[1], { product: 'attraction', attractionId: 'sight-1' }, 'single-sight option remains available and reaches its existing order flow');
 assert.equal(showModalCount, 0);
-assert.equal(showToastCount, 1, 'existing order flow reports its payment-pending status');
+assert.equal(showToastCount, 2, 'both selected products reach the existing payment-pending order flow');
 instance.playFull();
 assert(!instance.data.fullPlayback);
 response = { ...response, access: 'full', fullUrl: 'https://example.com/signed' };

@@ -26,8 +26,8 @@ let accessReply = 'preview';
 const track = (id, category, association = {}) => ({ id, category, title: id,
   previewUrl: `/api/miniprogram/audio/${id}/preview`, accessUrl: `/api/miniprogram/audio/${id}/access`,
   previewSeconds: 60, durationSeconds: 120, unlockMode: 'free', ...association });
-const albumTrack = track('history-1', 'heritage', { albumId: 'history', attractionId: null });
-const matchingTrack = track('acropolis-1', 'online', { attractionId: 'acropolis', albumId: null, title: '雅典卫城' });
+const albumTrack = track('history-1', 'heritage', { albumId: 'history', attractionId: null, unlockMode: 'attraction' });
+const matchingTrack = track('acropolis-1', 'online', { attractionId: 'acropolis', albumId: null, title: '雅典卫城', unlockMode: 'attraction' });
 const crossTrack = track('other-1', 'online', { attractionId: 'other', albumId: null, title: '雅典卫城' });
 const base = () => ({ settings: {}, countries: [], guides: [], cities: [], routes: [], destinations: [], sampleItineraries: [],
   audioAlbums: [], attractions: [] });
@@ -77,7 +77,7 @@ function pageFrom(relative) {
       if (id.includes('utils/auth')) return { getAccessToken: () => '' };
       if (id.includes('utils/share')) return { buildShareCard: () => ({}) };
       if (id.includes('utils/navigation')) return { goBack() {} };
-      if (id.includes('utils/paid-content')) return {};
+      if (id.includes('utils/paid-content')) return { fetchConfig(callback) { callback(false, { products: {} }); } };
       throw new Error(`unexpected module: ${id}`);
     }
   }, { filename: relative });

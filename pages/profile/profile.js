@@ -121,8 +121,9 @@ Page({
 
   loadKnowledgeState() {
     paidContent.fetchConfig((ok, config) => {
-      const products = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType));
-      this.setData({ membershipConfigured: ok || config.configured, membershipProducts: products, memberHeadline: products[0] && products[0].name || this.data.i18n.paidContent.member });
+      const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
+      const products = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)).map((product) => ({ ...product, displayName: memberTitle }));
+      this.setData({ membershipConfigured: ok || config.configured, membershipProducts: products, memberHeadline: memberTitle });
     });
     paidContent.fetchEntitlements((ok, entitlements) => {
       const copy = this.data.i18n.paidContent;
@@ -143,7 +144,7 @@ Page({
         const attraction = item.attractionId ? content.getAttraction(item.attractionId) : null;
         return {
           id: item.orderId || item.attractionId || item.productType,
-          title: item.name || (['membership', 'annualMembership'].includes(item.productType) ? copy.member : (attraction && attraction.name) || item.attractionId || copy.video),
+          title: ['membership', 'annualMembership'].includes(item.productType) ? copy.memberAnnual : (item.name || (attraction && attraction.name) || item.attractionId || copy.video),
           status: item.status || 'paid',
           purchasedAt: item.purchasedAt || ''
         };

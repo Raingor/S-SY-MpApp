@@ -130,16 +130,16 @@ Page({
     paid.fetchConfig((ok, config) => {
       if (!this.data.showUnlockPaywall) return;
       const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
-      const choices = accessMode === 'attraction' ? ['attraction', 'membership'] : accessMode === 'membership' ? ['membership'] : [];
+      const choices = accessMode === 'attraction' ? ['attraction', 'annualMembership'] : accessMode === 'membership' ? ['annualMembership'] : [];
       const messages = this.data.i18n.paidContent || {};
       const products = config && config.products || {};
-      const unlockOptions = choices.filter((product) => products[product] && products[product].price !== undefined && products[product].price !== null)
+      const unlockOptions = choices.filter((product) => products[product] && products[product].enabled !== false && products[product].price !== undefined && products[product].price !== null)
         .map((product) => ({
           product,
-          title: product === 'attraction' ? messages.buySpot : messages.member,
+          title: product === 'attraction' ? messages.buySpot : (products[product].name || messages.memberAnnual || messages.member),
           description: product === 'attraction' ? messages.buySpotDesc : messages.memberDesc,
           priceDisplay: `¥${String(products[product].price).replace(/^¥\s*/, '')}`,
-          featured: product === 'membership'
+          featured: product === 'annualMembership'
         }));
       this.setData({ paywallLoading: false, unlockOptions, paidConfig: config || null, simulation: Boolean(config && config.simulation) });
     });
@@ -314,14 +314,14 @@ Page({
       const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
       return wx.showToast({ title, icon: 'none' });
     }
-    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : 'membership');
-    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'membership'] : ['membership'];
+    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : 'annualMembership');
+    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'annualMembership'] : ['annualMembership'];
     if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
     if (!auth.getAccessToken()) return wx.switchTab({ url: '/pages/profile/profile' });
     auth.ensurePhoneBound((ready) => {
       if (!ready) return;
       paid.fetchConfig((ok, config) => {
-        if (!ok || !config.products || !config.products[product]) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
+        if (!ok || !config.products || !config.products[product] || config.products[product].enabled === false) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         this.setData({ paidConfig: config, simulation: Boolean(config.simulation) });
         this.createOrder(product);
       });
