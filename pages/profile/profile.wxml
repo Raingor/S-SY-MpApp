@@ -13,11 +13,11 @@
             <view class="nick-row">
               <text class="nick {{memberStatus ? 'nick-member' : ''}}">{{user.nickname}}</text>
               <view wx:if="{{memberStatus}}" class="member-badge">✦ VIP</view>
+              <block wx:if="{{memberStatus}}" wx:for="{{membershipProducts}}" wx:key="productType"><view wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini {{membershipLoading || !membershipCanRenew ? 'member-renew-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" role="button" aria-label="{{i18n.paidContent.renewMembership}}">{{i18n.paidContent.renewShort}}</view></block>
             </view>
             <view class="verified-row">
-              <view class="verified"><text wx:if="{{!phoneBound}}">{{i18n.profile.phoneRequired}}</text><text wx:if="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}</text><text wx:elif="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text><text wx:elif="{{phoneBound}}">{{i18n.profile.phoneBound}}</text></view>
+              <view class="verified"><text wx:if="{{!phoneBound}}">{{i18n.profile.phoneRequired}}</text><text wx:if="{{user.phoneFull && phoneBound}}">{{user.phoneFull}}</text><text wx:elif="{{user.phoneMasked && phoneBound}}">{{user.phoneMasked}}</text><text wx:elif="{{user.phoneMasked}}"> · {{user.phoneMasked}}</text><text wx:elif="{{phoneBound}}">{{i18n.profile.phoneBound}}</text></view>
             </view>
-            <view wx:if="{{memberStatus}}" class="member-actions-row"><block wx:for="{{membershipProducts}}" wx:key="productType"><view wx:if="{{item.productType === 'annualMembership'}}" class="member-renew-mini {{membershipLoading || !membershipCanRenew ? 'member-renew-disabled' : ''}}" data-product-type="{{item.productType}}" bindtap="onKnowledgeTap" role="button" aria-label="{{i18n.paidContent.renewMembership}}">{{i18n.paidContent.renewShort}}</view></block></view>
           </view>
         </view>
 
