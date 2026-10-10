@@ -83,7 +83,7 @@ Page({
     return {
       title: (city ? city.name + ' · ' : '') + this.data.i18n.commonSlogan,
       path: '/pages/city/index?id=' + (city ? city.id : ''),
-      imageUrl: city ? city.cover : undefined
+      imageUrl: city ? city.coverImage : undefined
     };
   },
 

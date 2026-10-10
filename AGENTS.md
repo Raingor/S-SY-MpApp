@@ -4,6 +4,10 @@
 
 This is a native WeChat Mini Program. Routing and lifecycle are in `app.json` and `app.js`; shared styles are in `app.wxss` and `styles/`. Page files (`.js`, `.wxml`, `.wxss`, `.json`) live under `pages/<page>/`. Shared content is in `data/`, helpers in `utils/`, navigation in `custom-tab-bar/`, media in `assets/images/`, and checks/utilities in `scripts/`. `project.config.json` excludes development files from uploads.
 
+## Repository Boundary
+
+Operate only in this `S-SY-MpApp` repository. Do not read, edit, build, test, fetch/pull, commit/push, or otherwise operate in `S-SY-Website` or any other repository. This prohibition includes Website APIs, admin pages, and production systems. If an MpApp task depends on Website-side changes or data, explain the dependency and hand it off to the Website session; do not perform cross-repository work.
+
 ## Development and Validation
 
 There is no root `package.json`; import the repository root into WeChat Developer Tools. Run a focused Node check with `node scripts/test-knowledge-panels.cjs` (replace with the relevant script). Run all checks with:

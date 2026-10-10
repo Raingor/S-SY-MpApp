@@ -8,18 +8,14 @@
     <view class="city-mark">✦</view>
   </view>
 
-  <!-- 拼贴 Mosaic 主视觉 + 暗色遮罩 + 大字标题 -->
-  <view class="city-mosaic">
+  <!-- 使用 Website cities.coverImage 单图作为城市主视觉 -->
+  <view class="city-cover-hero">
     <image wx:if="{{city.coverImage}}" class="city-cover-image" src="{{city.coverImage}}" mode="aspectFill" />
-    <view wx:else class="mosaic-grid">
-      <view class="mosaic-cell" wx:for="{{city.mosaic}}" wx:key="*this">
-        <image src="{{item}}" mode="aspectFill" />
-      </view>
-    </view>
-    <view class="mosaic-mask"></view>
-    <view class="mosaic-title-wrap">
-      <view class="mosaic-title serif">{{city.name}}</view>
-      <view class="mosaic-subtitle">{{city.subtitle}}</view>
+    <view wx:else class="city-cover-placeholder"></view>
+    <view class="city-cover-mask"></view>
+    <view class="city-title-wrap">
+      <view class="city-title serif">{{city.name}}</view>
+      <view class="city-subtitle">{{city.subtitle}}</view>
     </view>
   </view>
 

@@ -21,49 +21,37 @@ page { background: #10131A; }
   font-size: 26rpx;
 }
 
-/* ===== 拼贴 Mosaic ===== */
-.city-mosaic {
+/* ===== Website 城市单图封面 ===== */
+.city-cover-hero {
   position: relative;
+  min-height: 510rpx;
   margin: 8rpx 24rpx 0;
   overflow: hidden;
   border-radius: 28rpx;
+  background: #20242B;
 }
 
 .city-cover-image {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 510rpx;
 }
 
-.mosaic-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10rpx;
-}
-
-.mosaic-cell {
-  width: calc((100% - 20rpx) / 3);
-  height: 250rpx;
-}
-
-.mosaic-cell:nth-child(1) { width: calc((100% - 20rpx) / 3 * 2); height: 510rpx; }
-.mosaic-cell:nth-child(4) { width: calc((100% - 20rpx) / 3 * 2); }
-
-.mosaic-cell image {
-  width: 100%;
-  height: 100%;
-  display: block;
+.city-cover-placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #242A33, #151920);
 }
 
 /* 暗色渐变遮罩 */
-.mosaic-mask {
+.city-cover-mask {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(16, 19, 26, 0.18) 0%, rgba(16, 19, 26, 0.42) 55%, rgba(16, 19, 26, 0.9) 100%);
 }
 
-.mosaic-title-wrap {
+.city-title-wrap {
   position: absolute;
   left: 0;
   right: 0;
@@ -72,13 +60,13 @@ page { background: #10131A; }
   text-align: center;
 }
 
-.mosaic-title {
+.city-title {
   font-size: 88rpx;
   line-height: 1.15;
   text-shadow: 0 6rpx 24rpx rgba(0, 0, 0, 0.6);
 }
 
-.mosaic-subtitle {
+.city-subtitle {
   margin-top: 8rpx;
   color: rgba(255, 255, 255, 0.72);
   font-size: 28rpx;

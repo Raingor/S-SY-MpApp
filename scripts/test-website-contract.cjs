@@ -22,7 +22,11 @@ const content = loadModule(path.resolve(__dirname, '../data/content.js'));
 // 同时验证双 images/ 折叠、绝对 URL 保留、可空回退、暂无景点的 mykonos。
 const websiteFixture = {
   countries: [{ id: 'greece', name: '希腊' }],
-  cities: [{ id: 'athens' }, { id: 'mykonos' }], guides: [], routes: [], sampleItineraries: [],
+  cities: [
+    { id: 'athens', name: '雅典', coverImage: './images/athens-cover.webp', mosaic: ['./images/mosaic-tile-1.jpg', './images/mosaic-tile-2.jpg'] },
+    { id: 'delphi', name: '德尔斐', coverImage: './images/delphi-attraction-cover.webp', mosaic: ['./images/unused-mosaic.jpg'] },
+    { id: 'mykonos', name: '米克诺斯' }
+  ], guides: [], routes: [], sampleItineraries: [],
   destinationCategories: [
     { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage', sort: 20, enabled: true },
     { key: 'island', name: '海岛度假', nameTw: '海島度假', nameEn: 'Island escapes', sort: 10, enabled: true },
@@ -75,6 +79,13 @@ async function main() {
   content.loadContent(() => {}, true);
   await p;
   const data = content.getCountries ? null : null; // cache already set
+  const athensCity = content.getCities().find((city) => city.id === 'athens');
+  assert.equal(athensCity.coverImage, 'https://content.example/images/athens-cover.webp', 'Website dedicated city coverImage is normalized and preferred');
+  assert.equal(athensCity.cover, athensCity.coverImage, 'city tile cover uses the dedicated Website city cover, not mosaic tiles');
+  assert.deepEqual(athensCity.mosaic, ['https://content.example/images/mosaic-tile-1.jpg', 'https://content.example/images/mosaic-tile-2.jpg'], 'mosaic remains a separate Website field');
+  const delphiCity = content.getCities().find((city) => city.id === 'delphi');
+  assert.equal(delphiCity.coverImage, 'https://content.example/images/delphi-attraction-cover.webp', 'Website associated-attraction fallback is consumed as the city coverImage');
+  assert.equal(delphiCity.cover, delphiCity.coverImage, 'city display uses the resolved single cover rather than its mosaic');
   const spot = content.getAttraction('acropolis');
   assert.equal(spot.shareTitle, '雅典卫城 · 众神栖居的圣岩', 'shareTitle 去空格');
   assert.equal(spot.shareImage, 'https://content.example/images/share-acropolis.webp', 'shareImage ./images 归一化');
