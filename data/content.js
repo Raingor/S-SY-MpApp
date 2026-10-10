@@ -135,6 +135,10 @@ function adaptAttractions(remoteAttractions) {
     videoUrl: item.videoUrl || item.video || '',
     videoDuration: Number(item.videoDuration || item.durationSeconds || 0) || 0,
     videoTrialSeconds: Number(item.videoTrialSeconds || item.trialSeconds || 0) || 0,
+    expertVideoUrl: item.expertVideoUrl || (item.expertVideo && item.expertVideo.url) || '',
+    expertVideoCover: item.expertVideoCover || (item.expertVideo && item.expertVideo.cover) || '',
+    expertVideoDuration: Number(item.expertVideoDuration || item.expertVideo?.duration || 0) || 0,
+    expertVideoTrialSeconds: Number(item.expertVideoTrialSeconds || item.expertVideo?.trialSeconds || 0) || 0,
     paidContent: item.paidContent || {},
     logo: mapImage(item.logo),
     highlights: (item.highlights || []).map((h) =>

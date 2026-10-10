@@ -30,6 +30,7 @@ Page({
     ,membershipProducts: []
     ,entitlements: { member: false, purchases: [] }
     ,isVideoUnlocked: false
+    ,expertVideoUnlocked: false
     ,trialEnded: false
     ,showPurchaseModal: false
     ,trialLabel: ''
@@ -136,6 +137,12 @@ Page({
     });
     const highlights = (spot.highlights || []).map((item) => ({ ...item, displayName: this.localized(item, 'name'), displayDesc: this.localized(item, 'desc'), hasTarget: Boolean(item.exhibitId && exhibits.some((point) => String(point.id) === String(item.exhibitId))) }));
     const localizedSpot = { ...spot, name: this.localized(spot, 'name'), summary: this.localized(spot, 'summary'), highlights, summaryIsDemo: spot.summaryIsDemo === true };
+    this.setData({
+      expertVideoUrl: spot.expertVideoUrl || '',
+      expertVideoCover: spot.expertVideoCover || '',
+      expertVideoDuration: spot.expertVideoDuration || 0,
+      expertVideoTrialSeconds: spot.expertVideoTrialSeconds || 0
+    });
     const routes = (spot.routes || []).filter((route) => route && route.id && Array.isArray(route.pointIds) && (route.isDemo === true || route.pointIds.some((id) => exhibits.some((point) => String(point.id) === String(id))))).map((route) => ({ ...route, displayTitle: this.localized(route, 'title'), displayDescription: this.localized(route, 'description'), displayImage: route.image || spot.image || '' }));
     const onlineGuides = tracks.filter((track) => track.category === 'online');
     const expertGuides = tracks.filter((track) => track.category === 'expert');
@@ -164,13 +171,13 @@ Page({
   loadPaidState() {
     // These endpoints are only needed by the video-paywall UI. Ordinary attraction details
     // (including local content fixtures) must not call disabled purchase/entitlement APIs.
-    if (!this.data.spot || !this.data.spot.videoUrl) return;
+    if (!this.data.spot || !(this.data.spot.videoUrl || this.data.spot.expertVideoUrl)) return;
     paidContent.fetchConfig((ok, config) => {
       const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
       const membershipProducts = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)).map((product) => ({ ...product, displayName: memberTitle }));
       this.setData({ paidConfig: config, membershipProducts, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable });
     });
-    paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
+    paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId), expertVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
   },
 
   localized(item, key) {
@@ -254,6 +261,7 @@ Page({
 
   onVideoPlay() {
     if (this.data.isVideoUnlocked) return;
+    this._pauseVideoTrial();
     if (!this.data.paidConfig.configured) {
       wx.createVideoContext('knowledge-video', this).pause();
       return wx.showToast({ title: this.data.i18n.paidContent.trialUnavailable, icon: 'none' });
@@ -261,11 +269,39 @@ Page({
     if (this.data.trialEnded) wx.createVideoContext('knowledge-video', this).pause();
   },
 
-  onVideoTimeUpdate(e) {
-    if (this.data.isVideoUnlocked || this.data.trialEnded || !this.data.paidConfig.configured) return;
-    if (Number(e.detail.currentTime || 0) >= this.data.paidConfig.trialSeconds) {
-      wx.createVideoContext('knowledge-video', this).pause();
+  _pauseVideoTrial() { if (this._videoTrialTimer) clearTimeout(this._videoTrialTimer); },
+  onExpertVideoTimeUpdate(e) {
+    if (!this.data.spot || !this.data.spot.expertVideoUrl) return;
+    if (this.data.isVideoUnlocked || this.data.expertVideoUnlocked || this.data.trialEnded || !this.data.paidConfig.configured) return;
+    const seconds = Number(e.detail.currentTime || 0);
+    const limit = this.data.paidConfig.trialSeconds && Math.min(this.data.spot.expertVideoTrialSeconds || 0, this.data.paidConfig.trialSeconds);
+    if (limit && seconds >= limit) {
+      clearTimeout(this._videoTrialTimer);
       this.setData({ trialEnded: true, showPurchaseModal: true });
+      wx.createVideoContext('expert-video', this).pause();
+    }
+  },
+
+  onVideoPlay() {
+    if (this.data.isVideoUnlocked) return;
+    this._pauseVideoTrial();
+    if (!this.data.paidConfig.configured) {
+      wx.createVideoContext('knowledge-video', this).pause();
+      return wx.showToast({ title: this.data.i18n.paidContent.trialUnavailable, icon: 'none' });
+    }
+    if (this.data.trialEnded) wx.createVideoContext('knowledge-video', this).pause();
+  },
+
+  _pauseVideoTrial() { if (this._videoTrialTimer) clearTimeout(this._videoTrialTimer); },
+  onExpertVideoTimeUpdate(e) {
+    if (!this.data.spot || !this.data.spot.expertVideoUrl) return;
+    if (this.data.isVideoUnlocked || this.data.expertVideoUnlocked || this.data.trialEnded || !this.data.paidConfig.configured) return;
+    const seconds = Number(e.detail.currentTime || 0);
+    const limit = this.data.paidConfig.trialSeconds ? Math.min(this.data.spot.expertVideoTrialSeconds || 0, this.data.paidConfig.trialSeconds) : 0;
+    if (limit && seconds >= limit) {
+      clearTimeout(this._videoTrialTimer);
+      this.setData({ trialEnded: true, showPurchaseModal: true });
+      wx.createVideoContext('expert-video', this).pause();
     }
   },
 
