@@ -274,10 +274,10 @@ const firstPreviewTimer = [...timers.values()][0]; timers.clear(); firstPreviewT
 assert(audio.stopped && instance.data.previewEnded && !instance.data.playing);
 assert.equal(instance.data.showUnlockPaywall, true);
 assert.equal(instance.data.unlockOptions.length, 2);
-assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥9.9', 'single-sight price uses the configured amount');
+assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥9.90', 'single-sight price uses the configured amount with two decimals');
 assert.equal(instance.data.unlockOptions[1].product, 'annualMembership', 'paywall offers the annual membership product type');
 assert.equal(instance.data.unlockOptions[1].title, '年会员', 'paywall uses the enabled annual product name');
-assert.equal(instance.data.unlockOptions[1].priceDisplay, '¥199', 'paywall reads the annual membership price');
+assert.equal(instance.data.unlockOptions[1].priceDisplay, '¥199.00', 'paywall reads the annual membership price with two decimals');
 assert(!instance.data.unlockOptions.some((option) => option.product === 'membership'), 'disabled lifetime membership is excluded');
 assert.equal(showModalCount, 0, 'preview completion does not use the native confirmation modal');
 assert.equal(showToastCount, 0);

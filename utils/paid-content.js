@@ -30,11 +30,14 @@ function configFromContent(settings) {
   };
 }
 
+// 展示层统一保留两位小数；后台 price 保持数值类型（如 69.9），不改动公开 API 契约。
 function productPriceDisplay(product) {
   if (!product || product.enabled === false || product.price === undefined || product.price === null || String(product.price).trim() === '') return '';
   const currency = String(product.currency || 'CNY').toUpperCase();
-  const price = String(product.price).replace(/^¥\s*/, '');
-  return currency === 'CNY' ? `¥${price}` : `${currency} ${price}`;
+  const amount = Number(String(product.price).replace(/^¥\s*/, '').replace(/,/g, ''));
+  if (!Number.isFinite(amount)) return '';
+  const formatted = amount.toFixed(2);
+  return currency === 'CNY' ? `¥${formatted}` : `${currency} ${formatted}`;
 }
 
 function fetchConfig(callback) {
