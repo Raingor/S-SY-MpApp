@@ -82,5 +82,34 @@ const content = loadModule('../data/content.js');
   const allTiles = withUnknown.flatMap((g) => g.tiles);
   assert.ok(!allTiles.find((t) => t.id === 'u1'), '未知 type 不进入任何 Tab');
 
-  console.log('PASS: live production contract — enabled destination category tabs, localized label, disabled category removal, unknown type exclusion');
+  // 4) 名导讲解视频字段契约（Website 输出 + MpApp 适配层透传）。
+  const raw = await new Promise((resolve, reject) => {
+    https.get(`${BASE}/api/content?country=greece&includeAttractionDetails=false`, (res) => {
+      let body = '';
+      res.on('data', (c) => { body += c; });
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch (e) { reject(e); } });
+    }).on('error', reject);
+  });
+  const rawAttractions = raw.attractions || [];
+  assert.ok(rawAttractions.length > 0, '原始响应应包含景点');
+  const videoFieldKeys = ['expertVideoUrl', 'expertVideoCover', 'expertVideoDuration', 'expertVideoTrialSeconds'];
+  assert.ok(rawAttractions.some((a) => videoFieldKeys.some((k) => k in a)), '生产原始响应应包含名导讲解视频字段');
+  for (const a of rawAttractions) {
+    if ('expertVideoUrl' in a) assert.ok(typeof a.expertVideoUrl === 'string' && a.expertVideoUrl.length > 0, `${a.id} expertVideoUrl 仅在非空时输出`);
+    if ('expertVideoCover' in a) assert.ok(typeof a.expertVideoCover === 'string' && a.expertVideoCover.length > 0, `${a.id} expertVideoCover 仅在非空时输出`);
+    if ('expertVideoDuration' in a) assert.equal(typeof a.expertVideoDuration, 'number', `${a.id} expertVideoDuration 应为数值`);
+    if ('expertVideoTrialSeconds' in a) assert.equal(typeof a.expertVideoTrialSeconds, 'number', `${a.id} expertVideoTrialSeconds 应为数值`);
+  }
+  // 适配层必须把 video 字段透传到页面层（注入一条真实视频验证）。
+  const seed = { expertVideoUrl: 'https://example.com/expert.mp4', expertVideoCover: 'https://example.com/cover.jpg', expertVideoDuration: 300, expertVideoTrialSeconds: 60 };
+  const seedId = data.attractions[0].id;
+  const seeded = { ...data, attractions: data.attractions.map((a) => (a.id === seedId ? { ...a, ...seed } : a)) };
+  const adaptedSeed = content.getAttraction(seedId, seeded);
+  assert.equal(adaptedSeed.expertVideoUrl, seed.expertVideoUrl, 'adapter 透传 expertVideoUrl');
+  assert.equal(adaptedSeed.expertVideoCover, seed.expertVideoCover, 'adapter 透传 expertVideoCover');
+  assert.equal(adaptedSeed.expertVideoDuration, 300, 'adapter 透传 expertVideoDuration');
+  assert.equal(adaptedSeed.expertVideoTrialSeconds, 60, 'adapter 透传 expertVideoTrialSeconds');
+  assert.equal(typeof content.getAttraction(seedId, data).expertVideoUrl, 'string', '无视频时适配层给空字符串而不是 undefined');
+
+  console.log('PASS: live production contract — destination category tabs, disabled/unknown category handling, expert video field schema and adapter pass-through');
 })().catch((e) => { console.error('FAIL:', e.message); process.exitCode = 1; });
