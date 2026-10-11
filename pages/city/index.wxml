@@ -10,7 +10,7 @@
 
   <!-- 使用 Website cities.coverImage 单图作为城市主视觉 -->
   <view class="city-cover-hero">
-    <image wx:if="{{city.coverImage}}" class="city-cover-image" src="{{city.coverImage}}" mode="aspectFill" />
+    <image wx:if="{{city.coverImage}}" class="city-cover-image" src="{{city.coverImage}}" mode="aspectFill" webp="{{true}}" />
     <view wx:else class="city-cover-placeholder"></view>
     <view class="city-cover-mask"></view>
     <view class="city-title-wrap">

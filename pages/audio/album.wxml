@@ -10,7 +10,7 @@
     <scroll-view class="audio-album-scroll" scroll-y="true" scroll-into-view="{{scrollIntoView}}">
       <view id="album-intro" class="audio-album-overview">
         <view class="audio-album-head">
-          <image wx:if="{{album.cover}}" class="audio-cover" src="{{album.cover}}" mode="aspectFill" />
+          <image wx:if="{{album.cover}}" class="audio-cover" src="{{album.cover}}" mode="aspectFill" webp="{{true}}" />
           <view wx:else class="audio-cover audio-cover-placeholder"><text>希</text></view>
           <view class="audio-album-heading">
             <view class="audio-album-kicker">{{i18n.heritage.history}}</view>

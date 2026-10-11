@@ -12,7 +12,7 @@
   <view wx:elif="{{loggedIn}}" class="content">
     <view class="profile-card card">
       <view class="avatar-picker" aria-label="更换头像">
-        <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <image class="avatar" src="{{avatar}}" mode="aspectFill" webp="{{true}}" />
         <button class="avatar-picker-trigger" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" disabled="{{avatarUploading}}" aria-label="获取微信头像"></button>
         <view class="avatar-edit-badge">{{avatarUploading ? i18n.profile.avatarUploading : i18n.profile.avatarChange}}</view>
       </view>

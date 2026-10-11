@@ -1,7 +1,7 @@
 <view class="itd-page" wx:if="{{itinerary}}">
   <!-- 头图 -->
   <view class="itd-hero">
-    <image class="itd-hero-img" src="{{itinerary.img}}" mode="aspectFill" />
+    <image class="itd-hero-img" src="{{itinerary.img}}" mode="aspectFill" webp="{{true}}" />
     <view class="itd-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="itd-nav sy-nav">
@@ -109,7 +109,7 @@
               bindtap="onSpotTap"
               hover-class="spot-card-press"
             >
-              <image wx:if="{{spot.image}}" class="spot-card-img" src="{{spot.image}}" mode="aspectFill" lazy-load />
+              <image wx:if="{{spot.image}}" class="spot-card-img" src="{{spot.image}}" mode="aspectFill" lazy-load webp="{{true}}" />
               <view wx:else class="spot-card-img spot-card-img-empty"></view>
               <view class="spot-card-mask"></view>
               <view class="spot-card-name">{{spot.name}}</view>

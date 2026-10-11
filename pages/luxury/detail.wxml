@@ -1,6 +1,6 @@
 <view class="lux-detail-page" wx:if="{{detail}}">
   <view class="lux-hero">
-    <image class="lux-hero-image" src="{{detail.image}}" mode="aspectFill" />
+    <image class="lux-hero-image" src="{{detail.image}}" mode="aspectFill" webp="{{true}}" />
     <view class="lux-hero-mask"></view>
     <view style="height: {{statusBarHeight}}px;"></view>
     <view class="lux-nav sy-nav">
@@ -36,7 +36,7 @@
 
     <view class="consultant card">
       <view class="consultant-top" bindtap="onCopyWechat">
-        <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" />
+        <image class="consultant-avatar" src="{{consultant.avatar}}" mode="aspectFill" webp="{{true}}" />
         <view class="consultant-info">
           <view class="consultant-name">{{i18n.forms.consultantTitle}} · {{consultant.name}}</view>
           <view class="consultant-title">{{consultant.title}}</view>
@@ -45,7 +45,7 @@
         </view>
       </view>
       <view class="consultant-qr" bindtap="onPreviewQr">
-        <image class="qr-img" src="{{consultant.qr}}" mode="aspectFit" />
+        <image class="qr-img" src="{{consultant.qr}}" mode="aspectFit" webp="{{true}}" />
         <view class="qr-tip">{{i18n.forms.qrTip}}</view>
       </view>
     </view>

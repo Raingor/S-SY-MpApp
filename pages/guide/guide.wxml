@@ -18,7 +18,7 @@
     <swiper class="guide-banner-swiper" autoplay="{{guideBanners.length > 1}}" circular="{{guideBanners.length > 1}}" interval="4500" duration="550" bindchange="onGuideBannerChange">
       <swiper-item wx:for="{{guideBanners}}" wx:key="id">
         <view class="guide-banner-slide">
-          <image class="guide-banner-image" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" />
+          <image class="guide-banner-image" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" webp="{{true}}" />
           <view class="guide-banner-shade"></view>
           <view wx:if="{{item.title || item.description}}" class="guide-banner-copy">
             <view wx:if="{{item.title}}" class="guide-banner-title serif">{{item.title}}</view>

@@ -8,7 +8,7 @@
   <scroll-view wx:if="{{!loading}}" class="audio-detail-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + 100}}px;">
     <view class="audio-detail-content">
       <view class="audio-player-artwork">
-        <image wx:if="{{cover}}" class="audio-player-cover" src="{{cover}}" mode="aspectFill" />
+        <image wx:if="{{cover}}" class="audio-player-cover" src="{{cover}}" mode="aspectFill" webp="{{true}}" />
         <view wx:else class="audio-player-cover audio-cover-placeholder">
           <view class="audio-wave-mark"><view class="audio-wave-dot"></view><view class="audio-wave-bar audio-wave-bar-short"></view><view class="audio-wave-bar audio-wave-bar-tall"></view><view class="audio-wave-bar audio-wave-bar-mid"></view><view class="audio-wave-bar audio-wave-bar-short"></view></view>
         </view>

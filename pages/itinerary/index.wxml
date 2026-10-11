@@ -19,7 +19,7 @@
   <view class="iti-list">
     <view class="iti-card card" hover-class="card-press" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
       <view class="iti-img-wrap">
-        <image class="iti-img" src="{{item.img}}" mode="aspectFill" />
+        <image class="iti-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" />
         <view wx:if="{{item.days}}" class="iti-tag">{{item.days}}{{locale === 'en' ? ' days' : '天'}}</view>
       </view>
       <view class="iti-body">

@@ -12,7 +12,7 @@
       bindchange="onHeroChange"
     >
       <swiper-item wx:for="{{heroList}}" wx:key="id">
-        <image class="hero-img" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" />
+        <image class="hero-img" src="{{item.img}}" mode="aspectFill" aria-label="{{item.alt || item.title}}" webp="{{true}}" />
       </swiper-item>
     </swiper>
     <view wx:else class="hero-empty">
@@ -63,7 +63,7 @@
         <view wx:if="{{item.key === 'travel-guide'}}" class="entry-compass" aria-label="出行指南图标">
           <view class="entry-compass-needle"></view>
         </view>
-        <image wx:else class="entry-icon-img" src="{{item.iconImage}}" mode="aspectFit" />
+        <image wx:else class="entry-icon-img" src="{{item.iconImage}}" mode="aspectFit" webp="{{true}}" />
       </view>
       <view class="entry-label">{{item.label}}</view>
       <view class="entry-desc">{{item.desc}}</view>
@@ -167,7 +167,7 @@
       <view class="route-scroll-track">
         <view class="route-card card" hover-class="card-press" wx:for="{{routes}}" wx:key="id" data-id="{{item.id}}" bindtap="onRouteTap">
           <view class="route-img-wrap">
-            <image class="route-img" src="{{item.img}}" mode="aspectFill" />
+            <image class="route-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" />
             <view wx:if="{{item.days}}" class="route-tag">{{item.days}}{{locale === 'en' ? ' days' : '天'}}</view>
           </view>
           <view class="route-body">
@@ -205,7 +205,7 @@
     <scroll-view class="lux-scroll" scroll-x="true" enhanced="true" show-scrollbar="false" enable-flex="true">
       <view class="lux-row">
         <view class="lux-card card" hover-class="card-press" wx:for="{{luxuries}}" wx:key="id" data-id="{{item.id}}" bindtap="onLuxuryTap">
-          <image class="lux-img" src="{{item.img}}" mode="aspectFill" />
+          <image class="lux-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" />
           <view class="lux-mask"></view>
           <view class="lux-corner">{{i18n.luxuryTag}}</view>
           <view class="lux-body">

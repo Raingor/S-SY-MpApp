@@ -7,7 +7,7 @@
       <view wx:if="{{loggedIn}}">
         <view class="head-row">
           <view class="avatar-picker" bindtap="onEditProfile" hover-class="avatar-picker-hover" aria-label="{{i18n.profile.editProfile}}">
-            <image class="avatar" src="{{user.avatar}}" mode="aspectFill" />
+            <image class="avatar" src="{{user.avatar}}" mode="aspectFill" webp="{{true}}" />
           </view>
           <view class="head-info">
             <view class="nick-row">
