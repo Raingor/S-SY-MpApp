@@ -111,5 +111,32 @@ const content = loadModule('../data/content.js');
   assert.equal(adaptedSeed.expertVideoTrialSeconds, 60, 'adapter 透传 expertVideoTrialSeconds');
   assert.equal(typeof content.getAttraction(seedId, data).expertVideoUrl, 'string', '无视频时适配层给空字符串而不是 undefined');
 
-  console.log('PASS: live production contract — destination category tabs, disabled/unknown category handling, expert video field schema and adapter pass-through');
+  // 5) 城市页统计数字契约：后台可自定义，有值必为非负 int，空/非法时省略 key；0 是合法自定义值。
+  const rawCities = raw.cities || [];
+  assert.ok(rawCities.length > 0, '原始响应应包含城市');
+  let statValues = 0;
+  for (const city of rawCities) {
+    for (const key of ['museumCount', 'guidePointCount', 'audioMinutes']) {
+      if (key in city) {
+        assert.ok(Number.isInteger(city[key]) && city[key] >= 0, `${city.id} ${key} 必须是非负整数（实际 ${JSON.stringify(city[key])}）`);
+        statValues++;
+      }
+    }
+  }
+  assert.ok(statValues > 0, '至少一个城市配置了统计数字');
+  // 适配层对省略/0/负值的安全降级：空值不渲染为 NaN，0 值保留。
+  const adaptedCity = content.getCities({ ...data, cities: [{ id: 'c1', name: 'C', museumCount: 5, guidePointCount: undefined, audioMinutes: 0 }] })[0];
+  const instance = { ...pageLike };
+  function pageLike() {}
+  const cityStats = (function () {
+    const labels = ['a', 'b', 'c'];
+    const values = [adaptedCity.museumCount, adaptedCity.guidePointCount, adaptedCity.audioMinutes];
+    return values
+      .map((value, index) => ({ value, label: labels[index] }))
+      .filter((item) => item.value !== undefined && item.value !== null && String(item.value).trim() !== '')
+      .map((item) => ({ label: item.label, value: typeof item.value === 'number' ? (Number.isInteger(item.value) ? String(item.value).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : String(item.value)) : String(item.value) }));
+  })();
+  assert.deepEqual(cityStats.map((s) => String(s.value)), ['5', '0'], '省略的 guidePointCount 不渲染，0 值保留（页面 applyCity 同逻辑）');
+
+  console.log('PASS: live production contract — destination category tabs, disabled/unknown category handling, expert video field schema and adapter pass-through, city custom stats normalization');
 })().catch((e) => { console.error('FAIL:', e.message); process.exitCode = 1; });
