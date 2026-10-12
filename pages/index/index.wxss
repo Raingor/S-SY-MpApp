@@ -290,7 +290,7 @@
 
 /* ===== 3. 名人导游推荐 ===== */
 .guide-swiper {
-  height: 252rpx;
+  height: 320rpx;
   margin: 26rpx 32rpx 0;
 }
 
@@ -299,7 +299,7 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 244rpx;
+  height: 312rpx;
   margin: 0;
   padding: 24rpx 24rpx;
   box-sizing: border-box;
@@ -363,19 +363,19 @@
 }
 
 .guide-entry-proof {
+  /* 简介（后台 guides.proof）全文展示：允许换行，不再单行省略。 */
   margin-top: 8rpx;
-  overflow: hidden;
   color: rgba(255, 255, 255, 0.56);
   font-size: 20rpx;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .guide-entry-cta {
   position: relative;
   z-index: 1;
   align-self: flex-end;
-  margin-top: 16rpx;
+  margin-top: auto;
   padding-right: 2rpx;
   color: #E2C47F;
   font-size: 20rpx;

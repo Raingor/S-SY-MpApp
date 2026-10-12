@@ -58,14 +58,21 @@ Page({
   applyCity(city, statusBarHeight) {
     const locale = this.data.locale || i18n.getLocale();
     const labels = locale === 'en' ? ['museums', 'guide points', 'audio minutes'] : (locale === 'zh-TW' ? ['座博物館', '個講解點', '分鐘語音'] : ['座博物館', '個講解點', '分鐘語音']);
+    // 数字均来自后台 city 自定义字段；管理员留空的项直接不展示，避免 undefined/NaN。
+    const rawValues = [city.museumCount, city.guidePointCount, city.audioMinutes];
+    const stats = rawValues
+      .map((value, index) => ({ value, label: labels[index] }))
+      .filter((item) => item.value !== undefined && item.value !== null && String(item.value).trim() !== '')
+      .map((item) => ({
+        label: item.label,
+        value: typeof item.value === 'number'
+          ? (Number.isInteger(item.value) ? String(item.value).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : String(item.value))
+          : String(item.value)
+      }));
     this.setData({
       statusBarHeight: statusBarHeight || this.data.statusBarHeight,
       city,
-      stats: [
-        { value: String(city.museumCount), label: labels[0] },
-        { value: Number(city.guidePointCount).toLocaleString(), label: labels[1] },
-        { value: Number(city.audioMinutes).toLocaleString(), label: labels[2] }
-      ]
+      stats
     });
   },
 
