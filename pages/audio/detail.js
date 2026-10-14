@@ -25,7 +25,7 @@ function fullActionText(track, access, messages) {
 
 Page({
   data: {
-    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
+    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', spotIntro: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, audioLoading: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
@@ -270,7 +270,8 @@ Page({
       durationSeconds: Number(track && track.durationSeconds) || 0,
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
       pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
-      displayLocation
+      displayLocation,
+      spotIntro: localized(this.spot, 'summary', locale)
     });
   },
   onPointTrackTap(e) {

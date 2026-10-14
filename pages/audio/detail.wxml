@@ -5,7 +5,7 @@
     <view class="audio-nav-spacer"></view>
   </view>
 
-  <scroll-view wx:if="{{!loading}}" class="audio-detail-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + 100}}px;">
+  <scroll-view wx:if="{{!loading}}" class="audio-detail-scroll" scroll-y="true" style="padding-top: {{statusBarHeight + 58}}px;">
     <view class="audio-detail-content">
       <view class="audio-player-artwork">
         <image wx:if="{{cover}}" class="audio-player-cover" src="{{cover}}" mode="aspectFill" webp="{{true}}" />
@@ -17,6 +17,11 @@
       <view class="audio-track-heading">
         <view class="audio-track-title">{{title}}</view>
         <view wx:if="{{point.author || displayLocation}}" class="audio-track-subtitle">{{point.author || displayLocation}}</view>
+      </view>
+
+      <view wx:if="{{spotIntro}}" class="audio-attraction-intro">
+        <view class="audio-attraction-intro-label">{{i18n.heritage.attractionIntro}}</view>
+        <view class="audio-attraction-intro-copy">{{spotIntro}}</view>
       </view>
 
       <view wx:if="{{pointTracks.length > 1}}" class="audio-point-tracks">

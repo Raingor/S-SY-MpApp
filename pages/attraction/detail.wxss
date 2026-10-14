@@ -53,6 +53,7 @@ page { background: #111214; }
 .highlight-rail { width: calc(100% + 34rpx); white-space: nowrap; }
 .highlight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18rpx; }
 .highlight-card { display: inline-flex; flex-direction: column; vertical-align: top; width: 430rpx; min-height: 360rpx; margin-right: 18rpx; overflow: hidden; border: 1rpx solid #2c2d32; border-radius: 14rpx; background: #1b1c20; white-space: normal; }
+.highlight-card-no-image { min-height: 0; }
 .highlight-grid .highlight-card { width: 100%; min-width: 0; min-height: 0; margin: 0; box-sizing: border-box; }
 .highlight-card-image { width: 100%; height: 215rpx; background: #24252a; }
 .highlight-card-copy { flex: 1; padding: 21rpx 23rpx 24rpx; }
