@@ -14,15 +14,14 @@ assert.ok(!/white-space\s*:\s*nowrap/.test(proofCss), '简介不再强制单行�
 assert.ok(!/text-overflow\s*:\s*ellipsis/.test(proofCss), '简介不再使用省略号截断');
 assert.ok(/overflow-wrap\s*:\s*anywhere/.test(proofCss), '长英文/无空格内容可换行');
 
-// 卡片要有足够高度容纳全文；CTA 依靠 margin-top:auto 固定在底部。
+// 卡片高度改为按内容自适应（去掉固定高度），仍需容纳多行简介。
 const entryBlock = wxss.match(/\.guide-entry\s*\{[^}]*\}/);
-const swiperBlock = wxss.match(/\.guide-swiper\s*\{[^}]*\}/);
-const entryHeight = Number((entryBlock[0].match(/height\s*:\s*(\d+)rpx/) || [])[1]);
-const swiperHeight = Number((swiperBlock[0].match(/height\s*:\s*(\d+)rpx/) || [])[1]);
-assert.ok(entryHeight >= 300, `卡片高度需容纳多行简介（当前 ${entryHeight}rpx）`);
-assert.ok(swiperHeight >= entryHeight, '轮播高度不得小于卡片高度');
+assert.ok(entryBlock, 'guide-entry 样式必须存在');
+assert.ok(!/height\s*:\s*\d+rpx/.test(entryBlock[0]), '单卡布局不再固定高度，简介多行时自然撑开');
+assert.ok(!wxml.includes('guide-swiper'), '首页不再使用轮播样式展示导游名片');
+assert.ok(!wxml.includes('guide-entry-avatar'), '首页名片不再渲染导师头像');
 const ctaBlock = wxss.match(/\.guide-entry-cta\s*\{[^}]*\}/);
-assert.ok(/margin-top\s*:\s*auto/.test(ctaBlock[0]), 'CTA 保持贴底且不挤压简介空间');
+assert.ok(/margin-top\s*:\s*\d+rpx/.test(ctaBlock[0]), 'CTA 位于简介下方，保持自然间距');
 
 // 简介数据仍完全来自后台 guides.proof。
 assert.ok(wxml.includes('{{item.proof}}'), '首页卡片简介必须来自后台 guides.proof 字段');
@@ -33,4 +32,4 @@ for (const fallback of ['资深定制', '武汉大学']) {
   assert.ok(!wxml.includes(fallback) && !wxss.includes(fallback), `页面不得硬编码简介文案（${fallback}）`);
 }
 
-console.log('PASS: 首页名人导游卡片完整展示后台简介（多行、无截断），高度与贴底 CTA 适配，数据仍来自后台 guides.proof');
+console.log('PASS: 首页导游名片为无头像单卡（非轮播），简介全文展示且数据来自后台 guides.proof');

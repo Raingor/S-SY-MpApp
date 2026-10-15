@@ -288,20 +288,14 @@
 
 
 
-/* ===== 3. 名人导游推荐 ===== */
-.guide-swiper {
-  height: 320rpx;
-  margin: 26rpx 32rpx 0;
-}
-
+/* ===== 3. 名人导游推荐（单卡，无轮播、无头像） ===== */
 .guide-entry {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 312rpx;
-  margin: 0;
-  padding: 24rpx 24rpx;
+  margin: 26rpx 32rpx 0;
+  padding: 26rpx 24rpx 22rpx;
   box-sizing: border-box;
   overflow: hidden;
   background: linear-gradient(135deg, #092B43 0%, #0B3C5D 72%, #1567A8 100%);
@@ -323,17 +317,8 @@
 
 .guide-entry-main {
   display: flex;
-  align-items: center;
-  gap: 20rpx;
+  align-items: stretch;
   min-width: 0;
-}
-
-.guide-entry-avatar {
-  width: 116rpx;
-  height: 116rpx;
-  flex-shrink: 0;
-  border: 3rpx solid #D8B878;
-  border-radius: 50%;
 }
 
 .guide-entry-info {
@@ -375,7 +360,7 @@
   position: relative;
   z-index: 1;
   align-self: flex-end;
-  margin-top: auto;
+  margin-top: 20rpx;
   padding-right: 2rpx;
   color: #E2C47F;
   font-size: 20rpx;
