@@ -63,14 +63,21 @@ Page({
       this.setData({ playing: false });
     });
     this.audio.onError((error) => {
+      // Android may report an error while stopping a stream. Never turn an intentional
+      // stop into a playback failure (or call stop() recursively from onError).
+      if (this._ignoringStopErrors) return;
       this._clearPlaybackStartTimer();
       this._pausePreviewTimer();
-      this.audio.stop();
+      this._stopAudio();
       this.setData({ playing: false, audioLoading: false, accessError: true });
       console.error('[audio] playback failed', error);
       wx.showToast({ title: this.data.i18n.heritage.networkFailed, icon: 'none' });
     });
     return this.audio;
+  },
+  _stopAudio() {
+    this._ignoringStopErrors = true;
+    if (this.audio) this.audio.stop();
   },
   _clearPreviewTimer() {
     if (this._previewTimer) clearTimeout(this._previewTimer);
@@ -129,15 +136,15 @@ Page({
     this._accessWaiters = [];
     this._clearPreviewTimer();
     this._clearPlaybackStartTimer();
-    if (this.audio) { this.audio.stop(); this.audio.destroy(); }
+    if (this.audio) { this._stopAudio(); this.audio.destroy(); }
   },
-  stop(preservePreviewTime) { this._clearPreviewTimer(); this._clearPlaybackStartTimer(); if (!preservePreviewTime) this._previewRemainingMs = null; if (this.audio) this.audio.stop(); this.setData({ playing: false, audioLoading: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
+  stop(preservePreviewTime) { this._clearPreviewTimer(); this._clearPlaybackStartTimer(); if (!preservePreviewTime) this._previewRemainingMs = null; this._stopAudio(); this.setData({ playing: false, audioLoading: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
   stopPreview() {
     if (this.data.previewEnded) return;
     this._clearPreviewTimer();
     this._previewRemainingMs = 0;
     this.setData({ playing: false, fullPlayback: false, previewEnded: true });
-    if (this.audio) this.audio.stop();
+    this._stopAudio();
     this.openUnlockPaywall();
   },
   openUnlockPaywall() {
@@ -400,13 +407,14 @@ Page({
   _playSource(source, fullPlayback) {
     const audio = this.ensureAudioContext();
     this._clearPlaybackStartTimer();
+    this._ignoringStopErrors = false;
     audio.src = source;
     this.setData({ playing: false, audioLoading: true, fullPlayback, previewEnded: false, accessError: false });
     const startingAt = Number(audio.currentTime) || 0;
     audio.play();
     this._playStartTimer = setTimeout(() => {
       if (Number(audio.currentTime) > startingAt + 0.25) return this._clearPlaybackStartTimer();
-      audio.stop();
+      this._stopAudio();
       this._clearPlaybackStartTimer();
       this._pausePreviewTimer();
       this.setData({ playing: false, audioLoading: false, fullPlayback: false, accessError: true });

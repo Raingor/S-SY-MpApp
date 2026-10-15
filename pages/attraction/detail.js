@@ -90,7 +90,14 @@ Page({
     const read = (entry) => entry && typeof entry === 'object' ? String(entry[locale] || entry.zh || '') : '';
     const sections = {};
     for (const [key, value] of Object.entries(page && page.sections || {})) {
-      sections[key] = { title: read(value.label), subtitle: read(value.subtitle), notice: read(value.notice) };
+      const title = read(value.label);
+      const legacyExpertTitle = key === 'expert' && ['名导讲解', '名導講解'].includes(title.trim());
+      const expertLabel = this.data.i18n && this.data.i18n.heritage && this.data.i18n.heritage.expert;
+      sections[key] = {
+        title: legacyExpertTitle && expertLabel ? expertLabel : title,
+        subtitle: read(value.subtitle),
+        notice: read(value.notice)
+      };
     }
     const audioHow = page && page.audioHow || {};
     this.setData({ pageCopy: { sections, audioHow: { steps: (Array.isArray(audioHow.steps) ? audioHow.steps : []).map((step, index) => ({ number: String(index + 1).padStart(2, '0'), text: read(step) })), note: read(audioHow.note) } } });
