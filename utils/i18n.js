@@ -304,10 +304,10 @@ Object.assign(messages['zh-CN'].routeAudio, { more: '更多精彩内容' });
 Object.assign(messages['zh-TW'].routeAudio, { more: '更多精彩內容' });
 Object.assign(messages.en.routeAudio, { more: 'More cultural content' });
 Object.assign(messages['zh-CN'].guide, {
-  services: { title: '古迹讲解，两种方式读懂希腊', offlineTitle: '线下陪同讲解', offlineDesc: '提交意向日期与路线，由顾问确认线下陪同安排。', offlineCta: '填写日期，预约陪同', liveTitle: '线上实时直播', liveDesc: '到达景点后通过手机与顾问实时连线，提交预约后确认安排。', liveCta: '预约线上直播', trialTitle: '名导景点讲解试听', trialDesc: '先免费试听，再进入深度景点讲解。', trialCta: '免费试听更多内容' }
+  services: { title: '古迹讲解，两种方式读懂希腊', offlineTitle: '线下陪同讲解', offlineDesc: '提交意向日期与路线，由顾问确认线下陪同安排。', offlineCta: '填写日期，预约陪同', liveTitle: '线上实时直播', liveDesc: '到达景点后通过手机与顾问实时连线，提交预约后确认安排。', liveCta: '预约线上直播', trialTitle: '名师景点讲解试听', trialDesc: '先免费试听，再进入深度景点讲解。', trialCta: '免费试听更多内容' }
 });
 Object.assign(messages['zh-TW'].guide, {
-  services: { title: '古蹟講解，兩種方式讀懂希臘', offlineTitle: '線下陪同講解', offlineDesc: '提交意向日期與路線，由顧問確認線下陪同安排。', offlineCta: '填寫日期，預約陪同', liveTitle: '線上即時直播', liveDesc: '到達景點後以手機與顧問即時連線，提交預約後確認安排。', liveCta: '預約線上直播', trialTitle: '名導景點講解試聽', trialDesc: '先免費試聽，再進入深度景點講解。', trialCta: '免費試聽更多內容' }
+  services: { title: '古蹟講解，兩種方式讀懂希臘', offlineTitle: '線下陪同講解', offlineDesc: '提交意向日期與路線，由顧問確認線下陪同安排。', offlineCta: '填寫日期，預約陪同', liveTitle: '線上即時直播', liveDesc: '到達景點後以手機與顧問即時連線，提交預約後確認安排。', liveCta: '預約線上直播', trialTitle: '名師景點講解試聽', trialDesc: '先免費試聽，再進入深度景點講解。', trialCta: '免費試聽更多內容' }
 });
 Object.assign(messages.en.guide, {
   services: { title: 'Two ways to understand Greece', offlineTitle: 'In-person accompaniment', offlineDesc: 'Send a preferred date and route; a consultant confirms the in-person arrangements.', offlineCta: 'Choose a date', liveTitle: 'Live online session', liveDesc: 'Connect with a consultant while visiting the sight. Submit a request to confirm arrangements.', liveCta: 'Book a live session', trialTitle: 'Guide audio preview', trialDesc: 'Start with a free preview, then explore the deep sight guides.', trialCta: 'Try the free preview' }
