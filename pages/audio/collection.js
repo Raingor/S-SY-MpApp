@@ -70,7 +70,10 @@ Page({
       const matchesFilter = this.data.filter !== 'audio' || item.hasAudio;
       return matchesQuery && matchesFilter;
     });
-    this.setData({ visibleItems: items });
+    // Preserve the API order within each group, including after search/audio filtering.
+    const pinnedItems = items.filter((item) => item.isPinned === true);
+    const regularItems = items.filter((item) => item.isPinned !== true);
+    this.setData({ visibleItems: pinnedItems.concat(regularItems) });
   },
   onItemTap(e) {
     if (this.data.loading) return;
