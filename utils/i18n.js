@@ -386,6 +386,22 @@ Object.assign(messages['zh-CN'].heritage, { moreCities: '更多城市', collapse
 Object.assign(messages['zh-TW'].heritage, { moreCities: '更多城市', collapseCities: '收起城市' });
 Object.assign(messages.en.heritage, { moreCities: 'More cities', collapseCities: 'Show less' });
 
+messages['zh-CN'].homeChannels = {
+  label: '视频号', title: '在视频里，看见希腊',
+  description: '跟随希腊旅行管家，发现风景与人文', action: '打开希腊旅行管家视频号',
+  unsupported: '请更新微信后查看视频号', openFailed: '暂时无法打开视频号，请稍后重试'
+};
+messages['zh-TW'].homeChannels = {
+  label: '視頻號', title: '在影片裡，看見希臘',
+  description: '跟隨希臘旅行管家，發現風景與人文', action: '開啟希臘旅行管家視頻號',
+  unsupported: '請更新微信後查看視頻號', openFailed: '暫時無法開啟視頻號，請稍後重試'
+};
+messages.en.homeChannels = {
+  label: 'WeChat Channels', title: 'Explore Greece on video',
+  description: 'Discover landscapes and culture with Greece Travel Butler', action: 'Open Greece Travel Butler on WeChat Channels',
+  unsupported: 'Update WeChat to view this channel', openFailed: 'Could not open the channel. Please try again.'
+};
+
 function getLocale() {
   const stored = wx.getStorageSync(STORAGE_KEY);
   return SUPPORTED_LOCALES.includes(stored) ? stored : 'zh-CN';

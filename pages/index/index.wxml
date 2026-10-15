@@ -70,6 +70,17 @@
     </view>
   </view>
 
+  <!-- 视频号入口：六大服务下方，精选目的地上方。 -->
+  <button class="home-channels-card card" hover-class="card-press" bindtap="onChannelsTap" aria-label="{{i18n.homeChannels.action}}">
+    <view class="home-channels-icon" aria-hidden="true"><view class="home-channels-play"></view></view>
+    <view class="home-channels-copy">
+      <view class="home-channels-label">{{i18n.homeChannels.label}}</view>
+      <view class="home-channels-title">{{i18n.homeChannels.title}}</view>
+      <view class="home-channels-desc">{{i18n.homeChannels.description}}</view>
+    </view>
+    <view class="home-channels-arrow" aria-hidden="true">›</view>
+  </button>
+
   <!-- ===== 3. 导游名片（单卡，不走轮播） ===== -->
   <!-- ===== 3. 导游名片：暂时整体隐藏（2026-10-15 用户要求，保留代码便于恢复） ===== -->
   <block wx:if="{{false && guides.length}}">
@@ -100,7 +111,10 @@
         <view class="eyebrow">DESTINATIONS</view>
         <view class="section-title serif">{{i18n.destinations}}</view>
       </view>
-      <view class="section-fresh-hint">{{i18n.freshContent}}</view>
+      <view class="section-fresh-hint">
+        <view class="section-fresh-icon" aria-hidden="true"><text class="section-fresh-star">✦</text><text class="section-fresh-small">✦</text></view>
+        <text>{{i18n.freshContent}}</text>
+      </view>
     </view>
 
     <!-- 双分类切换 -->

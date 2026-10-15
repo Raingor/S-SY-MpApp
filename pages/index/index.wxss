@@ -288,6 +288,45 @@
 
 
 
+/* 首页视频号：沿用海蓝与暖金，使用轻量图形避免增加图片包体。 */
+.home-channels-card {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  width: calc(100% - 64rpx);
+  margin: 26rpx 32rpx 0;
+  padding: 25rpx 26rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #E7E0D1;
+  background: #FCFAF5;
+  line-height: 1.5;
+  text-align: left;
+}
+.home-channels-card::after { border: 0; }
+.home-channels-icon {
+  flex: 0 0 76rpx;
+  width: 76rpx;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24rpx;
+  background: #0B3C5D;
+}
+.home-channels-play {
+  width: 0;
+  height: 0;
+  margin-left: 6rpx;
+  border-top: 15rpx solid transparent;
+  border-bottom: 15rpx solid transparent;
+  border-left: 23rpx solid #E2C47F;
+}
+.home-channels-copy { flex: 1; min-width: 0; }
+.home-channels-label { color: #9A7737; font-size: 19rpx; letter-spacing: 1rpx; }
+.home-channels-title { margin-top: 3rpx; color: #0B3C5D; font-size: 30rpx; font-weight: 600; }
+.home-channels-desc { margin-top: 5rpx; color: #7B8D9A; font-size: 21rpx; overflow-wrap: anywhere; }
+.home-channels-arrow { flex: 0 0 24rpx; color: #B28C46; font-family: Georgia, serif; font-size: 43rpx; text-align: right; }
+
 /* ===== 3. 名人导游推荐（单卡，无轮播、无头像） ===== */
 .guide-entry {
   position: relative;
@@ -559,11 +598,26 @@
 }
 
 .section-fresh-hint {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  max-width: 52%;
   padding-bottom: 8rpx;
   color: #A8B4C6;
   font-size: 22rpx;
+  line-height: 1.4;
   letter-spacing: 1rpx;
 }
+.section-fresh-icon {
+  position: relative;
+  flex: 0 0 32rpx;
+  width: 32rpx;
+  height: 32rpx;
+  color: #C6A15B;
+  line-height: 1;
+}
+.section-fresh-star { position: absolute; left: 0; bottom: 0; font-size: 27rpx; }
+.section-fresh-small { position: absolute; right: 0; top: 0; font-size: 14rpx; }
 
 /* ===== 3. 甄选路线 ===== */
 .route-scroll {

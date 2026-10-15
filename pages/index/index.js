@@ -4,6 +4,7 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getLuxuryCards } = require('../../data/luxury');
+const CHANNELS_USER_NAME = 'sphh8gpNu8tw4yv';
 
 Page({
   data: {
@@ -325,6 +326,17 @@ Page({
       'travel-guide': () => wx.navigateTo({ url: '/pages/travel-guide/travel-guide' })
     };
     if (routes[key]) routes[key]();
+  },
+
+  onChannelsTap() {
+    const copy = this.data.i18n.homeChannels;
+    if (typeof wx.openChannelsUserProfile !== 'function') {
+      return wx.showToast({ title: copy.unsupported, icon: 'none' });
+    }
+    wx.openChannelsUserProfile({
+      finderUserName: CHANNELS_USER_NAME,
+      fail: () => wx.showToast({ title: copy.openFailed, icon: 'none' })
+    });
   },
 
     // 路线卡 → 简版参考行程页（按天展示核心地点+简短描述）；查看更多 → 参考行程列表
