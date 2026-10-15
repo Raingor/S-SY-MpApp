@@ -32,4 +32,7 @@ for (const fallback of ['资深定制', '武汉大学']) {
   assert.ok(!wxml.includes(fallback) && !wxss.includes(fallback), `页面不得硬编码简介文案（${fallback}）`);
 }
 
-console.log('PASS: 首页导游名片为无头像单卡（非轮播），简介全文展示且数据来自后台 guides.proof');
+// 首页导游名片暂时整体隐藏（2026-10-15 用户要求）；数据链路与跳转保留，恢复时改回 wx:if 条件即可。
+assert.ok(wxml.includes('{{false && guides.length}}'), '导游名片当前处于隐藏状态');
+
+console.log('PASS: 首页导游名片已隐藏（wx:if=false），数据链路与代码保留可随时恢复');

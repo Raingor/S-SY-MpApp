@@ -71,7 +71,8 @@
   </view>
 
   <!-- ===== 3. 导游名片（单卡，不走轮播） ===== -->
-  <block wx:if="{{guides.length}}">
+  <!-- ===== 3. 导游名片：暂时整体隐藏（2026-10-15 用户要求，保留代码便于恢复） ===== -->
+  <block wx:if="{{false && guides.length}}">
     <view
       wx:for="{{guides}}"
       wx:key="name"
