@@ -71,7 +71,7 @@
   </view>
 
   <!-- 视频号入口：六大服务下方，精选目的地上方。 -->
-  <button class="home-channels-card card" hover-class="card-press" bindtap="onChannelsTap" aria-label="{{i18n.homeChannels.action}}">
+  <view class="home-channels-card card" hover-class="card-press" bindtap="onChannelsTap" aria-role="button" aria-label="{{i18n.homeChannels.action}}">
     <view class="home-channels-icon" aria-hidden="true"><view class="home-channels-play"></view></view>
     <view class="home-channels-copy">
       <view class="home-channels-label">{{i18n.homeChannels.label}}</view>
@@ -79,7 +79,7 @@
       <view class="home-channels-desc">{{i18n.homeChannels.description}}</view>
     </view>
     <view class="home-channels-arrow" aria-hidden="true">›</view>
-  </button>
+  </view>
 
   <!-- ===== 3. 导游名片（单卡，不走轮播） ===== -->
   <!-- ===== 3. 导游名片：暂时整体隐藏（2026-10-15 用户要求，保留代码便于恢复） ===== -->

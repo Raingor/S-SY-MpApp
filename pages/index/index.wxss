@@ -293,7 +293,7 @@
   display: flex;
   align-items: center;
   gap: 22rpx;
-  width: calc(100% - 64rpx);
+  width: auto;
   margin: 26rpx 32rpx 0;
   padding: 25rpx 26rpx;
   box-sizing: border-box;
@@ -302,7 +302,6 @@
   line-height: 1.5;
   text-align: left;
 }
-.home-channels-card::after { border: 0; }
 .home-channels-icon {
   flex: 0 0 76rpx;
   width: 76rpx;
