@@ -81,6 +81,13 @@
   line-height: 1.8;
 }
 
+.knowledge-fresh-hint {
+  margin-top: 14rpx;
+  color: #C6A15B;
+  font-size: 21rpx;
+  letter-spacing: 2rpx;
+}
+
 .knowledge-pills { display: flex; gap: 12rpx; margin-top: 28rpx; }
 
 .knowledge-pills text {

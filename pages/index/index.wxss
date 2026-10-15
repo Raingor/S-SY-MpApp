@@ -558,6 +558,13 @@
   padding-bottom: 6rpx;
 }
 
+.section-fresh-hint {
+  padding-bottom: 8rpx;
+  color: #A8B4C6;
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
+}
+
 /* ===== 3. 甄选路线 ===== */
 .route-scroll {
   width: calc(100% + 32rpx);

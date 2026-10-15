@@ -100,6 +100,7 @@
         <view class="eyebrow">DESTINATIONS</view>
         <view class="section-title serif">{{i18n.destinations}}</view>
       </view>
+      <view class="section-fresh-hint">{{i18n.freshContent}}</view>
     </view>
 
     <!-- 双分类切换 -->

@@ -206,6 +206,15 @@
   text-align: right;
 }
 
+.travel-card-source-link {
+  color: #0F547A;
+  font-weight: 600;
+}
+
+.travel-card-source-arrow {
+  color: #C6A15B;
+}
+
 .travel-card-title {
   margin-top: 20rpx;
   color: #0B3C5D;

@@ -35,7 +35,7 @@
         <view class="travel-card card" wx:for="{{item.guides}}" wx:key="key" wx:for-item="guide">
           <view class="travel-card-top">
             <view class="travel-icon travel-icon-{{guide.key}}">{{guide.mark}}</view>
-            <view class="travel-card-source">{{i18n.travel.onlineRead}} · {{guide.source}}</view>
+            <view class="travel-card-source {{guide.docUrl ? 'travel-card-source-link' : ''}}" data-section="{{item.key}}" data-guide="{{guide.key}}" catchtap="onDocReadTap">{{i18n.travel.onlineRead}} · {{guide.source}}<text wx:if="{{guide.docUrl}}" class="travel-card-source-arrow"> ›</text></view>
           </view>
           <view class="travel-card-title">{{guide.title}}</view>
           <view class="travel-card-desc">{{guide.desc}}</view>

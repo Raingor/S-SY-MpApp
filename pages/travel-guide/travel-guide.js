@@ -105,6 +105,46 @@ Page({
     return buildShareCard('/pages/travel-guide/travel-guide');
   },
 
+  // 在线阅读：文件地址由后台 settings.travelGuideDocs[key] 配置（相对路径自动补 apiBase）。
+  // 未配置的卡片不显示入口，不用假链接。
+  applyRemoteDocLinks() {
+    const settings = (app.globalData && app.globalData.contentSettings) || {};
+    const docs = settings.travelGuideDocs && typeof settings.travelGuideDocs === 'object' ? settings.travelGuideDocs : {};
+    const base = (app.globalData && app.globalData.apiBase || '').replace(/\/$/, '');
+    const sections = this.data.sections.map((section) => ({
+      ...section,
+      guides: section.guides.map((guide) => {
+        const raw = typeof docs[guide.key] === 'string' ? docs[guide.key].trim() : '';
+        const url = !raw ? '' : (/^https?:\/\//.test(raw) ? raw : base + raw);
+        return { ...guide, docUrl: url };
+      })
+    }));
+    this.setData({ sections });
+  },
+
+  onDocReadTap(e) {
+    const { section, guide } = e.currentTarget.dataset;
+    const item = (this.data.sections.find((s) => s.key === section) || {}).guides?.find((g) => g.key === guide);
+    if (!item || !item.docUrl) return;
+    wx.showLoading({ title: '' });
+    wx.downloadFile({
+      url: item.docUrl,
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode !== 200) return wx.showToast({ title: this.data.i18n.travel.docFailed, icon: 'none' });
+        wx.openDocument({
+          filePath: res.tempFilePath,
+          showMenu: true,
+          fail: () => wx.showToast({ title: this.data.i18n.travel.docFailed, icon: 'none' })
+        });
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: this.data.i18n.travel.docFailed, icon: 'none' });
+      }
+    });
+  },
+
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
@@ -113,6 +153,7 @@ Page({
 
   onShow() {
     this.applyLocale();
+    this.applyRemoteDocLinks();
   },
 
   applyLocale() {
