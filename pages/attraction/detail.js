@@ -66,7 +66,7 @@ Page({
       const fresh = content.getAttraction(this.spotId, data);
       if (fresh) {
         this.contentSource = data;
-        this.applyPageCopy(data.attractionDetailPage);
+        this.applyPageCopy(data.attractionDetailPage, fresh);
         this.applySpot(fresh);
         this.setData({ loading: false, contentError: false });
         this.loadPaidState();
@@ -79,15 +79,19 @@ Page({
   onShow() {
     i18n.apply(this);
     if (this.data.spot) {
-      this.applyPageCopy(this.contentSource && this.contentSource.attractionDetailPage);
-      this.applySpot(content.getAttraction(this.spotId, this.contentSource) || this.data.spot);
+      const spot = content.getAttraction(this.spotId, this.contentSource) || this.data.spot;
+      this.applyPageCopy(this.contentSource && this.contentSource.attractionDetailPage, spot);
+      this.applySpot(spot);
     }
     this.loadSpot();
   },
 
-  applyPageCopy(page) {
+  // 全站隐藏（sections[key].hidden）与分景点覆盖（attraction.hiddenSections）合并；
+  // 只能进一步隐藏，不能复活全局隐藏。
+  applyPageCopy(page, spot) {
     const locale = this.data.locale === 'en' ? 'en' : this.data.locale === 'zh-TW' ? 'tw' : 'zh';
     const read = (entry) => entry && typeof entry === 'object' ? String(entry[locale] || entry.zh || '') : '';
+    const overrides = Array.isArray(spot && spot.hiddenSections) ? spot.hiddenSections : [];
     const sections = {};
     for (const [key, value] of Object.entries(page && page.sections || {})) {
       const title = read(value.label);
@@ -97,8 +101,7 @@ Page({
         title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
         notice: read(value.notice),
-        // 后台可自定义隐藏板块：仅显式 hidden === true 时隐藏，其余（含缺省）均显示。
-        hidden: value && value.hidden === true
+        hidden: (value && value.hidden === true) || overrides.includes(key)
       };
     }
     const audioHow = page && page.audioHow || {};
