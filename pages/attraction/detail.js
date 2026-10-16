@@ -96,7 +96,9 @@ Page({
       sections[key] = {
         title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
-        notice: read(value.notice)
+        notice: read(value.notice),
+        // 后台可自定义隐藏板块：仅显式 hidden === true 时隐藏，其余（含缺省）均显示。
+        hidden: value && value.hidden === true
       };
     }
     const audioHow = page && page.audioHow || {};
