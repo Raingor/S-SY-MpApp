@@ -356,7 +356,10 @@ function adaptDestinations(remoteDestinations) {
     name: destination.name,
     en: destination.en,
     img: mapManagedImage(destination.image),
-    type: typeof destination.type === 'string' ? destination.type.trim() : ''
+    type: typeof destination.type === 'string' ? destination.type.trim() : '',
+    // 后台可配排序权重（小在前）与热门角标；缺省行为不变（不排序、无角标）。
+    sort: Number.isFinite(Number(destination.sort)) ? Number(destination.sort) : null,
+    featured: destination.featured === true
   }));
 }
 
@@ -588,10 +591,19 @@ function getHomeDestinations(source, locale, fallbackLabels) {
             attractionIds: item.attractionIds || (item.attractionId ? [item.attractionId] : []),
             name: item.name,
             en: item.en,
-            img: item.img
+            img: item.img,
+            featured: item.featured === true
           } : null;
         })
-        .filter(Boolean);
+        .filter(Boolean)
+        // 后台 sort（小在前）优先；未配置的保持原顺序（录入顺序）排在已配置之后。
+        .sort((a, b) => {
+          const sa = a.sort; const sb = b.sort;
+          if (sa !== null && sb !== null && sa !== sb) return sa - sb;
+          if (sa !== null) return -1;
+          if (sb !== null) return 1;
+          return 0;
+        });
       const tab = locale === 'en'
         ? (category.nameEn || labels[category.key] || category.name || category.key)
         : locale === 'zh-TW'
