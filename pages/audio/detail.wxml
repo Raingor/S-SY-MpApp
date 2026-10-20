@@ -24,6 +24,11 @@
         <view class="audio-attraction-intro-copy">{{spotIntro}}</view>
       </view>
 
+      <view wx:if="{{trackIntro}}" class="audio-attraction-intro">
+        <view class="audio-attraction-intro-label">{{i18n.heritage.episodeIntro}}</view>
+        <view class="audio-attraction-intro-copy">{{trackIntro}}</view>
+      </view>
+
       <view wx:if="{{pointTracks.length > 1}}" class="audio-point-tracks">
         <view wx:for="{{pointTracks}}" wx:key="id" class="audio-track-option {{track.id === item.id ? 'audio-selected' : ''}}" data-id="{{item.id}}" bindtap="onPointTrackTap">{{item.displayTitle}}</view>
       </view>

@@ -12,6 +12,8 @@ assert.equal((highlightsWxml.match(/highlight-card-no-image/g) || []).length, 2,
 assert.match(highlightsWxss, /\.highlight-card-no-image\s*\{\s*min-height:\s*0;/, 'a missing image removes the fixed card height');
 assert.match(playerWxml, /class="audio-detail-scroll"[^>]*padding-top: \{\{statusBarHeight \+ 58\}\}px;/, 'audio artwork starts closer below the navigation bar');
 assert.match(playerWxml, /class="audio-attraction-intro"[^>]*>[\s\S]*?\{\{spotIntro\}\}/, 'audio player renders the attraction introduction');
+assert.match(playerWxml, /\{\{trackIntro\}\}/, 'album episode page renders the episode introduction');
+assert.match(playerSource, /trackIntro: localized\(track && track\.description \? track \: \(this\.album \|\| null\), 'description', locale\)/, 'episode intro prefers episode description and falls back to album description');
 assert.match(playerWxss, /\.audio-attraction-intro-copy\s*\{[^}]*line-height:\s*1\.7/s, 'attraction intro has readable multiline spacing');
 
 let page;

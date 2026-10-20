@@ -234,6 +234,7 @@ Page({
       if (this.params.albumId || this.params.episodeId) {
         if (this.params.albumId && this.params.episodeId && state && state.source === 'remote') {
           const album = content.getAudioAlbums(data).find((item) => String(item.id) === String(this.params.albumId));
+          this.album = album || null;
           this.albumCover = album && album.cover || '';
           track = album && (album.episodes || []).find((item) => String(item.id) === String(this.params.episodeId) &&
             String(item.albumId) === String(album.id) && item.category === 'heritage' && !item.attractionId && item.previewUrl && item.isDemo !== true);
@@ -278,7 +279,9 @@ Page({
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
       pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
       displayLocation,
-      spotIntro: localized(this.spot, 'summary', locale)
+      spotIntro: localized(this.spot, 'summary', locale),
+      // 专辑节目页：显示该集简介（后台每集已录入），无则回退专辑简介。
+      trackIntro: localized(track && track.description ? track : (this.album || null), 'description', locale)
     });
   },
   onPointTrackTap(e) {
