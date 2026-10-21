@@ -593,6 +593,8 @@ function getHomeDestinations(source, locale, fallbackLabels) {
             name: item.name,
             en: item.en,
             img: item.img,
+            // sort 必须透传到 tile，否则下方排序比较器读到 undefined，全部落入 return 0 导致顺序错误。
+            sort: item.sort === null || item.sort === undefined ? null : item.sort,
             featured: item.featured === true,
             hiddenGem: item.hiddenGem === true && item.featured !== true
           } : null;
@@ -600,7 +602,8 @@ function getHomeDestinations(source, locale, fallbackLabels) {
         .filter(Boolean)
         // 后台 sort（小在前）优先；未配置的保持原顺序（录入顺序）排在已配置之后。
         .sort((a, b) => {
-          const sa = a.sort; const sb = b.sort;
+          const sa = a.sort === undefined ? null : a.sort;
+          const sb = b.sort === undefined ? null : b.sort;
           if (sa !== null && sb !== null && sa !== sb) return sa - sb;
           if (sa !== null) return -1;
           if (sb !== null) return 1;

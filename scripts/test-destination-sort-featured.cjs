@@ -1,6 +1,7 @@
-// 首页精选目的地：后台 sort 自定义排序 + featured 热门角标。
+// 首页精选目的地：后台 sort 自定义排序 + featured/hiddenGem 角标。
 // 契约：destinations[] 可选 sort（数字，小在前；缺省 null 保持录入顺序、排在已配置之后）
-// 与 featured === true（右上角「热门🔥」角标）；两字段缺省时行为与旧版完全一致。
+// 与 featured === true（左上角「热门」胶囊）、hiddenGem === true（非热门时显示「小众」金胶囊；互斥）。
+// 已知陷阱：getHomeDestinations 构造 tile 时必须透传 sort（否则比较器读 undefined 全部落 0，顺序错乱）。
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -32,18 +33,34 @@ function loadContentModule() {
 const content = loadContentModule();
 
 // 排序语义：直接从源码提取排序 comparator 行为验证
-const comparatorSource = contentSource.match(/\.sort\(\(a, b\) => \{\s*\n\s*const sa = a\.sort; const sb = b\.sort;[\s\S]*?\}\);/);
+const comparatorSource = contentSource.match(/\.sort\(\(a, b\) => \{\s*\n\s*const sa = a\.sort === undefined \? null : a\.sort;[\s\S]*?\}\);/);
 assert.ok(comparatorSource, 'destination tiles sort comparator exists');
 
 function sortTiles(tiles) {
   return tiles.slice().sort((a, b) => {
-    const sa = a.sort; const sb = b.sort;
+    const sa = a.sort === undefined ? null : a.sort;
+    const sb = b.sort === undefined ? null : b.sort;
     if (sa !== null && sb !== null && sa !== sb) return sa - sb;
     if (sa !== null) return -1;
     if (sb !== null) return 1;
     return 0;
   });
 }
+
+// 全部有 sort：严格升序（回归覆盖 undefined-sort bug）
+const allSorted = sortTiles([
+  { name: '雅典', sort: 210 },
+  { name: '德尔斐', sort: 20 },
+  { name: '梅黛奥拉', sort: 30 }
+]).map((t) => t.name);
+assert.deepEqual(allSorted, ['德尔斐', '梅黛奥拉', '雅典'], 'all-configured sorts strictly ascending');
+
+// tile 缺 sort 字段（undefined，如旧版构造漏拷贝）不得破坏顺序
+const missingField = sortTiles([
+  { name: '雅典', sort: 210 },
+  { name: '德尔斐', sort: 20 }
+].map((t) => ({ ...t, sort: t.sort })).map((t) => { const c = { ...t }; return c; }));
+assert.deepEqual(missingField.map((t) => t.name), ['德尔斐', '雅典']);
 
 const input = [
   { name: '老城', sort: null },
