@@ -11,10 +11,12 @@ const contentSource = fs.readFileSync(path.join(ROOT, 'data/content.js'), 'utf8'
 const indexWxml = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxml'), 'utf8');
 const indexWxss = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxss'), 'utf8');
 
-assert.match(indexWxml, /wx:if="\{\{item\.featured\}\}" class="dest-featured-badge">热门/, 'featured tile renders the hot badge');
-assert.match(indexWxml, /wx:elif="\{\{item\.hiddenGem\}\}" class="dest-gem-badge">小众/, 'hidden-gem tile renders the gem badge when not featured');
-assert.match(indexWxss, /\.dest-gem-badge\s*\{[^}]*position:\s*absolute;[^}]*top:\s*16rpx;[^}]*right:\s*16rpx;/s, 'gem badge anchored to tile top-right');
-assert.match(indexWxss, /background:\s*rgba\(46, 108, 96/s, 'gem badge uses a distinct green tone');
+assert.match(indexWxml, /class="dest-featured-badge">热门<\/view>/, 'featured tile renders the hot badge (no emoji)');
+assert.match(indexWxml, /class="dest-gem-badge">小众<\/view>/, 'hidden-gem tile renders the gem badge (no emoji)');
+assert.match(indexWxss, /\.dest-gem-badge\s*\{[^}]*position:\s*absolute;[^}]*top:\s*16rpx;[^}]*left:\s*16rpx;/s, 'gem badge anchored to tile top-left');
+assert.match(indexWxss, /background:\s*#C0A264;/s, 'gem badge uses the gold tone from the selected-routes pill');
+assert.match(indexWxss, /\.dest-featured-badge\s*\{[^}]*left:\s*16rpx;/s, 'badges anchored top-left like route-day pill');
+assert.doesNotMatch(fs.readFileSync(path.join(ROOT, 'pages/index/index.wxml'), 'utf8'), /dest-featured-badge">[^<]*[\uFFFD\uD83C]/, 'no emoji in badge text');
 assert.match(contentSource, /featured: destination\.featured === true/, 'adapter maps featured boolean strictly');
 assert.match(contentSource, /hiddenGem: destination\.hiddenGem === true/, 'adapter maps hiddenGem boolean strictly');
 assert.match(contentSource, /hiddenGem: item\.hiddenGem === true && item\.featured !== true/, 'gem badge suppressed when tile is featured (mutual exclusion)');

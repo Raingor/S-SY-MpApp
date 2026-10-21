@@ -854,29 +854,29 @@
 .dest-featured-badge {
   position: absolute;
   top: 16rpx;
-  right: 16rpx;
-  padding: 6rpx 16rpx;
-  border-radius: 22rpx;
-  background: rgba(226, 88, 34, 0.92);
-  color: #FFFFFF;
-  font-size: 20rpx;
+  left: 16rpx;
+  padding: 8rpx 22rpx;
+  border-radius: 26rpx;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0B3C5D;
+  font-size: 21rpx;
   font-weight: 600;
   letter-spacing: 1rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
 }
 
 .dest-gem-badge {
   position: absolute;
   top: 16rpx;
-  right: 16rpx;
-  padding: 6rpx 16rpx;
-  border-radius: 22rpx;
-  background: rgba(46, 108, 96, 0.92);
+  left: 16rpx;
+  padding: 8rpx 22rpx;
+  border-radius: 26rpx;
+  background: #C0A264;
   color: #FFFFFF;
-  font-size: 20rpx;
+  font-size: 21rpx;
   font-weight: 600;
   letter-spacing: 1rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
 }
 
 .dest-info {
