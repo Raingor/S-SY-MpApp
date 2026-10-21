@@ -372,6 +372,15 @@ Page({
     this.setData({ destTab: Number(e.currentTarget.dataset.index) });
   },
 
+  // 后台图标加载失败时回退当前语言的文字，不影响其他卡片。
+  onDestBadgeIconError(e) {
+    const { groupIndex, tileIndex } = e.currentTarget.dataset;
+    const group = this.data.destinations[groupIndex];
+    const tile = group && group.tiles[tileIndex];
+    if (!tile || !tile.badge || !tile.badge.icon) return;
+    this.setData({ [`destinations[${groupIndex}].tiles[${tileIndex}].badge.icon`]: '' });
+  },
+
   // 精选目的地先进入后台关联城市的景点列表，再由列表进入具体景点。
   onDestTap(e) {
     const cityId = String(e.currentTarget.dataset.cityId || '').trim();

@@ -357,7 +357,7 @@ function adaptDestinations(remoteDestinations) {
     en: destination.en,
     img: mapManagedImage(destination.image),
     type: typeof destination.type === 'string' ? destination.type.trim() : '',
-    // 后台可配排序权重（小在前）与角标：featured=true 显示「热门🔥」，hiddenGem=true 显示「小众💎」；两者互斥，同时配置时热门优先。
+    // 后台可配排序权重（小在前）与角标分类；文字/图标由 settings.destinationBadges 配置，同时配置时热门优先。
     sort: Number.isFinite(Number(destination.sort)) ? Number(destination.sort) : null,
     featured: destination.featured === true,
     hiddenGem: destination.hiddenGem === true
@@ -562,6 +562,22 @@ function getReferenceList(source) {
 function getHomeDestinations(source, locale, fallbackLabels) {
   const data = getContent(source);
   const destinations = data.destinations || [];
+  const defaultBadgeTexts = locale === 'en'
+    ? { featured: 'Popular', hiddenGem: 'Hidden gem' }
+    : locale === 'zh-TW'
+      ? { featured: '熱門', hiddenGem: '小眾' }
+      : { featured: '热门', hiddenGem: '小众' };
+  const badgeSettings = (data.settings && data.settings.destinationBadges) || {};
+  const badgeTextField = locale === 'en' ? 'textEn' : locale === 'zh-TW' ? 'textTw' : 'text';
+  const badges = {};
+  Object.keys(defaultBadgeTexts).forEach((kind) => {
+    const config = badgeSettings[kind] || {};
+    const configuredText = [config[badgeTextField], config.text].find((value) => typeof value === 'string' && value.trim());
+    badges[kind] = {
+      text: configuredText ? configuredText.trim() : defaultBadgeTexts[kind],
+      icon: mapManagedImage(config.icon)
+    };
+  });
   const remoteCategories = Array.isArray(data.destinationCategories) && data.destinationCategories.length
     ? data.destinationCategories
     : FALLBACK_DESTINATION_CATEGORIES;
@@ -585,6 +601,7 @@ function getHomeDestinations(source, locale, fallbackLabels) {
           // 新接口优先使用显式 cityId；兼容旧数据时仅接受“目的地 id 与城市 id 完全一致”，不按名称或数组位置猜测。
           const candidateCityId = item.cityId || (cityIds.has(item.id) ? item.id : '');
           const cityId = cityIds.has(candidateCityId) ? candidateCityId : '';
+          const badgeKind = item.featured === true ? 'featured' : item.hiddenGem === true ? 'hiddenGem' : '';
           return cityId ? {
             id: item.id,
             cityId,
@@ -596,7 +613,8 @@ function getHomeDestinations(source, locale, fallbackLabels) {
             // sort 必须透传到 tile，否则下方排序比较器读到 undefined，全部落入 return 0 导致顺序错误。
             sort: item.sort === null || item.sort === undefined ? null : item.sort,
             featured: item.featured === true,
-            hiddenGem: item.hiddenGem === true && item.featured !== true
+            hiddenGem: item.hiddenGem === true && item.featured !== true,
+            badge: badgeKind ? { ...badges[badgeKind] } : null
           } : null;
         })
         .filter(Boolean)

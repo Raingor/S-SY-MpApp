@@ -135,8 +135,10 @@
             <view class="dest-tile" hover-class="card-press" wx:for="{{group.tiles}}" wx:key="id" data-city-id="{{item.cityId}}" bindtap="onDestTap">
               <image class="dest-img" src="{{item.img}}" mode="aspectFill" webp="{{true}}" lazy-load="{{true}}" />
               <view class="dest-mask"></view>
-              <view wx:if="{{item.featured}}" class="dest-featured-badge">热门</view>
-              <view wx:elif="{{item.hiddenGem}}" class="dest-gem-badge">小众</view>
+              <view wx:if="{{item.featured || item.hiddenGem}}" class="dest-badge {{item.featured ? 'dest-featured-badge' : 'dest-gem-badge'}}">
+                <image wx:if="{{item.badge.icon}}" class="dest-badge-icon" src="{{item.badge.icon}}" mode="aspectFit" data-group-index="{{gi}}" data-tile-index="{{index}}" binderror="onDestBadgeIconError" />
+                <text wx:else class="dest-badge-text">{{item.badge.text}}</text>
+              </view>
               <view class="dest-info">
                 <view class="dest-en eyebrow">{{item.en}}</view>
                 <view class="dest-name">{{item.name}}</view>

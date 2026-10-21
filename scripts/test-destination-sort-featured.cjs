@@ -1,6 +1,6 @@
 // 首页精选目的地：后台 sort 自定义排序 + featured/hiddenGem 角标。
 // 契约：destinations[] 可选 sort（数字，小在前；缺省 null 保持录入顺序、排在已配置之后）
-// featured/hiddenGem 在左上角显示小圆角文字标签：热门香槟金、小众象牙白，无图标，热门优先。
+// featured/hiddenGem 在左上角显示金色/蓝色渐变胶囊，支持后台文字或图标，热门优先。
 // 已知陷阱：getHomeDestinations 构造 tile 时必须透传 sort（否则比较器读 undefined 全部落 0，顺序错乱）。
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -12,19 +12,22 @@ const contentSource = fs.readFileSync(path.join(ROOT, 'data/content.js'), 'utf8'
 const indexWxml = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxml'), 'utf8');
 const indexWxss = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxss'), 'utf8');
 
-assert.match(indexWxml, /wx:if="\{\{item\.featured\}\}" class="dest-featured-badge">热门<\/view>/, 'popular label uses only text');
-assert.match(indexWxml, /wx:elif="\{\{item\.hiddenGem\}\}" class="dest-gem-badge">小众<\/view>/, 'hidden-gem label uses only text and is mutually exclusive');
+assert.match(indexWxml, /class="dest-badge \{\{item\.featured \? 'dest-featured-badge' : 'dest-gem-badge'\}\}"/, 'badge color still follows the destination classification');
+assert.match(indexWxml, /wx:if="\{\{item\.featured \|\| item\.hiddenGem\}\}"/, 'unclassified destinations do not show a capsule');
+assert.match(indexWxml, /<image[^>]+wx:if="\{\{item\.badge\.icon\}\}"[^>]+src="\{\{item\.badge\.icon\}\}"/, 'badge icon comes from the adapted backend configuration');
+assert.match(indexWxml, /<text wx:else class="dest-badge-text">\{\{item\.badge\.text\}\}<\/text>/, 'text mode uses the localized backend badge text');
+assert.match(indexWxml, /data-group-index="\{\{gi\}\}" data-tile-index="\{\{index\}\}" binderror="onDestBadgeIconError"/, 'failed icons identify the affected tile for text fallback');
+assert.doesNotMatch(indexWxml, /🔥|⭐/, 'classification icons are not hardcoded emoji');
 assert.doesNotMatch(indexWxml, /dest-name-row|dest-category/, 'name-side annotations have been removed');
 const badgeLayout = indexWxss.match(/\.dest-featured-badge,\s*\.dest-gem-badge\s*\{([^}]*)\}/);
-assert.ok(badgeLayout, 'both labels share the same geometry');
-assert.match(badgeLayout[1], /position:\s*absolute;[\s\S]*top:\s*16rpx;[\s\S]*left:\s*16rpx;/, 'labels stay top-left');
-assert.match(badgeLayout[1], /padding:\s*5rpx 12rpx;/, 'labels keep compact spacing');
-assert.match(badgeLayout[1], /border-radius:\s*7rpx;/, 'labels are small rounded rectangles, not large pills');
-assert.match(badgeLayout[1], /border:\s*1rpx solid #D8C396;/, 'labels have a fine warm-gold border');
-assert.match(badgeLayout[1], /box-shadow:\s*0 2rpx 6rpx rgba\(20, 35, 45, 0\.08\);/, 'shadow stays restrained');
-assert.match(badgeLayout[1], /pointer-events:\s*none;/, 'labels cannot intercept tile taps');
-assert.match(indexWxss, /\.dest-featured-badge\s*\{\s*background:\s*#E8D5AA;\s*color:\s*#594322;/, 'popular label is champagne with dark brown text');
-assert.match(indexWxss, /\.dest-gem-badge\s*\{\s*background:\s*#FAF7EF;\s*color:\s*#173E56;/, 'hidden-gem label is ivory with dark blue text');
+assert.ok(badgeLayout, 'both categories share capsule geometry');
+assert.match(badgeLayout[1], /position:\s*absolute;[\s\S]*top:\s*16rpx;[\s\S]*left:\s*16rpx;/, 'capsules stay top-left');
+assert.match(badgeLayout[1], /border-radius:\s*999rpx;/, 'badges use the reference capsule shape');
+assert.match(badgeLayout[1], /pointer-events:\s*none;/, 'badges cannot intercept tile taps');
+assert.match(badgeLayout[1], /max-width:\s*calc\(100% - 32rpx\);/, 'custom labels cannot overflow a destination tile');
+assert.match(indexWxss, /\.dest-featured-badge\s*\{\s*background:\s*linear-gradient\(135deg, #FFF8E8 0%, #F6E4B9 52%, #EACD8A 100%\);/, 'popular capsule uses a soft champagne gradient');
+assert.match(indexWxss, /\.dest-gem-badge\s*\{\s*background:\s*linear-gradient\(135deg, #F1F8FF 0%, #DEEFFB 52%, #BEDCEF 100%\);/, 'hidden-gem capsule uses an ice-blue gradient');
+assert.doesNotMatch(indexWxss, /data:image\/svg\+xml/, 'classification SVG artwork is no longer hardcoded in homepage styles');
 assert.match(contentSource, /featured: destination\.featured === true/, 'adapter maps featured boolean strictly');
 assert.match(contentSource, /hiddenGem: destination\.hiddenGem === true/, 'adapter maps hiddenGem boolean strictly');
 assert.match(contentSource, /hiddenGem: item\.hiddenGem === true && item\.featured !== true/, 'gem badge suppressed when tile is featured (mutual exclusion)');

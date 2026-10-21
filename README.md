@@ -153,6 +153,7 @@ MpApp/
 
 - `app.js` 的 `globalData.apiBase` 默认为生产地址 `https://sy-greece.com`，本地联调时可替换为测试环境地址。
 - **内容接口** `GET /api/content`：必须返回 `countries`、`guides`、`cities`、`attractions`、`sampleItineraries`、`routes`、`destinations` 七个数组；可选返回 `destinationCategories: [{ key, name, nameTw, nameEn, sort, enabled }]`，小程序按启用状态和排序动态渲染。字段不完整时小程序会明确提示「内容服务暂不可用」，**不会用本地镜像冒充正式数据**；仅网络离线时降级到 `data/mirror-*.js` 镜像。
+- 目的地角标可选配置 `settings.destinationBadges: { featured: { text, textTw, textEn, icon }, hiddenGem: { text, textTw, textEn, icon } }`，各字段为字符串。`icon` 非空时显示后台图标（站内媒体路径或 HTTPS URL），否则显示当前语言文字；缺少翻译时回退 `text`，再回退默认「热门／小众」三语文案。图标加载失败也回退文字。目的地的 `featured` / `hiddenGem` 控制分类且热门优先；胶囊形状和金色／蓝色渐变由小程序固定控制。该配置需配套 Website 后台版本提供，旧接口不含字段时仍显示默认文字。
 - 后端 `image` 字段为 `./images/xxx.webp` 时，由 `data/content.js` 的映射表替换为本地素材路径；**后台上传的景点分享图 `shareImage` 与目的地自定义图 `image` 保持远程地址，不套用旧素材文件名映射**。
 - 景点分享由后台配置：`attractions[].shareTitle`（可空，空时回退「景点名 · 品牌 slogan」）、`attractions[].shareImage`（可空，空时回退景点主图）；分享路径始终为 `pages/attraction/detail?id=<景点ID>`，ID 经 `encodeURIComponent` 编码。
 - P2、Richard 预约、用车咨询、商旅咨询、奢享咨询均向 `${apiBase}/api/leads` 发起 JSON `POST`，需将接口域名加入微信开发者工具的 request 合法域名。
