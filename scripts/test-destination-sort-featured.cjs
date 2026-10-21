@@ -15,7 +15,7 @@ const indexWxss = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxss'), 'ut
 assert.match(indexWxml, /class="dest-featured-badge">热门<\/view>/, 'featured tile renders the hot badge (no emoji)');
 assert.match(indexWxml, /class="dest-gem-badge">小众<\/view>/, 'hidden-gem tile renders the gem badge (no emoji)');
 assert.match(indexWxss, /\.dest-gem-badge\s*\{[^}]*position:\s*absolute;[^}]*top:\s*16rpx;[^}]*left:\s*16rpx;/s, 'gem badge anchored to tile top-left');
-assert.match(indexWxss, /background:\s*#C0A264;/s, 'gem badge uses the gold tone from the selected-routes pill');
+assert.match(indexWxss, /background:\s*#C0A264;/s, 'gem badge uses the white tone (featured took the gold)');
 assert.match(indexWxss, /\.dest-featured-badge\s*\{[^}]*left:\s*16rpx;/s, 'badges anchored top-left like route-day pill');
 assert.doesNotMatch(fs.readFileSync(path.join(ROOT, 'pages/index/index.wxml'), 'utf8'), /dest-featured-badge">[^<]*[\uFFFD\uD83C]/, 'no emoji in badge text');
 assert.match(contentSource, /featured: destination\.featured === true/, 'adapter maps featured boolean strictly');
