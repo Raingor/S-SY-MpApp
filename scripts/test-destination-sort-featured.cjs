@@ -12,8 +12,12 @@ const indexWxml = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxml'), 'ut
 const indexWxss = fs.readFileSync(path.join(ROOT, 'pages/index/index.wxss'), 'utf8');
 
 assert.match(indexWxml, /wx:if="\{\{item\.featured\}\}" class="dest-featured-badge">热门/, 'featured tile renders the hot badge');
-assert.match(indexWxss, /\.dest-featured-badge\s*\{[^}]*position:\s*absolute;[^}]*top:\s*16rpx;[^}]*right:\s*16rpx;/s, 'badge anchored to tile top-right');
+assert.match(indexWxml, /wx:elif="\{\{item\.hiddenGem\}\}" class="dest-gem-badge">小众/, 'hidden-gem tile renders the gem badge when not featured');
+assert.match(indexWxss, /\.dest-gem-badge\s*\{[^}]*position:\s*absolute;[^}]*top:\s*16rpx;[^}]*right:\s*16rpx;/s, 'gem badge anchored to tile top-right');
+assert.match(indexWxss, /background:\s*rgba\(46, 108, 96/s, 'gem badge uses a distinct green tone');
 assert.match(contentSource, /featured: destination\.featured === true/, 'adapter maps featured boolean strictly');
+assert.match(contentSource, /hiddenGem: destination\.hiddenGem === true/, 'adapter maps hiddenGem boolean strictly');
+assert.match(contentSource, /hiddenGem: item\.hiddenGem === true && item\.featured !== true/, 'gem badge suppressed when tile is featured (mutual exclusion)');
 
 function loadContentModule() {
   // data/content.js 使用了较新的 JS 语法（optional chaining 等），不在这里实际执行，
@@ -51,4 +55,4 @@ assert.deepEqual(output, ['德尔斐', '雅典', '老城', '梅黛奥拉'], 'con
 // featured 透传：adaptDestinations 契约
 assert.match(contentSource, /sort: Number\.isFinite\(Number\(destination\.sort\)\) \? Number\(destination\.sort\) : null/, 'sort null when backend omits it');
 
-console.log('PASS: destinations sort (backend numeric, small first, unconfigured keep order) and featured hot badge');
+console.log('PASS: destinations sort (backend numeric, small first, unconfigured keep order) and featured hot / hidden-gem badges with mutual exclusion');

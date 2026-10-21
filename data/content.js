@@ -357,9 +357,10 @@ function adaptDestinations(remoteDestinations) {
     en: destination.en,
     img: mapManagedImage(destination.image),
     type: typeof destination.type === 'string' ? destination.type.trim() : '',
-    // 后台可配排序权重（小在前）与热门角标；缺省行为不变（不排序、无角标）。
+    // 后台可配排序权重（小在前）与角标：featured=true 显示「热门🔥」，hiddenGem=true 显示「小众💎」；两者互斥，同时配置时热门优先。
     sort: Number.isFinite(Number(destination.sort)) ? Number(destination.sort) : null,
-    featured: destination.featured === true
+    featured: destination.featured === true,
+    hiddenGem: destination.hiddenGem === true
   }));
 }
 
@@ -592,7 +593,8 @@ function getHomeDestinations(source, locale, fallbackLabels) {
             name: item.name,
             en: item.en,
             img: item.img,
-            featured: item.featured === true
+            featured: item.featured === true,
+            hiddenGem: item.hiddenGem === true && item.featured !== true
           } : null;
         })
         .filter(Boolean)
