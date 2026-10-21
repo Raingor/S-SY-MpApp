@@ -19,11 +19,6 @@
         <view wx:if="{{point.author || displayLocation}}" class="audio-track-subtitle">{{point.author || displayLocation}}</view>
       </view>
 
-      <view wx:if="{{spotIntro}}" class="audio-attraction-intro">
-        <view class="audio-attraction-intro-label">{{i18n.heritage.attractionIntro}}</view>
-        <view class="audio-attraction-intro-copy">{{spotIntro}}</view>
-      </view>
-
       <view wx:if="{{trackIntro}}" class="audio-attraction-intro">
         <view class="audio-attraction-intro-label">{{i18n.heritage.episodeIntro}}</view>
         <view class="audio-attraction-intro-copy">{{trackIntro}}</view>

@@ -25,7 +25,7 @@ function fullActionText(track, access, messages) {
 
 Page({
   data: {
-    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', spotIntro: '', cover: '',
+    statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', cover: '',
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, audioLoading: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
@@ -279,7 +279,6 @@ Page({
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
       pointTracks: (this.data.pointTracks || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', locale) })),
       displayLocation,
-      spotIntro: localized(this.spot, 'summary', locale),
       // 专辑节目页：显示该集简介（后台每集已录入），无则回退专辑简介。
       trackIntro: localized(track && track.description ? track : (this.album || null), 'description', locale)
     });

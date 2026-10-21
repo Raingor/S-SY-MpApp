@@ -851,32 +851,31 @@
   background: linear-gradient(180deg, rgba(11, 60, 93, 0) 35%, rgba(11, 60, 93, 0.8) 100%);
 }
 
-.dest-featured-badge {
-  position: absolute;
-  top: 16rpx;
-  left: 16rpx;
-  padding: 8rpx 22rpx;
-  border-radius: 26rpx;
-  background: #C0A264;
-  color: #FFFFFF;
-  font-size: 21rpx;
-  font-weight: 600;
-  letter-spacing: 1rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
-}
-
+/* 恢复小圆角文字角标：热门香槟金，小众象牙白，无图标。 */
+.dest-featured-badge,
 .dest-gem-badge {
   position: absolute;
   top: 16rpx;
   left: 16rpx;
-  padding: 8rpx 22rpx;
-  border-radius: 26rpx;
-  background: rgba(255, 255, 255, 0.94);
-  color: #0B3C5D;
-  font-size: 21rpx;
+  padding: 5rpx 12rpx;
+  border: 1rpx solid #D8C396;
+  border-radius: 7rpx;
+  font-size: 20rpx;
+  line-height: 1.4;
   font-weight: 600;
-  letter-spacing: 1rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.18);
+  letter-spacing: 2rpx;
+  box-shadow: 0 2rpx 6rpx rgba(20, 35, 45, 0.08);
+  pointer-events: none;
+}
+
+.dest-featured-badge {
+  background: #E8D5AA;
+  color: #594322;
+}
+
+.dest-gem-badge {
+  background: #FAF7EF;
+  color: #173E56;
 }
 
 .dest-info {
