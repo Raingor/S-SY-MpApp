@@ -34,6 +34,7 @@ vm.runInNewContext(pageSource, {
     if (id.includes('utils/navigation')) return { goBack() {} };
     if (id.includes('auth')) return { getAccessToken: () => '' };
     if (id.includes('paid-content')) return {
+      annualProductAvailable: (p) => Boolean(p && p.enabled === true && Number(p.price) === 199),
       fetchConfig(cb) { paidCalls.config++; cb(true, { configured: true, simulation: false, products: {} }); },
       fetchEntitlements(cb) { paidCalls.entitlements++; cb(true, { member: false, purchases: [] }); },
       isUnlocked: () => false
@@ -56,3 +57,23 @@ const legacy = { ...pageConfig, data: { ...pageConfig.data }, setData(next) { Ob
 legacy.applySpot({ id: 's2', videoUrl: 'https://example.com/main.mp4' });
 assert(!legacy.data.expertVideoUrl, 'legacy attraction video does not populate the expert video field');
 console.log('PASS: Expert Guide supports an optional on-location video scoped to the section; Online and legacy attraction video unaffected');
+
+// Non-member legacy video must pause at the configured preview limit, including seeks.
+let paused = 0;
+let videoPage;
+vm.runInNewContext(fs.readFileSync('pages/attraction/detail.js', 'utf8'), {
+  Page(p) { videoPage = p; }, getApp: () => ({ globalData: {} }),
+  require() { return { getMessages: () => ({}) }; },
+  wx: { createVideoContext() { return { pause() { paused++; } }; } }
+});
+videoPage = { ...videoPage, data: structuredClone(videoPage.data), setData(patch) { Object.assign(this.data, patch); } };
+videoPage.data.paidConfig = { configured: true, trialSeconds: 90 };
+videoPage.onVideoTimeUpdate({ detail: { currentTime: 59 } });
+assert.equal(paused, 0);
+videoPage.onVideoTimeUpdate({ detail: { currentTime: 60 } });
+assert.equal(paused, 1); assert.equal(videoPage.data.showPurchaseModal, true);
+videoPage.onVideoTimeUpdate({ detail: { currentTime: 10 } });
+assert.equal(paused, 2, 'finished preview cannot be restarted by seeking');
+videoPage.data.isVideoUnlocked = true;
+videoPage.onVideoTimeUpdate({ detail: { currentTime: 100 } });
+assert.equal(paused, 2, 'active members can continue full playback');

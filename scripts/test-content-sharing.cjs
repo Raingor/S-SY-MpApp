@@ -122,7 +122,7 @@ async function main() {
   await Promise.resolve();
   assert.equal(detail.data.loading, false, 'loading ends after a successful detail response');
   assert.equal(detail.data.pageCopy.sections.overview.title, 'overview标题');
-  assert.equal(detail.data.pageCopy.audioHow.steps[0].text, '后台步骤');
+  assert.equal(detail.data.pageCopy.audioHow.steps[0].text, detail.data.i18n.heritage.onlineStep);
   assert.deepEqual(detail.onShareAppMessage(), {
     title: '新分享文字', path: '/pages/attraction/detail?id=spot%20%26%20one', imageUrl: 'https://cdn.example/share.jpg'
   });

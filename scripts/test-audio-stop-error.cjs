@@ -34,7 +34,8 @@ const modules = {
   '../../data/content': {},
   '../../utils/i18n': { getMessages: () => ({ heritage: { networkFailed: '加载失败' } }) },
   '../../utils/audio-access': {},
-  '../../utils/paid-content': { fetchConfig(callback) { callback(false, { products: {} }); } },
+  '../../utils/paid-content': { annualProductAvailable: (p) => Boolean(p && p.enabled === true && Number(p.price) === 199),
+      fetchConfig(callback) { callback(false, { products: {} }); } },
   '../../utils/auth': { getUserState(callback) { callback(false, null); } },
   '../../utils/navigation': {}
 };

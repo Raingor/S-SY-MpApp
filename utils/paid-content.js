@@ -40,6 +40,11 @@ function productPriceDisplay(product) {
   return currency === 'CNY' ? `¥${formatted}` : `${currency} ${formatted}`;
 }
 
+// 只销售 ¥199 年会员；后台尚未同步新配置时不展示或支付其他价位。
+function annualProductAvailable(product) {
+  return Boolean(product && product.enabled === true && Number(product.price) === 199 && String(product.currency || 'CNY').toUpperCase() === 'CNY');
+}
+
 function fetchConfig(callback) {
   request('/api/miniprogram/knowledge/config', 'GET', null, (ok, data, res) => {
     if (ok && data) return callback(true, { ...configFromContent(data), ...data }, res);
@@ -96,7 +101,7 @@ function fetchEntitlements(callback) {
     if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, res);
     callback(true, {
       simulation: Boolean(data.simulation),
-      member: Boolean(data.member || data.isMember || data.membership),
+      member: isUnlocked({ member: data.member === true || data.isMember === true || data.membership === true, memberExpiresAt: data.memberExpiresAt }),
       memberLabel: data.memberLabel || '',
       memberExpiresAt: data.memberExpiresAt || '',
       membershipCanRenew: data.membershipCanRenew !== false,
@@ -130,39 +135,39 @@ function hasPurchase(entitlements, attractionId) {
   }));
 }
 
-function isUnlocked(entitlements, attractionId) {
-  return Boolean(entitlements && (entitlements.member || hasPurchase(entitlements, attractionId)));
+function isUnlocked(entitlements) {
+  return Boolean(entitlements && entitlements.member === true && (!entitlements.memberExpiresAt || Date.parse(entitlements.memberExpiresAt) > Date.now()));
 }
 
 function createOrder(productType, target, callback) {
-  // 已停售的专家单篇/文史专辑不能被旧页面或缓存入口重新发起购买。
-  if (['expertTrack', 'album'].includes(productType)) return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
-  const purchaseTarget = target && typeof target === 'object'
-    ? target
-    : (target ? { attractionId: target } : {});
-  request('/api/miniprogram/orders', 'POST', { productType, ...purchaseTarget }, (ok, data, res) => {
-    if (!ok) return callback(false, data, res);
-    // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
-    if (data.simulation) {
-      return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: Boolean(data.order && data.order.status === 'pending') }, res);
-    }
-    if (!data.payment) return callback(false, data, res);
-    wx.requestPayment({
-      ...data.payment,
-      success: () => waitForOrder(data.order && data.order.id, 0, (statusData) => {
-        if (statusData && statusData.order && statusData.order.status === 'paid') return callback(true, { ...data, ...statusData, paymentStatus: 'paid' }, res);
-        if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
-        callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
-      }),
-      fail: (error) => {
-        const errorMessage = String(error && error.errMsg || '');
-        const cancelled = /requestPayment:fail\s+cancel/i.test(errorMessage);
-        callback(false, {
-          ...data,
-          error: errorMessage,
-          code: cancelled ? 'PAYMENT_CANCELLED' : 'PAYMENT_FAILED'
-        }, res);
+  // 所有内容统一年会员；旧页面或缓存不能重新发起单篇、城市包或旧会员购买。
+  if (productType !== 'annualMembership') return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
+  fetchConfig((configured, config) => {
+    if (!configured || !annualProductAvailable(config.products && config.products.annualMembership)) return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
+    request('/api/miniprogram/orders', 'POST', { productType }, (ok, data, res) => {
+      if (!ok) return callback(false, data, res);
+      // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
+      if (data.simulation) {
+        return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: Boolean(data.order && data.order.status === 'pending') }, res);
       }
+      if (!data.payment) return callback(false, data, res);
+      wx.requestPayment({
+        ...data.payment,
+        success: () => waitForOrder(data.order && data.order.id, 0, (statusData) => {
+          if (statusData && statusData.order && statusData.order.status === 'paid') return callback(true, { ...data, ...statusData, paymentStatus: 'paid' }, res);
+          if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
+          callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
+        }),
+        fail: (error) => {
+          const errorMessage = String(error && error.errMsg || '');
+          const cancelled = /requestPayment:fail\s+cancel/i.test(errorMessage);
+          callback(false, {
+            ...data,
+            error: errorMessage,
+            code: cancelled ? 'PAYMENT_CANCELLED' : 'PAYMENT_FAILED'
+          }, res);
+        }
+      });
     });
   });
 }
@@ -189,4 +194,4 @@ function resetSimulation(callback) {
   });
 }
 
-module.exports = { fetchConfig, productPriceDisplay, startSimulationSession, fetchOrders, fetchOrder, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };
+module.exports = { fetchConfig, annualProductAvailable, productPriceDisplay, startSimulationSession, fetchOrders, fetchOrder, fetchEntitlements, hasPurchase, isUnlocked, createOrder, simulateOrderResult, resetSimulation };

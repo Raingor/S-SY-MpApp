@@ -43,15 +43,15 @@ Page({
     const copy = this.data.i18n.paidContent || {};
     this.setData({ loading: true });
     paidContent.fetchConfig((ok, config) => {
-      const plans = Object.values(config && config.products || {})
-        .filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType))
+      const plans = [config && config.products && config.products.annualMembership]
+        .filter((product) => ok && paidContent.annualProductAvailable(product))
         .map((product) => {
           const priceConfigured = product.price !== undefined && product.price !== null && String(product.price).trim() !== '';
           const price = priceConfigured ? String(product.price).replace(/^¥\s*/, '') : '';
           return {
-            productType: product.productType,
-            displayName: product.productType === 'annualMembership' ? (copy.memberAnnual || product.name || copy.member) : (product.name || copy.memberAnnual || copy.member),
-            description: product.description || copy.memberDesc || '',
+            productType: 'annualMembership',
+            displayName: copy.memberAnnual || copy.member,
+            description: copy.memberDesc || '',
             displayPrice: priceConfigured ? `${product.currency === 'CNY' || !product.currency ? '¥' : `${product.currency} `}${price}` : copy.vipShopPriceUnavailable,
             durationDays: Number(product.durationDays) || 0,
             durationLabel: Number(product.durationDays) > 0 ? (copy.vipShopDuration || '').replace('{days}', String(Number(product.durationDays))) : '',

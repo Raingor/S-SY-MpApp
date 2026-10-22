@@ -5,9 +5,7 @@ const { goBack } = require('../../utils/navigation');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 function accessLabel(item, heritage, locale) {
-  // 服务端对文史统一归一为 membership；旧 free/locked 不应再透出，仅保留历史兼容显示。
-  if (item.unlockMode === 'free') return heritage.freeBadge;
-  if (item.unlockMode === 'locked') return heritage.previewOnlyShort;
+  // 所有节目按年会员规则展示，旧 free/locked 不再显示免费完整标签。
   const seconds = Math.min(60, Math.max(1, Number(item.previewSeconds) || 60));
   return locale === 'en' ? `${heritage.preview} · ${seconds}${heritage.secondsUnit}` : `${heritage.preview} ${seconds}${heritage.secondsUnit}`;
 }

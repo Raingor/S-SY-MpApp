@@ -7,7 +7,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
 function createHarness(initialConfig) {
-  const h = { config: plain(initialConfig), configOk: true, requests: [], payments: 0, played: [], errors: [], mediaResponse: null, loggedIn: true, active: null, matched: 0 };
+  const h = { entitlements: { member: false }, config: plain(initialConfig), configOk: true, requests: [], payments: 0, played: [], errors: [], mediaResponse: null, loggedIn: true, active: null, matched: 0 };
   const storage = new Map([['sy_mp_access_token', 'fixture-client-token']]);
   const app = { globalData: { apiBase: 'https://fixture.invalid', contentSettings: {}, auth: { accessToken: '', user: null } } };
   const user = { id: 'fixture-user', nickname: 'Fixture', phoneBound: true };
@@ -33,6 +33,8 @@ function createHarness(initialConfig) {
         response = c.response;
       } else if (parsed.pathname === '/api/miniprogram/knowledge/config') {
         response = { statusCode: h.configOk ? 200 : 503, data: h.config };
+      } else if (parsed.pathname === '/api/miniprogram/entitlements') {
+        response = { statusCode: h.entitlementsOk === false ? 503 : 200, data: h.entitlements };
       } else if (parsed.pathname === '/api/miniprogram/auth/me') {
         response = { statusCode: h.loggedIn ? 200 : 401, data: h.loggedIn ? { user } : {} };
       } else {
@@ -64,6 +66,7 @@ function createHarness(initialConfig) {
     }, { filename: relative });
     return module.exports;
   }
+  h.load = load;
   h.i18n = load('utils/i18n.js', {});
   h.auth = load('utils/auth.js', { './i18n': h.i18n });
   h.paid = load('utils/paid-content.js', { './auth': h.auth });

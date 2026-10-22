@@ -7,8 +7,6 @@ function localized(item, key, locale) {
   return item && (item[key + suffix] || item[key]) || '';
 }
 function audioAccessLabel(item, heritage, locale) {
-  if (item.unlockMode === 'free') return heritage.freeBadge;
-  if (item.unlockMode === 'locked') return heritage.previewOnlyShort;
   const seconds = Math.min(60, Math.max(1, Number(item.previewSeconds) || 60));
   return locale === 'en' ? `${heritage.preview} · ${seconds}${heritage.secondsUnit}` : `${heritage.preview} ${seconds}${heritage.secondsUnit}`;
 }

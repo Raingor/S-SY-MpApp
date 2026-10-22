@@ -55,7 +55,7 @@ assert(profileMarkup.includes('class="knowledge-member-action" bindtap="onVipTap
 const vipShopMarkup = fs.readFileSync('pages/membership/shop.wxml', 'utf8');
 const vipShopSource = fs.readFileSync('pages/membership/shop.js', 'utf8');
 assert(vipShopMarkup.includes('wx:for="{{plans}}"') && vipShopMarkup.includes('{{item.displayPrice}}') && vipShopMarkup.includes('data-product-type="{{item.productType}}"'), 'VIP shop lists all configured membership products and prices');
-assert(vipShopSource.includes("['membership', 'annualMembership'].includes(product.productType)") && vipShopSource.includes('product.enabled !== false'), 'VIP shop includes each enabled membership product from backend config');
+assert(vipShopSource.includes('config.products.annualMembership') && vipShopSource.includes('paidContent.annualProductAvailable(product)'), 'VIP shop only offers the configured annual product');
 assert.match(vipShopSource, /paidContent\.createOrder\(productType, ''/, 'VIP plan selection uses the real membership order flow');
 let detailConfig;
 const detailNavigation = [];
@@ -69,6 +69,8 @@ vm.runInNewContext(fs.readFileSync('pages/attraction/detail.js', 'utf8'), {
     if (name.includes('data/content')) return detailContent;
     if (name.includes('utils/i18n')) return { getMessages: (locale) => translations.getMessages(locale || 'zh-CN'), apply() {} };
     if (name.includes('paid-content')) return {
+      productPriceDisplay: (p) => '¥' + Number(p.price).toFixed(2),
+      annualProductAvailable: (p) => Boolean(p && p.enabled === true && Number(p.price) === 199),
       fetchConfig(callback) { paidStateCalls.config++; callback(true, { configured: false, simulation: false, trialSeconds: 0, products: {} }); },
       fetchEntitlements(callback) { paidStateCalls.entitlements++; callback(true, { member: false, purchases: [] }); },
       isUnlocked: () => false
@@ -103,8 +105,8 @@ pageCopyInstance.applyPageCopy(pageCopyFixture);
 assert.equal(pageCopyInstance.data.pageCopy.sections.overview.title, 'Overview');
 assert.equal(pageCopyInstance.data.pageCopy.sections.visitor.notice, 'Check official notices');
 assert.equal(pageCopyInstance.data.pageCopy.audioHow.steps[0].number, '01');
-assert.equal(pageCopyInstance.data.pageCopy.audioHow.steps[0].text, 'Step one');
-assert.equal(pageCopyInstance.data.pageCopy.audioHow.note, 'Demo cannot play');
+assert.equal(pageCopyInstance.data.pageCopy.audioHow.steps[0].text, pageCopyInstance.data.i18n.heritage.onlineStep);
+assert.equal(pageCopyInstance.data.pageCopy.audioHow.note, pageCopyInstance.data.i18n.paidContent.memberDesc);
 function visitorSectionsFor(locale) {
   const instance = { ...detailConfig, data: { ...structuredClone(detailConfig.data), locale, i18n: translations.getMessages(locale) }, setData(next) { Object.assign(this.data, next); } };
   instance.applySpot(visitorFixture);
@@ -190,11 +192,11 @@ assert.deepEqual(paidStateCalls, { config: 1, entitlements: 1 });
 
 const requests = [];
 const wx = { request: (options) => { requests.push(options); } };
-const auth = { getAccessToken: () => 'fixture-token', isSimulationToken: () => false, ensurePhoneBound(callback) { callback(true); } };
+const auth = { getAccessToken: () => 'fixture-token', getUserState(callback) { callback(true, { phoneBound: true }); }, isSimulationToken: () => false, ensurePhoneBound(callback) { callback(true); } };
 const access = (() => {
   const file = fs.readFileSync('utils/audio-access.js', 'utf8');
   const module = { exports: {} };
-  vm.runInNewContext(file, { module, require: () => auth, getApp: () => ({ globalData: { apiBase: 'https://example.com' } }), wx });
+  vm.runInNewContext(file, { module, require: (id) => id === './auth' ? auth : { fetchEntitlements: (cb) => cb(true, { member: true }), isUnlocked: (e) => e.member }, getApp: () => ({ globalData: { apiBase: 'https://example.com' } }), wx });
   return module.exports;
 })();
 function accessReply(raw, status = 200) {
@@ -218,6 +220,7 @@ assert.equal(accessReply({}, 404).ok, false);
 let pageConfig;
 let audio;
 const tracks = [{ id: 'track-1', category: 'online', attractionId: 'sight-1', albumId: null, previewUrl: '/preview', title: 'Test', exhibitId: 'point-1' }];
+tracks.unshift({ ...tracks[0], id: 'expert-hidden', category: 'expert' }, { ...tracks[0], id: 'route-hidden', category: 'route' });
 const audioDetailMarkup = fs.readFileSync('pages/audio/detail.wxml', 'utf8');
 assert.match(audioDetailMarkup, /class="audio-experience-nav" style="top: \{\{statusBarHeight \+ 8\}\}px;"/, '全屏封面返回按钮必须位于真实状态栏下方');
 let response = { access: 'preview', unlockMode: 'attraction', previewSeconds: 60, previewUrl: '/preview', fullUrl: null };
@@ -229,7 +232,7 @@ const timers = new Map();
 let backCalled = false;
 const audioWx = {
   getWindowInfo: () => ({ statusBarHeight: 44 }),
-  createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; }, stop() { this.stopped = true; }, pause() { this.paused = true; }, seek(seconds) { this.currentTime = seconds; }, destroy() {}, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
+  createInnerAudioContext: () => (audio = { currentTime: 0, play() { this.played = true; if (this.playHandler) this.playHandler(); }, stop() { this.stopped = true; }, pause() { this.paused = true; }, seek(seconds) { this.currentTime = seconds; }, destroy() {}, onPlay(fn) { this.playHandler = fn; }, onWaiting(fn) { this.waiting = fn; }, onTimeUpdate(fn) { this.timeUpdate = fn; }, onSeeking(fn) { this.seeking = fn; }, onEnded(fn) { this.ended = fn; }, onError(fn) { this.error = fn; } }),
   showToast: () => showToastCount++,
   switchTab() {}, showModal() { showModalCount++; }
 };
@@ -244,8 +247,10 @@ vm.runInNewContext(source, {
   require: (name) => {
     if (name.includes('data/content')) return content;
     if (name.includes('utils/i18n')) return { getMessages: () => translations.getMessages('en'), apply: () => translations.getMessages('en') };
-    if (name.includes('audio-access')) return { getAccess: (_id, cb) => cb(true, { mode: response.unlockMode, access: response.access, fullUrl: response.access === 'full' ? response.fullUrl : '', previewUrl: response.previewUrl, previewSeconds: Math.min(response.previewSeconds, 60) }, 200) };
+    if (name.includes('audio-access')) return { getAccess: (_id, cb) => cb(true, { mode: response.unlockMode, access: response.access, fullUrl: response.access === 'full' ? response.fullUrl : '', fullUrlValidUntil: Date.now() + 300000, previewUrl: response.previewUrl, previewSeconds: Math.min(response.previewSeconds, 60) }, 200) };
     if (name.includes('paid-content')) return {
+      productPriceDisplay: (p) => '¥' + Number(p.price).toFixed(2),
+      annualProductAvailable: (p) => Boolean(p && p.enabled === true && Number(p.price) === 199),
       fetchConfig(callback) { callback(true, { simulation: false, products: { attraction: { price: '¥9.9', enabled: true }, membership: { name: '终身会员', price: 99, enabled: false }, annualMembership: { name: '年会员', price: 199, enabled: true } } }); },
       createOrder(product, attractionId, callback) { orderAttempts.push({ product, attractionId }); callback(true, { paymentStatus: 'pending' }); }
     };
@@ -258,9 +263,11 @@ vm.runInNewContext(source, {
 });
 const instance = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
 instance.onLoad({ attractionId: 'sight-1', pointId: 'point-1' });
+assert.deepEqual(Array.from(instance.data.pointTracks, (track) => track.id), ['track-1'], 'online visit player does not expose hidden expert/route tracks from the same point');
 assert.equal(instance.data.statusBarHeight, 44);
-assert(instance.data.track && instance.data.access === null && !audio);
+assert(instance.data.track && instance.data.access.access === 'preview' && !audio);
 instance.playPreview();
+audio.timeUpdate();
 assert(audio.played && !instance.data.fullPlayback);
 assert.equal([...timers.values()][0].delay, 60000, 'preview duration is measured as real playback time');
 audio.currentTime = 59.9; audio.timeUpdate();
@@ -273,11 +280,10 @@ assert.equal(timers.size, 1);
 const firstPreviewTimer = [...timers.values()][0]; timers.clear(); firstPreviewTimer.fn();
 assert(audio.stopped && instance.data.previewEnded && !instance.data.playing);
 assert.equal(instance.data.showUnlockPaywall, true);
-assert.equal(instance.data.unlockOptions.length, 2);
-assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥9.90', 'single-sight price uses the configured amount with two decimals');
-assert.equal(instance.data.unlockOptions[1].product, 'annualMembership', 'paywall offers the annual membership product type');
-assert.equal(instance.data.unlockOptions[1].title, '年会员', 'paywall uses the enabled annual product name');
-assert.equal(instance.data.unlockOptions[1].priceDisplay, '¥199.00', 'paywall reads the annual membership price with two decimals');
+assert.equal(instance.data.unlockOptions.length, 1);
+assert.equal(instance.data.unlockOptions[0].product, 'annualMembership', 'paywall offers the annual membership product type');
+assert.equal(instance.data.unlockOptions[0].title, translations.getMessages('en').paidContent.memberAnnual, 'paywall uses the localized annual membership title');
+assert.equal(instance.data.unlockOptions[0].priceDisplay, '¥199.00', 'paywall reads the annual membership price with two decimals');
 assert(!instance.data.unlockOptions.some((option) => option.product === 'membership'), 'disabled lifetime membership is excluded');
 assert.equal(showModalCount, 0, 'preview completion does not use the native confirmation modal');
 assert.equal(showToastCount, 0);
@@ -289,6 +295,7 @@ assert.match(fs.readFileSync('pages/audio/detail.wxss', 'utf8'), /\.audio-full-a
 instance.onUnlockPaywallClose();
 assert.equal(instance.data.showUnlockPaywall, false);
 instance.playPreview();
+audio.timeUpdate();
 audio.currentTime = 0;
 instance.onSeekChange({ detail: { value: 50 } });
 assert(!instance.data.previewEnded && instance.data.playing);
@@ -299,9 +306,9 @@ assert.equal(instance.data.showUnlockPaywall, true);
 instance.onUnlockOptionTap({ currentTarget: { dataset: { product: 'annualMembership' } } });
 assert.deepEqual(orderAttempts[0], { product: 'annualMembership', attractionId: '' }, 'custom paywall annual plan reaches the annual-membership order flow');
 instance.onUnlockOptionTap({ currentTarget: { dataset: { product: 'attraction' } } });
-assert.deepEqual(orderAttempts[1], { product: 'attraction', attractionId: 'sight-1' }, 'single-sight option remains available and reaches its existing order flow');
+assert.equal(orderAttempts.length, 1, 'single-sight purchase has been retired');
 assert.equal(showModalCount, 0);
-assert.equal(showToastCount, 2, 'both selected products reach the existing payment-pending order flow');
+assert.equal(showToastCount, 1, 'only the annual plan reaches the payment-pending order flow');
 instance.playFull();
 assert(!instance.data.fullPlayback);
 response = { ...response, access: 'full', fullUrl: 'https://example.com/signed' };
@@ -309,6 +316,7 @@ const entitledPreview = { ...pageConfig, data: structuredClone(pageConfig.data),
 entitledPreview.data.track = instance.data.track;
 entitledPreview.data.durationSeconds = instance.data.durationSeconds;
 entitledPreview.playPreview();
+entitledPreview.audio.timeUpdate();
 assert(entitledPreview.data.fullPlayback && entitledPreview.audio.src === response.fullUrl, 'entitled members who tap play start full playback without the preview timer');
 assert.equal(timers.size, 0, 'full member playback does not start a preview countdown');
 audio = instance.audio;

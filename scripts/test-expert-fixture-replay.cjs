@@ -1,4 +1,5 @@
-// Replay captured Website HTTP responses into real MpApp modules; no network or real payments.
+// Replay historical provider responses against the new annual-only client policy; no network/payment.
+// Legacy city/sight grants are deliberately narrowed; this fixture does not prove new backend deployment.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -32,8 +33,8 @@ let mediaCases = 0;
       }));
       const expert = h.page(tracks.get('fixture-expert-a'), spotFor(tracks.get('fixture-expert-a')));
       expert.openUnlockPaywall();
-      assert.deepEqual(Array.from(expert.data.unlockOptions, (o) => o.product), ['city', 'annualMembership']);
-      assert.equal(expert.data.unlockOptions[0].priceDisplay, '¥69.90');
+      assert.deepEqual(Array.from(expert.data.unlockOptions, (o) => o.product), ['annualMembership']);
+      assert.equal(expert.data.unlockOptions[0].priceDisplay, '¥199.00');
       const heritage = h.page(tracks.get('fixture-heritage-a'));
       heritage.openUnlockPaywall();
       assert.deepEqual(Array.from(heritage.data.unlockOptions, (o) => o.product), ['annualMembership']);
@@ -52,27 +53,28 @@ let mediaCases = 0;
       assert.ok(track, c.name + ': fixture track exists');
       const p = h.page(track, spotFor(track));
       h.setLoggedIn(!c.name.startsWith('anonymous_'));
+      h.entitlements = { member: c.name.startsWith('annual_purchase_') || c.name === 'before_revocation_expert_full' };
+      const expectedFull = raw.access === 'full' && h.entitlements.member;
       await h.replay(c, () => p.refreshAccess());
       h.setLoggedIn(true);
       assert.equal(p.data.access.mode, raw.unlockMode);
-      assert.equal(p.data.access.access, raw.access);
+      assert.equal(p.data.access.access, expectedFull ? 'full' : 'preview');
       assert.equal(p.data.access.previewSeconds, raw.previewSeconds);
-      if (raw.access === 'full') {
+      if (expectedFull) {
         assert.equal(raw.expiresIn, 300, c.name + ': provider full has a bounded signature');
         assert.ok(p.data.access.fullUrlValidUntil > Date.now());
       } else assert.equal(p.data.access.fullUrl, '');
       p.playPreview();
-      assert.equal(p.data.fullPlayback, raw.access === 'full', c.name + ': playback follows server authorization');
-      assert.equal(p.audio.src, 'https://fixture.invalid' + (raw.access === 'full' ? raw.fullUrl : raw.previewUrl));
-      assert.equal(Boolean(p._previewTimer), raw.access !== 'full');
+      assert.equal(p.data.fullPlayback, expectedFull, c.name + ': playback follows server authorization');
+      assert.equal(p.audio.src, 'https://fixture.invalid' + (expectedFull ? raw.fullUrl : raw.previewUrl));
+      assert.equal(Boolean(p._previewTimer), !expectedFull);
       p.stop();
-    } else if (requestPath === '/api/miniprogram/orders' && ['expertTrack', 'album'].includes(body.productType)) {
-      // Removed products must be blocked before HTTP; captured provider 422 is the independent backstop.
-      assert.equal(c.response.statusCode, 422);
-      assert.equal(raw.code, 'PAYMENT_PRODUCT_UNAVAILABLE');
+    } else if (requestPath === '/api/miniprogram/orders' && body.productType !== 'annualMembership') {
+      // Old city/sight provider fixtures returned 201. The new client must still block them.
+      const rejection = 'PAYMENT_PRODUCT_UNAVAILABLE';
       const before = h.requests.length;
       h.paid.createOrder(body.productType, body, (ok, result) => {
-        assert.equal(ok, false); assert.equal(result.code, raw.code);
+        assert.equal(ok, false); assert.equal(result.code, rejection);
       });
       assert.equal(h.requests.length, before);
       retiredBlocked++;
@@ -132,5 +134,5 @@ let mediaCases = 0;
   }
   assert.equal(clientResponses + retiredBlocked + mediaCases, fixture.cases.length);
   assert.equal(h.payments, 0);
-  console.log(`PASS: v4 captured HTTP replay covers ${fixture.cases.length} cases (${clientResponses} real-client response paths, ${retiredBlocked} retired-product blocks with provider 422 proof, ${mediaCases} media summaries/error events); city includes expert, heritage annual-only, normalized modes, 401/403 retry; zero network/native payments`);
+  console.log(`PASS: v4 captured HTTP replay covers ${fixture.cases.length} cases (${clientResponses} real-client response paths, ${retiredBlocked} retired-product client blocks, ${mediaCases} media summaries/error events); annual-only client policy, historical city/sight grants narrowed to previews, normalized modes, 401/403 retry; zero network/native payments`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

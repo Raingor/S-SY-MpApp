@@ -15,6 +15,7 @@ global.getApp = () => ({ globalData: { apiBase: 'https://fixture.invalid', auth:
 global.wx = {
   getStorageSync: () => '',
   request({ url, method, success }) {
+    if (url.endsWith('/knowledge/config')) return success({ statusCode: 200, data: { products: { annualMembership: { enabled: true, price: 199, currency: 'CNY' } } } });
     assert.match(url, /^https:\/\/fixture\.invalid\/api\/miniprogram\/orders$/);
     assert.equal(method, 'POST');
     requestCount++;
@@ -30,19 +31,19 @@ const localRequire = (id) => {
 vm.runInThisContext(`(function(require, module, exports) {\n${fs.readFileSync(paidPath, 'utf8')}\n})`, { filename: paidPath })(localRequire, paidModule, paidModule.exports);
 const paid = paidModule.exports;
 let simulationResult;
-paid.createOrder('attraction', 'fixture-attraction', (ok, data) => {
+paid.createOrder('annualMembership', '', (ok, data) => {
   assert.equal(ok, false);
   simulationResult = data;
 });
 assert.equal(simulationResult.pendingSimulation, true);
 let misconfiguredSimulation;
-paid.createOrder('attraction', 'fixture-attraction', (ok, data) => {
+paid.createOrder('annualMembership', '', (ok, data) => {
   assert.equal(ok, false);
   misconfiguredSimulation = data;
 });
 assert.equal(misconfiguredSimulation.pendingSimulation, true);
 let missingPaymentResult;
-paid.createOrder('membership', '', (ok, data) => {
+paid.createOrder('annualMembership', '', (ok, data) => {
   assert.equal(ok, false);
   missingPaymentResult = data;
 });

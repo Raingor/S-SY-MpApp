@@ -86,8 +86,7 @@ Page({
     this.loadSpot();
   },
 
-  // 全站隐藏（sections[key].hidden）与分景点覆盖（attraction.hiddenSections）合并；
-  // 只能进一步隐藏，不能复活全局隐藏。
+  // 当前上线范围：隐藏路线与名师讲解，线上游览始终开放；其他板块继续使用后台显隐。
   applyPageCopy(page, spot) {
     const locale = this.data.locale === 'en' ? 'en' : this.data.locale === 'zh-TW' ? 'tw' : 'zh';
     const read = (entry) => entry && typeof entry === 'object' ? String(entry[locale] || entry.zh || '') : '';
@@ -101,11 +100,12 @@ Page({
         title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
         notice: read(value.notice),
-        hidden: (value && value.hidden === true) || overrides.includes(key)
+        hidden: key === 'online' ? false : ['route', 'expert'].includes(key) || (value && value.hidden === true) || overrides.includes(key)
       };
     }
-    const audioHow = page && page.audioHow || {};
-    this.setData({ pageCopy: { sections, audioHow: { steps: (Array.isArray(audioHow.steps) ? audioHow.steps : []).map((step, index) => ({ number: String(index + 1).padStart(2, '0'), text: read(step) })), note: read(audioHow.note) } } });
+    const heritage = this.data.i18n.heritage || {};
+    const steps = [heritage.onlineStep, heritage.previewStep].filter(Boolean).map((text, index) => ({ number: String(index + 1).padStart(2, '0'), text }));
+    this.setData({ pageCopy: { sections, audioHow: { steps, note: (this.data.i18n.paidContent || {}).memberDesc || '' } } });
   },
 
   applySpot(spot, statusBarHeight) {
@@ -186,7 +186,8 @@ Page({
     if (!this.data.spot || !(this.data.spot.videoUrl || this.data.spot.expertVideoUrl)) return;
     paidContent.fetchConfig((ok, config) => {
       const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
-      const membershipProducts = Object.values(config.products || {}).filter((product) => product && product.enabled !== false && ['membership', 'annualMembership'].includes(product.productType)).map((product) => ({ ...product, displayName: memberTitle }));
+      const product = config.products && config.products.annualMembership;
+      const membershipProducts = ok && paidContent.annualProductAvailable(product) ? [{ ...product, productType: 'annualMembership', displayName: memberTitle }] : [];
       this.setData({ paidConfig: config, membershipProducts, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable });
     });
     paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId), expertVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
@@ -281,27 +282,14 @@ Page({
     if (this.data.trialEnded) wx.createVideoContext('knowledge-video', this).pause();
   },
 
-  _pauseVideoTrial() { if (this._videoTrialTimer) clearTimeout(this._videoTrialTimer); },
-  onExpertVideoTimeUpdate(e) {
-    if (!this.data.spot || !this.data.spot.expertVideoUrl) return;
-    if (this.data.isVideoUnlocked || this.data.expertVideoUnlocked || this.data.trialEnded || !this.data.paidConfig.configured) return;
-    const seconds = Number(e.detail.currentTime || 0);
-    const limit = this.data.paidConfig.trialSeconds && Math.min(this.data.spot.expertVideoTrialSeconds || 0, this.data.paidConfig.trialSeconds);
-    if (limit && seconds >= limit) {
-      clearTimeout(this._videoTrialTimer);
-      this.setData({ trialEnded: true, showPurchaseModal: true });
-      wx.createVideoContext('expert-video', this).pause();
-    }
-  },
-
-  onVideoPlay() {
+  onVideoTimeUpdate(e) {
     if (this.data.isVideoUnlocked) return;
-    this._pauseVideoTrial();
-    if (!this.data.paidConfig.configured) {
+    const configured = Number(this.data.paidConfig.trialSeconds);
+    const limit = Number.isFinite(configured) && configured > 0 ? Math.min(60, configured) : 0;
+    if (!this.data.paidConfig.configured || this.data.trialEnded || Number(e.detail.currentTime || 0) >= limit) {
       wx.createVideoContext('knowledge-video', this).pause();
-      return wx.showToast({ title: this.data.i18n.paidContent.trialUnavailable, icon: 'none' });
+      this.setData({ trialEnded: true, showPurchaseModal: true });
     }
-    if (this.data.trialEnded) wx.createVideoContext('knowledge-video', this).pause();
   },
 
   _pauseVideoTrial() { if (this._videoTrialTimer) clearTimeout(this._videoTrialTimer); },
@@ -328,10 +316,11 @@ Page({
   onPurchase(e) {
     if (this.data.purchaseLoading) return;
     const productType = e.currentTarget.dataset.product;
+    if (productType !== 'annualMembership') return;
     const token = auth.getAccessToken();
     if (!token) return wx.switchTab({ url: '/pages/profile/profile' });
     this.setData({ purchaseLoading: true });
-    paidContent.createOrder(productType, productType === 'attraction' ? this.spotId : '', (ok, data) => {
+    paidContent.createOrder(productType, '', (ok, data) => {
       this.setData({ purchaseLoading: false });
       if (data && data.pendingSimulation && data.order) {
         return this.setData({ pendingSimulationOrder: data.order });

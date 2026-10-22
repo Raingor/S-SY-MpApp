@@ -56,11 +56,9 @@
     </view>
     <view class="audio-player-actions">
       <text wx:if="{{access && access.access === 'full'}}" class="audio-preview-caption">{{i18n.heritage.fullAccess}}</text>
-      <text wx:elif="{{track.unlockMode === 'free'}}" class="audio-preview-caption">{{i18n.heritage.freeBadge}}</text>
       <text wx:elif="{{track.unlockMode === 'locked'}}" class="audio-preview-caption">{{i18n.heritage.previewOnlyShort}}</text>
       <text wx:else class="audio-preview-caption">{{i18n.heritage.preview}} · {{track.previewSeconds || 60}}s</text>
-      <button wx:if="{{track.unlockMode !== 'locked'}}" class="audio-full-action" hover-class="audio-full-action-hover" disabled="{{accessLoading || purchaseLoading}}" bindtap="onFullAccessTap">{{accessLoading ? i18n.loading : fullActionText}}</button>
-      <view wx:else class="audio-full-action audio-full-action-disabled">{{i18n.heritage.previewOnly}}</view>
+      <button class="audio-full-action" hover-class="audio-full-action-hover" disabled="{{accessLoading || purchaseLoading}}" bindtap="onFullAccessTap">{{accessLoading ? i18n.loading : fullActionText}}</button>
     </view>
   </view>
 
@@ -107,7 +105,6 @@
           <view class="audio-paywall-plan-price">{{item.priceDisplay}}<text>›</text></view>
         </view>
       </view>
-      <view wx:elif="{{track.unlockMode === 'locked'}}" class="audio-paywall-empty">{{i18n.heritage.previewOnly}}</view>
       <view wx:else class="audio-paywall-empty">{{i18n.paidContent.paywallUnavailable}}</view>
       <view class="audio-paywall-footnote">{{i18n.paidContent.paywallFootnote}}</view>
       <view class="audio-paywall-later" bindtap="onUnlockPaywallClose">{{i18n.paidContent.paywallLater}}</view>

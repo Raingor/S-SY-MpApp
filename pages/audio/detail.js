@@ -14,31 +14,14 @@ function formatTime(value) { const seconds = Math.max(0, Math.floor(Number(value
 function fullActionText(track, access, messages) {
   const heritage = messages && messages.heritage || {};
   const paidContent = messages && messages.paidContent || {};
-  const mode = access && access.mode || track && track.unlockMode;
-  if (access && access.access === 'full') return mode === 'free' ? heritage.freeFull || heritage.full || '' : heritage.full || '';
-  if (mode === 'membership' || mode === 'album') return paidContent.member || heritage.unlockRequired || '';
-  if (mode === 'attraction') return paidContent.buySpot || heritage.unlockRequired || '';
-  if (mode === 'expert') return paidContent.expertAccess || heritage.unlockRequired || '';
-  if (mode === 'free') return heritage.freeFull || heritage.full || '';
-  return heritage.unlockRequired || '';
+  if (access && access.access === 'full') return heritage.full || '';
+  return paidContent.member || heritage.unlockRequired || '';
 }
 
-// 专家随城市包/年会员，文史仅年会员；不再提供专家单篇或专辑单售。
-function unlockProducts(mode, cityId) {
-  if (mode === 'expert') return cityId ? ['city', 'annualMembership'] : ['annualMembership'];
-  if (mode === 'attraction') return cityId ? ['attraction', 'city', 'annualMembership'] : ['attraction', 'annualMembership'];
-  if (mode === 'membership' || mode === 'album') return ['annualMembership'];
-  return [];
-}
-function productAvailable(product) {
-  const amount = Number(product && product.price);
-  return Boolean(product && product.enabled === true && Number.isFinite(amount) && amount > 0);
-}
-function unlockExplanation(mode, copy) {
-  if (mode === 'expert') return copy.expertAccessDesc || '';
-  if (mode === 'membership' || mode === 'album') return copy.heritageAccess || '';
-  return copy.paywallSubtitle || '';
-}
+// 所有已发布内容统一由年会员解锁，兼容旧内容的 unlockMode 字段。
+function unlockProducts() { return ['annualMembership']; }
+function productAvailable(product) { return paid.annualProductAvailable(product); }
+function unlockExplanation(copy) { return copy.memberDesc || ''; }
 
 Page({
   data: {
@@ -175,19 +158,18 @@ Page({
     });
     paid.fetchConfig((ok, config) => {
       if (authRequestId !== this._paywallAuthRequestId || !this.data.showUnlockPaywall) return;
-      const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
-      const choices = unlockProducts(accessMode, this.purchaseCityId());
+      const choices = unlockProducts();
       const messages = this.data.i18n.paidContent || {};
       const products = ok && config && config.products || {};
       const unlockOptions = choices.filter((product) => productAvailable(products[product]))
         .map((product) => ({
           product,
-          title: product === 'attraction' ? messages.buySpot : product === 'city' ? messages.buyCity : (products[product].name || messages.memberAnnual || messages.member),
-          description: product === 'attraction' ? messages.buySpotDesc : product === 'city' ? messages.buyCityDesc : messages.memberDesc,
+          title: messages.memberAnnual || messages.member,
+          description: messages.memberDesc,
           priceDisplay: paid.productPriceDisplay(products[product]),
           featured: product === 'annualMembership'
         }));
-      this.setData({ paywallLoading: false, unlockOptions, unlockExplanation: unlockExplanation(accessMode, messages), paidConfig: ok ? config : null, simulation: Boolean(ok && config && config.simulation) });
+      this.setData({ paywallLoading: false, unlockOptions, unlockExplanation: unlockExplanation(messages), paidConfig: ok ? config : null, simulation: Boolean(ok && config && config.simulation) });
     });
   },
   onUnlockPaywallClose() {
@@ -263,7 +245,7 @@ Page({
         if (spot && state && state.source === 'remote') {
           const belongsToSpot = (item) => String(item.attractionId) === String(spot.id) &&
             ['route', 'online', 'expert'].includes(item.category) && !item.albumId;
-          pointTracks = point ? (spot.audioGuides || []).filter((item) => belongsToSpot(item) && String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
+          pointTracks = point ? (spot.audioGuides || []).filter((item) => belongsToSpot(item) && item.category === this.params.category && String(item.exhibitId) === String(point.id) && item.previewUrl && item.isDemo !== true) : [];
           track = this.params.trackId
             ? (spot.audioGuides || []).find((item) => belongsToSpot(item) && String(item.id) === String(this.params.trackId) && (item.isDemo === true || item.previewUrl))
             : pointTracks[0] || null;
@@ -292,7 +274,7 @@ Page({
       description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
       cover: (track && track.cover) || (point && point.image) || this.albumCover || (this.spot && this.spot.image) || '',
       fullActionText: fullActionText(track, this.data.access, this.data.i18n),
-      unlockExplanation: unlockExplanation(this.data.access && this.data.access.mode || track && track.unlockMode, this.data.i18n.paidContent || {}),
+      unlockExplanation: unlockExplanation(this.data.i18n.paidContent || {}),
       duration: duration(track && track.durationSeconds),
       durationSeconds: Number(track && track.durationSeconds) || 0,
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
@@ -388,7 +370,6 @@ Page({
   },
   playPreview() {
     if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl) return;
-    if (this.data.track.unlockMode === 'free') return this.playFull();
     if (this.data.playing && !this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     const start = (access) => {
       if (!access) return;
@@ -408,7 +389,7 @@ Page({
     this.refreshAccess(start, true);
   },
   playFull() {
-    if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl || this.data.track.unlockMode === 'locked') return;
+    if (!this.data.track || this.data.demoMode || !this.data.track.previewUrl) return;
     if (this.data.audioLoading) return;
     if (this.data.playing && this.data.fullPlayback) { this.audio.pause(); return this.setData({ playing: false }); }
     const start = (access) => {
@@ -451,25 +432,17 @@ Page({
     this.setData({ playing: false, audioLoading: false, accessError: true });
     wx.showToast({ title: this.data.i18n.heritage.networkFailed, icon: 'none' });
   },
-  purchaseCityId() {
-    // 只能用当前音轨关联的真实景点归属；不可用跳转参数猜城市，避免买错城市。
-    const track = this.data.track;
-    const spot = this.spot;
-    if (!track || !spot || !spot.id || String(track.attractionId || '') !== String(spot.id)) return '';
-    return typeof spot.city === 'string' ? spot.city.trim() : '';
-  },
   onUnlock(productChoice) {
     const access = this.data.access;
-    if (!access || !['attraction', 'membership', 'album', 'expert'].includes(access.mode)) {
-      const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
+    if (!access) {
+      const title = this.data.i18n.heritage.unlockRequired;
       return wx.showToast({ title, icon: 'none' });
     }
-    const cityId = this.purchaseCityId();
-    const allowedProducts = unlockProducts(access.mode, cityId);
+    const allowedProducts = unlockProducts();
     const product = typeof productChoice === 'string' ? productChoice : allowedProducts[0];
-    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    if (!allowedProducts.includes(product)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
     const trackId = this.data.track && this.data.track.id;
-    const stillCurrent = () => this.data.track && this.data.track.id === trackId && this.data.access && this.data.access.mode === access.mode && this.purchaseCityId() === cityId;
+    const stillCurrent = () => this.data.track && this.data.track.id === trackId && this.data.access && this.data.access.mode === access.mode;
     if (!auth.getAccessToken()) {
       this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
       return;
@@ -488,11 +461,9 @@ Page({
   },
   createOrder(product) {
     if (this.data.purchaseLoading) return;
-    const mode = this.data.access && this.data.access.mode;
-    const cityId = this.purchaseCityId();
-    if (!unlockProducts(mode, cityId).includes(product) || (product === 'attraction' && !this.params.attractionId)) return;
+    if (!unlockProducts().includes(product)) return;
     this.setData({ purchaseLoading: true });
-    const target = product === 'attraction' ? this.params.attractionId : product === 'city' ? { cityId } : '';
+    const target = '';
     paid.createOrder(product, target, (ok, result) => {
       this.setData({ purchaseLoading: false });
       if (result && result.code === 'PAYMENT_CANCELLED') return;

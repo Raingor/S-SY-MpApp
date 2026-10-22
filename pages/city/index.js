@@ -114,7 +114,7 @@ Page({
     });
   },
 
-  // 先展示城市包和年会员权益，再由用户选择购买方案。
+  // 统一开通年会员，解锁全平台内容。
   onBuy() {
     const city = this.data.city;
     if (!city) return;
@@ -140,11 +140,11 @@ Page({
       this.setData({ purchaseLoading: true, selectedCityProductTitle: selectedOption.title });
       paid.fetchConfig((ok, config) => {
         const product = config && config.products && config.products[productType];
-        if (!ok || !product || product.enabled === false) {
+        if (!ok || !paid.annualProductAvailable(product)) {
           this.setData({ purchaseLoading: false });
           return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         }
-        const target = productType === 'city' ? { cityId: city.id } : '';
+        const target = '';
         paid.createOrder(productType, target, (created, result) => {
           this.setData({ purchaseLoading: false, simulationMode: Boolean(config.simulation) });
           if (result && result.pendingSimulation && result.order) return this.setData({ pendingSimulationOrder: result.order });
