@@ -135,6 +135,8 @@ function isUnlocked(entitlements, attractionId) {
 }
 
 function createOrder(productType, target, callback) {
+  // 已停售的专家单篇/文史专辑不能被旧页面或缓存入口重新发起购买。
+  if (['expertTrack', 'album'].includes(productType)) return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
   const purchaseTarget = target && typeof target === 'object'
     ? target
     : (target ? { attractionId: target } : {});

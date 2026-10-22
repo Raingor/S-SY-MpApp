@@ -16,18 +16,28 @@ function fullActionText(track, access, messages) {
   const paidContent = messages && messages.paidContent || {};
   const mode = access && access.mode || track && track.unlockMode;
   if (access && access.access === 'full') return mode === 'free' ? heritage.freeFull || heritage.full || '' : heritage.full || '';
-  if (mode === 'membership') return paidContent.member || heritage.unlockRequired || '';
+  if (mode === 'membership' || mode === 'album') return paidContent.member || heritage.unlockRequired || '';
   if (mode === 'attraction') return paidContent.buySpot || heritage.unlockRequired || '';
-  if (mode === 'album') return paidContent.buyAlbum || heritage.unlockRequired || '';
-  if (mode === 'expert') return paidContent.buyExpert || heritage.unlockRequired || '';
+  if (mode === 'expert') return paidContent.expertAccess || heritage.unlockRequired || '';
   if (mode === 'free') return heritage.freeFull || heritage.full || '';
   return heritage.unlockRequired || '';
 }
 
-// 专家单篇价格待后台确认；关闭、零价或无效价格时不得进入购买流程。
-function expertProductAvailable(product) {
+// 专家随城市包/年会员，文史仅年会员；不再提供专家单篇或专辑单售。
+function unlockProducts(mode, cityId) {
+  if (mode === 'expert') return cityId ? ['city', 'annualMembership'] : ['annualMembership'];
+  if (mode === 'attraction') return cityId ? ['attraction', 'city', 'annualMembership'] : ['attraction', 'annualMembership'];
+  if (mode === 'membership' || mode === 'album') return ['annualMembership'];
+  return [];
+}
+function productAvailable(product) {
   const amount = Number(product && product.price);
   return Boolean(product && product.enabled === true && Number.isFinite(amount) && amount > 0);
+}
+function unlockExplanation(mode, copy) {
+  if (mode === 'expert') return copy.expertAccessDesc || '';
+  if (mode === 'membership' || mode === 'album') return copy.heritageAccess || '';
+  return copy.paywallSubtitle || '';
 }
 
 Page({
@@ -36,7 +46,7 @@ Page({
     track: null, point: null, pointTracks: [], access: null, accessError: false, accessLoading: false, unavailable: false,
     loading: true, playing: false, audioLoading: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
-    showUnlockPaywall: false, paywallLoading: false, unlockOptions: [],
+    showUnlockPaywall: false, paywallLoading: false, unlockOptions: [], unlockExplanation: '',
     paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: ''
   },
   onLoad(options) {
@@ -76,7 +86,8 @@ Page({
       this._clearPlaybackStartTimer();
       this._pausePreviewTimer();
       this._stopAudio();
-      this.setData({ playing: false, audioLoading: false, accessError: true });
+      // 播放失败可能是签名失效/权益撤销；丢弃缓存，重试时必须重新鉴权。
+      this.setData({ playing: false, audioLoading: false, fullPlayback: false, access: null, accessError: true });
       console.error('[audio] playback failed', error);
       wx.showToast({ title: this.data.i18n.heritage.networkFailed, icon: 'none' });
     });
@@ -165,18 +176,18 @@ Page({
     paid.fetchConfig((ok, config) => {
       if (authRequestId !== this._paywallAuthRequestId || !this.data.showUnlockPaywall) return;
       const accessMode = this.data.access && this.data.access.mode || this.data.track && this.data.track.unlockMode;
-      const choices = accessMode === 'attraction' ? ['attraction', 'annualMembership'] : accessMode === 'expert' ? ['expertTrack', 'annualMembership'] : accessMode === 'album' ? ['album', 'annualMembership'] : accessMode === 'membership' ? ['annualMembership'] : [];
+      const choices = unlockProducts(accessMode, this.purchaseCityId());
       const messages = this.data.i18n.paidContent || {};
-      const products = config && config.products || {};
-      const unlockOptions = choices.filter((product) => products[product] && products[product].enabled !== false && products[product].price !== undefined && products[product].price !== null && (product !== 'expertTrack' || expertProductAvailable(products[product])))
+      const products = ok && config && config.products || {};
+      const unlockOptions = choices.filter((product) => productAvailable(products[product]))
         .map((product) => ({
           product,
-          title: product === 'attraction' ? messages.buySpot : product === 'expertTrack' ? (products[product].name || messages.buyExpert) : product === 'album' ? messages.buyAlbum : (products[product].name || messages.memberAnnual || messages.member),
-          description: product === 'attraction' ? messages.buySpotDesc : product === 'expertTrack' ? messages.buyExpertDesc : product === 'album' ? messages.buyAlbumDesc : messages.memberDesc,
+          title: product === 'attraction' ? messages.buySpot : product === 'city' ? messages.buyCity : (products[product].name || messages.memberAnnual || messages.member),
+          description: product === 'attraction' ? messages.buySpotDesc : product === 'city' ? messages.buyCityDesc : messages.memberDesc,
           priceDisplay: paid.productPriceDisplay(products[product]),
           featured: product === 'annualMembership'
         }));
-      this.setData({ paywallLoading: false, unlockOptions, paidConfig: config || null, simulation: Boolean(config && config.simulation) });
+      this.setData({ paywallLoading: false, unlockOptions, unlockExplanation: unlockExplanation(accessMode, messages), paidConfig: ok ? config : null, simulation: Boolean(ok && config && config.simulation) });
     });
   },
   onUnlockPaywallClose() {
@@ -281,6 +292,7 @@ Page({
       description: localized(track && track.isDemo ? track : (point || track), 'description', locale),
       cover: (track && track.cover) || (point && point.image) || this.albumCover || (this.spot && this.spot.image) || '',
       fullActionText: fullActionText(track, this.data.access, this.data.i18n),
+      unlockExplanation: unlockExplanation(this.data.access && this.data.access.mode || track && track.unlockMode, this.data.i18n.paidContent || {}),
       duration: duration(track && track.durationSeconds),
       durationSeconds: Number(track && track.durationSeconds) || 0,
       remainingTime: formatTime(Math.max(0, (Number(track && track.durationSeconds) || 0) - this.data.currentSeconds)),
@@ -382,7 +394,7 @@ Page({
       if (!access) return;
       if (!access.previewUrl) return;
       if (access.access === 'full') {
-        if (!this._fullUrlIsFresh(access)) return this.refreshAccess((fresh) => fresh ? start(fresh) : this._handleNoPlayableAccess());
+        if (!this._fullUrlIsFresh(access)) return this._handleNoPlayableAccess();
         if (!access.fullUrl) return this._handleNoPlayableAccess();
         this.stop();
         return this._playSource(access.fullUrl, true);
@@ -402,7 +414,7 @@ Page({
     const start = (access) => {
       if (!access) return;
       if (!access.fullUrl) return this.openUnlockPaywall();
-      if (!this._fullUrlIsFresh(access)) return this.refreshAccess((fresh) => fresh && fresh.fullUrl ? this._playSource(fresh.fullUrl, true) : this.openUnlockPaywall());
+      if (!this._fullUrlIsFresh(access)) return this._handleNoPlayableAccess();
       this.stop();
       this._playSource(access.fullUrl, true);
     };
@@ -412,7 +424,7 @@ Page({
   },
   _fullUrlIsFresh(access) {
     // fullUrlValidUntil 为 0/-1（服务端未给出有效 expiresIn 或非 full）视为不新鲜，重新回查 access。
-    return Boolean(access && access.fullUrl && access.fullUrlValidUntil && Date.now() < access.fullUrlValidUntil - 5000);
+    return Boolean(access && access.access === 'full' && access.fullUrl && Number.isFinite(access.fullUrlValidUntil) && Date.now() < access.fullUrlValidUntil - 5000);
   },
   _playSource(source, fullPlayback) {
     const audio = this.ensureAudioContext();
@@ -439,24 +451,36 @@ Page({
     this.setData({ playing: false, audioLoading: false, accessError: true });
     wx.showToast({ title: this.data.i18n.heritage.networkFailed, icon: 'none' });
   },
+  purchaseCityId() {
+    // 只能用当前音轨关联的真实景点归属；不可用跳转参数猜城市，避免买错城市。
+    const track = this.data.track;
+    const spot = this.spot;
+    if (!track || !spot || !spot.id || String(track.attractionId || '') !== String(spot.id)) return '';
+    return typeof spot.city === 'string' ? spot.city.trim() : '';
+  },
   onUnlock(productChoice) {
     const access = this.data.access;
     if (!access || !['attraction', 'membership', 'album', 'expert'].includes(access.mode)) {
       const title = access && access.mode === 'locked' ? this.data.i18n.heritage.previewOnly : this.data.i18n.heritage.unlockRequired;
       return wx.showToast({ title, icon: 'none' });
     }
-    const product = productChoice || (access.mode === 'attraction' ? 'attraction' : access.mode === 'expert' ? 'expertTrack' : access.mode === 'album' ? 'album' : 'annualMembership');
-    const allowedProducts = access.mode === 'attraction' ? ['attraction', 'annualMembership'] : access.mode === 'expert' ? ['expertTrack', 'annualMembership'] : access.mode === 'album' ? ['album', 'annualMembership'] : ['annualMembership'];
-    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId) || (product === 'expertTrack' && !(this.data.track && this.data.track.id)) || (product === 'album' && !this.params.albumId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    const cityId = this.purchaseCityId();
+    const allowedProducts = unlockProducts(access.mode, cityId);
+    const product = typeof productChoice === 'string' ? productChoice : allowedProducts[0];
+    if (!allowedProducts.includes(product) || (product === 'attraction' && !this.params.attractionId)) return wx.showToast({ title: this.data.i18n.heritage.unlockRequired, icon: 'none' });
+    const trackId = this.data.track && this.data.track.id;
+    const stillCurrent = () => this.data.track && this.data.track.id === trackId && this.data.access && this.data.access.mode === access.mode && this.purchaseCityId() === cityId;
     if (!auth.getAccessToken()) {
       this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
       return;
     }
     auth.getUserState((loggedIn, user) => {
+      if (!stillCurrent()) return;
       if (!loggedIn) return this.setData({ showUnlockPaywall: true, paywallAuthState: 'login' });
       if (!user || !user.phoneBound) return this.setData({ showUnlockPaywall: true, paywallAuthState: 'phone' });
       paid.fetchConfig((ok, config) => {
-        if (!ok || !config || !config.products || !config.products[product] || config.products[product].enabled === false || (product === 'expertTrack' && !expertProductAvailable(config.products[product]))) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
+        if (!stillCurrent()) return;
+        if (!ok || !config || !config.products || !productAvailable(config.products[product])) return wx.showToast({ title: this.data.i18n.paidContent.payUnavailable, icon: 'none' });
         this.setData({ paidConfig: config, simulation: Boolean(config.simulation) });
         this.createOrder(product);
       });
@@ -464,8 +488,11 @@ Page({
   },
   createOrder(product) {
     if (this.data.purchaseLoading) return;
+    const mode = this.data.access && this.data.access.mode;
+    const cityId = this.purchaseCityId();
+    if (!unlockProducts(mode, cityId).includes(product) || (product === 'attraction' && !this.params.attractionId)) return;
     this.setData({ purchaseLoading: true });
-    const target = product === 'attraction' ? this.params.attractionId : product === 'expertTrack' ? { trackId: this.data.track.id } : product === 'album' ? { albumId: this.params.albumId } : '';
+    const target = product === 'attraction' ? this.params.attractionId : product === 'city' ? { cityId } : '';
     paid.createOrder(product, target, (ok, result) => {
       this.setData({ purchaseLoading: false });
       if (result && result.code === 'PAYMENT_CANCELLED') return;

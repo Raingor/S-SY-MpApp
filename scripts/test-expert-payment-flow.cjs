@@ -1,185 +1,119 @@
-// Mock-only contract regression: no production HTTP, orders, payments or entitlement writes.
+// Current policy: expert bundled with city/annual; heritage annual-only; retired products never sold.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
-const plain = (value) => JSON.parse(JSON.stringify(value));
-function load(relative, dependencies, globals) {
-  const module = { exports: {} };
-  const source = fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
-  vm.runInNewContext(`(function(require, module, exports) {\n${source}\n})`, globals, { filename: relative })((name) => {
-    assert.ok(Object.hasOwn(dependencies, name), `Unexpected dependency: ${name}`);
-    return dependencies[name];
-  }, module, module.exports);
-  return module.exports;
-}
-const requests = [];
-let payments = 0;
-let loggedIn = true;
-let orderStatus = 'paid';
-let withPayment = true;
-let configOk = true;
-const products = {
-  attraction: { enabled: true, price: 9.9, currency: 'CNY' },
-  city: { enabled: true, price: 69.9, currency: 'CNY' },
-  // Arbitrary fixture price, not the proposed/production expert price.
-  expertTrack: { enabled: true, name: '名导单篇讲解', price: 12.34, currency: 'CNY' },
-  annualMembership: { enabled: true, name: '年会员', price: 199, currency: 'CNY' }
-};
-let rawAccess = {
-  id: 'expert-track-1', access: 'preview', unlockMode: 'expert', previewSeconds: 59,
-  previewUrl: '/api/miniprogram/audio/expert-track-1/preview', fullUrl: null,
-  expiresIn: null, reason: 'AUDIO_ENTITLEMENT_REQUIRED'
-};
-const wx = {
-  getStorageSync: () => 'zh-CN', showToast() {},
-  requestPayment(options) { payments++; options.success(); },
-  request(options) {
-    requests.push(options);
-    assert.ok(options.url.startsWith('https://fixture.invalid/api/miniprogram/'), 'all HTTP is mocked');
-    let data;
-    let statusCode = 200;
-    if (options.url.endsWith('/knowledge/config')) {
-      statusCode = configOk ? 200 : 503;
-      data = { trialSeconds: 60, simulation: false, products };
-    } else if (options.url.endsWith('/entitlements')) {
-      data = { member: false, unlockedAttractions: ['sight-1'], unlockedCities: ['athens'], unlockedExpertTracks: ['expert-track-1'] };
-    } else if (options.url.endsWith('/orders') && options.method === 'POST') {
-      data = { simulation: false, order: { id: 'fixture-order', status: 'pending' }, ...(withPayment ? { payment: { timeStamp: '1' } } : {}) };
-    } else if (options.url.endsWith('/orders/fixture-order')) {
-      data = { order: { id: 'fixture-order', status: orderStatus } };
-    } else if (options.url.endsWith('/expert-track-1/access')) {
-      data = rawAccess;
-    } else {
-      throw new Error(`Unexpected mock request: ${options.url}`);
-    }
-    options.success({ statusCode, data });
+const { createHarness, plain } = require('./helpers/audio-commerce-harness.cjs');
+const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/expert-http-responses.json'), 'utf8'));
+const cases = new Map(fixture.cases.map((c) => [c.name, c]));
+const config = cases.get('expert_product_default_disabled').response.data;
+const metadata = cases.get('public_track_metadata').response.data;
+const spot = metadata.attractions[0];
+const expert = spot.audioGuides.find((t) => t.category === 'expert');
+const ordinary = spot.audioGuides.find((t) => t.category === 'online');
+const heritage = metadata.audioAlbums[0].episodes[0];
+const products = (p) => Array.from(p.data.unlockOptions, (o) => o.product);
+
+(async () => {
+  const h = createHarness(config);
+  const expertPage = h.page(expert, spot);
+  expertPage.params.cityId = 'untrusted-city-param';
+  expertPage.openUnlockPaywall();
+  assert.deepEqual(products(expertPage), ['city', 'annualMembership']);
+  assert.equal(expertPage.data.unlockOptions[0].priceDisplay, '¥69.90');
+  assert.match(expertPage.data.unlockExplanation, /城市包/);
+  assert.equal(expertPage.purchaseCityId(), 'fixture-city', 'derive city from the associated sight, never track/URL guesses');
+  assert.equal(expertPage.data.unlockOptions[1].priceDisplay, '¥199.00');
+  // Click goes through real auth/config/order modules and sends a flat city target.
+  await h.replay(cases.get('city_order_created'), () => expertPage.onUnlockOptionTap({ currentTarget: { dataset: { product: 'city' } } }));
+  assert.deepEqual(plain(h.requests.filter((r) => r.path === '/api/miniprogram/orders').at(-1).body), { productType: 'city', cityId: 'fixture-city' });
+  assert.equal(expertPage.data.access.access, 'preview', 'pending order is not a local access grant');
+  assert.equal(expertPage.data.pendingOrder.productType, 'city');
+  let rechecks = 0;
+  expertPage.refreshAccess = () => { rechecks++; };
+  await h.replay(cases.get('city_payment_confirmed'), () => expertPage.onSimulationPay({ currentTarget: { dataset: { outcome: 'paid' } } }));
+  assert.equal(rechecks, 1, 'successful payment only rechecks server authorization');
+  assert.equal(expertPage.data.access.access, 'preview');
+
+  const historyPage = h.page(heritage);
+  historyPage.openUnlockPaywall();
+  assert.deepEqual(products(historyPage), ['annualMembership']);
+  assert.match(historyPage.data.unlockExplanation, /文史.*年会员/);
+  await h.replay(cases.get('annual_order_created'), () => historyPage.onUnlock('annualMembership'));
+  const before = h.orderCount();
+  for (const product of ['album', 'expertTrack', 'city', 'attraction']) historyPage.onUnlock(product);
+  assert.equal(h.orderCount(), before, 'heritage cannot be bought via an obsolete album, expert, sight or city product');
+
+  for (const product of ['expertTrack', 'album', 'attraction']) expertPage.onUnlock(product);
+  expertPage.createOrder('expertTrack');
+  expertPage.createOrder('album');
+  assert.equal(h.orderCount(), before);
+  // Retired products stay absent even if a stale/incorrect config advertises enabled=true.
+  h.config.products.expertTrack = { enabled: true, price: 39.8, currency: 'CNY' };
+  h.config.products.album = { enabled: true, price: 9.9, currency: 'CNY' };
+  expertPage.openUnlockPaywall(); historyPage.openUnlockPaywall();
+  assert.deepEqual(products(expertPage), ['city', 'annualMembership']);
+  assert.deepEqual(products(historyPage), ['annualMembership']);
+  for (const product of ['expertTrack', 'album']) h.paid.createOrder(product, {}, (ok, data) => {
+    assert.equal(ok, false); assert.equal(data.code, 'PAYMENT_PRODUCT_UNAVAILABLE');
+  });
+  assert.equal(h.orderCount(), before);
+
+  const ordinaryPage = h.page(ordinary, spot);
+  ordinaryPage.openUnlockPaywall();
+  assert.deepEqual(products(ordinaryPage), ['attraction', 'city', 'annualMembership']);
+  assert.equal(ordinaryPage.data.unlockOptions[0].priceDisplay, '¥9.90');
+  await h.replay(cases.get('ordinary_order_created'), () => ordinaryPage.onUnlock('attraction'));
+
+  for (const missingSpot of [null, { ...spot, city: '' }, { ...spot, id: 'other-sight' }]) {
+    const p = h.page(expert, missingSpot); p.params.cityId = 'do-not-use'; p.openUnlockPaywall();
+    assert.deepEqual(products(p), ['annualMembership']);
+    const n = h.orderCount(); p.onUnlock('city'); assert.equal(h.orderCount(), n, 'missing/foreign sight cannot buy a guessed city');
   }
-};
-const auth = {
-  getAccessToken: () => loggedIn ? 'fixture-token' : '', isSimulationToken: () => false,
-  getUserState(callback) { callback(loggedIn, loggedIn ? { phoneBound: true } : null); }
-};
-const globals = {
-  wx, getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid', contentSettings: {} } }),
-  setTimeout(fn) { fn(); return 1; }, clearTimeout() {}
-};
-const paid = load('utils/paid-content.js', { './auth': auth }, globals);
-const access = load('utils/audio-access.js', { './auth': auth, './paid-content': paid }, globals);
-const i18n = load('utils/i18n.js', {}, globals);
-let pageConfig;
-vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../pages/audio/detail.js'), 'utf8'), {
-  ...globals, Page(config) { pageConfig = config; },
-  require(name) {
-    return {
-      '../../data/content': {}, '../../utils/i18n': i18n, '../../utils/audio-access': access,
-      '../../utils/paid-content': paid, '../../utils/auth': auth, '../../utils/navigation': { goBack() {} }
-    }[name];
+  const fallback = h.page({ ...heritage, unlockMode: 'album' });
+  fallback.openUnlockPaywall();
+  assert.deepEqual(products(fallback), ['annualMembership'], 'obsolete album mode never resurrects album sales');
+
+  // Prices/enabled are re-read on tap; no hardcoded 69.9/199 and no cached enablement.
+  expertPage.openUnlockPaywall();
+  for (const price of [0, -1, '', null, undefined, 'bad', Infinity]) {
+    h.config.products.city.price = price;
+    expertPage.openUnlockPaywall();
+    assert.deepEqual(products(expertPage), ['annualMembership']);
+    const n = h.orderCount(); expertPage.onUnlock('city'); assert.equal(h.orderCount(), n);
   }
-});
-function makePage(mode = 'expert') {
-  return {
-    ...pageConfig, data: { ...structuredClone(pageConfig.data), track: { id: 'expert-track-1', unlockMode: mode, previewUrl: '/expert-preview' }, access: { mode, access: 'preview' } },
-    params: { attractionId: 'sight-1' }, setData(next) { Object.assign(this.data, next); }
-  };
-}
-const orderPosts = () => requests.filter((item) => item.method === 'POST' && item.url.endsWith('/orders'));
-const page = makePage();
-page.refreshAccess();
-assert.equal(page.data.access.mode, 'expert');
-assert.equal(page.data.access.access, 'preview');
-assert.equal(page.data.access.fullUrl, '');
-page.openUnlockPaywall();
-assert.deepEqual(Array.from(page.data.unlockOptions, (item) => item.product), ['expertTrack', 'annualMembership']);
-assert.equal(page.data.unlockOptions[0].priceDisplay, '¥12.34', 'expert price comes from config, not 39.8');
-assert.match(page.data.unlockOptions[1].description, /真人老师/);
-page.onUnlockOptionTap({ currentTarget: { dataset: { product: 'expertTrack' } } });
-assert.deepEqual(plain(orderPosts().at(-1).data), { productType: 'expertTrack', trackId: 'expert-track-1' }, 'HTTP body is flat, not target-nested or attraction-based');
-assert.equal(payments, 1);
-assert.equal(page.data.access.access, 'preview', 'paid result alone never grants local full access');
-assert.equal(page.data.purchaseLoading, false);
+  h.config.products.city = { enabled: false, price: 69.9 };
+  const n = h.orderCount(); expertPage.onUnlock('city'); assert.equal(h.orderCount(), n);
+  h.config.products.city = { enabled: true, price: 72.34, currency: 'CNY' };
+  expertPage.openUnlockPaywall();
+  assert.equal(expertPage.data.unlockOptions[0].priceDisplay, '¥72.34');
+  h.configOk = false;
+  expertPage.openUnlockPaywall(); assert.deepEqual(products(expertPage), []);
+  expertPage.onUnlock('city'); assert.equal(h.orderCount(), n);
+  h.configOk = true;
+  h.setLoggedIn(false); expertPage.onUnlock('city'); assert.equal(h.orderCount(), n); h.setLoggedIn(true);
 
-// Full access is consumed only when explicitly returned by the access API (e.g. annual member).
-rawAccess = { ...rawAccess, access: 'full', fullUrl: '/api/miniprogram/audio/expert-track-1/full?token=fixture-signed', expiresIn: 300, reason: null };
-page.refreshAccess();
-assert.equal(page.data.access.access, 'full');
-assert.match(page.data.access.fullUrl, /^https:\/\/fixture\.invalid\/.*token=fixture-signed$/);
-assert.ok(page.data.access.fullUrlValidUntil > Date.now());
-rawAccess = { ...rawAccess, access: 'preview' }; // Even an accidentally attached fullUrl is ignored.
-page.refreshAccess();
-assert.equal(page.data.access.fullUrl, '');
-
-// Expired signed URLs must be rechecked; revoked access must not play the stale full source.
-const played = [];
-page._playSource = (url, full) => played.push({ url, full });
-page.data.access = { mode: 'expert', access: 'full', previewUrl: 'https://fixture.invalid/preview', fullUrl: 'https://fixture.invalid/expired', fullUrlValidUntil: Date.now() - 1 };
-page.playFull();
-assert.equal(played.length, 0, 'revoked access never plays the expired signed source');
-assert.equal(page.data.access.access, 'preview');
-rawAccess = { ...rawAccess, access: 'full', fullUrl: '/fresh-full?token=renewed', expiresIn: 300 };
-page.data.access = { ...page.data.access, fullUrl: 'https://fixture.invalid/expired', fullUrlValidUntil: Date.now() - 1 };
-page.playFull();
-assert.deepEqual(played, [{ url: 'https://fixture.invalid/fresh-full?token=renewed', full: true }]);
-rawAccess = { ...rawAccess, access: 'preview', fullUrl: null };
-page.refreshAccess();
-
-// Ordinary attraction/city purchases cannot be submitted from the expert paywall.
-const beforeWrongPlan = orderPosts().length;
-page.onUnlock('attraction');
-page.onUnlock('city');
-assert.equal(orderPosts().length, beforeWrongPlan);
-page.onUnlock('annualMembership');
-assert.deepEqual(plain(orderPosts().at(-1).data), { productType: 'annualMembership' });
-
-// Recheck configuration on tap, even when an old expert option was previously shown.
-for (const price of [0, '0', -1, '', null, undefined, 'not-a-number']) {
-  products.expertTrack.price = price;
-  const before = orderPosts().length;
-  page.openUnlockPaywall();
-  assert.deepEqual(Array.from(page.data.unlockOptions, (item) => item.product), ['annualMembership']);
-  page.onUnlock('expertTrack');
-  assert.equal(orderPosts().length, before, `invalid expert price ${price} cannot create an order`);
-}
-products.expertTrack.price = 12.34;
-for (const enabled of [false, undefined]) {
-  products.expertTrack.enabled = enabled;
-  const before = orderPosts().length;
-  page.openUnlockPaywall();
-  assert.deepEqual(Array.from(page.data.unlockOptions, (item) => item.product), ['annualMembership']);
-  page.onUnlock('expertTrack');
-  assert.equal(orderPosts().length, before, 'expert product requires explicit enablement');
-}
-products.expertTrack.enabled = true;
-configOk = false;
-page.openUnlockPaywall();
-const beforeConfigFailure = orderPosts().length;
-page.onUnlock('expertTrack');
-assert.equal(orderPosts().length, beforeConfigFailure);
-configOk = true;
-const beforeLogin = orderPosts().length;
-loggedIn = false;
-page.onUnlock('expertTrack');
-assert.equal(orderPosts().length, beforeLogin);
-loggedIn = true;
-
-let entitlements;
-paid.fetchEntitlements((ok, value) => { assert.equal(ok, true); entitlements = value; });
-assert.deepEqual(Array.from(entitlements.unlockedExpertTracks), ['expert-track-1']);
-assert.deepEqual(Array.from(entitlements.unlockedAttractions), ['sight-1']);
-// A payment-less response cannot invoke native payment or confer access.
-withPayment = false;
-const paymentsBefore = payments;
-page.onUnlock('expertTrack');
-assert.equal(payments, paymentsBefore);
-assert.equal(page.data.access.access, 'preview');
-for (const locale of ['zh-CN', 'zh-TW', 'en']) {
-  const copy = i18n.getMessages(locale).paidContent;
-  assert.ok(copy.buyExpert && copy.buyExpertDesc && copy.memberDesc && copy.vipShopBenefits);
-}
-const lockedPage = makePage('locked');
-const beforeLocked = orderPosts().length;
-lockedPage.openUnlockPaywall();
-lockedPage.onUnlock('annualMembership');
-assert.deepEqual(Array.from(lockedPage.data.unlockOptions), []);
-assert.equal(orderPosts().length, beforeLocked, 'explicit preview-only content has no unlock purchase');
-console.log('PASS: expert contract fixtures, flat order body, configured price, disabled/zero/invalid guards, annual option, server-only playback, entitlement isolation and payment boundary (mock-only)');
+  // Missing/invalid signature TTL never loops infinitely or plays an unbounded cached URL.
+  const fullCase = cases.get('annual_purchase_expert_a_full');
+  for (const expiresIn of [undefined, null, 0, -1, 'bad', Infinity]) {
+    const c = plain(fullCase); c.name = 'synthetic-invalid-signature-ttl'; c.response.data.expiresIn = expiresIn;
+    const p = h.page(expert, spot);
+    await h.replay(c, () => p.refreshAccess());
+    assert.equal(p._fullUrlIsFresh(p.data.access), false);
+    const playedBefore = h.played.length;
+    await h.replay(c, () => p.playFull());
+    assert.equal(h.played.length, playedBefore, 'one recheck, then fail closed if expiry remains invalid');
+    await h.replay(c, () => p.playPreview());
+    assert.equal(h.played.length, playedBefore, 'preview button cannot loop or bypass invalid full TTL');
+  }
+  for (const locale of ['zh-CN', 'zh-TW', 'en']) {
+    const copy = h.i18n.getMessages(locale).paidContent;
+    assert.ok(copy.buyCity && copy.expertAccess && copy.expertAccessDesc && copy.heritageAccess);
+    assert.equal(copy.buyExpert, undefined); assert.equal(copy.buyAlbum, undefined);
+  }
+  const source = fs.readFileSync(path.join(__dirname, '../pages/audio/detail.js'), 'utf8');
+  assert.doesNotMatch(source, /expertTrack|buyExpert|buyAlbum/, 'no expert/album single-sale code in player');
+  assert.match(fs.readFileSync(path.join(__dirname, '../pages/audio/album.wxml'), 'utf8'), /paidContent\.heritageAccess/);
+  assert.match(fs.readFileSync(path.join(__dirname, '../pages/audio/collection.wxml'), 'utf8'), /paidContent\.expertAccessDesc/);
+  assert.equal(h.payments, 0);
+  console.log('PASS: city/annual expert plans, annual-only history, exact city targets, retired sales removed, latest config prices/enablement, missing city and invalid TTL fail-safe; no network/payment');
+})().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -4,6 +4,7 @@ page { min-height: 100vh; background: #111214; }
 .guide-collection-nav .sy-back-button { position: static; flex: 0 0 60rpx; width: 60rpx; height: 60rpx; }
 .guide-collection-nav-title { flex: 1; color: #f4f2ed; font-size: 30rpx; text-align: center; }
 .guide-collection-nav-space { flex: 0 0 60rpx; }
+.guide-collection-access-note { margin: 4rpx 0 12rpx; color: #d8c396; font-size: 21rpx; line-height: 1.5; }
 .guide-collection-subtitle { margin: 5rpx 0 21rpx; color: #9b9ca2; font-size: 21rpx; }
 .guide-collection-search { display: flex; align-items: center; gap: 13rpx; height: 67rpx; padding: 0 20rpx; border-radius: 13rpx; background: #292a2f; }
 .guide-search-icon { color: #a7a8ae; font-size: 35rpx; }

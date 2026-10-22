@@ -60,6 +60,7 @@ page { height: 100%; background: #FFFFFF; }
 .audio-album-kicker { color: #DA5B56; font-size: 20rpx; letter-spacing: 2rpx; }
 .audio-title { margin-top: 12rpx; color: #171717; font-size: 31rpx; line-height: 1.42; font-weight: 700; overflow-wrap: anywhere; }
 .audio-album-author { margin-top: 15rpx; color: #666666; font-size: 22rpx; }
+.audio-album-access-note { margin-top: 12rpx; color: #92774F; font-size: 21rpx; line-height: 1.5; }
 .audio-album-stats { display: flex; align-items: center; margin-top: 24rpx; padding: 18rpx 0; border-top: 1rpx solid rgba(100,80,80,.12); border-bottom: 1rpx solid rgba(100,80,80,.12); }
 .audio-album-stat { flex: 1; display: flex; align-items: baseline; justify-content: center; gap: 10rpx; min-width: 0; }
 .audio-album-stat-value { color: #333333; font-size: 32rpx; font-weight: 700; }

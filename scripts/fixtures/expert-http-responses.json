@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "provenance": "Captured from real loopback HTTP responses of isolated Website JSON fixture; no production or real WeChat payment calls.",
   "sanitization": "Identity/session values and signed query tokens are replaced with fixture-* placeholders; they cannot authenticate or play against any server. Order IDs are remapped consistently. Private fixture paths never enter these public responses.",
-  "scope": "expertTrack purchase is one track, not every expert track of an attraction; any future attraction-level expert bundle requires separate product confirmation.",
-  "testPriceNotice": "12.34 is an isolated test-only price, not a production price proposal. Default expert product remains disabled with price 0.",
+  "scope": "真人讲解 is bundled with the city package covering its attraction, or with annual membership; it is never sold per track. Heritage content is annual-membership only. Album single sale is retired.",
+  "normalisation": "Public track.unlockMode and access.unlockMode are normalised by category: heritage always reports membership, expert always reports expert, other categories report their stored value. Clients never observe legacy free/locked/album values for those two categories. `expert` is a distinct enum value meaning \"unlocked by the city package covering the attraction, or by annual membership\"; do not map it to city or membership. Expert tracks carry no cityId: derive the city via attractionId -> attraction.city, or simply check entitlements.unlockedExpertTracks. City orders keep the flat body {\"productType\":\"city\",\"cityId\":\"<id>\"}.",
+  "testPriceNotice": "12.34 is an isolated test-only price used to prove the retired expert product cannot be re-enabled; no commercial price is proposed or hard-coded.",
   "cases": [
     {
       "name": "expert_product_default_disabled",
@@ -31,9 +32,9 @@
               "currency": "CNY"
             },
             "album": {
-              "enabled": true,
+              "enabled": false,
               "productType": "album",
-              "name": "文史专辑",
+              "name": "文史专辑（已停售）",
               "price": 9.9,
               "currency": "CNY"
             },
@@ -55,7 +56,7 @@
             "expertTrack": {
               "enabled": false,
               "productType": "expertTrack",
-              "name": "名导单篇讲解",
+              "name": "真人讲解",
               "price": 0,
               "currency": "CNY"
             }
@@ -94,9 +95,9 @@
                   "currency": "CNY"
                 },
                 "album": {
-                  "enabled": true,
+                  "enabled": false,
                   "productType": "album",
-                  "name": "文史专辑",
+                  "name": "文史专辑（已停售）",
                   "price": 9.9,
                   "currency": "CNY"
                 },
@@ -118,7 +119,7 @@
                 "expertTrack": {
                   "enabled": false,
                   "productType": "expertTrack",
-                  "name": "名导单篇讲解",
+                  "name": "真人讲解",
                   "price": 0,
                   "currency": "CNY"
                 }
@@ -1327,7 +1328,45 @@
               "articles": []
             }
           ],
-          "audioAlbums": [],
+          "audioAlbums": [
+            {
+              "id": "fixture-album",
+              "title": "Fixture heritage album",
+              "titleTw": "",
+              "titleEn": "",
+              "description": "",
+              "descriptionTw": "",
+              "descriptionEn": "",
+              "cover": "",
+              "sort": 1,
+              "episodes": [
+                {
+                  "id": "fixture-heritage-a",
+                  "category": "heritage",
+                  "title": "Fixture heritage episode",
+                  "titleTw": "",
+                  "titleEn": "",
+                  "description": "",
+                  "descriptionTw": "",
+                  "descriptionEn": "",
+                  "cover": "",
+                  "language": "zh-CN",
+                  "attractionId": null,
+                  "exhibitId": null,
+                  "routeId": null,
+                  "albumId": "fixture-album",
+                  "durationSeconds": 4,
+                  "previewSeconds": 1,
+                  "unlockMode": "membership",
+                  "isPinned": false,
+                  "sort": 4,
+                  "previewUrl": "/api/miniprogram/audio/fixture-heritage-a/preview",
+                  "accessUrl": "/api/miniprogram/audio/fixture-heritage-a/access",
+                  "fullUrl": null
+                }
+              ]
+            }
+          ],
           "sampleItineraries": [],
           "cities": [
             {
@@ -1433,7 +1472,7 @@
       }
     },
     {
-      "name": "disabled_expert_order_rejected",
+      "name": "expert_track_order_rejected",
       "request": {
         "method": "POST",
         "path": "/api/miniprogram/orders",
@@ -1445,8 +1484,8 @@
       "response": {
         "statusCode": 422,
         "data": {
-          "code": "SIMULATION_PRODUCT_UNAVAILABLE",
-          "error": "模拟商品不可用"
+          "code": "PAYMENT_PRODUCT_UNAVAILABLE",
+          "error": "真人讲解已改为随城市包或年会员解锁，不再单篇售卖"
         }
       }
     },
@@ -1480,7 +1519,7 @@
             "price": 9.9,
             "amountTotal": 990,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.484Z",
+            "createdAt": "2026-10-22T07:29:37.856Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "payment": null
@@ -1513,9 +1552,9 @@
             "price": 9.9,
             "amountTotal": 990,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.484Z",
-            "updatedAt": "2026-10-22T03:01:29.487Z",
-            "paidAt": "2026-10-22T03:01:29.487Z",
+            "createdAt": "2026-10-22T07:29:37.856Z",
+            "updatedAt": "2026-10-22T07:29:37.859Z",
+            "paidAt": "2026-10-22T07:29:37.859Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "entitlements": {
@@ -1539,7 +1578,7 @@
                 "albumId": "",
                 "trackId": "",
                 "status": "paid",
-                "purchasedAt": "2026-10-22T03:01:29.487Z"
+                "purchasedAt": "2026-10-22T07:29:37.859Z"
               }
             ],
             "unlockedAttractions": [
@@ -1567,9 +1606,9 @@
                 "price": 9.9,
                 "amountTotal": 990,
                 "currency": "CNY",
-                "createdAt": "2026-10-22T03:01:29.484Z",
-                "updatedAt": "2026-10-22T03:01:29.487Z",
-                "paidAt": "2026-10-22T03:01:29.487Z",
+                "createdAt": "2026-10-22T07:29:37.856Z",
+                "updatedAt": "2026-10-22T07:29:37.859Z",
+                "paidAt": "2026-10-22T07:29:37.859Z",
                 "phoneMasked": "fixture-phoneMasked"
               }
             ]
@@ -1647,7 +1686,7 @@
             "price": 69.9,
             "amountTotal": 6990,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.494Z",
+            "createdAt": "2026-10-22T07:29:37.868Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "payment": null
@@ -1680,9 +1719,9 @@
             "price": 69.9,
             "amountTotal": 6990,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.494Z",
-            "updatedAt": "2026-10-22T03:01:29.497Z",
-            "paidAt": "2026-10-22T03:01:29.497Z",
+            "createdAt": "2026-10-22T07:29:37.868Z",
+            "updatedAt": "2026-10-22T07:29:37.871Z",
+            "paidAt": "2026-10-22T07:29:37.871Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "entitlements": {
@@ -1706,7 +1745,7 @@
                 "albumId": "",
                 "trackId": "",
                 "status": "paid",
-                "purchasedAt": "2026-10-22T03:01:29.497Z"
+                "purchasedAt": "2026-10-22T07:29:37.871Z"
               }
             ],
             "unlockedAttractions": [
@@ -1716,7 +1755,10 @@
               "fixture-city"
             ],
             "unlockedAlbums": [],
-            "unlockedExpertTracks": [],
+            "unlockedExpertTracks": [
+              "fixture-expert-a",
+              "fixture-expert-b"
+            ],
             "favorites": [],
             "history": [],
             "orders": [
@@ -1736,9 +1778,9 @@
                 "price": 69.9,
                 "amountTotal": 6990,
                 "currency": "CNY",
-                "createdAt": "2026-10-22T03:01:29.494Z",
-                "updatedAt": "2026-10-22T03:01:29.497Z",
-                "paidAt": "2026-10-22T03:01:29.497Z",
+                "createdAt": "2026-10-22T07:29:37.868Z",
+                "updatedAt": "2026-10-22T07:29:37.871Z",
+                "paidAt": "2026-10-22T07:29:37.871Z",
                 "phoneMasked": "fixture-phoneMasked"
               }
             ]
@@ -1767,292 +1809,7 @@
       }
     },
     {
-      "name": "city_purchase_expert_preview",
-      "request": {
-        "method": "GET",
-        "path": "/api/miniprogram/audio/fixture-expert-a/access"
-      },
-      "response": {
-        "statusCode": 200,
-        "data": {
-          "id": "fixture-expert-a",
-          "access": "preview",
-          "unlockMode": "expert",
-          "previewSeconds": 1,
-          "previewUrl": "/api/miniprogram/audio/fixture-expert-a/preview",
-          "fullUrl": null,
-          "expiresIn": null,
-          "reason": "AUDIO_ENTITLEMENT_REQUIRED"
-        }
-      }
-    },
-    {
-      "name": "expert_zero_price_config",
-      "request": {
-        "method": "GET",
-        "path": "/api/miniprogram/knowledge/config"
-      },
-      "response": {
-        "statusCode": 200,
-        "data": {
-          "trialSeconds": 60,
-          "products": {
-            "attraction": {
-              "enabled": true,
-              "productType": "attraction",
-              "name": "景点单篇讲解",
-              "price": 9.9,
-              "currency": "CNY"
-            },
-            "city": {
-              "enabled": true,
-              "productType": "city",
-              "name": "城市景点通行",
-              "price": 69.9,
-              "currency": "CNY"
-            },
-            "album": {
-              "enabled": true,
-              "productType": "album",
-              "name": "文史专辑",
-              "price": 9.9,
-              "currency": "CNY"
-            },
-            "membership": {
-              "enabled": false,
-              "productType": "membership",
-              "name": "终身会员",
-              "price": 99,
-              "currency": "CNY"
-            },
-            "annualMembership": {
-              "enabled": true,
-              "productType": "annualMembership",
-              "name": "年会员",
-              "price": 199,
-              "currency": "CNY",
-              "durationDays": 365
-            },
-            "expertTrack": {
-              "enabled": false,
-              "productType": "expertTrack",
-              "name": "名导单篇讲解",
-              "price": 0,
-              "currency": "CNY"
-            }
-          },
-          "simulation": true,
-          "payment": null
-        }
-      }
-    },
-    {
-      "name": "zero_price_expert_order_rejected",
-      "request": {
-        "method": "POST",
-        "path": "/api/miniprogram/orders",
-        "body": {
-          "productType": "expertTrack",
-          "trackId": "fixture-expert-a"
-        }
-      },
-      "response": {
-        "statusCode": 422,
-        "data": {
-          "code": "SIMULATION_PRODUCT_UNAVAILABLE",
-          "error": "模拟商品不可用"
-        }
-      }
-    },
-    {
-      "name": "expert_test_only_price_enabled",
-      "request": {
-        "method": "GET",
-        "path": "/api/miniprogram/knowledge/config"
-      },
-      "response": {
-        "statusCode": 200,
-        "data": {
-          "trialSeconds": 60,
-          "products": {
-            "attraction": {
-              "enabled": true,
-              "productType": "attraction",
-              "name": "景点单篇讲解",
-              "price": 9.9,
-              "currency": "CNY"
-            },
-            "city": {
-              "enabled": true,
-              "productType": "city",
-              "name": "城市景点通行",
-              "price": 69.9,
-              "currency": "CNY"
-            },
-            "album": {
-              "enabled": true,
-              "productType": "album",
-              "name": "文史专辑",
-              "price": 9.9,
-              "currency": "CNY"
-            },
-            "membership": {
-              "enabled": false,
-              "productType": "membership",
-              "name": "终身会员",
-              "price": 99,
-              "currency": "CNY"
-            },
-            "annualMembership": {
-              "enabled": true,
-              "productType": "annualMembership",
-              "name": "年会员",
-              "price": 199,
-              "currency": "CNY",
-              "durationDays": 365
-            },
-            "expertTrack": {
-              "enabled": true,
-              "productType": "expertTrack",
-              "name": "名导单篇讲解",
-              "price": 12.34,
-              "currency": "CNY"
-            }
-          },
-          "simulation": true,
-          "payment": null
-        }
-      }
-    },
-    {
-      "name": "expert_order_created",
-      "request": {
-        "method": "POST",
-        "path": "/api/miniprogram/orders",
-        "body": {
-          "productType": "expertTrack",
-          "trackId": "fixture-expert-a"
-        }
-      },
-      "response": {
-        "statusCode": 201,
-        "data": {
-          "simulation": true,
-          "order": {
-            "simulation": true,
-            "id": "fixture-order-5",
-            "userId": "fixture-user-6",
-            "phone": "fixture-phone",
-            "status": "pending",
-            "productType": "expertTrack",
-            "attractionId": "",
-            "cityId": "",
-            "albumId": "",
-            "trackId": "fixture-expert-a",
-            "name": "名导单篇讲解 · Fixture teacher A",
-            "description": "名导单篇讲解 · Fixture teacher A",
-            "price": 12.34,
-            "amountTotal": 1234,
-            "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.516Z",
-            "phoneMasked": "fixture-phoneMasked"
-          },
-          "payment": null
-        }
-      }
-    },
-    {
-      "name": "expert_payment_confirmed",
-      "request": {
-        "method": "POST",
-        "path": "/api/miniprogram/orders/fixture-order-5/simulate-paid"
-      },
-      "response": {
-        "statusCode": 200,
-        "data": {
-          "simulation": true,
-          "order": {
-            "simulation": true,
-            "id": "fixture-order-5",
-            "userId": "fixture-user-6",
-            "phone": "fixture-phone",
-            "status": "paid",
-            "productType": "expertTrack",
-            "attractionId": "",
-            "cityId": "",
-            "albumId": "",
-            "trackId": "fixture-expert-a",
-            "name": "名导单篇讲解 · Fixture teacher A",
-            "description": "名导单篇讲解 · Fixture teacher A",
-            "price": 12.34,
-            "amountTotal": 1234,
-            "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.516Z",
-            "updatedAt": "2026-10-22T03:01:29.518Z",
-            "paidAt": "2026-10-22T03:01:29.518Z",
-            "phoneMasked": "fixture-phoneMasked"
-          },
-          "entitlements": {
-            "simulation": true,
-            "testUser": "fixture-testUser",
-            "user": {
-              "id": "fixture-user-6",
-              "phoneBound": true,
-              "phoneMasked": "fixture-phoneMasked"
-            },
-            "member": false,
-            "memberLabel": "普通用户",
-            "memberExpiresAt": "",
-            "purchases": [
-              {
-                "orderId": "fixture-order-5",
-                "productType": "expertTrack",
-                "name": "名导单篇讲解 · Fixture teacher A",
-                "attractionId": "",
-                "cityId": "",
-                "albumId": "",
-                "trackId": "fixture-expert-a",
-                "status": "paid",
-                "purchasedAt": "2026-10-22T03:01:29.518Z"
-              }
-            ],
-            "unlockedAttractions": [],
-            "unlockedCities": [],
-            "unlockedAlbums": [],
-            "unlockedExpertTracks": [
-              "fixture-expert-a"
-            ],
-            "favorites": [],
-            "history": [],
-            "orders": [
-              {
-                "simulation": true,
-                "id": "fixture-order-5",
-                "userId": "fixture-user-6",
-                "phone": "fixture-phone",
-                "status": "paid",
-                "productType": "expertTrack",
-                "attractionId": "",
-                "cityId": "",
-                "albumId": "",
-                "trackId": "fixture-expert-a",
-                "name": "名导单篇讲解 · Fixture teacher A",
-                "description": "名导单篇讲解 · Fixture teacher A",
-                "price": 12.34,
-                "amountTotal": 1234,
-                "currency": "CNY",
-                "createdAt": "2026-10-22T03:01:29.516Z",
-                "updatedAt": "2026-10-22T03:01:29.518Z",
-                "paidAt": "2026-10-22T03:01:29.518Z",
-                "phoneMasked": "fixture-phoneMasked"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "name": "expert_purchase_matching_track_full",
+      "name": "city_purchase_expert_full",
       "request": {
         "method": "GET",
         "path": "/api/miniprogram/audio/fixture-expert-a/access"
@@ -2072,7 +1829,7 @@
       }
     },
     {
-      "name": "expert_purchase_other_track_preview",
+      "name": "city_purchase_expert_b_full",
       "request": {
         "method": "GET",
         "path": "/api/miniprogram/audio/fixture-expert-b/access"
@@ -2081,38 +1838,18 @@
         "statusCode": 200,
         "data": {
           "id": "fixture-expert-b",
-          "access": "preview",
+          "access": "full",
           "unlockMode": "expert",
           "previewSeconds": 1,
           "previewUrl": "/api/miniprogram/audio/fixture-expert-b/preview",
-          "fullUrl": null,
-          "expiresIn": null,
-          "reason": "AUDIO_ENTITLEMENT_REQUIRED"
+          "fullUrl": "/api/miniprogram/audio/fixture-expert-b/full?token=fixture-signed-token",
+          "expiresIn": 300,
+          "reason": null
         }
       }
     },
     {
-      "name": "expert_purchase_ordinary_preview",
-      "request": {
-        "method": "GET",
-        "path": "/api/miniprogram/audio/fixture-online/access"
-      },
-      "response": {
-        "statusCode": 200,
-        "data": {
-          "id": "fixture-online",
-          "access": "preview",
-          "unlockMode": "attraction",
-          "previewSeconds": 1,
-          "previewUrl": "/api/miniprogram/audio/fixture-online/preview",
-          "fullUrl": null,
-          "expiresIn": null,
-          "reason": "AUDIO_ENTITLEMENT_REQUIRED"
-        }
-      }
-    },
-    {
-      "name": "expert_paid_entitlements",
+      "name": "city_paid_entitlements",
       "request": {
         "method": "GET",
         "path": "/api/miniprogram/entitlements"
@@ -2123,7 +1860,7 @@
           "simulation": true,
           "testUser": "fixture-testUser",
           "user": {
-            "id": "fixture-user-6",
+            "id": "fixture-user-4",
             "phoneBound": true,
             "phoneMasked": "fixture-phoneMasked"
           },
@@ -2132,48 +1869,189 @@
           "memberExpiresAt": "",
           "purchases": [
             {
-              "orderId": "fixture-order-5",
-              "productType": "expertTrack",
-              "name": "名导单篇讲解 · Fixture teacher A",
+              "orderId": "fixture-order-3",
+              "productType": "city",
+              "name": "城市景点通行 · Fixture city",
               "attractionId": "",
-              "cityId": "",
+              "cityId": "fixture-city",
               "albumId": "",
-              "trackId": "fixture-expert-a",
+              "trackId": "",
               "status": "paid",
-              "purchasedAt": "2026-10-22T03:01:29.518Z"
+              "purchasedAt": "2026-10-22T07:29:37.871Z"
             }
           ],
-          "unlockedAttractions": [],
-          "unlockedCities": [],
+          "unlockedAttractions": [
+            "fixture-attraction"
+          ],
+          "unlockedCities": [
+            "fixture-city"
+          ],
           "unlockedAlbums": [],
           "unlockedExpertTracks": [
-            "fixture-expert-a"
+            "fixture-expert-a",
+            "fixture-expert-b"
           ],
           "favorites": [],
           "history": [],
           "orders": [
             {
               "simulation": true,
-              "id": "fixture-order-5",
-              "userId": "fixture-user-6",
+              "id": "fixture-order-3",
+              "userId": "fixture-user-4",
               "phone": "fixture-phone",
               "status": "paid",
-              "productType": "expertTrack",
+              "productType": "city",
               "attractionId": "",
-              "cityId": "",
+              "cityId": "fixture-city",
               "albumId": "",
-              "trackId": "fixture-expert-a",
-              "name": "名导单篇讲解 · Fixture teacher A",
-              "description": "名导单篇讲解 · Fixture teacher A",
-              "price": 12.34,
-              "amountTotal": 1234,
+              "trackId": "",
+              "name": "城市景点通行 · Fixture city",
+              "description": "城市景点通行 · Fixture city",
+              "price": 69.9,
+              "amountTotal": 6990,
               "currency": "CNY",
-              "createdAt": "2026-10-22T03:01:29.516Z",
-              "updatedAt": "2026-10-22T03:01:29.518Z",
-              "paidAt": "2026-10-22T03:01:29.518Z",
+              "createdAt": "2026-10-22T07:29:37.868Z",
+              "updatedAt": "2026-10-22T07:29:37.871Z",
+              "paidAt": "2026-10-22T07:29:37.871Z",
               "phoneMasked": "fixture-phoneMasked"
             }
           ]
+        }
+      }
+    },
+    {
+      "name": "city_purchase_heritage_preview",
+      "request": {
+        "method": "GET",
+        "path": "/api/miniprogram/audio/fixture-heritage-a/access"
+      },
+      "response": {
+        "statusCode": 200,
+        "data": {
+          "id": "fixture-heritage-a",
+          "access": "preview",
+          "unlockMode": "membership",
+          "previewSeconds": 1,
+          "previewUrl": "/api/miniprogram/audio/fixture-heritage-a/preview",
+          "fullUrl": null,
+          "expiresIn": null,
+          "reason": "AUDIO_ENTITLEMENT_REQUIRED"
+        }
+      }
+    },
+    {
+      "name": "expert_product_cannot_be_reenabled",
+      "request": {
+        "method": "GET",
+        "path": "/api/miniprogram/knowledge/config"
+      },
+      "response": {
+        "statusCode": 200,
+        "data": {
+          "trialSeconds": 60,
+          "products": {
+            "attraction": {
+              "enabled": true,
+              "productType": "attraction",
+              "name": "景点单篇讲解",
+              "price": 9.9,
+              "currency": "CNY"
+            },
+            "city": {
+              "enabled": true,
+              "productType": "city",
+              "name": "城市景点通行",
+              "price": 69.9,
+              "currency": "CNY"
+            },
+            "album": {
+              "enabled": false,
+              "productType": "album",
+              "name": "文史专辑（已停售）",
+              "price": 9.9,
+              "currency": "CNY"
+            },
+            "membership": {
+              "enabled": false,
+              "productType": "membership",
+              "name": "终身会员",
+              "price": 99,
+              "currency": "CNY"
+            },
+            "annualMembership": {
+              "enabled": true,
+              "productType": "annualMembership",
+              "name": "年会员",
+              "price": 199,
+              "currency": "CNY",
+              "durationDays": 365
+            },
+            "expertTrack": {
+              "enabled": false,
+              "productType": "expertTrack",
+              "name": "真人讲解",
+              "price": 12.34,
+              "currency": "CNY"
+            }
+          },
+          "simulation": true,
+          "payment": null
+        }
+      }
+    },
+    {
+      "name": "expert_track_order_still_rejected",
+      "request": {
+        "method": "POST",
+        "path": "/api/miniprogram/orders",
+        "body": {
+          "productType": "expertTrack",
+          "trackId": "fixture-expert-a"
+        }
+      },
+      "response": {
+        "statusCode": 422,
+        "data": {
+          "code": "PAYMENT_PRODUCT_UNAVAILABLE",
+          "error": "真人讲解已改为随城市包或年会员解锁，不再单篇售卖"
+        }
+      }
+    },
+    {
+      "name": "retired_album_order_rejected",
+      "request": {
+        "method": "POST",
+        "path": "/api/miniprogram/orders",
+        "body": {
+          "productType": "album",
+          "albumId": "fixture-album"
+        }
+      },
+      "response": {
+        "statusCode": 422,
+        "data": {
+          "code": "PAYMENT_PRODUCT_UNAVAILABLE",
+          "error": "文史专辑单售已取消，开通年会员即可收听全部内容"
+        }
+      }
+    },
+    {
+      "name": "unpaid_account_expert_preview",
+      "request": {
+        "method": "GET",
+        "path": "/api/miniprogram/audio/fixture-expert-a/access"
+      },
+      "response": {
+        "statusCode": 200,
+        "data": {
+          "id": "fixture-expert-a",
+          "access": "preview",
+          "unlockMode": "expert",
+          "previewSeconds": 1,
+          "previewUrl": "/api/miniprogram/audio/fixture-expert-a/preview",
+          "fullUrl": null,
+          "expiresIn": null,
+          "reason": "AUDIO_ENTITLEMENT_REQUIRED"
         }
       }
     },
@@ -2192,8 +2070,8 @@
           "simulation": true,
           "order": {
             "simulation": true,
-            "id": "fixture-order-7",
-            "userId": "fixture-user-8",
+            "id": "fixture-order-5",
+            "userId": "fixture-user-6",
             "phone": "fixture-phone",
             "status": "pending",
             "productType": "annualMembership",
@@ -2206,7 +2084,7 @@
             "price": 199,
             "amountTotal": 19900,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.530Z",
+            "createdAt": "2026-10-22T07:29:37.897Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "payment": null
@@ -2217,7 +2095,7 @@
       "name": "annual_payment_confirmed",
       "request": {
         "method": "POST",
-        "path": "/api/miniprogram/orders/fixture-order-7/simulate-paid"
+        "path": "/api/miniprogram/orders/fixture-order-5/simulate-paid"
       },
       "response": {
         "statusCode": 200,
@@ -2225,8 +2103,8 @@
           "simulation": true,
           "order": {
             "simulation": true,
-            "id": "fixture-order-7",
-            "userId": "fixture-user-8",
+            "id": "fixture-order-5",
+            "userId": "fixture-user-6",
             "phone": "fixture-phone",
             "status": "paid",
             "productType": "annualMembership",
@@ -2239,27 +2117,27 @@
             "price": 199,
             "amountTotal": 19900,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.530Z",
-            "updatedAt": "2026-10-22T03:01:29.533Z",
-            "paidAt": "2026-10-22T03:01:29.533Z",
-            "membershipStartsAt": "2026-10-22T03:01:29.533Z",
-            "membershipExpiresAt": "2027-10-22T03:01:29.533Z",
+            "createdAt": "2026-10-22T07:29:37.897Z",
+            "updatedAt": "2026-10-22T07:29:37.899Z",
+            "paidAt": "2026-10-22T07:29:37.899Z",
+            "membershipStartsAt": "2026-10-22T07:29:37.899Z",
+            "membershipExpiresAt": "2027-10-22T07:29:37.899Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "entitlements": {
             "simulation": true,
             "testUser": "fixture-testUser",
             "user": {
-              "id": "fixture-user-8",
+              "id": "fixture-user-6",
               "phoneBound": true,
               "phoneMasked": "fixture-phoneMasked"
             },
             "member": true,
             "memberLabel": "年会员",
-            "memberExpiresAt": "2027-10-22T03:01:29.533Z",
+            "memberExpiresAt": "2027-10-22T07:29:37.899Z",
             "purchases": [
               {
-                "orderId": "fixture-order-7",
+                "orderId": "fixture-order-5",
                 "productType": "annualMembership",
                 "name": "年会员",
                 "attractionId": "",
@@ -2267,7 +2145,7 @@
                 "albumId": "",
                 "trackId": "",
                 "status": "paid",
-                "purchasedAt": "2026-10-22T03:01:29.533Z"
+                "purchasedAt": "2026-10-22T07:29:37.899Z"
               }
             ],
             "unlockedAttractions": [
@@ -2276,7 +2154,9 @@
             "unlockedCities": [
               "fixture-city"
             ],
-            "unlockedAlbums": [],
+            "unlockedAlbums": [
+              "fixture-album"
+            ],
             "unlockedExpertTracks": [
               "fixture-expert-a",
               "fixture-expert-b"
@@ -2286,8 +2166,8 @@
             "orders": [
               {
                 "simulation": true,
-                "id": "fixture-order-7",
-                "userId": "fixture-user-8",
+                "id": "fixture-order-5",
+                "userId": "fixture-user-6",
                 "phone": "fixture-phone",
                 "status": "paid",
                 "productType": "annualMembership",
@@ -2300,11 +2180,11 @@
                 "price": 199,
                 "amountTotal": 19900,
                 "currency": "CNY",
-                "createdAt": "2026-10-22T03:01:29.530Z",
-                "updatedAt": "2026-10-22T03:01:29.533Z",
-                "paidAt": "2026-10-22T03:01:29.533Z",
-                "membershipStartsAt": "2026-10-22T03:01:29.533Z",
-                "membershipExpiresAt": "2027-10-22T03:01:29.533Z",
+                "createdAt": "2026-10-22T07:29:37.897Z",
+                "updatedAt": "2026-10-22T07:29:37.899Z",
+                "paidAt": "2026-10-22T07:29:37.899Z",
+                "membershipStartsAt": "2026-10-22T07:29:37.899Z",
+                "membershipExpiresAt": "2027-10-22T07:29:37.899Z",
                 "phoneMasked": "fixture-phoneMasked"
               }
             ]
@@ -2373,6 +2253,26 @@
       }
     },
     {
+      "name": "annual_purchase_heritage_full",
+      "request": {
+        "method": "GET",
+        "path": "/api/miniprogram/audio/fixture-heritage-a/access"
+      },
+      "response": {
+        "statusCode": 200,
+        "data": {
+          "id": "fixture-heritage-a",
+          "access": "full",
+          "unlockMode": "membership",
+          "previewSeconds": 1,
+          "previewUrl": "/api/miniprogram/audio/fixture-heritage-a/preview",
+          "fullUrl": "/api/miniprogram/audio/fixture-heritage-a/full?token=fixture-signed-token",
+          "expiresIn": 300,
+          "reason": null
+        }
+      }
+    },
+    {
       "name": "annual_paid_entitlements",
       "request": {
         "method": "GET",
@@ -2384,16 +2284,16 @@
           "simulation": true,
           "testUser": "fixture-testUser",
           "user": {
-            "id": "fixture-user-8",
+            "id": "fixture-user-6",
             "phoneBound": true,
             "phoneMasked": "fixture-phoneMasked"
           },
           "member": true,
           "memberLabel": "年会员",
-          "memberExpiresAt": "2027-10-22T03:01:29.533Z",
+          "memberExpiresAt": "2027-10-22T07:29:37.899Z",
           "purchases": [
             {
-              "orderId": "fixture-order-7",
+              "orderId": "fixture-order-5",
               "productType": "annualMembership",
               "name": "年会员",
               "attractionId": "",
@@ -2401,7 +2301,7 @@
               "albumId": "",
               "trackId": "",
               "status": "paid",
-              "purchasedAt": "2026-10-22T03:01:29.533Z"
+              "purchasedAt": "2026-10-22T07:29:37.899Z"
             }
           ],
           "unlockedAttractions": [
@@ -2410,7 +2310,9 @@
           "unlockedCities": [
             "fixture-city"
           ],
-          "unlockedAlbums": [],
+          "unlockedAlbums": [
+            "fixture-album"
+          ],
           "unlockedExpertTracks": [
             "fixture-expert-a",
             "fixture-expert-b"
@@ -2420,8 +2322,8 @@
           "orders": [
             {
               "simulation": true,
-              "id": "fixture-order-7",
-              "userId": "fixture-user-8",
+              "id": "fixture-order-5",
+              "userId": "fixture-user-6",
               "phone": "fixture-phone",
               "status": "paid",
               "productType": "annualMembership",
@@ -2434,11 +2336,11 @@
               "price": 199,
               "amountTotal": 19900,
               "currency": "CNY",
-              "createdAt": "2026-10-22T03:01:29.530Z",
-              "updatedAt": "2026-10-22T03:01:29.533Z",
-              "paidAt": "2026-10-22T03:01:29.533Z",
-              "membershipStartsAt": "2026-10-22T03:01:29.533Z",
-              "membershipExpiresAt": "2027-10-22T03:01:29.533Z",
+              "createdAt": "2026-10-22T07:29:37.897Z",
+              "updatedAt": "2026-10-22T07:29:37.899Z",
+              "paidAt": "2026-10-22T07:29:37.899Z",
+              "membershipStartsAt": "2026-10-22T07:29:37.899Z",
+              "membershipExpiresAt": "2027-10-22T07:29:37.899Z",
               "phoneMasked": "fixture-phoneMasked"
             }
           ]
@@ -2533,8 +2435,8 @@
           "simulation": true,
           "order": {
             "simulation": true,
-            "id": "fixture-order-9",
-            "userId": "fixture-user-10",
+            "id": "fixture-order-7",
+            "userId": "fixture-user-8",
             "phone": "fixture-phone",
             "status": "pending",
             "productType": "annualMembership",
@@ -2547,7 +2449,7 @@
             "price": 199,
             "amountTotal": 19900,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.547Z",
+            "createdAt": "2026-10-22T07:29:37.918Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "payment": null
@@ -2558,7 +2460,7 @@
       "name": "revocable_annual_payment_confirmed",
       "request": {
         "method": "POST",
-        "path": "/api/miniprogram/orders/fixture-order-9/simulate-paid"
+        "path": "/api/miniprogram/orders/fixture-order-7/simulate-paid"
       },
       "response": {
         "statusCode": 200,
@@ -2566,8 +2468,8 @@
           "simulation": true,
           "order": {
             "simulation": true,
-            "id": "fixture-order-9",
-            "userId": "fixture-user-10",
+            "id": "fixture-order-7",
+            "userId": "fixture-user-8",
             "phone": "fixture-phone",
             "status": "paid",
             "productType": "annualMembership",
@@ -2580,27 +2482,27 @@
             "price": 199,
             "amountTotal": 19900,
             "currency": "CNY",
-            "createdAt": "2026-10-22T03:01:29.547Z",
-            "updatedAt": "2026-10-22T03:01:29.550Z",
-            "paidAt": "2026-10-22T03:01:29.550Z",
-            "membershipStartsAt": "2026-10-22T03:01:29.550Z",
-            "membershipExpiresAt": "2027-10-22T03:01:29.550Z",
+            "createdAt": "2026-10-22T07:29:37.918Z",
+            "updatedAt": "2026-10-22T07:29:37.920Z",
+            "paidAt": "2026-10-22T07:29:37.920Z",
+            "membershipStartsAt": "2026-10-22T07:29:37.920Z",
+            "membershipExpiresAt": "2027-10-22T07:29:37.920Z",
             "phoneMasked": "fixture-phoneMasked"
           },
           "entitlements": {
             "simulation": true,
             "testUser": "fixture-testUser",
             "user": {
-              "id": "fixture-user-10",
+              "id": "fixture-user-8",
               "phoneBound": true,
               "phoneMasked": "fixture-phoneMasked"
             },
             "member": true,
             "memberLabel": "年会员",
-            "memberExpiresAt": "2027-10-22T03:01:29.550Z",
+            "memberExpiresAt": "2027-10-22T07:29:37.920Z",
             "purchases": [
               {
-                "orderId": "fixture-order-9",
+                "orderId": "fixture-order-7",
                 "productType": "annualMembership",
                 "name": "年会员",
                 "attractionId": "",
@@ -2608,7 +2510,7 @@
                 "albumId": "",
                 "trackId": "",
                 "status": "paid",
-                "purchasedAt": "2026-10-22T03:01:29.550Z"
+                "purchasedAt": "2026-10-22T07:29:37.920Z"
               }
             ],
             "unlockedAttractions": [
@@ -2617,7 +2519,9 @@
             "unlockedCities": [
               "fixture-city"
             ],
-            "unlockedAlbums": [],
+            "unlockedAlbums": [
+              "fixture-album"
+            ],
             "unlockedExpertTracks": [
               "fixture-expert-a",
               "fixture-expert-b"
@@ -2627,8 +2531,8 @@
             "orders": [
               {
                 "simulation": true,
-                "id": "fixture-order-9",
-                "userId": "fixture-user-10",
+                "id": "fixture-order-7",
+                "userId": "fixture-user-8",
                 "phone": "fixture-phone",
                 "status": "paid",
                 "productType": "annualMembership",
@@ -2641,11 +2545,11 @@
                 "price": 199,
                 "amountTotal": 19900,
                 "currency": "CNY",
-                "createdAt": "2026-10-22T03:01:29.547Z",
-                "updatedAt": "2026-10-22T03:01:29.550Z",
-                "paidAt": "2026-10-22T03:01:29.550Z",
-                "membershipStartsAt": "2026-10-22T03:01:29.550Z",
-                "membershipExpiresAt": "2027-10-22T03:01:29.550Z",
+                "createdAt": "2026-10-22T07:29:37.918Z",
+                "updatedAt": "2026-10-22T07:29:37.920Z",
+                "paidAt": "2026-10-22T07:29:37.920Z",
+                "membershipStartsAt": "2026-10-22T07:29:37.920Z",
+                "membershipExpiresAt": "2027-10-22T07:29:37.920Z",
                 "phoneMasked": "fixture-phoneMasked"
               }
             ]

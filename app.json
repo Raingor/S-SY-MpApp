@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/customize/customize",
+    "pages/service-flow/service-flow",
     "pages/guide/guide",
     "pages/vehicle/vehicle",
     "pages/travel-guide/travel-guide",

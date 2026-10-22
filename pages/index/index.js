@@ -318,7 +318,7 @@ Page({
   onEntryTap(e) {
     const key = e.currentTarget.dataset.key;
     const routes = {
-      customization: () => wx.switchTab({ url: '/pages/customize/customize' }),
+      customization: () => wx.navigateTo({ url: '/pages/service-flow/service-flow' }),
       guide: () => wx.navigateTo({ url: '/pages/guide/guide' }),
       vehicle: () => wx.navigateTo({ url: '/pages/vehicle/vehicle' }),
       knowledge: () => wx.navigateTo({ url: '/pages/knowledge/knowledge' }),
@@ -350,9 +350,9 @@ Page({
     wx.navigateTo({ url: '/pages/itinerary/index' });
   },
 
-  // 定制行程入口：填写需求，获取专属方案
+  // 定制行程入口：先看服务流程，页尾 CTA 再进留资表单
   onCustomTripTap() {
-    wx.switchTab({ url: '/pages/customize/customize' });
+    wx.navigateTo({ url: '/pages/service-flow/service-flow' });
   },
 
   // 奢享体验：先浏览服务详情，再进入咨询。

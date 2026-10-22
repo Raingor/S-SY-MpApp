@@ -1,0 +1,78 @@
+<view class="flow-page">
+
+  <!-- ===== 深海军蓝页头 ===== -->
+  <view class="hero">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="hero-inner">
+      <view class="eyebrow hero-kicker">{{flow.eyebrow}}</view>
+      <view class="hero-title serif">{{flow.title}}</view>
+      <view class="hero-sub">{{flow.sub}}</view>
+      <view class="hero-note">{{flow.note}}</view>
+    </view>
+    <view class="hero-wave" aria-hidden="true"></view>
+  </view>
+
+  <!-- ===== 泳道图例 ===== -->
+  <view class="lanes card">
+    <view class="lane-row"><view class="lane-dot lane-dot-you"></view><text>{{flow.laneYou}}</text></view>
+    <view class="lane-row"><view class="lane-dot lane-dot-crew"></view><text>{{flow.laneCrew}}</text></view>
+    <view class="lane-row"><view class="lane-dot lane-dot-greece"></view><text>{{flow.laneGreece}}</text></view>
+  </view>
+
+  <!-- ===== 三阶段时间轴 ===== -->
+  <view class="stages">
+    <view class="stage" wx:for="{{groupedSteps}}" wx:key="title" wx:for-item="stage" wx:for-index="stageIndex">
+      <view class="stage-head">
+        <view class="stage-no serif">0{{stageIndex + 1}}</view>
+        <view class="stage-title serif">{{stage.title}}</view>
+      </view>
+      <view class="stage-body">
+        <view class="step" wx:for="{{stage.steps}}" wx:key="index" wx:for-item="step">
+          <view class="step-rail" aria-hidden="true">
+            <view class="step-no">{{step.index}}</view>
+            <view wx:if="{{step.index !== 8}}" class="step-line"></view>
+          </view>
+          <view class="step-card">
+            <view class="step-top">
+              <view class="step-title serif">{{step.title}}</view>
+              <view class="step-lane lane-tag-{{step.index <= 8 ? step.index : 0}} lane-chip" data-lane="{{step.lane}}">
+                <view class="lane-mini {{step.lane === flow.laneYou ? 'lane-mini-you' : (step.lane === flow.laneCrew ? 'lane-mini-crew' : 'lane-mini-greece')}}"></view>
+                <text>{{step.lane}}</text>
+              </view>
+            </view>
+            <view class="step-desc">{{step.desc}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 规划师服务费 ===== -->
+  <view class="fee card">
+    <view class="fee-head">
+      <view class="fee-title serif">{{flow.feeTitle}}</view>
+      <view class="fee-note">{{flow.feeNote}}</view>
+    </view>
+    <view class="fee-grid">
+      <view class="fee-cell" wx:for="{{flow.feeList}}" wx:key="*this" wx:for-item="fee">
+        <view class="fee-days">{{fee[0]}}</view>
+        <view class="fee-amount serif">{{fee[1]}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ===== 品牌 ===== -->
+  <view class="brand">
+    <view class="brand-mark">— BLUE SEACOAST PRIVATE TOURS —</view>
+    <view class="brand-slogan serif">只为一生美好回忆</view>
+  </view>
+
+  <!-- ===== CTA：点击才进入定制留资表单 ===== -->
+  <view class="cta-wrap">
+    <button class="cta" hover-class="cta-hover" bindtap="onStartCustomize">
+      <view class="cta-title serif">{{flow.cta}}</view>
+    </button>
+    <view class="cta-hint">{{flow.ctaHint}}</view>
+  </view>
+
+</view>

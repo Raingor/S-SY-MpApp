@@ -72,7 +72,7 @@
       </view>
       <view class="audio-paywall-eyebrow">{{i18n.paidContent.paywallEyebrow}}</view>
       <view class="audio-paywall-title">{{i18n.paidContent.paywallTitle}}</view>
-      <view class="audio-paywall-subtitle">{{i18n.paidContent.paywallSubtitle}}</view>
+      <view class="audio-paywall-subtitle">{{unlockExplanation || i18n.paidContent.paywallSubtitle}}</view>
       <view class="audio-paywall-feature">
         <view class="audio-paywall-feature-mark">✦</view>
         <view class="audio-paywall-feature-copy">

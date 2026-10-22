@@ -28,8 +28,8 @@ function getAccess(id, callback) {
           // 即便服务端意外同时回了签名字段，也只有 access=full 才允许客户端消费。
           fullUrl: raw.access === 'full' ? absoluteUrl(raw.fullUrl, base) : '',
           previewSeconds: Math.min(60, Math.max(0, Number(raw.previewSeconds) || 60)),
-          // 服务端承诺 access=full 时 expiresIn 为正；缺失/t0 也视为不可信，强制点播时重新鉴权（fail-safe）。
-          fullUrlValidUntil: raw.access === 'full' && Number(raw.expiresIn) > 0 ? Date.now() + Number(raw.expiresIn) * 1000 : (raw.access === 'full' ? -1 : 0)
+          // 服务端承诺 access=full 时 expiresIn 有限且为正；缺失/无效值一律视为过期。
+          fullUrlValidUntil: raw.access === 'full' && Number.isFinite(Number(raw.expiresIn)) && Number(raw.expiresIn) > 0 ? Date.now() + Number(raw.expiresIn) * 1000 : (raw.access === 'full' ? -1 : 0)
         }, 200);
       },
       fail: () => callback(false, null, 0)

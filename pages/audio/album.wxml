@@ -14,6 +14,7 @@
           <view wx:else class="audio-cover audio-cover-placeholder"><text>希</text></view>
           <view class="audio-album-heading">
             <view class="audio-album-kicker">{{i18n.heritage.history}}</view>
+            <view class="audio-album-access-note">{{i18n.paidContent.heritageAccess}}</view>
             <view class="audio-title">{{album.displayTitle}}</view>
             <view wx:if="{{album.displayAuthor}}" class="audio-album-author">{{album.displayAuthor}}</view>
           </view>
@@ -76,6 +77,6 @@
 
   <view wx:if="{{album && episodes.length}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" data-section="intro" bindtap="onAlbumTabTap">{{i18n.heritage.albumIntro}}</button>
-    <button class="audio-album-play-button" bindtap="onStartAlbum">{{firstEpisode && firstEpisode.unlockMode === 'free' ? i18n.heritage.freeFirstEpisode : i18n.heritage.previewFirstEpisode}}</button>
+    <button class="audio-album-play-button" bindtap="onStartAlbum">{{i18n.heritage.previewFirstEpisode}}</button>
   </view>
 </view>
