@@ -104,6 +104,7 @@ function fetchEntitlements(callback) {
       unlockedAttractions: data.unlockedAttractions || data.purchases || [],
       unlockedCities: data.unlockedCities || [],
       unlockedAlbums: data.unlockedAlbums || [],
+      unlockedExpertTracks: data.unlockedExpertTracks || [],
       favorites: data.favorites || [],
       history: data.history || [],
       orders: data.orders || []

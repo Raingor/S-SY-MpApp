@@ -346,7 +346,8 @@ Object.assign(messages['zh-CN'].paidContent, {
   paywallAuthChecking: '正在确认登录状态…', paywallLoginTitle: '登录后继续解锁', paywallLoginDesc: '无需离开此页，微信登录后即可继续选择讲解权益。', paywallLoginButton: '微信一键登录',
   paywallPhoneTitle: '再验证手机号即可购买', paywallPhoneDesc: '微信登录已完成，授权手机号后可继续支付。', paywallPhoneButton: '授权手机号，继续购买',
   buyAlbum: '购买本文史专辑', buyAlbumDesc: '一次性付费 · 永久收听本专辑',
-  memberDesc: '全部城市与文史专辑 · 会员有效期内畅听'
+  buyExpert: '解锁本条真人老师讲解', buyExpertDesc: '仅解锁当前这一条真人讲解，不包含其他节目',
+  memberDesc: '全平台音频与真人老师讲解 · 会员有效期内畅听'
 });
 Object.assign(messages['zh-TW'].paidContent, {
   paywallEyebrow: '完整講解 · 選擇你的權益', paywallTitle: '試聽已結束', paywallSubtitle: '解鎖後，繼續收聽完整講解',
@@ -355,7 +356,8 @@ Object.assign(messages['zh-TW'].paidContent, {
   paywallAuthChecking: '正在確認登入狀態…', paywallLoginTitle: '登入後繼續解鎖', paywallLoginDesc: '無需離開此頁，微信登入後即可繼續選擇講解權益。', paywallLoginButton: '微信一鍵登入',
   paywallPhoneTitle: '再驗證手機號即可購買', paywallPhoneDesc: '微信登入已完成，授權手機號後即可繼續付款。', paywallPhoneButton: '授權手機號，繼續購買',
   buyAlbum: '購買本文史專輯', buyAlbumDesc: '一次性付費 · 永久收聽本專輯',
-  memberDesc: '全部城市與文史專輯 · 會員有效期間暢聽'
+  buyExpert: '解鎖此條真人老師講解', buyExpertDesc: '僅解鎖目前這一條真人講解，不包含其他節目',
+  memberDesc: '全平台音頻與真人老師講解 · 會員有效期間暢聽'
 });
 Object.assign(messages.en.paidContent, {
   paywallEyebrow: 'FULL AUDIO · CHOOSE YOUR ACCESS', paywallTitle: 'Your preview has ended', paywallSubtitle: 'Unlock the complete guide and keep listening',
@@ -364,14 +366,15 @@ Object.assign(messages.en.paidContent, {
   paywallAuthChecking: 'Checking your sign-in status…', paywallLoginTitle: 'Sign in to continue', paywallLoginDesc: 'Stay on this page. Sign in with WeChat to choose an audio plan.', paywallLoginButton: 'Sign in with WeChat',
   paywallPhoneTitle: 'Verify your phone to purchase', paywallPhoneDesc: 'You are signed in. Authorize your phone number to continue.', paywallPhoneButton: 'Verify phone and continue',
   buyAlbum: 'Buy this history album', buyAlbumDesc: 'One-time payment · Permanent access to this album',
-  memberDesc: 'All cities and history albums · Full access while membership is active'
+  buyExpert: 'Unlock this expert recording', buyExpertDesc: 'This expert recording only; other episodes are not included',
+  memberDesc: 'All platform audio, including expert guides · Full access while membership is active'
 });
 Object.assign(messages['zh-CN'].paidContent, { memberAnnual: '年会员', memberLifetime: '年会员', memberUnlocked: '年会员已解锁', renewMembership: '续费年会员', renewShort: '续费', memberExpires: '有效至 {date}' });
 Object.assign(messages['zh-TW'].paidContent, { memberAnnual: '年會員', memberLifetime: '年會員', memberUnlocked: '年會員已解鎖', renewMembership: '續費年會員', renewShort: '續費', memberExpires: '有效至 {date}' });
 Object.assign(messages.en.paidContent, { memberAnnual: 'Annual member', memberLifetime: 'Annual member', memberUnlocked: 'Annual membership unlocked', renewMembership: 'Renew annual membership', renewShort: 'Renew', memberExpires: 'Active through {date}' });
-Object.assign(messages['zh-CN'].paidContent, { vipShopTitle: 'VIP 会员方案', vipShopSubtitle: '选择适合你的会员权益', vipShopBenefits: '会员有效期内畅听所有城市与文史专辑', vipShopPlanList: '可选会员方案', vipShopBuy: '立即选购', vipShopRenew: '续费', vipShopPriceUnavailable: '价格待配置', vipShopNoPlans: '暂无可选会员方案', vipShopLoginTitle: '请先登录', vipShopPhoneTitle: '请先绑定手机号', vipShopLoginDesc: '登录并绑定手机号后即可选购会员方案。', vipShopGoProfile: '前往我的', vipShopDuration: '有效期 {days} 天', vipShopFootnote: '完成微信支付后，会员权益将自动开通。', viewVipPlans: '查看全部 VIP 方案' });
-Object.assign(messages['zh-TW'].paidContent, { vipShopTitle: 'VIP 會員方案', vipShopSubtitle: '選擇適合你的會員權益', vipShopBenefits: '會員有效期間暢聽所有城市與文史專輯', vipShopPlanList: '可選會員方案', vipShopBuy: '立即選購', vipShopRenew: '續費', vipShopPriceUnavailable: '價格待配置', vipShopNoPlans: '暫無可選會員方案', vipShopLoginTitle: '請先登入', vipShopPhoneTitle: '請先綁定手機號', vipShopLoginDesc: '登入並綁定手機號後即可選購會員方案。', vipShopGoProfile: '前往我的', vipShopDuration: '有效期 {days} 天', vipShopFootnote: '完成微信支付後，會員權益將自動開通。', viewVipPlans: '查看全部 VIP 方案' });
-Object.assign(messages.en.paidContent, { vipShopTitle: 'VIP membership plans', vipShopSubtitle: 'Choose the membership that suits you', vipShopBenefits: 'Listen to all city guides and history albums while your membership is active', vipShopPlanList: 'Available plans', vipShopBuy: 'Choose plan', vipShopRenew: 'Renew', vipShopPriceUnavailable: 'Price not configured', vipShopNoPlans: 'No membership plans are available', vipShopLoginTitle: 'Sign in first', vipShopPhoneTitle: 'Verify your phone first', vipShopLoginDesc: 'Sign in and verify your phone to choose a membership plan.', vipShopGoProfile: 'Go to My account', vipShopDuration: 'Valid for {days} days', vipShopFootnote: 'Your membership benefits will activate after WeChat Pay is complete.', viewVipPlans: 'View all VIP plans' });
+Object.assign(messages['zh-CN'].paidContent, { vipShopTitle: 'VIP 会员方案', vipShopSubtitle: '选择适合你的会员权益', vipShopBenefits: '会员有效期内畅听全平台音频，包含真人老师讲解', vipShopPlanList: '可选会员方案', vipShopBuy: '立即选购', vipShopRenew: '续费', vipShopPriceUnavailable: '价格待配置', vipShopNoPlans: '暂无可选会员方案', vipShopLoginTitle: '请先登录', vipShopPhoneTitle: '请先绑定手机号', vipShopLoginDesc: '登录并绑定手机号后即可选购会员方案。', vipShopGoProfile: '前往我的', vipShopDuration: '有效期 {days} 天', vipShopFootnote: '完成微信支付后，会员权益将自动开通。', viewVipPlans: '查看全部 VIP 方案' });
+Object.assign(messages['zh-TW'].paidContent, { vipShopTitle: 'VIP 會員方案', vipShopSubtitle: '選擇適合你的會員權益', vipShopBenefits: '會員有效期間暢聽全平台音頻，包含真人老師講解', vipShopPlanList: '可選會員方案', vipShopBuy: '立即選購', vipShopRenew: '續費', vipShopPriceUnavailable: '價格待配置', vipShopNoPlans: '暫無可選會員方案', vipShopLoginTitle: '請先登入', vipShopPhoneTitle: '請先綁定手機號', vipShopLoginDesc: '登入並綁定手機號後即可選購會員方案。', vipShopGoProfile: '前往我的', vipShopDuration: '有效期 {days} 天', vipShopFootnote: '完成微信支付後，會員權益將自動開通。', viewVipPlans: '查看全部 VIP 方案' });
+Object.assign(messages.en.paidContent, { vipShopTitle: 'VIP membership plans', vipShopSubtitle: 'Choose the membership that suits you', vipShopBenefits: 'Listen to all platform audio, including expert guides, while your membership is active', vipShopPlanList: 'Available plans', vipShopBuy: 'Choose plan', vipShopRenew: 'Renew', vipShopPriceUnavailable: 'Price not configured', vipShopNoPlans: 'No membership plans are available', vipShopLoginTitle: 'Sign in first', vipShopPhoneTitle: 'Verify your phone first', vipShopLoginDesc: 'Sign in and verify your phone to choose a membership plan.', vipShopGoProfile: 'Go to My account', vipShopDuration: 'Valid for {days} days', vipShopFootnote: 'Your membership benefits will activate after WeChat Pay is complete.', viewVipPlans: 'View all VIP plans' });
 Object.assign(messages['zh-CN'].heritage, { fullAccess: '完整收听' });
 Object.assign(messages['zh-TW'].heritage, { fullAccess: '完整收聽' });
 Object.assign(messages.en.heritage, { fullAccess: 'Full access' });

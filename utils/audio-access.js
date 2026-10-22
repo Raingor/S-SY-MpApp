@@ -21,14 +21,15 @@ function getAccess(id, callback) {
         if (response.statusCode !== 200 || !raw || typeof raw !== 'object') return callback(false, null, response.statusCode);
         const mode = raw.unlockMode;
         callback(true, {
-          mode: ['free', 'attraction', 'membership', 'album', 'locked'].includes(mode) ? mode : 'locked',
+          mode: ['free', 'attraction', 'membership', 'album', 'expert', 'locked'].includes(mode) ? mode : 'locked',
           access: raw.access === 'full' ? 'full' : 'preview',
           reason: raw.reason || '',
           previewUrl: absoluteUrl(raw.previewUrl, base),
           // 即便服务端意外同时回了签名字段，也只有 access=full 才允许客户端消费。
           fullUrl: raw.access === 'full' ? absoluteUrl(raw.fullUrl, base) : '',
           previewSeconds: Math.min(60, Math.max(0, Number(raw.previewSeconds) || 60)),
-          fullUrlValidUntil: raw.access === 'full' && Number(raw.expiresIn) > 0 ? Date.now() + Number(raw.expiresIn) * 1000 : 0
+          // 服务端承诺 access=full 时 expiresIn 为正；缺失/t0 也视为不可信，强制点播时重新鉴权（fail-safe）。
+          fullUrlValidUntil: raw.access === 'full' && Number(raw.expiresIn) > 0 ? Date.now() + Number(raw.expiresIn) * 1000 : (raw.access === 'full' ? -1 : 0)
         }, 200);
       },
       fail: () => callback(false, null, 0)
