@@ -410,7 +410,7 @@ Object.assign(messages['zh-CN'], { serviceFlow: {
     { title: '建立专属微信服务群', desc: '启程前 1-3 天建群，邀请所有同行人员进群，1 小时内致辞介绍司导；自行决定是否邀请对接人或紧急联系人。' },
     { title: '执行跟踪与旅程结束', desc: '微信群里随时沟通反馈重要事项；客户回国前 1 天提醒注意事项；服务结束当日反馈。' }
   ],
-  feeTitle: '旅行规划师服务费', feeNote: '不适、可扣减总服务费',
+  feeTitle: '旅行规划师服务费', feeNote: '不退、可扣减总服务费',
   feeList: [['1 天', '¥188'], ['2-5 天', '¥288'], ['6-9 天', '¥288'], ['10 天以上', '¥388']],
   cta: '开始定制我的行程', ctaHint: '填写需求表，顾问 24 小时内回复方案'
 } });
@@ -429,7 +429,7 @@ Object.assign(messages['zh-TW'], { serviceFlow: {
     { title: '建立專屬微信服務群', desc: '啟程前 1-3 天建群，邀請所有同行人員進群，1 小時內致辭介紹司導；自行決定是否邀請對接人或緊急聯絡人。' },
     { title: '執行跟蹤與旅程結束', desc: '微信群裡隨時溝通回饋重要事項；客戶回國前 1 天提醒注意事項；服務結束當日回饋。' }
   ],
-  feeTitle: '旅行規劃師服務費', feeNote: '不適、可扣減總服務費',
+  feeTitle: '旅行規劃師服務費', feeNote: '不退、可扣減總服務費',
   feeList: [['1 天', '¥188'], ['2-5 天', '¥288'], ['6-9 天', '¥288'], ['10 天以上', '¥388']],
   cta: '開始定製我的行程', ctaHint: '填寫需求表，顧問 24 小時內回覆方案'
 } });
@@ -448,7 +448,7 @@ Object.assign(messages.en, { serviceFlow: {
     { title: 'Private WeChat service group', desc: 'Created 1-3 days before departure with all travelers; the driver-guide introduces themselves within one hour. Add a contact person only if you wish.' },
     { title: 'Follow-through & farewell', desc: 'Share anything important in the group anytime; reminders one day before your return; feedback on the final day.' }
   ],
-  feeTitle: 'Trip planner service fee', feeNote: 'Deducted from the total service fee where applicable',
+  feeTitle: 'Trip planner service fee', feeNote: 'Non-refundable; deductible from the total service fee',
   feeList: [['1 day', '¥188'], ['2-5 days', '¥288'], ['6-9 days', '¥288'], ['10+ days', '¥388']],
   cta: 'Start planning my trip', ctaHint: 'Send the request form; a consultant replies within 24 hours'
 } });
