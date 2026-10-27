@@ -82,6 +82,8 @@ function mapManagedImage(path) {
   if (/^https?:\/\//i.test(value) || value.indexOf('/assets/') === 0) return value;
   const app = getApp();
   const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
+  // 私有地图等受控接口路径必须原样拼接；不能塞进 /images/ 前缀。
+  if (/^\/api\//i.test(value)) return base.replace(/\/$/, '') + value;
   const relative = value.replace(/^(?:\.\/|\/)+/, '').replace(/^(?:images\/)+/, '');
   return base.replace(/\/$/, '') + '/images/' + relative;
 }
@@ -157,7 +159,12 @@ function adaptAttractions(remoteAttractions) {
     })).sort((a, b) => a.sort - b.sort),
     guide: { ...(item.guide || {}), mapImage: mapManagedImage(item.guide && item.guide.mapImage) },
     exhibits: (Array.isArray(item.exhibits) ? item.exhibits : []).filter(isPublished).map((point) => ({ ...point, image: mapManagedImage(point.image) })),
-    routes: (Array.isArray(item.routes) ? item.routes : []).filter(isPublished),
+    routes: (Array.isArray(item.routes) ? item.routes : []).filter(isPublished).map((route) => ({
+      ...route,
+      // 路线页同样使用后台地图，私有接口路径必须原样保留。
+      mapImage: mapManagedImage(route && route.mapImage),
+      mapUrl: typeof (route && route.mapUrl) === 'string' ? route.mapUrl.trim() : ''
+    })),
     audioGuides: (Array.isArray(item.audioGuides) ? item.audioGuides : [])
       .filter((track) => isPublicAudioRecord(track) && track.id && ['route', 'online', 'expert'].includes(track.category) &&
         String(track.attractionId) === String(item.id) && !track.albumId && (track.previewUrl || track.isDemo === true))

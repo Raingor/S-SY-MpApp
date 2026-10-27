@@ -2,6 +2,7 @@ const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
 const { httpsLink, getRichLinks, copyVisitorLink } = require('../../utils/visitor-links');
+const { isPrivateMapUrl } = require('../../utils/map-source');
 
 const REQUIRED_KINDS = ['hours', 'tickets', 'transport', 'map'];
 const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖' };
@@ -153,7 +154,11 @@ Page({
 
   onMapTap() {
     const section = this.data.activeSection || {};
-    if (section.mapImage) return wx.previewImage({ urls: [section.mapImage], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
+    if (section.mapImage) {
+      // 后台上传地图为私有资源：只在线浏览，不进系统预览（可保存到相册）。
+      if (isPrivateMapUrl(section.mapImage)) return wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
+      return wx.previewImage({ urls: [section.mapImage], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
+    }
     copyVisitorLink(section.mapUrl, this.data.i18n.heritage);
   },
 

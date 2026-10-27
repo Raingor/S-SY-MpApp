@@ -5,6 +5,7 @@ const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
 const { copyVisitorLink } = require('../../utils/visitor-links');
+const { isPrivateMapUrl } = require('../../utils/map-source');
 const paidContent = require('../../utils/paid-content');
 const auth = require('../../utils/auth');
 
@@ -206,7 +207,11 @@ Page({
   },
   onMapTap() {
     const map = this.data.visitorMap;
-    if (map) return wx.previewImage({ urls: [map], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
+    if (map) {
+      // 后台上传地图为私有资源：只在线浏览，不进系统预览（可保存到相册）。
+      if (isPrivateMapUrl(map)) return wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
+      return wx.previewImage({ urls: [map], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
+    }
     const url = this.data.visitorMapUrl;
     if (/^https:\/\//i.test(url)) return copyVisitorLink(url, this.data.i18n.heritage);
     wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' });

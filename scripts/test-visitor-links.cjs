@@ -18,6 +18,7 @@ function load(file) {
   return module.exports;
 }
 const links = load('utils/visitor-links.js');
+const mapSource = load('utils/map-source.js');
 const i18n = load('utils/i18n.js');
 function page(file, content = { getAttractions: () => [] }) {
   let config;
@@ -25,6 +26,7 @@ function page(file, content = { getAttractions: () => [] }) {
     Page: (value) => { config = value; }, getApp: () => ({ globalData: {} }), wx,
     require: (id) => {
       if (id.endsWith('/visitor-links')) return links;
+      if (id.endsWith('/map-source')) return mapSource;
       if (id.endsWith('/i18n')) return i18n;
       if (id.endsWith('/navigation')) return { goBack() {} };
       if (id.endsWith('/content')) return content;
@@ -48,6 +50,13 @@ assert.deepEqual(plain(links.getRichLinks(`<p>${url.replace('&', '&amp;')}</p>`,
 assert.equal(links.getRichLinks('<img src="https://example.com/image.webp"><p style="background:url(https://example.com/bg)">No URL</p><script>https://example.com/script</script>').length, 0, 'HTML attributes and hidden script text are not website actions');
 assert.deepEqual(plain(links.getRichLinks('<a href="https://example.com/target">https://example.com/label</a>')).map((link) => link.url), ['https://example.com/target'], 'URL-looking anchor labels are not extra navigation targets');
 assert.equal(links.getRichLinks('http://example.com ftp://example.com /relative').length, 0);
+assert.equal(i18n.getMessages('zh-CN').heritage.mapViewOnly, '地图仅支持在线查看，可截图保存');
+// Private map endpoint: must keep its own path, never become /images/api/... .
+const privateMapUrl = 'https://example.com/api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png';
+assert.equal(mapSource.isPrivateMapUrl(privateMapUrl), true);
+assert.equal(mapSource.isPrivateMapUrl('https://example.com/images/map.webp'), false);
+assert.equal(mapSource.isPrivateMapUrl('/api/miniprogram/attraction-map/abc.png'), true);
+assert.equal(mapSource.isPrivateMapUrl(''), false);
 for (const bad of ['', 'http://example.com', 'javascript:alert(1)', '/relative', 'https://', 'https://example.com bad']) {
   links.copyVisitorLink(bad, {});
   assert.equal(links.httpsLink(bad), '');
@@ -119,6 +128,21 @@ visitor.applySpot(fixture);
 visitor.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
 visitor.onMapTap();
 assert.equal(calls.images.at(-1).urls[0], 'https://example.com/map.webp');
+// Website 私有地图：只在线浏览，不进入可长按保存的系统预览。
+const privateMap = structuredClone(fixture);
+privateMap.visitorInfoSections.find((s) => s.kind === 'map').map = { image: privateMapUrl, url: 'https://example.com/map' };
+visitor.applySpot(privateMap);
+visitor.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
+const imageCallsBefore = calls.images.length;
+const toastCallsBefore = calls.toast.length;
+visitor.onMapTap();
+assert.equal(calls.images.length, imageCallsBefore, 'private map is never opened in the save-capable preview');
+assert.equal(calls.toast.at(-1).title, i18n.getMessages('zh-CN').heritage.mapViewOnly);
+assert.equal(calls.toast.length, toastCallsBefore + 1);
+visitor.onMapLinkTap();
+assert.equal(calls.clipboard.at(-1).data, 'https://example.com/map', 'private map still allows copying its public map link');
+visitor.applySpot(fixture);
+visitor.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
 visitor.onMapLinkTap();
 assert.equal(calls.clipboard.at(-1).data, 'https://example.com/map', 'map link copies even when an image also exists');
 visitor.onSourceTap();
@@ -144,6 +168,11 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
 assert.equal(i18n.getMessages('zh-CN').heritage.visitorLinkCopied, '已复制，请在浏览器打开');
 
 const detail = page('pages/attraction/detail.js');
+detail.data.visitorMap = privateMapUrl;
+detail.onMapTap();
+assert.equal(calls.images.length, imageCallsBefore, 'attraction detail also skips the save-capable preview for private maps');
+assert.equal(calls.toast.at(-1).title, i18n.getMessages('zh-CN').heritage.mapViewOnly);
+detail.data.visitorMap = '';
 detail.data.visitorSource = url;
 detail.onSourceTap();
 calls.clipboard.at(-1).success();
@@ -187,6 +216,14 @@ async function replayWebsiteFixture() {
   assert.equal(loaded.state.source, 'remote'); // Simulated HTTP success, NOT a live remote request.
   const adapted = adapter.getAttraction('fixture-spot', loaded.data);
   assert.equal(adapted.visitorInfoSections[3].map.image, 'https://fixture.invalid/images/fixture-map.webp');
+  // Website private map endpoint keeps its own path; no /images/ prefix is invented.
+  payload = structuredClone(payload);
+  payload.attractions[0].visitorInfoSections[3].map.image = '/api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png';
+  const privateLoaded = await new Promise((resolve) => adapter.loadContent((data, state) => resolve({ data, state }), true));
+  const privateAdapted = adapter.getAttraction('fixture-spot', privateLoaded.data);
+  assert.equal(privateAdapted.visitorInfoSections[3].map.image, 'https://fixture.invalid/api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png');
+  assert.equal(privateAdapted.visitorInfoSections[3].map.image.includes('/images/api/'), false);
+  payload = { cities: [], routes: [], destinations: [], sampleItineraries: [], attractions: [raw] };
   assert.deepEqual(plain(adapted.hiddenSections), ['route', 'expert']);
   const replay = page('pages/attraction/visitor-section.js', adapter);
   replay.spotId = 'fixture-spot';

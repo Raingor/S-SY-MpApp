@@ -1,5 +1,7 @@
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
+const { copyVisitorLink } = require('../../utils/visitor-links');
+const { isPrivateMapUrl } = require('../../utils/map-source');
 const { goBack } = require('../../utils/navigation');
 
 function localized(item, key, locale) {
@@ -70,7 +72,13 @@ Page({
     wx.navigateTo({ url: `/pages/audio/detail?attractionId=${encodeURIComponent(this.attractionId)}&pointId=${encodeURIComponent(id)}&category=route${trackParam}` });
   },
   onMapTap() {
-    if (this.data.mapUrl && /^https:\/\//i.test(this.data.mapUrl)) return wx.setClipboardData({ data: this.data.mapUrl });
+    // 私有地图只在线浏览：优先滚动到内联地图，不复制也不进系统预览。
+    if (isPrivateMapUrl(this.data.mapImage)) {
+      wx.pageScrollTo({ selector: '#route-map', duration: 260 });
+      wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
+      return;
+    }
+    if (this.data.mapUrl && /^https:\/\//i.test(this.data.mapUrl)) return copyVisitorLink(this.data.mapUrl, this.data.i18n.heritage);
     wx.pageScrollTo({ selector: '#route-map', duration: 260 });
     if (this.data.isDemo) wx.showToast({ title: this.data.i18n.heritage.routeOrderMap, icon: 'none' });
   },
