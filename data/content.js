@@ -83,7 +83,9 @@ function mapManagedImage(path) {
   const app = getApp();
   const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
   // 私有地图等受控接口路径必须原样拼接；不能塞进 /images/ 前缀。
-  if (/^\/api\//i.test(value)) return base.replace(/\/$/, '') + value;
+  // Website 保证是绝对路径，但 "//api/..." 或 "./api/..." 也不应被当成素材名。
+  const absolute = '/' + value.replace(/^(?:\.\/|\/)+/, '');
+  if (/^\/api\//i.test(absolute)) return base.replace(/\/$/, '') + absolute;
   const relative = value.replace(/^(?:\.\/|\/)+/, '').replace(/^(?:images\/)+/, '');
   return base.replace(/\/$/, '') + '/images/' + relative;
 }

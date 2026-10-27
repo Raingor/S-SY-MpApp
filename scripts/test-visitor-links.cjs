@@ -223,6 +223,17 @@ async function replayWebsiteFixture() {
   const privateAdapted = adapter.getAttraction('fixture-spot', privateLoaded.data);
   assert.equal(privateAdapted.visitorInfoSections[3].map.image, 'https://fixture.invalid/api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png');
   assert.equal(privateAdapted.visitorInfoSections[3].map.image.includes('/images/api/'), false);
+  // Website promises an absolute /api/ path, but tolerate ./ and // prefixes too.
+  for (const prefix of ['./', '//']) {
+    payload = structuredClone(payload);
+    payload.attractions[0].visitorInfoSections[3].map.image = prefix + 'api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png';
+    const tolerant = await new Promise((resolve) => adapter.loadContent((data, state) => resolve({ data, state }), true));
+    assert.equal(adapter.getAttraction('fixture-spot', tolerant.data).visitorInfoSections[3].map.image, 'https://fixture.invalid/api/miniprogram/attraction-map/0123456789abcdef0123456789abcdef.png');
+  }
+  payload = structuredClone(payload);
+  payload.attractions[0].visitorInfoSections[3].map.image = './images/legacy-a.png';
+  const legacyReload = await new Promise((resolve) => adapter.loadContent((data, state) => resolve({ data, state }), true));
+  assert.equal(adapter.getAttraction('fixture-spot', legacyReload.data).visitorInfoSections[3].map.image, 'https://fixture.invalid/images/legacy-a.png', 'legacy ./images/ paths keep the public images route');
   payload = { cities: [], routes: [], destinations: [], sampleItineraries: [], attractions: [raw] };
   assert.deepEqual(plain(adapted.hiddenSections), ['route', 'expert']);
   const replay = page('pages/attraction/visitor-section.js', adapter);
