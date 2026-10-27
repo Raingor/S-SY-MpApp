@@ -124,6 +124,7 @@ function resolveModule(id) {
   if (id.includes('data/content')) return content;
   if (id.includes('utils/i18n')) return i18nStub;
   if (id.includes('utils/navigation')) return { goBack() {} };
+  if (id.includes('utils/visitor-links')) return loadModule(path.join(ROOT, 'utils/visitor-links.js'));
   if (id.includes('utils/share')) return { buildShareCard: () => ({}) };
   if (id.includes('utils/auth')) return { getAccessToken: () => '', isSimulationToken: () => false, ensurePhoneBound() {}, clearSession() {} };
   if (id.includes('utils/paid-content')) return {};

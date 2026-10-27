@@ -1,0 +1,430 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "source": "publicHeritage",
+  "attractionDetails": {
+    "fixture-spot": {
+      "nameTw": "",
+      "summaryTw": "",
+      "summaryEn": "",
+      "visitorInfo": {
+        "hours": "开放时间\n说明\n第一项\n官方网站",
+        "hoursTw": "繁體開放時間",
+        "hoursEn": "English hours",
+        "tickets": "门票信息\n说明\n第一项\n官方网站",
+        "ticketsTw": "",
+        "ticketsEn": "",
+        "transport": "交通信息\n说明\n第一项\n官方网站",
+        "transportTw": "",
+        "transportEn": "",
+        "map": "地图文字说明\n说明\n第一项\n官方网站",
+        "mapTw": "",
+        "mapEn": "",
+        "notices": "",
+        "noticesTw": "",
+        "noticesEn": "",
+        "sourceTitle": "景点官网",
+        "sourceTitleTw": "景點官網",
+        "sourceTitleEn": "Official site",
+        "verifiedAt": "2026-10-27",
+        "mapUrl": "https://example.com/map",
+        "sourceUrl": "https://example.com/official",
+        "mapImage": "/images/fixture-map.webp"
+      },
+      "visitorInfoSections": [
+        {
+          "id": "hours",
+          "kind": "hours",
+          "title": "开放时间",
+          "titleTw": "開放時間",
+          "titleEn": "Opening hours",
+          "nodes": [
+            {
+              "type": "element",
+              "name": "h3",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "开放时间"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "strong",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "说明"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "ul",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "li",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "第一项"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "a",
+                  "attrs": {
+                    "href": "https://example.com/hours"
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "官方网站"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "nodesTw": [
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "繁體時段"
+                }
+              ]
+            }
+          ],
+          "nodesEn": [
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "English hours"
+                }
+              ]
+            }
+          ],
+          "bodyHtml": "<h3>开放时间</h3><p><strong>说明</strong></p><ul><li>第一项</li></ul><p><a href=\"https://example.com/hours\">官方网站</a></p>",
+          "bodyHtmlTw": "<p>繁體時段</p>",
+          "bodyHtmlEn": "<p>English hours</p>",
+          "sort": 1,
+          "status": "published",
+          "sourceUrl": "",
+          "sourceTitle": "",
+          "sourceTitleTw": "",
+          "sourceTitleEn": "",
+          "verifiedAt": ""
+        },
+        {
+          "id": "tickets",
+          "kind": "tickets",
+          "title": "门票信息",
+          "titleTw": "門票資訊",
+          "titleEn": "Tickets",
+          "nodes": [
+            {
+              "type": "element",
+              "name": "h3",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "门票信息"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "strong",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "说明"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "ul",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "li",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "第一项"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "a",
+                  "attrs": {
+                    "href": "https://example.com/tickets"
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "官方网站"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "nodesTw": [],
+          "nodesEn": [],
+          "bodyHtml": "<h3>门票信息</h3><p><strong>说明</strong></p><ul><li>第一项</li></ul><p><a href=\"https://example.com/tickets\">官方网站</a></p>",
+          "bodyHtmlTw": "",
+          "bodyHtmlEn": "",
+          "sort": 2,
+          "status": "published",
+          "sourceUrl": "",
+          "sourceTitle": "",
+          "sourceTitleTw": "",
+          "sourceTitleEn": "",
+          "verifiedAt": ""
+        },
+        {
+          "id": "transport",
+          "kind": "transport",
+          "title": "交通信息",
+          "titleTw": "交通資訊",
+          "titleEn": "Transport",
+          "nodes": [
+            {
+              "type": "element",
+              "name": "h3",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "交通信息"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "strong",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "说明"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "ul",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "li",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "第一项"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "a",
+                  "attrs": {
+                    "href": "https://example.com/transport"
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "官方网站"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "nodesTw": [],
+          "nodesEn": [],
+          "bodyHtml": "<h3>交通信息</h3><p><strong>说明</strong></p><ul><li>第一项</li></ul><p><a href=\"https://example.com/transport\">官方网站</a></p>",
+          "bodyHtmlTw": "",
+          "bodyHtmlEn": "",
+          "sort": 3,
+          "status": "published",
+          "sourceUrl": "",
+          "sourceTitle": "",
+          "sourceTitleTw": "",
+          "sourceTitleEn": "",
+          "verifiedAt": ""
+        },
+        {
+          "id": "map",
+          "kind": "map",
+          "title": "景点地图",
+          "titleTw": "景點地圖",
+          "titleEn": "Map",
+          "nodes": [
+            {
+              "type": "element",
+              "name": "h3",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "text",
+                  "text": "地图文字说明"
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "strong",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "说明"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "ul",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "li",
+                  "attrs": {},
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "第一项"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "name": "p",
+              "attrs": {},
+              "children": [
+                {
+                  "type": "element",
+                  "name": "a",
+                  "attrs": {
+                    "href": "https://example.com/map"
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "官方网站"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "nodesTw": [],
+          "nodesEn": [],
+          "bodyHtml": "<h3>地图文字说明</h3><p><strong>说明</strong></p><ul><li>第一项</li></ul><p><a href=\"https://example.com/map\">官方网站</a></p>",
+          "bodyHtmlTw": "",
+          "bodyHtmlEn": "",
+          "sort": 4,
+          "status": "published",
+          "map": {
+            "image": "/images/fixture-map.webp",
+            "url": "https://example.com/map",
+            "description": "<h3>地图文字说明</h3><p><strong>说明</strong></p><ul><li>第一项</li></ul><p><a href=\"https://example.com/map\">官方网站</a></p>",
+            "descriptionTw": "",
+            "descriptionEn": ""
+          },
+          "sourceUrl": "https://example.com/official",
+          "sourceTitle": "景点官网",
+          "sourceTitleTw": "景點官網",
+          "sourceTitleEn": "Official site",
+          "verifiedAt": "2026-10-27"
+        }
+      ],
+      "customSections": [],
+      "highlights": [],
+      "exhibits": [],
+      "routes": [],
+      "audioGuides": [],
+      "hiddenSections": [
+        "route",
+        "expert"
+      ]
+    }
+  }
+}

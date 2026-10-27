@@ -11,11 +11,12 @@
       <view wx:if="{{activeSection.isDemo}}" class="visitor-detail-demo">{{i18n.heritage.demoData}}</view>
       <view wx:if="{{activeKind === 'hours' && activeSection.hoursText}}" class="visitor-detail-rich visitor-detail-hours">{{activeSection.hoursText}}</view>
       <rich-text wx:elif="{{activeSection.hasContent}}" class="visitor-detail-rich" nodes="{{activeSection.richNodes}}" bindtap="onRichTextTap" />
-      <view wx:elif="{{!activeSection.hasContent}}" class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
+      <view wx:elif="{{!activeSection.hasContent && !activeSection.mapImage && !activeSection.mapUrl}}" class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view>
+      <view wx:for="{{activeSection.links}}" wx:key="url" class="visitor-detail-map-link" data-url="{{item.url}}" bindtap="onCopyLinkTap"><view>{{item.label}}</view><text>{{i18n.heritage.copyLink}}</text></view>
       <image wx:if="{{activeKind === 'map' && activeSection.mapImage}}" class="visitor-detail-map" src="{{activeSection.mapImage}}" mode="widthFix" bindtap="onMapTap" webp="{{true}}" />
-      <view wx:if="{{activeKind === 'map' && activeSection.mapUrl}}" class="visitor-detail-map-link" bindtap="onMapTap"><text>⌖</text><view>{{activeSection.displayTitle}}</view><text>↗</text></view>
+      <view wx:if="{{activeKind === 'map' && activeSection.mapUrl}}" class="visitor-detail-map-link" bindtap="onMapLinkTap"><text>⌖</text><view>{{activeSection.displayTitle}}</view><text>{{i18n.heritage.copyLink}}</text></view>
       <view wx:if="{{activeKind === 'map' && (activeSection.sourceUrl || activeSection.verifiedAt)}}" class="visitor-detail-source"><view wx:if="{{activeSection.sourceUrl}}" bindtap="onSourceTap">{{activeSection.sourceTitle || i18n.heritage.source}} ↗</view><text wx:if="{{activeSection.verifiedAt}}">{{i18n.heritage.verifiedAt}}：{{activeSection.verifiedAt}}</text></view>
-      <view wx:for="{{customSections}}" wx:key="id" class="visitor-detail-custom"><view class="visitor-detail-custom-title">{{item.displayTitle}}</view><rich-text wx:if="{{item.hasContent}}" class="visitor-detail-rich visitor-detail-custom-rich" nodes="{{item.richNodes}}" bindtap="onRichTextTap"/><view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view></view>
+      <view wx:for="{{customSections}}" wx:key="id" class="visitor-detail-custom"><view class="visitor-detail-custom-title">{{item.displayTitle}}</view><rich-text wx:if="{{item.hasContent}}" class="visitor-detail-rich visitor-detail-custom-rich" nodes="{{item.richNodes}}" bindtap="onRichTextTap"/><view wx:else class="visitor-detail-empty">{{i18n.heritage.updatePending}}</view><view wx:for="{{item.links}}" wx:for-item="link" wx:key="url" class="visitor-detail-map-link" data-url="{{link.url}}" bindtap="onCopyLinkTap"><view>{{link.label}}</view><text>{{i18n.heritage.copyLink}}</text></view></view>
       <view class="visitor-detail-note">{{i18n.heritage.officialNotice}}</view>
     </view>
   </scroll-view>

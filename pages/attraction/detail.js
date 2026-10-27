@@ -4,6 +4,7 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
 const i18n = require('../../utils/i18n');
+const { copyVisitorLink } = require('../../utils/visitor-links');
 const paidContent = require('../../utils/paid-content');
 const auth = require('../../utils/auth');
 
@@ -207,15 +208,15 @@ Page({
     const map = this.data.visitorMap;
     if (map) return wx.previewImage({ urls: [map], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
     const url = this.data.visitorMapUrl;
-    if (/^https:\/\//i.test(url)) return wx.setClipboardData({ data: url, success: () => wx.showToast({ title: this.data.i18n.heritage.mapLinkCopied, icon: 'none' }), fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
+    if (/^https:\/\//i.test(url)) return copyVisitorLink(url, this.data.i18n.heritage);
     wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' });
   },
   onSourceTap() {
-    if (/^https:\/\//i.test(this.data.visitorSource)) wx.setClipboardData({ data: this.data.visitorSource });
+    copyVisitorLink(this.data.visitorSource, this.data.i18n.heritage);
   },
   onRichTextTap(e) {
     const href = e && e.detail && e.detail.href;
-    if (/^https:\/\//i.test(href)) wx.setClipboardData({ data: href });
+    copyVisitorLink(href, this.data.i18n.heritage);
   },
   onHighlightTap(e) {
     const index = Number(e.currentTarget.dataset.index);

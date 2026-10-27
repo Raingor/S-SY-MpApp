@@ -1,6 +1,7 @@
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
+const { httpsLink, getRichLinks, copyVisitorLink } = require('../../utils/visitor-links');
 
 const REQUIRED_KINDS = ['hours', 'tickets', 'transport', 'map'];
 const SECTION_ICONS = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖' };
@@ -108,19 +109,20 @@ Page({
       if (kind === 'hours') richNodes = hasRichSource ? preserveLineBreaks(richNodes) : '';
       const isDemo = source.isDemo === true;
       const mapImage = kind === 'map' ? (map.image || info.mapImage || guide.mapImage || '') : '';
-      const mapUrl = kind === 'map' ? (map.url || localized(info, 'mapUrl', locale) || guide.mapUrl || '') : '';
+      const mapUrl = kind === 'map' ? httpsLink(map.url || localized(info, 'mapUrl', locale) || guide.mapUrl) : '';
       return {
         ...source,
         kind,
         icon: SECTION_ICONS[kind],
         displayTitle: localized(source, 'title', locale) || labels[kind] || kind,
         richNodes,
+        links: getRichLinks(richNodes || hoursText, sourceHtml),
         hoursText,
         isDemo,
         hasContent: hasRich(richNodes),
         mapImage,
         mapUrl,
-        sourceUrl: kind === 'map' ? (source.sourceUrl || map.sourceUrl || info.sourceUrl || guide.sourceUrl || '') : '',
+        sourceUrl: kind === 'map' ? httpsLink(source.sourceUrl || map.sourceUrl || info.sourceUrl || guide.sourceUrl) : '',
         sourceTitle: kind === 'map' ? (localized(source, 'sourceTitle', locale) || localized(map, 'sourceTitle', locale) || localized(info, 'sourceTitle', locale) || '') : '',
         verifiedAt: kind === 'map' ? (source.verifiedAt || map.verifiedAt || info.verifiedAt || guide.verifiedAt || '') : ''
       };
@@ -128,7 +130,7 @@ Page({
     const customSections = (spot.customSections || []).filter((item) => item && item.status === 'published' && !isFaqSection(item, locale)).map((item) => {
       const richNodes = localizedRich(item, locale, '');
       const displayTitle = localized(item, 'title', locale);
-      return { ...item, displayTitle, richNodes, hasContent: hasRich(richNodes) };
+      return { ...item, displayTitle, richNodes, links: getRichLinks(richNodes, localized(item, 'bodyHtml', locale)), hasContent: hasRich(richNodes) };
     }).filter((item) => item.displayTitle && !/faq|frequently\s+asked\s+questions|常见问题|常見問題/i.test(item.displayTitle))
       .sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
     const selected = sections.find((section) => section.kind === this.requestedKind) || sections[0];
@@ -152,17 +154,24 @@ Page({
   onMapTap() {
     const section = this.data.activeSection || {};
     if (section.mapImage) return wx.previewImage({ urls: [section.mapImage], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
-    if (/^https:\/\//i.test(section.mapUrl || '')) return wx.setClipboardData({ data: section.mapUrl });
+    copyVisitorLink(section.mapUrl, this.data.i18n.heritage);
+  },
+
+  onMapLinkTap() {
+    copyVisitorLink(this.data.activeSection && this.data.activeSection.mapUrl, this.data.i18n.heritage);
   },
 
   onSourceTap() {
-    const url = this.data.activeSection && this.data.activeSection.sourceUrl;
-    if (/^https:\/\//i.test(url || '')) wx.setClipboardData({ data: url });
+    copyVisitorLink(this.data.activeSection && this.data.activeSection.sourceUrl, this.data.i18n.heritage);
   },
 
   onRichTextTap(e) {
     const href = e && e.detail && e.detail.href;
-    if (/^https:\/\//i.test(href || '')) wx.setClipboardData({ data: href });
+    copyVisitorLink(href, this.data.i18n.heritage);
+  },
+
+  onCopyLinkTap(e) {
+    copyVisitorLink(e.currentTarget.dataset.url, this.data.i18n.heritage);
   },
 
   onBack() { goBack(); }

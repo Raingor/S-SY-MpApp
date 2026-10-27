@@ -29,6 +29,8 @@ assert(guide.includes('id="booking"') && guide.includes('onSubmit'));
 const i18nModule = { exports: {} };
 vm.runInNewContext(fs.readFileSync('utils/i18n.js', 'utf8'), { module: i18nModule, wx: { getStorageSync: () => 'zh-CN' }, getApp: () => ({ globalData: {} }) });
 const translations = i18nModule.exports;
+const visitorLinksModule = { exports: {} };
+vm.runInNewContext(fs.readFileSync('utils/visitor-links.js', 'utf8'), { module: visitorLinksModule });
 for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   const h = translations.getMessages(locale).heritage;
   for (const key of ['sights', 'history', 'noAlbums', 'previewEnded', 'fullAccess', 'networkFailed', 'unlockRequired', 'requestDateNotice']) assert(h[key], `${locale}: ${key}`);
@@ -66,6 +68,7 @@ vm.runInNewContext(fs.readFileSync('pages/attraction/detail.js', 'utf8'), {
   getApp: () => ({ globalData: {} }),
   wx: { navigateTo: (options) => detailNavigation.push(options) },
   require: (name) => {
+    if (name.includes('utils/visitor-links')) return visitorLinksModule.exports;
     if (name.includes('data/content')) return detailContent;
     if (name.includes('utils/i18n')) return { getMessages: (locale) => translations.getMessages(locale || 'zh-CN'), apply() {} };
     if (name.includes('paid-content')) return {
@@ -138,6 +141,7 @@ vm.runInNewContext(fs.readFileSync('pages/attraction/visitor-section.js', 'utf8'
   Page: (config) => { visitorDetailConfig = config; },
   wx: {},
   require: (name) => {
+    if (name.includes('utils/visitor-links')) return visitorLinksModule.exports;
     if (name.includes('data/content')) return detailContent;
     if (name.includes('utils/i18n')) return { getMessages: (locale) => translations.getMessages(locale || 'zh-CN'), apply() {} };
     return {};
