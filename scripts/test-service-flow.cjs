@@ -56,7 +56,7 @@ let pageConfig;
 vm.runInNewContext(flowSource, {
   wx: { getWindowInfo: () => ({ statusBarHeight: 24 }), switchTab(options) { pageConfig._switched = options.url; } },
   getApp: () => ({ globalData: {} }),
-  require: (id) => ({ '../../utils/i18n': i18n, '../../utils/share': { buildShareCard: () => ({}) } }[id]),
+  require: (id) => ({ '../../utils/i18n': i18n, '../../utils/share': { buildShareCard: () => ({}) }, '../../utils/navigation': { goBack: () => { pageConfig._back = true; } } }[id]),
   Page(config) { pageConfig = config; }
 }, { filename: 'pages/service-flow/service-flow.js' });
 const page = {
@@ -70,6 +70,8 @@ assert.equal(grouped.length, 3);
 assert.deepEqual(Array.from(grouped, (s) => s.steps.length), [3, 3, 2], 'steps group into 3/3/2 stages');
 assert.equal(grouped[0].steps[0].title, i18n.getMessages('zh-CN').serviceFlow.steps[0].title);
 assert.ok(grouped.every((stage) => stage.steps.every((step) => step.lane && step.index)), 'each step carries lane and number');
+page.onBack();
+assert.equal(pageConfig._back, true, 'back button uses the shared goBack helper');
 page.onStartCustomize();
 assert.equal(pageConfig._switched, '/pages/customize/customize', 'CTA performs the switchTab navigation');
 

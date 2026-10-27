@@ -3,6 +3,9 @@
   <!-- ===== 深海军蓝页头 ===== -->
   <view class="hero">
     <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="flow-nav">
+      <view class="sy-back-button" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view>
+    </view>
     <view class="hero-inner">
       <view class="eyebrow hero-kicker">{{flow.eyebrow}}</view>
       <view class="hero-title serif">{{flow.title}}</view>

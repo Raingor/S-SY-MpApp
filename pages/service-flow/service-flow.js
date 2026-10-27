@@ -1,6 +1,7 @@
 // 定制旅行服务流程页：按 BlueSeacoast 服务流程图呈现三泳道流程；CTA 跳转定制留资表单。
 const i18n = require('../../utils/i18n');
 const { buildShareCard } = require('../../utils/share');
+const { goBack } = require('../../utils/navigation');
 const app = getApp();
 
 // 三泳道 ↔ 八步骤：把流程图的「您/中文客服/希腊团队」责任线映射到每个阶段。
@@ -38,6 +39,8 @@ Page({
     }));
     this.setData({ locale, flow, groupedSteps });
   },
+
+  onBack() { goBack(); },
 
   onStartCustomize() {
     // customize 是 tabBar 页：从非 tab 页跳转必须用 switchTab，navigateTo 会失败。

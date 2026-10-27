@@ -22,6 +22,7 @@ page { background: #0C1B33; }
   border-radius: 56rpx 56rpx 0 0;
 }
 .hero-inner { position: relative; padding-top: 40rpx; }
+.flow-nav { position: relative; display: flex; align-items: center; height: 88rpx; padding: 0 36rpx; }
 .hero-kicker { color: #D8C396; letter-spacing: 6rpx; }
 .hero-title { margin-top: 18rpx; font-size: 52rpx; line-height: 1.28; color: #F5F8FC; letter-spacing: 2rpx; }
 .hero-sub { margin-top: 20rpx; color: #9FB4CF; font-size: 25rpx; letter-spacing: 1rpx; }
