@@ -1,0 +1,548 @@
+{
+  "version": 1,
+  "synthetic": true,
+  "source": "Isolated JSON server HTTP PATCH/GET; never production or local MariaDB",
+  "cases": [
+    {
+      "name": "enabled-multilingual-custom-keys",
+      "content": {
+        "travelGuide": {
+          "enabled": true,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "合成卡片乙",
+                  "desc": "卡片描述",
+                  "points": [
+                    "要点乙一",
+                    "要点乙二"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                },
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        },
+        "settings": {
+          "travelGuideDocs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        }
+      }
+    },
+    {
+      "name": "admin-cn-edit-keeps-existing-translations",
+      "content": {
+        "travelGuide": {
+          "enabled": true,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "管理员只改简体后的标题",
+                  "desc": "卡片描述",
+                  "points": [
+                    "管理员新增简体要点"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                },
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        },
+        "settings": {
+          "travelGuideDocs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        }
+      }
+    },
+    {
+      "name": "custom-order-added-section-and-card",
+      "content": {
+        "travelGuide": {
+          "enabled": true,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "new-first",
+              "kicker": "NEW FIRST",
+              "title": "新加分组排第一",
+              "intro": "新增分组导语",
+              "cards": [
+                {
+                  "key": "new-only",
+                  "mark": "新",
+                  "source": "fixture",
+                  "title": "新增卡片",
+                  "desc": "新卡不在静态i18n",
+                  "points": [],
+                  "titleTw": "新增卡片",
+                  "descTw": "新卡不在静态i18n",
+                  "pointsTw": [],
+                  "titleEn": "新增卡片",
+                  "descEn": "新卡不在静态i18n",
+                  "pointsEn": []
+                }
+              ],
+              "titleTw": "新加分组排第一",
+              "introTw": "新增分组导语",
+              "titleEn": "新加分组排第一",
+              "introEn": "新增分组导语"
+            },
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                },
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "合成卡片乙",
+                  "desc": "卡片描述",
+                  "points": [
+                    "要点乙一",
+                    "要点乙二"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        },
+        "settings": {
+          "travelGuideDocs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        }
+      }
+    },
+    {
+      "name": "enabled-with-no-documents",
+      "content": {
+        "travelGuide": {
+          "enabled": true,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "合成卡片乙",
+                  "desc": "卡片描述",
+                  "points": [
+                    "要点乙一",
+                    "要点乙二"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                },
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {}
+        },
+        "settings": {
+          "travelGuideDocs": {}
+        }
+      }
+    },
+    {
+      "name": "disabled-with-content",
+      "content": {
+        "travelGuide": {
+          "enabled": false,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "合成卡片乙",
+                  "desc": "卡片描述",
+                  "points": [
+                    "要点乙一",
+                    "要点乙二"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                },
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        },
+        "settings": {
+          "travelGuideDocs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        }
+      }
+    },
+    {
+      "name": "disabled-after-server-restart",
+      "content": {
+        "travelGuide": {
+          "enabled": false,
+          "kicker": "FIXTURE TRAVEL",
+          "title": "合成出行指南",
+          "subtitle": "测试副标题",
+          "sections": [
+            {
+              "key": "custom-section-z",
+              "kicker": "CUSTOM Z",
+              "title": "合成分组",
+              "intro": "分组导语",
+              "cards": [
+                {
+                  "key": "custom-card-b",
+                  "mark": "乙",
+                  "source": "合成资料来源",
+                  "title": "合成卡片乙",
+                  "desc": "卡片描述",
+                  "points": [
+                    "要点乙一",
+                    "要点乙二"
+                  ],
+                  "titleTw": "合成卡片乙繁體",
+                  "descTw": "卡片描述繁體",
+                  "pointsTw": [
+                    "要點乙一",
+                    "要點乙二"
+                  ],
+                  "titleEn": "Synthetic card B",
+                  "descEn": "Card description",
+                  "pointsEn": [
+                    "Point B1",
+                    "Point B2"
+                  ]
+                },
+                {
+                  "key": "custom-card-a",
+                  "mark": "甲",
+                  "source": "",
+                  "title": "合成卡片甲",
+                  "desc": "只填简体，服务端回退",
+                  "points": [
+                    "简体要点"
+                  ],
+                  "titleTw": "合成卡片甲",
+                  "descTw": "只填简体，服务端回退",
+                  "pointsTw": [
+                    "简体要点"
+                  ],
+                  "titleEn": "合成卡片甲",
+                  "descEn": "只填简体，服务端回退",
+                  "pointsEn": [
+                    "简体要点"
+                  ]
+                }
+              ],
+              "titleTw": "合成分組",
+              "introTw": "分組導語",
+              "titleEn": "Synthetic section",
+              "introEn": "Section intro"
+            }
+          ],
+          "titleTw": "合成出行指南繁體",
+          "subtitleTw": "測試副標題",
+          "titleEn": "Synthetic travel guide",
+          "subtitleEn": "Fixture subtitle",
+          "docs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        },
+        "settings": {
+          "travelGuideDocs": {
+            "custom-card-b": "/docs/fixture-b.pdf",
+            "custom-card-a": "https://example.com/fixture-a.pdf"
+          }
+        }
+      }
+    },
+    {
+      "name": "legacy-stored-empty-sections",
+      "note": "Public GET preserves stored empty sections; current admin PATCH rejects empty sections with 422.",
+      "content": {
+        "travelGuide": {
+          "enabled": true,
+          "kicker": "EMPTY FIXTURE",
+          "title": "历史空配置",
+          "subtitle": "",
+          "sections": [],
+          "titleTw": "历史空配置",
+          "subtitleTw": "",
+          "titleEn": "历史空配置",
+          "subtitleEn": "",
+          "docs": {}
+        },
+        "settings": {
+          "travelGuideDocs": {}
+        }
+      }
+    },
+    {
+      "name": "legacy-response-without-travelGuide",
+      "note": "Synthetic legacy response shape only, not emitted by current server.",
+      "content": {
+        "settings": {
+          "travelGuideDocs": {}
+        }
+      }
+    }
+  ]
+}

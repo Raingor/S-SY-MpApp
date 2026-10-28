@@ -426,6 +426,7 @@ function fetchContent() {
           cache = {
             countryId,
             settings: res.data.settings || {},
+            travelGuide: res.data.travelGuide && typeof res.data.travelGuide === 'object' && !Array.isArray(res.data.travelGuide) ? res.data.travelGuide : null,
             countries: adaptCountries(res.data.countries),
             guides: adaptGuides(res.data.guides),
             cities: adaptCities(res.data.cities),

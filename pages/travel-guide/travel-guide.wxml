@@ -9,14 +9,19 @@
       <view class="travel-mark">✦</view>
     </view>
     <view class="travel-hero-body">
-      <view class="travel-kicker">TRAVEL GUIDE</view>
-      <view class="travel-title serif">{{i18n.travel.title}}</view>
-      <view class="travel-subtitle">{{i18n.travel.subtitle}}</view>
-      <view class="travel-promise"><text>{{i18n.travel.promise1}}</text><text>{{i18n.travel.promise2}}</text><text>{{i18n.travel.promise3}}</text></view>
+      <view wx:if="{{guideKicker}}" class="travel-kicker">{{guideKicker}}</view>
+      <view class="travel-title serif">{{guideTitle}}</view>
+      <view class="travel-subtitle">{{guideSubtitle}}</view>
+      <view wx:if="{{guideEnabled && !loading && !contentError}}" class="travel-promise"><text>{{i18n.travel.promise1}}</text><text>{{i18n.travel.promise2}}</text><text>{{i18n.travel.promise3}}</text></view>
     </view>
   </view>
 
-  <view class="travel-content">
+  <view wx:if="{{loading}}" class="travel-status">{{i18n.loading}}</view>
+  <view wx:elif="{{contentError}}" class="travel-status">{{i18n.travel.loadFailed}}<view class="travel-retry" bindtap="refresh">{{i18n.travel.retry}} ›</view></view>
+  <view wx:elif="{{!guideEnabled}}" class="travel-status">{{i18n.travel.disabled}}</view>
+  <view wx:elif="{{!sections.length}}" class="travel-status">{{i18n.travel.empty}}</view>
+  <view wx:if="{{offline && !loading}}" class="travel-status">{{i18n.travel.offline}}</view>
+  <view wx:if="{{!loading && !contentError && guideEnabled && sections.length}}" class="travel-content">
     <view class="travel-section-kicker">FROM OUR GUIDE LIBRARY</view>
     <view class="travel-heading serif">{{i18n.travel.heading}}</view>
     <view class="travel-intro">{{i18n.travel.intro}}</view>
@@ -35,7 +40,7 @@
         <view class="travel-card card" wx:for="{{item.guides}}" wx:key="key" wx:for-item="guide">
           <view class="travel-card-top">
             <view class="travel-icon travel-icon-{{guide.key}}">{{guide.mark}}</view>
-            <view class="travel-card-source {{guide.docUrl ? 'travel-card-source-link' : ''}}" data-section="{{item.key}}" data-guide="{{guide.key}}" catchtap="onDocReadTap">{{i18n.travel.onlineRead}} · {{guide.source}}<text wx:if="{{guide.docUrl}}" class="travel-card-source-arrow"> ›</text></view>
+            <view class="travel-card-source {{guide.docUrl ? 'travel-card-source-link' : ''}}" data-section="{{item.key}}" data-guide="{{guide.key}}" catchtap="onDocReadTap">{{guide.docUrl ? i18n.travel.onlineRead : ''}}{{guide.docUrl && guide.source ? ' · ' : ''}}{{guide.source}}<text wx:if="{{guide.docUrl}}" class="travel-card-source-arrow"> ›</text></view>
           </view>
           <view class="travel-card-title">{{guide.title}}</view>
           <view class="travel-card-desc">{{guide.desc}}</view>
@@ -55,7 +60,7 @@
     </view>
   </view>
 
-  <view class="travel-consult card" bindtap="onConsult">
+  <view wx:if="{{guideEnabled && !loading && !contentError}}" class="travel-consult card" bindtap="onConsult">
     <view class="travel-consult-copy">
       <view class="travel-consult-kicker">NEED A CUSTOM PLAN?</view>
       <view class="travel-consult-title serif">{{i18n.travel.consultTitle}}</view>

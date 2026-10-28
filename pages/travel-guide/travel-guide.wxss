@@ -1,4 +1,6 @@
 /* ============ 出行指南 ============ */
+.travel-status { margin: 40rpx 32rpx; padding: 28rpx; border-radius: 20rpx; background: #FFFFFF; color: #5B6B7A; font-size: 28rpx; line-height: 1.7; }
+.travel-retry { margin-top: 12rpx; color: #1567A8; }
 .travel-guide-page {
   min-height: 100vh;
   padding-bottom: 80rpx;
