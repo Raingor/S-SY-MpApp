@@ -24,7 +24,7 @@ const products = (p) => Array.from(p.data.unlockOptions, (o) => o.product);
   let shop;
   require('node:vm').runInNewContext(fs.readFileSync(path.join(__dirname, '../pages/membership/shop.js'), 'utf8'), {
     Page(value) { shop = value; },
-    require(id) { return { '../../utils/i18n': h.i18n, '../../utils/paid-content': h.paid, '../../utils/auth': h.auth, '../../utils/navigation': {} }[id]; }
+    require(id) { return { '../../utils/i18n': h.i18n, '../../utils/paid-content': h.paid, '../../utils/auth': h.auth, '../../utils/navigation': {}, '../../utils/share': h.share }[id]; }
   });
   shop = { ...shop, data: structuredClone(shop.data), setData(value) { Object.assign(this.data, value); } };
   shop.loadPlans();

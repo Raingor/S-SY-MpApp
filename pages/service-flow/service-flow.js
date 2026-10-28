@@ -12,7 +12,7 @@ Page({
   data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), flow: null, groupedSteps: [] },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/customize/customize');
+    return buildShareCard('/pages/service-flow/service-flow', this);
   },
 
   onLoad() {

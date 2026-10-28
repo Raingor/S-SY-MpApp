@@ -1,6 +1,7 @@
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
@@ -13,6 +14,9 @@ function audioAccessLabel(item, heritage, locale) {
 
 Page({
   data: { statusBarHeight: 20, locale: 'zh-CN', i18n: i18n.getMessages(), category: 'online', title: '', spotName: '', items: [], visibleItems: [], searchText: '', filter: 'all', demoData: false, loading: true, failed: false },
+  onShareAppMessage() {
+    return buildShareCard('/pages/audio/collection?attractionId=' + encodeURIComponent(this.attractionId || '') + '&category=' + encodeURIComponent(this.category || 'online'), this);
+  },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });

@@ -4,6 +4,7 @@ const accessApi = require('../../utils/audio-access');
 const paid = require('../../utils/paid-content');
 const auth = require('../../utils/auth');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
@@ -31,6 +32,11 @@ Page({
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
     showUnlockPaywall: false, paywallLoading: false, unlockOptions: [], unlockExplanation: '',
     paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: ''
+  },
+  onShareAppMessage() {
+    const params = this.params || {};
+    const query = ['attractionId', 'pointId', 'trackId', 'albumId', 'episodeId', 'category'].filter((key) => params[key]).map((key) => key + '=' + encodeURIComponent(params[key])).join('&');
+    return buildShareCard('/pages/audio/detail' + (query ? '?' + query : ''), this);
   },
   onLoad(options) {
     const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();

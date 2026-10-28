@@ -255,11 +255,7 @@ Page({
     const spot = this.data.spot;
     const id = this.spotId || (spot && spot.id);
     if (!id) return buildShareCard('/pages/index/index');
-    return {
-      title: (spot && spot.shareTitle) || (spot ? spot.name + ' · ' : '') + this.data.i18n.commonSlogan,
-      path: '/pages/attraction/detail?id=' + encodeURIComponent(id),
-      imageUrl: spot ? (spot.shareImage || spot.image) : undefined
-    };
+    return buildShareCard('/pages/attraction/detail?id=' + encodeURIComponent(id), this);
   },
 
   onBack() {

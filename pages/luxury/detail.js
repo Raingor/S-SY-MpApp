@@ -72,6 +72,6 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/luxury/detail?type=' + this.type);
+    return buildShareCard('/pages/luxury/detail?type=' + this.type, this);
   }
 });

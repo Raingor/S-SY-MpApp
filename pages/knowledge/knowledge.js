@@ -28,7 +28,9 @@ Page({
     albums: [], visibleAlbums: [], searchQuery: '', audioOnly: false,
     loading: true, contentError: false, offline: false
   },
-  onShareAppMessage() { return buildShareCard('/pages/knowledge/knowledge'); },
+  onShareAppMessage() {
+    return buildShareCard('/pages/knowledge/knowledge?panel=' + (this.data.activePanel === 1 ? '1' : '0') + (this.data.audioOnly ? '&audioOnly=1' : ''), this);
+  },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;

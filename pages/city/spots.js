@@ -96,11 +96,7 @@ Page({
 
   onShareAppMessage() {
     const city = this.data.city;
-    return {
-      title: (city ? city.name + ' · ' : '') + this.data.i18n.commonSlogan,
-      path: '/pages/city/spots?id=' + (city ? city.id : ''),
-      imageUrl: city ? city.cover : undefined
-    };
+    return buildShareCard('/pages/city/spots?id=' + encodeURIComponent(city ? city.id : ''), this);
   },
 
   onBack() {

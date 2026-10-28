@@ -36,7 +36,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/itinerary/index');
+    return buildShareCard('/pages/itinerary/index', this);
   },
 
   onBack() {

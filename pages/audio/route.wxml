@@ -1,3 +1,4 @@
+<sy-share-preview id="share-preview" />
 <view class="route-detail-page">
   <view class="route-detail-top-inset" style="height: {{statusBarHeight}}px;"></view>
   <view class="route-detail-nav"><view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view><view class="route-detail-nav-title">{{i18n.heritage.routes}}</view><view class="route-detail-nav-space"></view></view>

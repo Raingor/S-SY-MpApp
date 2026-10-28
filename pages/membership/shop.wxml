@@ -1,3 +1,4 @@
+<sy-share-preview id="share-preview" />
 <view class="vip-shop-page">
   <view class="vip-shop-nav" style="padding-top: {{statusBarHeight}}px;">
     <view class="vip-shop-nav-inner">

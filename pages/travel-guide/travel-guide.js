@@ -14,7 +14,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/travel-guide/travel-guide');
+    return buildShareCard('/pages/travel-guide/travel-guide', this);
   },
 
   refresh() {

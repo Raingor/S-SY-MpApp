@@ -156,7 +156,7 @@ async function main() {
   assert.equal(detail.data.loading, false);
   detail.spotId = 'old';
   detail.applySpot(content.getAttraction('old', data));
-  assert.equal(detail.onShareAppMessage().title, '旧景点 · ' + detail.data.i18n.commonSlogan);
+  assert.equal(detail.onShareAppMessage().title, '旧景点', 'default share title describes the current page, not the generic slogan');
   assert.equal(detail.onShareAppMessage().imageUrl, '/assets/images/dest/dest-delphi.jpg');
   detail.data.spot = null;
   assert.equal(detail.onShareAppMessage().path, '/pages/attraction/detail?id=old');

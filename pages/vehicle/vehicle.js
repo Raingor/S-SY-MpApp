@@ -111,7 +111,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/vehicle/vehicle');
+    return buildShareCard('/pages/vehicle/vehicle', this);
   },
 
   onLoad() {

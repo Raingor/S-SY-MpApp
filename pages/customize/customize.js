@@ -70,7 +70,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/customize/customize');
+    return buildShareCard('/pages/customize/customize', this);
   },
 
   onLoad(options) {

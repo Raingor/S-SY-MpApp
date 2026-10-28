@@ -2,6 +2,7 @@ const app = getApp();
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 function tr(item, key, locale) { const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : ''; return item && (item[key + suffix] || item[key]) || ''; }
 function duration(value) { const seconds = Number(value); return Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}` : ''; }
 function accessLabel(item, heritage, locale) {
@@ -11,6 +12,9 @@ function accessLabel(item, heritage, locale) {
 }
 Page({
   data: { locale: 'zh-CN', i18n: i18n.getMessages(), album: null, episodes: [], visibleEpisodes: [], firstEpisode: null, searching: false, searchValue: '', activeTab: 'episodes', scrollIntoView: '', loading: true, failed: false, statusBarHeight: 20 },
+  onShareAppMessage() {
+    return buildShareCard('/pages/audio/album?id=' + encodeURIComponent(this.albumId || ''), this);
+  },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.albumId = (options && options.id) || '';

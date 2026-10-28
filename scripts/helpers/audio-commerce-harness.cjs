@@ -68,6 +68,7 @@ function createHarness(initialConfig) {
   }
   h.load = load;
   h.i18n = load('utils/i18n.js', {});
+  h.share = load('utils/share.js', { './i18n': h.i18n, './share-preview': load('utils/share-preview.js', {}) });
   h.auth = load('utils/auth.js', { './i18n': h.i18n });
   h.paid = load('utils/paid-content.js', { './auth': h.auth });
   h.access = load('utils/audio-access.js', { './auth': h.auth, './paid-content': h.paid });
@@ -75,7 +76,7 @@ function createHarness(initialConfig) {
   let pageConfig;
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pages/audio/detail.js'), 'utf8'), {
     ...globals, Page(config) { pageConfig = config; }, require(id) {
-      const dependencies = { '../../data/content': h.content, '../../utils/i18n': h.i18n, '../../utils/auth': h.auth, '../../utils/paid-content': h.paid, '../../utils/audio-access': h.access, '../../utils/navigation': { goBack() {} } };
+      const dependencies = { '../../data/content': h.content, '../../utils/i18n': h.i18n, '../../utils/auth': h.auth, '../../utils/paid-content': h.paid, '../../utils/audio-access': h.access, '../../utils/navigation': { goBack() {} }, '../../utils/share': h.share };
       assert.ok(Object.hasOwn(dependencies, id), 'unexpected player dependency ' + id);
       return dependencies[id];
     }

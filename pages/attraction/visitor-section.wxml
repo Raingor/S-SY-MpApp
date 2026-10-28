@@ -1,3 +1,4 @@
+<sy-share-preview id="share-preview" />
 <view class="visitor-detail-page" wx:if="{{spot}}">
   <view class="visitor-detail-safe-top" style="height: {{statusBarHeight}}px;"></view>
   <view class="visitor-detail-nav"><view class="visitor-detail-back" bindtap="onBack" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view><view class="visitor-detail-nav-title">{{i18n.guideService}}</view><view class="visitor-detail-nav-space"></view></view>

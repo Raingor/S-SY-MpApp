@@ -1,3 +1,4 @@
+<sy-share-preview id="share-preview" />
 <view class="spot-page" wx:if="{{spot}}">
   <view class="spot-hero">
     <image wx:if="{{spot.image}}" class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" webp="{{true}}" />

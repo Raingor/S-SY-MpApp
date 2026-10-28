@@ -35,7 +35,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/business/business');
+    return buildShareCard('/pages/business/business', this);
   },
 
   onLoad() {

@@ -1,0 +1,1 @@
+<canvas type="2d" id="canvas" class="share-canvas" aria-hidden="{{true}}"></canvas>

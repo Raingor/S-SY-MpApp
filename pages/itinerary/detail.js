@@ -165,15 +165,11 @@ Page({
     });
   },
 
-  // 分享即行程链接：定制行程分享卡片带 token，客户点开直接看到自己的详细行程
+  // 保留定制行程主动分享的 token 链接；卡片只取标题，不取订单/旅客/费用字段。
   onShareAppMessage() {
     const it = this.data.itinerary;
-    const param = it && it.token ? 'token=' + it.token : 'id=' + (it ? it.id : '');
-    return {
-      title: (it ? it.title : this.data.i18n.contentPage.referenceTag) + ' · ' + this.data.i18n.commonSlogan,
-      path: '/pages/itinerary/detail?' + param,
-      imageUrl: it ? it.img : undefined
-    };
+    const param = it && it.token ? 'token=' + encodeURIComponent(it.token) : 'id=' + encodeURIComponent(it ? it.id : '');
+    return buildShareCard('/pages/itinerary/detail?' + param, this);
   },
 
   onBack() {

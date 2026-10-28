@@ -1,0 +1,2 @@
+:host { position: fixed; left: -1500px; top: 0; width: 750px; height: 600px; pointer-events: none; }
+.share-canvas { width: 750px; height: 600px; }

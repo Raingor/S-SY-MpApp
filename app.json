@@ -27,6 +27,9 @@
     "pages/city/index",
     "pages/city/spots"
   ],
+  "usingComponents": {
+    "sy-share-preview": "/components/share-preview/share-preview"
+  },
   "window": {
     "navigationStyle": "custom",
     "backgroundColor": "#F4F7FA",

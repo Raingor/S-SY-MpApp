@@ -1,6 +1,7 @@
 const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 const { httpsLink, getRichLinks, copyVisitorLink } = require('../../utils/visitor-links');
 const { isPrivateMapUrl } = require('../../utils/map-source');
 
@@ -54,6 +55,9 @@ Page({
     failed: false
   },
 
+  onShareAppMessage() {
+    return buildShareCard('/pages/attraction/visitor-section?id=' + encodeURIComponent(this.spotId || '') + '&kind=' + encodeURIComponent(this.data.activeKind || 'hours'), this);
+  },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     i18n.apply(this);

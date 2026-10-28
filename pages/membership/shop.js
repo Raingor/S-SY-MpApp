@@ -3,6 +3,7 @@ const auth = require('../../utils/auth');
 const i18n = require('../../utils/i18n');
 const paidContent = require('../../utils/paid-content');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 
 Page({
   data: {
@@ -17,6 +18,9 @@ Page({
     plans: []
   },
 
+  onShareAppMessage() {
+    return buildShareCard('/pages/membership/shop', this);
+  },
   onLoad() {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });

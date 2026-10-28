@@ -121,7 +121,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/guide/guide?id=' + (this.data.guide.id || 'richard-li'));
+    return buildShareCard('/pages/guide/guide?id=' + (this.data.guide.id || 'richard-li'), this);
   },
 
   onLoad(options) {

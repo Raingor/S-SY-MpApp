@@ -76,7 +76,7 @@ Page({
   },
 
   onShareAppMessage() {
-    return buildShareCard('/pages/index/index');
+    return buildShareCard('/pages/index/index', this);
   },
 
   getRouteAudioContext() {

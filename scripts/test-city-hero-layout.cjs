@@ -9,7 +9,8 @@ assert.match(markup, /class="city-cover-hero"/);
 assert.match(markup, /class="city-cover-image"[^>]*src="\{\{city\.coverImage\}\}"/);
 assert.match(markup, /class="city-title serif">\{\{city\.name\}\}/);
 assert.doesNotMatch(markup, /mosaic-grid|wx:for="\{\{city\.mosaic\}\}"/);
-assert.match(page, /imageUrl:\s*city\s*\?\s*city\.coverImage\s*:\s*undefined/);
+assert.match(page, /buildShareCard\('\/pages\/city\/index\?id='[^;]+, this\)/);
+assert.match(fs.readFileSync('utils/share-preview.js', 'utf8'), /image = city\.coverImage \|\| city\.cover/);
 assert.match(styles, /\.city-cover-hero\s*\{[^}]*min-height:\s*510rpx;/s);
 assert.match(styles, /\.city-cover-image\s*\{[^}]*height:\s*510rpx;/s);
 

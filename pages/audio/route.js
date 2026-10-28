@@ -3,6 +3,7 @@ const i18n = require('../../utils/i18n');
 const { copyVisitorLink } = require('../../utils/visitor-links');
 const { isPrivateMapUrl } = require('../../utils/map-source');
 const { goBack } = require('../../utils/navigation');
+const { buildShareCard } = require('../../utils/share');
 
 function localized(item, key, locale) {
   const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
@@ -11,6 +12,9 @@ function localized(item, key, locale) {
 
 Page({
   data: { locale: 'zh-CN', i18n: i18n.getMessages(), title: '', description: '', durationLabel: '', coverImage: '', mapImage: '', mapUrl: '', points: [], isDemo: false, loading: true, failed: false, statusBarHeight: 20 },
+  onShareAppMessage() {
+    return buildShareCard('/pages/audio/route?attractionId=' + encodeURIComponent(this.attractionId || '') + '&id=' + encodeURIComponent(this.routeId || ''), this);
+  },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     this.attractionId = options && options.attractionId || '';

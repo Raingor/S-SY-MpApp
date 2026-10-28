@@ -57,6 +57,7 @@ function createCollection(category = 'online') {
       if (id === '../../data/content') return content;
       if (id === '../../utils/i18n') return i18n;
       if (id === '../../utils/navigation') return { goBack() {} };
+      if (id === '../../utils/share') return { buildShareCard: () => ({}) };
       throw new Error(`Unexpected module: ${id}`);
     }
   });
