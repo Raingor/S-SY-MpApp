@@ -208,13 +208,19 @@ Page({
   onMapTap() {
     const map = this.data.visitorMap;
     if (map) {
-      // 后台上传地图为私有资源：只在线浏览，不进系统预览（可保存到相册）。
-      if (isPrivateMapUrl(map)) return wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
+      // 后台上传地图为私有资源：应用内放大查看（无系统保存菜单），可截图保存。
+      if (isPrivateMapUrl(map)) {
+        this.setData({ mapZoomOpen: true, mapZoomImage: map });
+        return wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
+      }
       return wx.previewImage({ urls: [map], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
     }
     const url = this.data.visitorMapUrl;
     if (/^https:\/\//i.test(url)) return copyVisitorLink(url, this.data.i18n.heritage);
     wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' });
+  },
+  onMapZoomClose() {
+    this.setData({ mapZoomOpen: false });
   },
   onSourceTap() {
     copyVisitorLink(this.data.visitorSource, this.data.i18n.heritage);

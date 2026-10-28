@@ -22,5 +22,6 @@
     </view>
   </scroll-view>
 </view>
+<map-zoom open="{{mapZoomOpen}}" image="{{mapZoomImage}}" bind:close="onMapZoomClose" />
 <view wx:elif="{{loading}}" class="visitor-detail-state">{{i18n.loading}}</view>
 <view wx:else class="visitor-detail-state"><view>{{i18n.heritage.networkFailed}}</view><view class="visitor-detail-back-link" bindtap="onBack">{{i18n.back}}</view></view>

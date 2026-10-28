@@ -1,3 +1,6 @@
 {
-  "navigationStyle": "custom"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "map-zoom": "/components/map-zoom/map-zoom"
+  }
 }
