@@ -1,7 +1,7 @@
 <view wx:if="{{open}}" class="map-zoom" catchtouchmove="noop" bindtap="close">
   <movable-area class="map-zoom-area" scale-area>
     <movable-view class="map-zoom-view" direction="all" scale scale-min="1" scale-max="5" scale-value="{{scaleValue}}" inertia bindtap="noop">
-      <image class="map-zoom-image" src="{{image}}" mode="widthFix" webp="{{true}}" show-menu-by-longpress="{{false}}" />
+      <image class="map-zoom-image" src="{{image}}" mode="aspectFit" webp="{{true}}" show-menu-by-longpress="{{false}}" />
     </movable-view>
   </movable-area>
   <view class="map-zoom-close" catchtap="close" aria-label="close">×</view>

@@ -91,11 +91,13 @@ async function main() {
   const viewer = read('components/map-zoom/map-zoom.wxml');
   assert.match(viewer, /movable-area[^>]*scale-area/);
   assert.match(viewer, /movable-view[^>]*scale scale-min="1" scale-max="5"/);
+  assert.match(viewer, /mode="aspectFit"/, 'any-aspect map renders fully centered, never top-anchored');
   assert.match(viewer, /show-menu-by-longpress="\{\{false\}\}"/);
   assert.doesNotMatch(viewer, /previewImage|saveImageToPhotosAlbum|openDocument/);
   const css = read('components/map-zoom/map-zoom.wxss');
   assert.match(css, /position: fixed; top: 0; left: 0; right: 0; bottom: 0/, 'explicit offsets: WXSS does not support the inset shorthand');
   assert.doesNotMatch(css, /inset:/);
+  assert.match(css, /\.map-zoom-view \{ width: 100%; height: 100%; \}/, 'movable-view fills the viewport so aspectFit centers the map');
   assert.match(css, /z-index: 3000/);
   // 既有契约不受影响：私有地图不产生系统菜单，分享卡不取私有图。
   assert.equal(String(loadModule(path.join(ROOT, 'utils/share-preview.js')).pagePreview(
