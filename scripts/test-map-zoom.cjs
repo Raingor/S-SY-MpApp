@@ -50,12 +50,13 @@ async function main() {
     const page = { ...definition, data: structuredClone(definition.data), setData(next) { Object.assign(this.data, next); } };
     // 私有地图：打开应用内查看器，不进系统预览。
     const beforePreview = PREVIEW.length;
+    const beforeToast = TOASTS.length;
     const map = { mapImage: '/api/miniprogram/attraction-map/mvabcdefgh1.png' };
     const url = rel.endsWith('detail.js') ? (() => { page.data.visitorMap = map.mapImage; page.onMapTap(); return page.data.visitorMap; })() : (() => { page.data.activeSection = map; page.onMapTap(); return page.data.activeSection.mapImage; })();
     assert.equal(page.data.mapZoomOpen, true, rel + ': private map opens the in-app viewer');
     assert.equal(page.data.mapZoomImage, url);
     assert.equal(PREVIEW.length, beforePreview, rel + ': system preview must not be used for private maps');
-    assert.equal(TOASTS.at(-1).title, i18n.getMessages('zh-CN').heritage.mapViewOnly);
+    assert.equal(TOASTS.length, beforeToast, rel + ': no toast when opening the viewer; the component hint carries the message');
     page.onMapZoomClose();
     assert.equal(page.data.mapZoomOpen, false, rel + ': close resets the viewer');
     // 公开地图：保持原有系统预览。

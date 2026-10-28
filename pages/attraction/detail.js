@@ -208,11 +208,8 @@ Page({
   onMapTap() {
     const map = this.data.visitorMap;
     if (map) {
-      // 后台上传地图为私有资源：应用内放大查看（无系统保存菜单），可截图保存。
-      if (isPrivateMapUrl(map)) {
-        this.setData({ mapZoomOpen: true, mapZoomImage: map });
-        return wx.showToast({ title: this.data.i18n.heritage.mapViewOnly, icon: 'none', duration: 2500 });
-      }
+      // 后台上传地图为私有资源：应用内放大查看（无系统保存菜单），可截图保存；提示由查看器底部展示，不再弹toast。
+      if (isPrivateMapUrl(map)) return this.setData({ mapZoomOpen: true, mapZoomImage: map });
       return wx.previewImage({ urls: [map], fail: () => wx.showToast({ title: this.data.i18n.heritage.mapFailed, icon: 'none' }) });
     }
     const url = this.data.visitorMapUrl;
