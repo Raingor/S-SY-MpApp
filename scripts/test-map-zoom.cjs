@@ -66,14 +66,20 @@ async function main() {
     assert.equal(page.data.mapZoomOpen, false, rel + ': public map must not open the viewer');
   }
   // 组件：打开重置缩放，关闭冒泡，提示语取当前语言。
+  let viewer = read('components/map-zoom/map-zoom.wxml');
+  let css = read('components/map-zoom/map-zoom.wxss');
   let component;
   vm.runInNewContext(read('components/map-zoom/map-zoom.js'), {
     wx, Component(value) { component = value; },
     require: (id) => id.endsWith('i18n') ? i18n : {}
   }, { filename: 'components/map-zoom/map-zoom.js' });
+  wx.getMenuButtonBoundingClientRect = () => ({ top: 26, bottom: 58, right: 367 });
   const instance = { ...component.methods, data: { ...component.data }, setData(next) { Object.assign(this.data, next); }, triggerEvent(name) { this._closed = name; } };
   component.lifetimes.attached.call(instance);
   assert.equal(instance.data.hint, i18n.getMessages('zh-CN').heritage.mapViewOnly);
+  assert.equal(instance.data.closeTop, 68, 'close button sits below the WeChat capsule, never overlapping it');
+  assert.match(viewer, /style="top: \{\{closeTop\}\}px"/);
+  assert.doesNotMatch(css, /map-zoom-close \{ position: absolute; top:/);
   instance.setData({ scaleValue: 4 });
   component.properties.open.observer.call(instance, true);
   assert.equal(instance.data.scaleValue, 1, 'reopen resets zoom');
@@ -89,13 +95,13 @@ async function main() {
   for (const rel of ['pages/attraction/visitor-section.json', 'pages/attraction/detail.json']) {
     assert.equal(JSON.parse(read(rel)).usingComponents['map-zoom'], '/components/map-zoom/map-zoom', rel);
   }
-  const viewer = read('components/map-zoom/map-zoom.wxml');
+  viewer = read('components/map-zoom/map-zoom.wxml');
   assert.match(viewer, /movable-area[^>]*scale-area/);
   assert.match(viewer, /movable-view[^>]*scale scale-min="1" scale-max="5"/);
   assert.match(viewer, /mode="aspectFit"/, 'any-aspect map renders fully centered, never top-anchored');
   assert.match(viewer, /show-menu-by-longpress="\{\{false\}\}"/);
   assert.doesNotMatch(viewer, /previewImage|saveImageToPhotosAlbum|openDocument/);
-  const css = read('components/map-zoom/map-zoom.wxss');
+  css = read('components/map-zoom/map-zoom.wxss');
   assert.match(css, /position: fixed; top: 0; left: 0; right: 0; bottom: 0/, 'explicit offsets: WXSS does not support the inset shorthand');
   assert.doesNotMatch(css, /inset:/);
   assert.match(css, /\.map-zoom-view \{ width: 100%; height: 100%; \}/, 'movable-view fills the viewport so aspectFit centers the map');

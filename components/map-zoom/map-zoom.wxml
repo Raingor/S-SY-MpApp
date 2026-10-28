@@ -4,6 +4,6 @@
       <image class="map-zoom-image" src="{{image}}" mode="aspectFit" webp="{{true}}" show-menu-by-longpress="{{false}}" />
     </movable-view>
   </movable-area>
-  <view class="map-zoom-close" catchtap="close" aria-label="close">×</view>
+  <view class="map-zoom-close" style="top: {{closeTop}}px" catchtap="close" aria-label="close">×</view>
   <view class="map-zoom-hint">{{hint}}</view>
 </view>
