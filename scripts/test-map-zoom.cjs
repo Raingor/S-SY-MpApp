@@ -94,7 +94,8 @@ async function main() {
   assert.match(viewer, /show-menu-by-longpress="\{\{false\}\}"/);
   assert.doesNotMatch(viewer, /previewImage|saveImageToPhotosAlbum|openDocument/);
   const css = read('components/map-zoom/map-zoom.wxss');
-  assert.match(css, /position: fixed; inset: 0/);
+  assert.match(css, /position: fixed; top: 0; left: 0; right: 0; bottom: 0/, 'explicit offsets: WXSS does not support the inset shorthand');
+  assert.doesNotMatch(css, /inset:/);
   assert.match(css, /z-index: 3000/);
   // 既有契约不受影响：私有地图不产生系统菜单，分享卡不取私有图。
   assert.equal(String(loadModule(path.join(ROOT, 'utils/share-preview.js')).pagePreview(
