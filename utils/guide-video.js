@@ -43,4 +43,12 @@ function fetchAccess(video, callback) {
   });
 }
 
-module.exports = { fetchAccess, productValid, priceDisplay };
+// 已购判断只用 entitlements.unlockedVideos（年会员不自动含视频），展示用；播放资格仍以 access=full 为准。
+function isPurchased(entitlements, videoId) {
+  return Boolean(entitlements && (entitlements.unlockedVideos || []).some((item) => {
+    const id = typeof item === 'object' ? item && item.videoId : item;
+    return String(id) === String(videoId);
+  }));
+}
+
+module.exports = { fetchAccess, productValid, priceDisplay, isPurchased };

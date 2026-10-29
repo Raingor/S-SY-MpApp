@@ -242,6 +242,8 @@ function adaptHome(remoteHome) {
         title: typeof item.title === 'string' ? item.title.trim() : '',
         description: typeof item.description === 'string' ? item.description.trim() : '',
         alt: typeof item.alt === 'string' ? item.alt.trim() : '',
+        // 仅支持站内 attraction:<id> 跳转；其他 link 一律忽略，不外链。
+        link: /^attraction:[\w-]+$/.test(typeof item.link === 'string' ? item.link.trim() : '') ? item.link.trim() : '',
         sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
       }))
       .filter((item) => item.img)

@@ -14,6 +14,7 @@ let accessResponse = null;
 let accessCalls = 0;
 const orderResponses = [];
 let orderCalls = 0;
+let entitlementsReply = [];
 const storage = new Map([['sy_mp_access_token', 'fixture-token']]);
 const wx = {
   getStorageSync: (key) => storage.get(key) || '',
@@ -49,7 +50,7 @@ const wx = {
     if (/\/api\/miniprogram\/orders\//.test(options.url)) {
       return options.success({ statusCode: 200, data: { order: { id: 'order-1', status: 'paid' } } });
     }
-    if (options.url.includes('/entitlements')) return options.success({ statusCode: 200, data: { member: false } });
+    if (options.url.includes('/entitlements')) return options.success({ statusCode: 200, data: { member: false, unlockedVideos: entitlementsReply } });
     throw new Error('Unexpected request: ' + options.url);
   }
 };
@@ -210,6 +211,14 @@ async function main() {
   assert.equal(modals.length, 1);
   assert.equal(JSON.stringify(component.data).includes('SECRET'), false);
 
+  // 已购标记：unlockedVideos 命中 → purchased；年会员不含视频。
+  entitlementsReply = [VIDEO.id];
+  const guideVideoPage = loadModule('utils/guide-video.js');
+  assert.equal(guideVideoPage.isPurchased({ unlockedVideos: [VIDEO.id] }, VIDEO.id), true);
+  assert.equal(guideVideoPage.isPurchased({ unlockedVideos: [{ videoId: VIDEO.id }] }, VIDEO.id), true);
+  assert.equal(guideVideoPage.isPurchased({ member: true, unlockedVideos: [] }, VIDEO.id), false, 'membership alone never marks a video purchased');
+  assert.equal(guideVideoPage.isPurchased(null, VIDEO.id), false);
+
   // ===== 节目页（audio/detail）：入口 + 组件挂载 =====
   let audioDefinition;
   vm.runInNewContext(read('pages/audio/detail.js'), {
@@ -225,6 +234,12 @@ async function main() {
   i18n.setLocale('en'); audioPage.data.locale = 'en'; audioPage.localize();
   assert.equal(audioPage.data.guideVideos[0].displayTitle, VIDEO.titleEn);
   i18n.setLocale('zh-CN'); audioPage.data.locale = 'zh-CN'; audioPage.localize();
+  await flush();
+  assert.equal(audioPage.data.guideVideos[0].purchased, true, 'unlockedVideos marks the entry as purchased');
+  entitlementsReply = [];
+  audioPage.markGuideVideoPurchases();
+  await flush();
+  assert.equal(audioPage.data.guideVideos[0].purchased, false, 'without unlockedVideos the entry shows locked');
   audioPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
   assert.equal(audioPage.data.videoOpen.id, VIDEO.id, 'audio detail passes the video object into the shared sheet component');
   audioPage.onGuideVideoClose();
@@ -232,6 +247,7 @@ async function main() {
   const audioMarkup = read('pages/audio/detail.wxml');
   assert.match(audioMarkup, /<guide-video-sheet video="\{\{videoOpen\}\}" bind:close="onGuideVideoClose"/);
   assert.match(audioMarkup, /guide-video-section/);
+  assert.match(audioMarkup, /guide-video-lock/);
   assert.doesNotMatch(audioMarkup, /videoSheet/, 'legacy inline sheet must be fully removed');
 
   // ===== 景点详情页：expert 板块内的视频入口 =====
@@ -242,12 +258,15 @@ async function main() {
     require: (id) => id.endsWith('utils/lead-api') ? { isSuccessfulLeadResponse: () => false, leadErrorMessage: () => 'x' } : pageRequire(id)
   }, { filename: 'pages/attraction/detail.js' });
   const spotPage = { ...spotDefinition, data: structuredClone(spotDefinition.data), setData(next) { Object.assign(this.data, next); } };
+  entitlementsReply = [VIDEO.id];
   spotPage.onLoad({ id: 'acropolis' });
   spotPage.loadSpot();
   await flush();
   assert.equal(spotPage.data.loading, false);
   assert.equal(spotPage.data.spot.id, 'acropolis');
   assert.deepEqual(spotPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
+  await flush();
+  assert.equal(spotPage.data.guideVideos[0].purchased, true, 'attraction detail also consumes unlockedVideos');
   assert.equal(spotPage.data.pageCopy.sections.expert.hidden, false, "hiddenSections ['route'] keeps the expert section visible");
   assert.equal(spotPage.data.pageCopy.sections.route.hidden, true);
   spotPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
@@ -257,7 +276,7 @@ async function main() {
   const spotMarkup = read('pages/attraction/detail.wxml');
   assert.ok(spotMarkup.includes('id="section-expert"'));
   const expertBlock = spotMarkup.slice(spotMarkup.indexOf('id="section-expert"'), spotMarkup.indexOf('id="section-video"'));
-  for (const binding of ['onGuideVideoTap', 'guide-video-card', 'item.displayTitle', 'guide-video-sheet video="{{videoOpen}}"']) {
+  for (const binding of ['onGuideVideoTap', 'guide-video-card', 'item.displayTitle', 'guide-video-lock', 'guide-video-sheet video="{{videoOpen}}"']) {
     assert.ok(expertBlock.includes(binding) || spotMarkup.includes(binding), 'expert section entry: ' + binding);
   }
   assert.ok(spotMarkup.includes('<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose"'));

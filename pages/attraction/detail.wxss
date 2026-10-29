@@ -138,11 +138,13 @@ page { background: #111214; }
 .simulation-label { color: #e1be75; font-size: 24rpx; font-weight: 600; }
 
 /* ===== 游览攻略视频入口 ===== */
-.guide-video-card { display: flex; align-items: center; gap: 18rpx; margin-top: 20rpx; padding: 18rpx; border: 1rpx solid #34353a; border-radius: 18rpx; background: #1b1c20; }
+.guide-video-card { position: relative; display: flex; align-items: center; gap: 18rpx; margin-top: 20rpx; padding: 18rpx; border: 1rpx solid #34353a; border-radius: 18rpx; background: #1b1c20; }
 .guide-video-card-hover { background: #232429; }
-.guide-video-thumb { width: 168rpx; height: 104rpx; flex: 0 0 168rpx; border-radius: 12rpx; background: #10141B; color: #FFFFFF; font-size: 34rpx; display: flex; align-items: center; justify-content: center; }
+.guide-video-thumb { position: relative; width: 168rpx; height: 104rpx; flex: 0 0 168rpx; border-radius: 12rpx; background: #10141B; color: #FFFFFF; font-size: 34rpx; display: flex; align-items: center; justify-content: center; }
 .guide-video-copy { flex: 1; min-width: 0; }
 .guide-video-name { color: #F2F2F0; font-size: 29rpx; font-weight: 600; line-height: 1.4; }
 .guide-video-desc { margin-top: 6rpx; color: #AEB6BF; font-size: 24rpx; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .guide-video-meta { margin-top: 6rpx; color: #8B95A1; font-size: 22rpx; }
 .guide-video-arrow { color: #B8C0C9; font-size: 34rpx; }
+
+.guide-video-lock { position: absolute; right: 8rpx; bottom: 8rpx; font-size: 24rpx; }

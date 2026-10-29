@@ -7,6 +7,7 @@ const i18n = require('../../utils/i18n');
 const { copyVisitorLink } = require('../../utils/visitor-links');
 const { isPrivateMapUrl } = require('../../utils/map-source');
 const paidContent = require('../../utils/paid-content');
+const guideVideo = require('../../utils/guide-video');
 const auth = require('../../utils/auth');
 
 // guide 12 键 -> 默认中文标签（空键不展示）
@@ -74,10 +75,16 @@ Page({
         // 游览攻略视频按景点挂载：显示在 expert（游览攻略）板块内。
         this.setData({
           guideVideos: content.getGuideVideos(data, fresh.id).map((item) => ({ ...item, displayTitle: this.localized(item, 'title'), displayDescription: this.localized(item, 'description') })),
+          guideVideosMarked: false,
           videoOpen: null
         });
         this.setData({ loading: false, contentError: false });
         this.loadPaidState();
+        // 未购显示锁标（年会员不自动含视频）；资格最终以 access=full 为准。
+        if (this.data.guideVideos.length) paidContent.fetchEntitlements((ok, entitlements) => {
+          if (!ok || !this.data.guideVideos.length || this.data.guideVideosMarked) return;
+          this.setData({ guideVideosMarked: true, guideVideos: this.data.guideVideos.map((item) => ({ ...item, purchased: guideVideo.isPurchased(entitlements, item.id) })) });
+        });
       } else {
         this.setData({ loading: false, contentError: false, spot: null, guideTabs: [], related: [] });
       }

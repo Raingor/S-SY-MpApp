@@ -110,6 +110,7 @@ function fetchEntitlements(callback) {
       unlockedCities: data.unlockedCities || [],
       unlockedAlbums: data.unlockedAlbums || [],
       unlockedExpertTracks: data.unlockedExpertTracks || [],
+      unlockedVideos: data.unlockedVideos || [],
       favorites: data.favorites || [],
       history: data.history || [],
       orders: data.orders || []

@@ -2,6 +2,7 @@ const content = require('../../data/content');
 const i18n = require('../../utils/i18n');
 const accessApi = require('../../utils/audio-access');
 const paid = require('../../utils/paid-content');
+const guideVideo = require('../../utils/guide-video');
 const auth = require('../../utils/auth');
 const { goBack } = require('../../utils/navigation');
 const { buildShareCard } = require('../../utils/share');
@@ -245,6 +246,15 @@ Page({
     this.setData({ videoOpen: null });
   },
 
+  // 未购显示锁标（年会员不自动含视频）；资格最终以 access=full 为准。
+  markGuideVideoPurchases() {
+    if (!this.data.guideVideos.length) return;
+    paid.fetchEntitlements((ok, entitlements) => {
+      if (!ok || !this.data.guideVideos.length) return;
+      this.setData({ guideVideos: this.data.guideVideos.map((item) => ({ ...item, purchased: guideVideo.isPurchased(entitlements, item.id) })) });
+    });
+  },
+
   loadData() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this._accessWaiters = [];
@@ -281,6 +291,7 @@ Page({
       this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.albumId ? 'heritage' : this.params.category });
       // 游览攻略视频按景点挂载：仅当前曲目所属景点有视频时展示入口。
       this.setData({ guideVideos: content.getGuideVideos(data, (track && track.attractionId) || this.params.attractionId).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale) })) });
+      this.markGuideVideoPurchases();
       this.localize();
       if (track && track.previewUrl && !demoMode) this.refreshAccess();
       if (this.autoPlayRequested) {

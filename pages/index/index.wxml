@@ -6,6 +6,7 @@
     <swiper
       wx:if="{{heroList.length}}"
       class="hero-swiper"
+      bindtap="onHeroTap"
       autoplay
       circular
       interval="4500"

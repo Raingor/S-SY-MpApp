@@ -30,6 +30,7 @@
         <view wx:for="{{guideVideos}}" wx:key="id" class="guide-video-card" data-id="{{item.id}}" bindtap="onGuideVideoTap" hover-class="guide-video-card-hover">
           <image wx:if="{{item.cover}}" class="guide-video-thumb" src="{{item.cover}}" mode="aspectFill" webp="{{true}}" />
           <view wx:else class="guide-video-thumb guide-video-thumb-empty">▶</view>
+          <view wx:if="{{!item.purchased}}" class="guide-video-lock">🔒</view>
           <view class="guide-video-copy">
             <view class="guide-video-name">{{item.displayTitle || item.title}}</view>
             <view wx:if="{{item.displayDescription || item.description}}" class="guide-video-desc">{{item.displayDescription || item.description}}</view>

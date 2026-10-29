@@ -314,6 +314,14 @@ Page({
     });
   },
 
+  // Hero 轮播图点击：仅响应后台配置的站内跳转（attraction:<id>），无 link 维持原行为。
+  onHeroTap() {
+    const banner = this.data.heroList[this.data.heroCurrent] || {};
+    if (!banner.link) return;
+    const id = decodeURIComponent(String(banner.link.slice('attraction:'.length)));
+    if (id) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(id) });
+  },
+
   // 六大服务入口
   onEntryTap(e) {
     const key = e.currentTarget.dataset.key;
