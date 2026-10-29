@@ -28,19 +28,26 @@ const PAGE = {
   audioHow: { steps: ['步骤'] }
 };
 
-// online 不可被任何配置隐藏；route/expert 跟随服务端（全局 hidden 与 hiddenSections 任一为真即隐藏）。
-for (const hidden of [false, true]) {
-  for (const hiddenSections of [undefined, [], ['route'], ['expert'], ['route', 'expert'], ['online']]) {
-    const sections = Object.fromEntries(Object.entries(PAGE.sections).map(([key, value]) => [key, { ...value, hidden }]));
-    page.applyPageCopy({ ...PAGE, sections }, { id: 'a', hiddenSections });
-    assert.equal(page.data.pageCopy.sections.online.hidden, false, 'all online visits remain visible');
-    assert.equal(page.data.pageCopy.sections.route.hidden, hidden || (hiddenSections || []).includes('route'), 'route follows the server contract');
-    assert.equal(page.data.pageCopy.sections.expert.hidden, hidden || (hiddenSections || []).includes('expert'), 'expert follows the server contract');
-  }
-}
-// 生产现状：acropolis hiddenSections=['route'] → expert 显影；其余106景点仍 ['route','expert']。
-page.applyPageCopy({ ...PAGE, sections: PAGE.sections }, { id: 'acropolis', hiddenSections: ['route'] });
-assert.equal(page.data.pageCopy.sections.expert.hidden, false, 'acropolis expert section shows for the guide video entry');
-page.applyPageCopy({ ...PAGE, sections: PAGE.sections }, { id: 'other', hiddenSections: ['route', 'expert'] });
+// 生产现状：全局 sections.expert/route.hidden=true 只是默认值；景点带显式 hiddenSections 时以它为权威。
+const PRODUCTION_PAGE = {
+  sections: {
+    expert: { label: { zh: '游览攻略' }, hidden: true },
+    route: { label: { zh: '路线导览' }, hidden: true },
+    online: { label: { zh: '专业介绍' } }
+  },
+  audioHow: { steps: ['步骤'] }
+};
+page.applyPageCopy(PRODUCTION_PAGE, { id: 'acropolis', hiddenSections: ['route'] });
+assert.equal(page.data.pageCopy.sections.expert.hidden, false, 'acropolis expert shows: explicit hiddenSections overrides the global default');
+assert.equal(page.data.pageCopy.sections.route.hidden, true);
+page.applyPageCopy(PRODUCTION_PAGE, { id: 'other', hiddenSections: ['route', 'expert'] });
 assert.equal(page.data.pageCopy.sections.expert.hidden, true, 'other sights keep expert hidden');
-console.log('PASS: online always visible; route/expert visibility fully server-driven (acropolis expert exposed, others stay hidden)');
+// 无显式 hiddenSections 的旧数据：回退全局 hidden + overrides 合并。
+page.applyPageCopy({ ...PRODUCTION_PAGE, sections: { ...PRODUCTION_PAGE.sections, expert: { label: { zh: '游览攻略' }, hidden: false } } }, { id: 'legacy' });
+assert.equal(page.data.pageCopy.sections.expert.hidden, false, 'legacy data without hiddenSections falls back to the global flag');
+// online 不可被任何配置隐藏。
+for (const hiddenSections of [undefined, [], ['online'], ['route', 'expert', 'online']]) {
+  page.applyPageCopy({ ...PRODUCTION_PAGE, sections: { ...PRODUCTION_PAGE.sections, online: { label: { zh: '专业介绍' }, hidden: true } } }, { id: 'a', hiddenSections });
+  assert.equal(page.data.pageCopy.sections.online.hidden, false, 'all online visits remain visible');
+}
+console.log('PASS: explicit per-spot hiddenSections are authoritative over the global section defaults (acropolis expert exposed); online always visible');

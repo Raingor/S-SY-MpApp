@@ -32,7 +32,7 @@ Page({
     loading: true, playing: false, audioLoading: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
     showUnlockPaywall: false, paywallLoading: false, unlockOptions: [], unlockExplanation: '',
-    guideVideos: [], videoOpen: null,
+    guideVideos: [], videoOpen: null, mapZoomOpen: false, mapZoomImage: '',
     paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: ''
   },
   onShareAppMessage() {

@@ -43,7 +43,7 @@ Page({
     ,simulationLoading: false
     ,routes: [], exhibits: [], onlineGuides: [], expertGuides: [], onlineDemo: false, expertDemo: false, visitorRows: [], visitorSections: [], visitorMap: '', visitorMapUrl: '', visitorMapLabel: '', visitorSource: '', visitorSourceLabel: '', visitorVerified: '', contentError: false
     ,pageCopy: { sections: {}, audioHow: { steps: [], note: '' } }
-    ,guideVideos: [], videoOpen: null
+    ,guideVideos: [], videoOpen: null, mapZoomOpen: false, mapZoomImage: ''
   },
 
   onLoad(options) {
@@ -106,6 +106,8 @@ Page({
     const locale = this.data.locale === 'en' ? 'en' : this.data.locale === 'zh-TW' ? 'tw' : 'zh';
     const read = (entry) => entry && typeof entry === 'object' ? String(entry[locale] || entry.zh || '') : '';
     const overrides = Array.isArray(spot && spot.hiddenSections) ? spot.hiddenSections : [];
+    // 景点带显式 hiddenSections 时以它为权威（生产全局 sections.expert.hidden 只是默认值）；online 仍强制显示。
+    const authoritative = Array.isArray(spot && spot.hiddenSections);
     const sections = {};
     for (const [key, value] of Object.entries(page && page.sections || {})) {
       const title = read(value.label);
@@ -115,8 +117,7 @@ Page({
         title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
         notice: read(value.notice),
-        // 板块显隐完全由服务端决定（全局 hidden + 分景点 hiddenSections）；online 仍强制显示。
-        hidden: key === 'online' ? false : (value && value.hidden === true) || overrides.includes(key)
+        hidden: key === 'online' ? false : (authoritative ? overrides.includes(key) : (value && value.hidden === true) || overrides.includes(key))
       };
     }
     const heritage = this.data.i18n.heritage || {};
