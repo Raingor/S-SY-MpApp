@@ -28,7 +28,8 @@
     "pages/city/spots"
   ],
   "usingComponents": {
-    "sy-share-preview": "/components/share-preview/share-preview"
+    "sy-share-preview": "/components/share-preview/share-preview",
+    "guide-video-sheet": "/components/guide-video-sheet/guide-video-sheet"
   },
   "window": {
     "navigationStyle": "custom",

@@ -1,0 +1,15 @@
+.gvm-mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2600; display: flex; align-items: flex-end; background: rgba(8, 11, 16, 0.82); }
+.gvm-sheet { width: 100%; max-height: 92vh; box-sizing: border-box; padding: 24rpx 28rpx calc(env(safe-area-inset-bottom) + 34rpx); border-radius: 28rpx 28rpx 0 0; background: #12161D; color: #F2F2F0; }
+.gvm-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+.gvm-title { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gvm-close { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255, 255, 255, 0.12); font-size: 40rpx; }
+.gvm-player, .gvm-cover-wrap { position: relative; width: 100%; height: 420rpx; border-radius: 16rpx; overflow: hidden; background: #000000; }
+.gvm-cover { width: 100%; height: 100%; opacity: 0.55; }
+.gvm-state { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16rpx; text-align: center; padding: 0 32rpx; color: #E7E6E2; font-size: 27rpx; }
+.gvm-state-copy { line-height: 1.6; }
+.gvm-price { color: #D8C396; font-size: 40rpx; font-weight: 700; }
+.gvm-action { margin: 0; padding: 0 44rpx; height: 72rpx; line-height: 72rpx; border-radius: 36rpx; background: #C9A86A; color: #FFFFFF; font-size: 27rpx; }
+.gvm-action::after { border: none; }
+.gvm-action-muted { background: rgba(255, 255, 255, 0.16); }
+.gvm-retry { color: #D8C396; }
+.gvm-desc { margin-top: 18rpx; color: #AEB6BF; font-size: 25rpx; line-height: 1.65; }

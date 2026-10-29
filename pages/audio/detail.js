@@ -3,7 +3,6 @@ const i18n = require('../../utils/i18n');
 const accessApi = require('../../utils/audio-access');
 const paid = require('../../utils/paid-content');
 const auth = require('../../utils/auth');
-const guideVideo = require('../../utils/guide-video');
 const { goBack } = require('../../utils/navigation');
 const { buildShareCard } = require('../../utils/share');
 
@@ -32,7 +31,7 @@ Page({
     loading: true, playing: false, audioLoading: false, previewEnded: false, currentSeconds: 0, currentTime: '0:00', remainingTime: '0:00', durationSeconds: 0, progressPercent: 0, playbackRate: 1,
     fullPlayback: false, fullActionText: '', paidConfig: null, purchaseLoading: false, pendingOrder: null, simulation: false, demoMode: false, demoCategory: 'online',
     showUnlockPaywall: false, paywallLoading: false, unlockOptions: [], unlockExplanation: '',
-    guideVideos: [], videoSheet: null,
+    guideVideos: [], videoOpen: null,
     paywallAuthState: 'checking', paywallAuthLoading: false, paywallAuthError: ''
   },
   onShareAppMessage() {
@@ -228,105 +227,24 @@ Page({
   onBack() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this.stop();
-    this.setData({ access: null, accessLoading: false, videoSheet: null });
+    this.setData({ access: null, accessLoading: false, videoOpen: null });
     goBack();
   },
 
-  // ===== 游览攻略视频：资格与签名 URL 全部由服务端 accessUrl 决定 =====
+  // ===== 游览攻略视频：列表入口；播放/购买逻辑在 guide-video-sheet 组件 =====
   onGuideVideoTap(event) {
     const id = event.currentTarget.dataset.id;
     const video = this.data.guideVideos.find((item) => String(item.id) === String(id));
-    if (!video || this.data.videoSheet) return;
+    if (!video || this.data.videoOpen) return;
     // 与音频播放互斥：先暂停当前音频再打开视频。
     this.stop(true);
-    this.setData({ videoSheet: { video, state: 'loading', price: '', purchaseLoading: false, playUrl: '', position: 0, order: null } });
-    this.reloadGuideVideoAccess();
+    this.setData({ videoOpen: video });
   },
 
-  reloadGuideVideoAccess() {
-    const sheet = this.data.videoSheet;
-    if (!sheet || sheet.reloading) return;
-    const requestId = (this._videoRequestId || 0) + 1;
-    this._videoRequestId = requestId;
-    this.setData({ videoSheet: { ...sheet, state: 'loading', reloading: true, playUrl: '' } });
-    guideVideo.fetchAccess(sheet.video, (ok, result) => {
-      const current = this.data.videoSheet;
-      if (!current || requestId !== this._videoRequestId) return;
-      if (!ok || !result) return this.setData({ videoSheet: { ...current, state: 'error', reloading: false } });
-      if (result.access === 'full' && result.playUrl && result.validUntil > Date.now()) {
-        return this.setData({ videoSheet: { ...current, state: 'ready', reloading: false, access: result, playUrl: result.playUrl } });
-      }
-      if (result.access === 'locked' && result.reason === 'MINIPROGRAM_LOGIN_REQUIRED') {
-        return this.setData({ videoSheet: { ...current, state: 'login', reloading: false, access: result } });
-      }
-      if (result.access === 'locked' && result.reason === 'VIDEO_PURCHASE_REQUIRED' && result.product) {
-        return this.setData({ videoSheet: { ...current, state: 'purchase', reloading: false, access: result, price: guideVideo.priceDisplay(result.product) } });
-      }
-      this.setData({ videoSheet: { ...current, state: 'error', reloading: false } });
-    });
+  onGuideVideoClose() {
+    this.setData({ videoOpen: null });
   },
 
-  onGuideVideoLogin() {
-    const sheet = this.data.videoSheet;
-    if (!sheet || sheet.authLoading) return;
-    this.setData({ 'videoSheet.authLoading': true });
-    auth.login((loggedIn) => {
-      if (!this.data.videoSheet) return;
-      if (!loggedIn) return this.setData({ 'videoSheet.authLoading': false });
-      this.reloadGuideVideoAccess();
-    });
-  },
-
-  onGuideVideoBuy() {
-    const sheet = this.data.videoSheet;
-    if (!sheet || sheet.purchaseLoading) return;
-    this.setData({ 'videoSheet.purchaseLoading': true });
-    paid.createOrder('guideVideo', sheet.video.id, (created, result) => {
-      if (!this.data.videoSheet) return;
-      const code = result && result.code;
-      if (code === 'PAYMENT_CANCELLED') return this.setData({ 'videoSheet.purchaseLoading': false });
-      if (result && result.pendingSimulation) {
-        return this.setData({ videoSheet: { ...sheet, state: 'simulation', purchaseLoading: false, order: result.order || null } });
-      }
-      if (!created) {
-        wx.showModal({ title: this.data.i18n.submitFailed, content: (result && (result.error || result.message)) || this.data.i18n.heritage.guideVideoUnavailable, confirmText: this.data.i18n.know, showCancel: false });
-        return this.setData({ 'videoSheet.purchaseLoading': false });
-      }
-      // 支付成功/待确认都重新鉴权：服务端是唯一权益来源。
-      this.reloadGuideVideoAccess();
-    });
-  },
-
-  onGuideVideoSimulation(event) {
-    const sheet = this.data.videoSheet;
-    const order = sheet && sheet.order;
-    if (!order || !order.id || sheet.simulationLoading) return;
-    this.setData({ 'videoSheet.simulationLoading': true });
-    paid.simulateOrderResult(order.id, event.currentTarget.dataset.outcome, () => {
-      if (!this.data.videoSheet) return;
-      this.setData({ 'videoSheet.simulationLoading': false });
-      this.reloadGuideVideoAccess();
-    });
-  },
-
-  // 签名 URL 过期或播放失败：记住断点重新鉴权，换新 URL 后从原位置续播。
-  onGuideVideoTimeUpdate(event) {
-    this._videoPosition = Math.floor(Number(event.detail && event.detail.currentTime) || 0);
-  },
-  onGuideVideoError() {
-    const sheet = this.data.videoSheet;
-    if (!sheet || sheet.state !== 'ready') return;
-    this.setData({ videoSheet: { ...sheet, position: this._videoPosition || 0 } });
-    this.reloadGuideVideoAccess();
-  },
-
-  closeVideoSheet() {
-    if (this.data.videoSheet && this.data.videoSheet.state === 'ready') {
-      const context = wx.createVideoContext && wx.createVideoContext('guide-video', this);
-      if (context) context.stop();
-    }
-    this.setData({ videoSheet: null });
-  },
   loadData() {
     this._accessRequestId = (this._accessRequestId || 0) + 1;
     this._accessWaiters = [];

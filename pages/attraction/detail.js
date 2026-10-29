@@ -42,6 +42,7 @@ Page({
     ,simulationLoading: false
     ,routes: [], exhibits: [], onlineGuides: [], expertGuides: [], onlineDemo: false, expertDemo: false, visitorRows: [], visitorSections: [], visitorMap: '', visitorMapUrl: '', visitorMapLabel: '', visitorSource: '', visitorSourceLabel: '', visitorVerified: '', contentError: false
     ,pageCopy: { sections: {}, audioHow: { steps: [], note: '' } }
+    ,guideVideos: [], videoOpen: null
   },
 
   onLoad(options) {
@@ -70,6 +71,11 @@ Page({
         this.contentSource = data;
         this.applyPageCopy(data.attractionDetailPage, fresh);
         this.applySpot(fresh);
+        // 游览攻略视频按景点挂载：显示在 expert（游览攻略）板块内。
+        this.setData({
+          guideVideos: content.getGuideVideos(data, fresh.id).map((item) => ({ ...item, displayTitle: this.localized(item, 'title'), displayDescription: this.localized(item, 'description') })),
+          videoOpen: null
+        });
         this.setData({ loading: false, contentError: false });
         this.loadPaidState();
       } else {
@@ -102,7 +108,8 @@ Page({
         title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
         notice: read(value.notice),
-        hidden: key === 'online' ? false : ['route', 'expert'].includes(key) || (value && value.hidden === true) || overrides.includes(key)
+        // 板块显隐完全由服务端决定（全局 hidden + 分景点 hiddenSections）；online 仍强制显示。
+        hidden: key === 'online' ? false : (value && value.hidden === true) || overrides.includes(key)
       };
     }
     const heritage = this.data.i18n.heritage || {};
@@ -261,7 +268,18 @@ Page({
     return buildShareCard('/pages/attraction/detail?id=' + encodeURIComponent(id), this);
   },
 
+  onGuideVideoTap(event) {
+    const id = event.currentTarget.dataset.id;
+    const video = this.data.guideVideos.find((item) => String(item.id) === String(id));
+    if (video && !this.data.videoOpen) this.setData({ videoOpen: video });
+  },
+
+  onGuideVideoClose() {
+    this.setData({ videoOpen: null });
+  },
+
   onBack() {
+    this.setData({ videoOpen: null });
     goBack();
   },
 

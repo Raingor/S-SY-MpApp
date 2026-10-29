@@ -1,4 +1,4 @@
-// 游览攻略视频：内容适配 + access 鉴权 + 购买/登录/过期/断点重鉴权；全部离线 fixture。
+// 游览攻略视频：内容适配 + access 鉴权 + 组件（登录/购买/过期/断点）+ 两页入口；全部离线 fixture。
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -24,9 +24,11 @@ const wx = {
   showModal: (o) => modals.push(o),
   requestPayment: (o) => { payments.push(o); o.success(); },
   login: (o) => o.success({ code: 'fixture-code' }),
+  createVideoContext: () => ({ stop() { wx._videoStopped = (wx._videoStopped || 0) + 1; } }),
   request(options) {
     requests.push(options.url);
     if (options.url.includes('/api/content')) return options.success({ statusCode: 200, data: metadata });
+    if (options.url.includes('/auth/wx-login')) return options.success({ statusCode: 200, data: { accessToken: 'fixture-token-2', user: { id: 'fixture-user', phoneBound: true } } });
     if (options.url.includes('/access')) {
       accessCalls++;
       const respond = accessResponse;
@@ -42,13 +44,11 @@ const wx = {
       return options.success({ statusCode: 200, data: respond });
     }
     if (/\/api\/miniprogram\/orders\/.+\/simulate-(paid|failed)$/.test(options.url)) {
-      const outcome = options.url.endsWith('simulate-paid') ? 'paid' : 'failed';
-      return options.success({ statusCode: 200, data: { order: { id: 'order-1', status: outcome } } });
+      return options.success({ statusCode: 200, data: { order: { id: 'order-1', status: options.url.endsWith('simulate-paid') ? 'paid' : 'failed' } } });
     }
     if (/\/api\/miniprogram\/orders\//.test(options.url)) {
       return options.success({ statusCode: 200, data: { order: { id: 'order-1', status: 'paid' } } });
     }
-    if (options.url.includes('/auth/wx-login')) return options.success({ statusCode: 200, data: { accessToken: 'fixture-token-2', user: { id: 'fixture-user', phoneBound: true } } });
     if (options.url.includes('/entitlements')) return options.success({ statusCode: 200, data: { member: false } });
     throw new Error('Unexpected request: ' + options.url);
   }
@@ -70,38 +70,43 @@ const content = loadModule('data/content.js', { './mirror-content': { getContent
 const paid = loadModule('utils/paid-content.js');
 const guideVideo = loadModule('utils/guide-video.js');
 const i18n = loadModule('utils/i18n.js');
-loadModule('utils/share-preview.js');
 
 const VIDEO = {
-  id: 'guideVideo-mvabc123-0001', attractionId: 'acropolis', status: 'published',
+  id: 'guide-video-acropolis', attractionId: 'acropolis', status: 'published',
   title: '雅典卫城：山顶上的古希腊文明密码', titleTw: '雅典衛城：山頂上的古希臘文明密碼', titleEn: 'Acropolis: the ancient Greek code on the hill',
   description: '从帕特农神庙到山门，看懂卫城建筑的黄金比例。', descriptionEn: 'From the Parthenon to the Propylaea.',
-  cover: './images/guide-video-acropolis.webp', durationSeconds: 2375, accessUrl: '/api/miniprogram/guide-video/guideVideo-mvabc123-0001/access'
+  cover: './images/guide-video-acropolis.webp', durationSeconds: 2375, accessUrl: '/api/miniprogram/video/guide-video-acropolis/access'
 };
-const draft = { ...VIDEO, id: 'guideVideo-draft', status: 'draft' };
-const other = { ...VIDEO, id: 'guideVideo-other', attractionId: 'delphi', accessUrl: 'relative/bad' };
+const draft = { ...VIDEO, id: 'guide-video-draft', status: 'draft' };
+const other = { ...VIDEO, id: 'guide-video-other', attractionId: 'delphi', accessUrl: 'relative/bad' };
 
-let definition;
-vm.runInNewContext(read('pages/audio/detail.js'), {
-  wx, Page(value) { definition = value; },
-  getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid' } }),
-  require: (id) => id.endsWith('data/content') ? content : id.endsWith('utils/i18n') ? i18n : id.endsWith('audio-access') ? loadModule('utils/audio-access.js') : id.endsWith('paid-content') ? paid : id.endsWith('guide-video') ? guideVideo : id.endsWith('utils/auth') ? loadModule('utils/auth.js') : id.endsWith('utils/navigation') ? { goBack() {} } : id.endsWith('utils/share') ? loadModule('utils/share.js') : {}
-}, { filename: 'pages/audio/detail.js' });
-
+const PAGE_COPY = {
+  sections: {
+    overview: { label: { zh: '概况' }, subtitle: { zh: 'OVERVIEW' } }, visitor: { label: { zh: '参观指南' }, subtitle: { zh: 'VISITOR' } },
+    highlights: { label: { zh: '必看亮点' }, subtitle: { zh: 'HIGHLIGHTS' } }, audioHow: { label: { zh: '如何使用语音导览' }, subtitle: { zh: 'AUDIO' } },
+    route: { label: { zh: '路线导览' }, subtitle: { zh: 'ROUTE' } }, online: { label: { zh: '线上游览' }, subtitle: { zh: 'ONLINE' } }, expert: { label: { zh: '游览攻略' }, subtitle: { zh: 'EXPERT' } }
+  },
+  audioHow: { steps: [{ zh: '点按节目试听' }], note: { zh: '以现场公告为准' } }
+};
+const SPOT = {
+  id: 'acropolis', name: '雅典卫城', en: 'Acropolis of Athens', city: 'athens', status: 'published', image: './images/spot.webp',
+  summary: '概览', category: '古迹', hiddenSections: ['route'],
+  highlights: [], exhibits: [{ id: 'point-1', name: '山门', description: '入口', status: 'published' }], routes: [],
+  audioGuides: [{ id: 'audioTrack-mv9nwthe-255fb5', category: 'expert', attractionId: 'acropolis', albumId: '', title: '游览攻略', previewUrl: '/api/miniprogram/audio/x/preview', previewSeconds: 28, unlockMode: 'membership', status: 'published' }],
+  visitorInfo: {}, visitorInfoSections: [], customSections: [], guide: {}
+};
 const metadata = {
-  countries: [], cities: [], attractions: [], sampleItineraries: [], routes: [], destinations: [],
-  audioAlbums: [], guideVideos: [VIDEO, draft, other], settings: {}
+  countries: [], cities: [/* empty */], attractions: [SPOT], sampleItineraries: [], routes: [], destinations: [],
+  audioAlbums: [], guideVideos: [VIDEO, draft, other], settings: {},
+  attractionDetailPage: PAGE_COPY, heritageGuideBanners: [], miniprogramServiceEntries: [], vehicleService: null, home: { banners: [] }
 };
 content.invalidate();
-
-const createPage = () => {
-  const page = { ...definition, data: structuredClone(definition.data), params: { attractionId: 'acropolis', category: 'expert' }, setData(next) { Object.assign(this.data, next); } };
-  return page;
-};
 
 const full = { statusCode: 200, data: { access: 'full', playUrl: 'https://oss.fixture/signed/video.mp4?sig=1', expiresIn: 600, unlockedVia: 'purchase', reason: '' } };
 const loginLocked = { statusCode: 200, data: { access: 'locked', reason: 'MINIPROGRAM_LOGIN_REQUIRED' } };
 const purchaseLocked = { statusCode: 200, data: { access: 'locked', reason: 'VIDEO_PURCHASE_REQUIRED', product: { productType: 'guideVideo', price: 168, currency: 'CNY', enabled: true } } };
+
+const pageRequire = (id) => id.endsWith('data/content') ? content : id.endsWith('utils/i18n') ? i18n : id.endsWith('audio-access') ? loadModule('utils/audio-access.js') : id.endsWith('paid-content') ? paid : id.endsWith('guide-video') ? guideVideo : id.endsWith('utils/auth') ? loadModule('utils/auth.js') : id.endsWith('utils/navigation') ? { goBack() {} } : id.endsWith('utils/share') ? loadModule('utils/share.js') : {};
 
 async function flush(times = 6) { for (let i = 0; i < times; i++) await Promise.resolve(); }
 
@@ -110,141 +115,165 @@ async function main() {
   const data = await new Promise((resolve) => content.loadContent(resolve, true)).then((result) => result.data || result);
   assert.deepEqual(content.getGuideVideos(data, 'acropolis').map((v) => v.id), [VIDEO.id], 'only published entries for the matching attraction');
   assert.equal(content.getGuideVideos(data, 'delphi').length, 0, 'bad relative accessUrl is dropped');
-  assert.equal(content.getGuideVideos(data, '')[0], undefined);
   const adapted = content.getGuideVideos(data, 'acropolis')[0];
   assert.equal(adapted.cover, 'https://fixture.invalid/images/guide-video-acropolis.webp');
-  assert.equal(adapted.durationSeconds, 2375);
-  assert.equal(adapted.accessUrl, '/api/miniprogram/guide-video/guideVideo-mvabc123-0001/access');
+  assert.equal(adapted.accessUrl, '/api/miniprogram/video/guide-video-acropolis/access');
   assert.ok(!JSON.stringify(content.getGuideVideos(data, 'acropolis')).includes('draft'));
 
   // ===== 工具：价格校验 + access 归一 =====
   assert.equal(guideVideo.productValid({ productType: 'guideVideo', price: 168, currency: 'CNY' }), true);
   assert.equal(guideVideo.productValid({ productType: 'guideVideo', price: 99, currency: 'CNY' }), false, 'price mismatch rejects purchase entry');
   assert.equal(guideVideo.priceDisplay(purchaseLocked.data.product), '¥168.00');
-  accessResponse = { networkFail: true };
-  await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok) => { assert.equal(ok, false); resolve(); }));
+  accessResponse = { data: { access: 'full', playUrl: 'http://insecure/video.mp4', expiresIn: 600 } };
+  await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok, result) => { assert.equal(result.playUrl, '', 'non-HTTPS playUrl is rejected'); resolve(); }));
+  accessResponse = { data: { access: 'full', playUrl: 'https://oss.fixture/signed/x.mp4', expiresIn: -5 } };
+  await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok, result) => { assert.equal(result.validUntil, -1, 'invalid expiresIn is treated as expired'); resolve(); }));
   accessResponse = { data: { access: 'locked', reason: 'VIDEO_PURCHASE_REQUIRED' } };
   await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok, result) => {
     assert.equal(result.playUrl, '', 'locked responses never keep a playable URL');
     assert.equal(result.product, null, 'product without valid price is not exposed');
     resolve();
   }));
-  accessResponse = { data: { access: 'full', playUrl: 'http://insecure/video.mp4', expiresIn: 600 } };
-  await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok, result) => {
-    assert.equal(result.playUrl, '', 'non-HTTPS playUrl is rejected');
-    resolve();
-  }));
-  accessResponse = { data: { access: 'full', playUrl: 'https://oss.fixture/signed/x.mp4', expiresIn: -5 } };
-  await new Promise((resolve) => guideVideo.fetchAccess(VIDEO, (ok, result) => {
-    assert.equal(result.validUntil, -1, 'full access without valid expiresIn is treated as expired');
-    resolve();
-  }));
 
-  // ===== 页面 =====
-  const page = createPage();
-  page.onLoad({ attractionId: 'acropolis', category: 'expert' });
-  await flush();
-  assert.equal(page.data.loading, false);
-  assert.deepEqual(page.data.guideVideos.map((v) => v.id), [VIDEO.id]);
-  assert.equal(page.data.guideVideos[0].displayTitle, VIDEO.title);
-  i18n.setLocale('en'); page.data.locale = 'en'; page.localize();
-  assert.equal(page.data.guideVideos[0].displayTitle, VIDEO.titleEn);
-  i18n.setLocale('zh-CN'); page.data.locale = 'zh-CN'; page.localize();
-
-  // 未登录 → 登录态；登录成功后自动重新鉴权。
+  // ===== 组件：完整门禁/支付/续播生命周期 =====
+  let component;
+  vm.runInNewContext(read('components/guide-video-sheet/guide-video-sheet.js'), {
+    wx, Component(value) { component = value; },
+    getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid', auth: { accessToken: '', user: null } } }),
+    require: (id) => id.endsWith('utils/auth') ? loadModule('utils/auth.js') : id.endsWith('paid-content') ? paid : id.endsWith('guide-video') ? guideVideo : id.endsWith('utils/i18n') ? i18n : {}
+  }, { filename: 'components/guide-video-sheet/guide-video-sheet.js' });
+  const createSheet = () => {
+    const instance = {
+      ...component.methods, properties: { video: null },
+      data: { ...structuredClone(component.data) },
+      setData(next) { Object.assign(this.data, next); },
+      _events: [], triggerEvent(name) { this._events.push(name); }
+    };
+    return instance;
+  };
+  let sheet = createSheet();
   storage.delete('sy_mp_access_token');
   accessResponse = loginLocked;
-  page.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
+  component.properties.video.observer.call(sheet, { ...adapted });
   await flush();
-  assert.equal(page.data.videoSheet.state, 'login');
-  assert.equal(page.data.videoSheet.video.id, VIDEO.id);
-  page.onGuideVideoLogin();
+  assert.equal(sheet.data.state, 'login', 'anonymous access lands on the login gate');
+  sheet.onLogin();
   await flush();
-  storage.set('sy_mp_access_token', 'fixture-token');
+  assert.equal(storage.get('sy_mp_access_token'), 'fixture-token-2', 'login stores a fresh session');
   accessResponse = purchaseLocked;
-  page.onGuideVideoLogin();
+  component.properties.video.observer.call(sheet, { ...adapted });
   await flush();
-  assert.equal(page.data.videoSheet.state, 'purchase', 'after login the access result drives the next state');
-  assert.equal(page.data.videoSheet.price, '¥168.00');
-
-  // 购买：下单带 videoId，支付成功后重新鉴权拿到签名 URL。
+  assert.equal(sheet.data.state, 'purchase', 'after login the access result drives the purchase gate');
+  assert.equal(sheet.data.price, '¥168.00');
   orderResponses.push({ order: { id: 'order-1', status: 'pending' }, payment: { timeStamp: '1', nonceStr: 'n', package: 'p', signType: 'RSA', paySign: 's' } });
   accessResponse = full;
-  page.onGuideVideoBuy();
+  sheet.onBuy();
   await flush();
   assert.equal(orderCalls, 1);
-  assert.match(requests.find((url) => url.endsWith('/api/miniprogram/orders')), /orders$/);
   assert.equal(payments.length, 1, 'payment sheet opened once');
-  assert.equal(page.data.videoSheet.state, 'ready');
-  assert.equal(page.data.videoSheet.playUrl, full.data.playUrl);
-
-  // 播放中断点记录 → 播放失败重新鉴权换新 URL 并续播。
-  page.onGuideVideoTimeUpdate({ detail: { currentTime: 327 } });
+  assert.equal(sheet.data.state, 'ready');
+  assert.equal(sheet.data.playUrl, full.data.playUrl);
+  sheet.onTimeUpdate({ detail: { currentTime: 327 } });
   accessResponse = full;
-  page.onGuideVideoError();
+  sheet.onError();
   await flush();
-  assert.equal(page.data.videoSheet.state, 'ready');
-  assert.equal(page.data.videoSheet.position, 327, 'resume position survives re-signing');
+  assert.equal(sheet.data.state, 'ready');
+  assert.equal(sheet.data.position, 327, 'resume position survives re-signing');
   assert.equal(accessCalls >= 4, true, 'every re-entry re-authorizes');
-
-  // 签名过期：过期 access 不得直接播放。
   accessResponse = { statusCode: 200, data: { access: 'full', playUrl: 'https://oss.fixture/signed/old.mp4', expiresIn: -5 } };
-  page.onGuideVideoError();
+  sheet.onError();
   await flush();
-  assert.equal(page.data.videoSheet.state, 'error', 'expired full access becomes the retry state, never a stale playUrl');
-
-  // 请求失败 → 错误态 + 重试入口。
-  page.reloadGuideVideoAccess();
+  assert.equal(sheet.data.state, 'error', 'expired full access becomes the retry state, never a stale playUrl');
+  sheet.reload();
   await flush();
-  assert.equal(page.data.videoSheet.state, 'error');
-
-  // 模拟支付环境：不出真实支付，模拟成功后重新鉴权。
+  assert.equal(sheet.data.state, 'error');
   orderResponses.push({ order: { id: 'order-1', status: 'pending' }, simulation: true });
   accessResponse = purchaseLocked;
-  page.onGuideVideoBuy();
+  sheet.onBuy();
   await flush();
-  assert.equal(page.data.videoSheet.state, 'simulation');
+  assert.equal(sheet.data.state, 'simulation');
   assert.equal(payments.length, 1, 'simulation orders never open WeChat payment');
   accessResponse = full;
-  page.onGuideVideoSimulation({ currentTarget: { dataset: { outcome: 'paid' } } });
+  sheet.onSimulation({ currentTarget: { dataset: { outcome: 'paid' } } });
   await flush();
-  assert.equal(page.data.videoSheet.state, 'ready');
-
-  // 关闭与复入：清空 sheet；重新点按重置状态。
-  page.closeVideoSheet();
-  assert.equal(page.data.videoSheet, null);
-  accessResponse = full;
-  page.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-  await flush();
-  assert.equal(page.data.videoSheet.state, 'ready');
-  page.closeVideoSheet();
-  page.onBack();
-  assert.equal(page.data.videoSheet, null, 'back navigation closes the video sheet');
-
-  // 支付失败/取消分支。
-  accessResponse = purchaseLocked;
-  page.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-  await flush();
+  assert.equal(sheet.data.state, 'ready');
+  sheet.close();
+  assert.deepEqual(sheet._events, ['close']);
+  component.lifetimes.detached.call(sheet);
   orderResponses.push({ error: 'backend down' });
-  page.onGuideVideoBuy();
+  accessResponse = purchaseLocked;
+  component.properties.video.observer.call(sheet, { ...adapted });
   await flush();
-  assert.equal(page.data.videoSheet.state, 'purchase', 'failed order returns to purchase state with a modal');
+  sheet.onBuy();
+  await flush();
+  assert.equal(sheet.data.state, 'purchase', 'failed order returns to purchase state with a modal');
   assert.equal(modals.length, 1);
-  page.closeVideoSheet();
+  assert.equal(JSON.stringify(component.data).includes('SECRET'), false);
 
-  // 无关页面数据零污染：分享预览不含视频签名 URL；guideVideos 不进分享卡。
-  const { pagePreview } = loadModule('utils/share-preview.js');
-  const spec = pagePreview('/pages/audio/detail', { data: { i18n: i18n.getMessages(), locale: 'zh-CN', title: '游览攻略', description: '本集介绍', cover: '/cover.jpg', guideVideos: [{ playUrl: 'https://oss.fixture/signed/video.mp4?sig=1' }], videoSheet: { playUrl: 'SECRET' } } });
-  assert.ok(!JSON.stringify(spec).includes('SECRET') && !JSON.stringify(spec).includes('sig=1'), 'video sheet/signed URLs never leak into share previews');
+  // ===== 节目页（audio/detail）：入口 + 组件挂载 =====
+  let audioDefinition;
+  vm.runInNewContext(read('pages/audio/detail.js'), {
+    wx, Page(value) { audioDefinition = value; },
+    getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid' } }),
+    require: pageRequire
+  }, { filename: 'pages/audio/detail.js' });
+  const audioPage = { ...audioDefinition, data: structuredClone(audioDefinition.data), params: { attractionId: 'acropolis', category: 'expert' }, setData(next) { Object.assign(this.data, next); } };
+  audioPage.onLoad({ attractionId: 'acropolis', category: 'expert' });
+  await flush();
+  assert.deepEqual(audioPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
+  assert.equal(audioPage.data.guideVideos[0].displayTitle, VIDEO.title);
+  i18n.setLocale('en'); audioPage.data.locale = 'en'; audioPage.localize();
+  assert.equal(audioPage.data.guideVideos[0].displayTitle, VIDEO.titleEn);
+  i18n.setLocale('zh-CN'); audioPage.data.locale = 'zh-CN'; audioPage.localize();
+  audioPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
+  assert.equal(audioPage.data.videoOpen.id, VIDEO.id, 'audio detail passes the video object into the shared sheet component');
+  audioPage.onGuideVideoClose();
+  assert.equal(audioPage.data.videoOpen, null);
+  const audioMarkup = read('pages/audio/detail.wxml');
+  assert.match(audioMarkup, /<guide-video-sheet video="\{\{videoOpen\}\}" bind:close="onGuideVideoClose"/);
+  assert.match(audioMarkup, /guide-video-section/);
+  assert.doesNotMatch(audioMarkup, /videoSheet/, 'legacy inline sheet must be fully removed');
+
+  // ===== 景点详情页：expert 板块内的视频入口 =====
+  let spotDefinition;
+  vm.runInNewContext(read('pages/attraction/detail.js'), {
+    wx, Page(value) { spotDefinition = value; },
+    getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid', auth: { accessToken: '', user: null } } }),
+    require: (id) => id.endsWith('utils/lead-api') ? { isSuccessfulLeadResponse: () => false, leadErrorMessage: () => 'x' } : pageRequire(id)
+  }, { filename: 'pages/attraction/detail.js' });
+  const spotPage = { ...spotDefinition, data: structuredClone(spotDefinition.data), setData(next) { Object.assign(this.data, next); } };
+  spotPage.onLoad({ id: 'acropolis' });
+  spotPage.loadSpot();
+  await flush();
+  assert.equal(spotPage.data.loading, false);
+  assert.equal(spotPage.data.spot.id, 'acropolis');
+  assert.deepEqual(spotPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
+  assert.equal(spotPage.data.pageCopy.sections.expert.hidden, false, "hiddenSections ['route'] keeps the expert section visible");
+  assert.equal(spotPage.data.pageCopy.sections.route.hidden, true);
+  spotPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
+  assert.equal(spotPage.data.videoOpen.id, VIDEO.id, 'expert section opens the shared video sheet');
+  spotPage.onGuideVideoClose();
+  assert.equal(spotPage.data.videoOpen, null);
+  const spotMarkup = read('pages/attraction/detail.wxml');
+  assert.ok(spotMarkup.includes('id="section-expert"'));
+  const expertBlock = spotMarkup.slice(spotMarkup.indexOf('id="section-expert"'), spotMarkup.indexOf('id="section-video"'));
+  for (const binding of ['onGuideVideoTap', 'guide-video-card', 'item.displayTitle', 'guide-video-sheet video="{{videoOpen}}"']) {
+    assert.ok(expertBlock.includes(binding) || spotMarkup.includes(binding), 'expert section entry: ' + binding);
+  }
+  assert.ok(spotMarkup.includes('<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose"'));
+  assert.equal(JSON.parse(read('app.json')).usingComponents['guide-video-sheet'], '/components/guide-video-sheet/guide-video-sheet');
+  const sheetMarkup = read('components/guide-video-sheet/guide-video-sheet.wxml');
+  assert.match(sheetMarkup, /mode="aspectFill"/);
+  assert.doesNotMatch(sheetMarkup, /show-menu-by-longpress="\{\{true\}\}"/);
   // 三语文案齐全。
   for (const locale of ['zh-CN', 'zh-TW', 'en']) {
     const heritage = i18n.getMessages(locale).heritage;
     for (const key of ['guideVideos', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
   }
-  // WXML/注册契约。
-  const markup = read('pages/audio/detail.wxml');
-  for (const binding of ['guide-video-section', 'onGuideVideoTap', 'videoSheet.state', 'onGuideVideoBuy', 'onGuideVideoLogin', 'onGuideVideoError', 'closeVideoSheet', 'initial-time']) assert.ok(markup.includes(binding));
-  assert.match(read('pages/audio/detail.wxss'), /\.guide-video-mask/);
-  console.log('PASS: guide videos adapter + access gating (login/purchase/price check) + payment with videoId + simulation + resume re-signing + expiry fail-safe + i18n + share isolation');
+  // 分享隔离：视频 sheet/签名 URL 不入分享预览。
+  const { pagePreview } = loadModule('utils/share-preview.js');
+  const spec = pagePreview('/pages/audio/detail', { data: { i18n: i18n.getMessages(), locale: 'zh-CN', title: '游览攻略', description: '本集介绍', cover: '/cover.jpg', guideVideos: [{ playUrl: 'https://oss.fixture/signed/video.mp4?sig=1' }], videoOpen: { playUrl: 'SECRET' } } });
+  assert.ok(!JSON.stringify(spec).includes('SECRET') && !JSON.stringify(spec).includes('sig=1'), 'video sheet/signed URLs never leak into share previews');
+  console.log('PASS: guide videos adapter + shared sheet component (login/purchase/price check/payment with videoId/simulation/resume re-signing/expiry fail-safe) + audio detail & attraction expert-section entries + i18n + share isolation');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

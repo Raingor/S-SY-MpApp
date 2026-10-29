@@ -77,37 +77,7 @@
     </view>
   </view>
 
-  <view wx:if="{{videoSheet}}" class="guide-video-mask" bindtap="closeVideoSheet" catchtouchmove="noop">
-    <view class="guide-video-sheet" catchtap="noop">
-      <view class="guide-video-topbar">
-        <view class="guide-video-sheet-title">{{videoSheet.video.displayTitle || videoSheet.video.title}}</view>
-        <view class="guide-video-close" bindtap="closeVideoSheet" aria-label="close">×</view>
-      </view>
-      <video wx:if="{{videoSheet.state === 'ready'}}" id="guide-video" class="guide-video-player" src="{{videoSheet.playUrl}}" poster="{{videoSheet.video.cover}}" controls show-center-play-btn initial-time="{{videoSheet.position || 0}}" object-fit="contain" binderror="onGuideVideoError" bindtimeupdate="onGuideVideoTimeUpdate"></video>
-      <view wx:else class="guide-video-cover-wrap">
-        <image wx:if="{{videoSheet.video.cover}}" class="guide-video-cover" src="{{videoSheet.video.cover}}" mode="aspectFill" webp="{{true}}" />
-        <view class="guide-video-state">
-          <view wx:if="{{videoSheet.state === 'loading'}}">{{i18n.loading}}</view>
-          <block wx:elif="{{videoSheet.state === 'login'}}">
-            <view class="guide-video-state-copy">{{i18n.heritage.guideVideoLogin}}</view>
-            <button class="guide-video-action" disabled="{{videoSheet.authLoading}}" bindtap="onGuideVideoLogin">{{videoSheet.authLoading ? i18n.loading : i18n.heritage.guideVideoLoginCta}}</button>
-          </block>
-          <block wx:elif="{{videoSheet.state === 'purchase'}}">
-            <view class="guide-video-state-copy">{{i18n.heritage.guideVideoPurchase}}</view>
-            <view wx:if="{{videoSheet.price}}" class="guide-video-price">{{videoSheet.price}}</view>
-            <button class="guide-video-action" disabled="{{videoSheet.purchaseLoading}}" bindtap="onGuideVideoBuy">{{videoSheet.purchaseLoading ? i18n.loading : i18n.heritage.guideVideoBuyCta}}</button>
-          </block>
-          <block wx:elif="{{videoSheet.state === 'simulation'}}">
-            <view class="guide-video-state-copy">{{i18n.paidContent.simulationTitle}}</view>
-            <button class="guide-video-action" disabled="{{videoSheet.simulationLoading}}" data-outcome="paid" bindtap="onGuideVideoSimulation">{{i18n.paidContent.simulationSuccess}}</button>
-            <button class="guide-video-action guide-video-action-muted" disabled="{{videoSheet.simulationLoading}}" data-outcome="failed" bindtap="onGuideVideoSimulation">{{i18n.paidContent.simulationFailure}}</button>
-          </block>
-          <view wx:else class="guide-video-state-copy">{{i18n.heritage.guideVideoUnavailable}} <text class="guide-video-retry" bindtap="reloadGuideVideoAccess">{{i18n.heritage.retry}} ›</text></view>
-        </view>
-      </view>
-      <view wx:if="{{videoSheet.video.displayDescription || videoSheet.video.description}}" class="guide-video-sheet-desc">{{videoSheet.video.displayDescription || videoSheet.video.description}}</view>
-    </view>
-  </view>
+  <guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose" />
 
   <view wx:if="{{showUnlockPaywall}}" class="audio-paywall-mask" bindtap="onUnlockPaywallClose" catchtouchmove="noop">
 

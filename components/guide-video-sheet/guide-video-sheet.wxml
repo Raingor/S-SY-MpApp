@@ -1,0 +1,31 @@
+<view wx:if="{{video && state !== 'idle'}}" class="gvm-mask" bindtap="close" catchtouchmove="noop">
+  <view class="gvm-sheet" catchtap="noop">
+    <view class="gvm-topbar">
+      <view class="gvm-title">{{displayTitle}}</view>
+      <view class="gvm-close" bindtap="close" aria-label="close">×</view>
+    </view>
+    <video wx:if="{{state === 'ready'}}" id="guide-video" class="gvm-player" src="{{playUrl}}" poster="{{cover}}" controls show-center-play-btn initial-time="{{position || 0}}" object-fit="contain" binderror="onError" bindtimeupdate="onTimeUpdate"></video>
+    <view wx:else class="gvm-cover-wrap">
+      <image wx:if="{{cover}}" class="gvm-cover" src="{{cover}}" mode="aspectFill" webp="{{true}}" />
+      <view class="gvm-state">
+        <view wx:if="{{state === 'loading'}}">{{i18n.loading}}</view>
+        <block wx:elif="{{state === 'login'}}">
+          <view class="gvm-state-copy">{{i18n.heritage.guideVideoLogin}}</view>
+          <button class="gvm-action" disabled="{{authLoading}}" bindtap="onLogin">{{authLoading ? i18n.loading : i18n.heritage.guideVideoLoginCta}}</button>
+        </block>
+        <block wx:elif="{{state === 'purchase'}}">
+          <view class="gvm-state-copy">{{i18n.heritage.guideVideoPurchase}}</view>
+          <view wx:if="{{price}}" class="gvm-price">{{price}}</view>
+          <button class="gvm-action" disabled="{{purchaseLoading}}" bindtap="onBuy">{{purchaseLoading ? i18n.loading : i18n.heritage.guideVideoBuyCta}}</button>
+        </block>
+        <block wx:elif="{{state === 'simulation'}}">
+          <view class="gvm-state-copy">{{i18n.paidContent.simulationTitle}}</view>
+          <button class="gvm-action" disabled="{{simulationLoading}}" data-outcome="paid" bindtap="onSimulation">{{i18n.paidContent.simulationSuccess}}</button>
+          <button class="gvm-action gvm-action-muted" disabled="{{simulationLoading}}" data-outcome="failed" bindtap="onSimulation">{{i18n.paidContent.simulationFailure}}</button>
+        </block>
+        <view wx:else class="gvm-state-copy">{{i18n.heritage.guideVideoUnavailable}} <text class="gvm-retry" catchtap="reload">{{i18n.heritage.retry}} ›</text></view>
+      </view>
+    </view>
+    <view wx:if="{{displayDescription}}" class="gvm-desc">{{displayDescription}}</view>
+  </view>
+</view>
