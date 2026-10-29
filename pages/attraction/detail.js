@@ -61,7 +61,7 @@ Page({
     content.loadContent((data, state) => {
       if (requestId !== this._spotLoadRequestId) return;
       const page = data && data.attractionDetailPage;
-      const requiredSections = ['overview', 'visitor', 'highlights', 'audioHow', 'route', 'online', 'expert'];
+      const requiredSections = ['overview', 'visitor', 'highlights', 'audioHow', 'route', 'online'];
       const hasPageCopy = page && page.sections && requiredSections.every((key) => page.sections[key] && page.sections[key].label) && page.audioHow && Array.isArray(page.audioHow.steps) && page.audioHow.steps.length > 0;
       if (!state || state.source !== 'remote' || state.status !== 'ready' || !hasPageCopy) {
         this.setData({ loading: false, contentError: true, spot: null, guideTabs: [], related: [] });
@@ -72,7 +72,7 @@ Page({
         this.contentSource = data;
         this.applyPageCopy(data.attractionDetailPage, fresh);
         this.applySpot(fresh);
-        // 游览攻略视频按景点挂载：显示在 expert（游览攻略）板块内。
+        // 视频按景点独立展示，不依赖已移除的测试攻略栏目。
         this.setData({
           guideVideos: content.getGuideVideos(data, fresh.id),
           guideVideosMarked: false,

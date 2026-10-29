@@ -9,12 +9,15 @@ const pageSource = fs.readFileSync(path.join(ROOT, 'pages/attraction/detail.js')
 const markup = fs.readFileSync(path.join(ROOT, 'pages/attraction/detail.wxml'), 'utf8');
 const dataSource = fs.readFileSync(path.join(ROOT, 'data/content.js'), 'utf8');
 
-// Markup contract: scoped expert video element only inside the Expert Guide section.
+// Markup contract: legacy video players remain in the independent video section.
 assert(markup.includes('id="expert-video"'), 'expert video element exists');
 assert(markup.includes('bindtimeupdate="onExpertVideoTimeUpdate"'), 'expert video has a scoped trial handler');
-const expertSection = markup.split('id="section-expert"')[1].split('id="section-video"')[0];
-assert(expertSection.includes('<video') && expertSection.includes('id="expert-video"'), 'video element belongs to the Expert Guide section');
-const onlineSection = markup.split('id="section-expert"')[0].split('id="section-online"').pop();
+assert(!markup.includes('id="section-expert"'), 'test expert audio section has been removed');
+const videoSection = markup.split('id="section-guide-videos"')[1].split('class="detail-section related-section"')[0];
+assert(videoSection.includes('<video') && videoSection.includes('id="expert-video"'), 'legacy expert player remains in the independent video section');
+assert(videoSection.includes('id="knowledge-video"'), 'ordinary legacy video is kept in the same video section');
+assert.match(videoSection, /wx:if="\{\{spot\.expertVideoUrl && pageCopy\.sections\.expert && !pageCopy\.sections\.expert\.hidden\}\}"/, 'legacy raw expert video keeps its original hidden-config restriction');
+const onlineSection = markup.split('id="section-guide-videos"')[0].split('id="section-online"').pop();
 assert(!onlineSection.includes('<video'), 'Online Preview section has no video element');
 assert(dataSource.includes('expertVideoUrl') && dataSource.includes('expertVideoCover') && dataSource.includes('expertVideoDuration'), 'content adapter passes through expert video fields');
 assert(markup.includes('expertVideoUnlocked'), 'unlock state is wired in the template');
@@ -56,7 +59,7 @@ assert.equal(instance.data.expertVideoTrialSeconds, 60);
 const legacy = { ...pageConfig, data: { ...pageConfig.data }, setData(next) { Object.assign(this.data, next); } };
 legacy.applySpot({ id: 's2', videoUrl: 'https://example.com/main.mp4' });
 assert(!legacy.data.expertVideoUrl, 'legacy attraction video does not populate the expert video field');
-console.log('PASS: Expert Guide supports an optional on-location video scoped to the section; Online and legacy attraction video unaffected');
+console.log('PASS: independent video section preserves legacy player fields, trial handlers and expert visibility restriction; online section contains no video player');
 
 // Non-member legacy video must pause at the configured preview limit, including seeks.
 let paused = 0;

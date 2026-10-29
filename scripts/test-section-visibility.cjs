@@ -6,10 +6,19 @@ const vm = require('node:vm');
 const source = fs.readFileSync('pages/attraction/detail.js', 'utf8');
 const wxml = fs.readFileSync('pages/attraction/detail.wxml', 'utf8');
 
-assert.match(wxml, /wx:if="\{\{!pageCopy\.sections\.expert\.hidden\}\}" id="section-expert"/, 'expert section binds visibility state');
+assert.doesNotMatch(wxml, /id="section-expert"|data-category="expert"/, 'test expert audio section and its entry are removed');
 assert.match(wxml, /wx:if="\{\{!pageCopy\.sections\.route\.hidden\}\}" id="section-routes"/, 'route section binds visibility state');
 assert.match(wxml, /wx:if="\{\{!pageCopy\.sections\.online\.hidden\}\}" id="section-online"/, 'online section binds visibility state');
-assert.match(wxml, /wx:if="\{\{!pageCopy\.sections\.expert\.hidden\}\}"[\s\S]*?expertVideoUrl/, 'expert video block stays inside the hideable section');
+const videoTag = wxml.match(/<view\b[^>]*\bid="section-guide-videos"[^>]*>/);
+assert.ok(videoTag, 'videos have an independent section');
+const videoVisibility = videoTag[0].match(/wx:if="\{\{([\s\S]*?)\}\}"/)[1];
+for (const expert of [undefined, { hidden: true }]) {
+  assert.ok(vm.runInNewContext(videoVisibility, { guideVideos: [{ id: 'published-video' }], spot: {}, pageCopy: { sections: { expert } } }), 'published paid videos do not depend on legacy expert visibility');
+  assert.equal(Boolean(vm.runInNewContext(videoVisibility, { guideVideos: [], spot: { expertVideoUrl: 'https://fixture.invalid/legacy.mp4' }, pageCopy: { sections: { expert } } })), false, 'hidden/missing expert config does not expose a legacy raw media URL');
+}
+assert.ok(vm.runInNewContext(videoVisibility, { guideVideos: [], spot: { videoUrl: 'https://fixture.invalid/ordinary.mp4' }, pageCopy: { sections: {} } }), 'ordinary legacy video keeps its independent visibility');
+assert.ok(vm.runInNewContext(videoVisibility, { guideVideos: [], spot: { expertVideoUrl: 'https://fixture.invalid/legacy.mp4' }, pageCopy: { sections: { expert: { hidden: false } } } }), 'explicitly visible legacy expert video is preserved');
+assert.equal(Boolean(vm.runInNewContext(videoVisibility, { guideVideos: [], spot: {}, pageCopy: { sections: {} } })), false, 'empty video data does not leave a blank video section');
 
 let pageConfig;
 vm.runInNewContext(source, {
@@ -50,4 +59,4 @@ for (const hiddenSections of [undefined, [], ['online'], ['route', 'expert', 'on
   page.applyPageCopy({ ...PRODUCTION_PAGE, sections: { ...PRODUCTION_PAGE.sections, online: { label: { zh: '专业介绍' }, hidden: true } } }, { id: 'a', hiddenSections });
   assert.equal(page.data.pageCopy.sections.online.hidden, false, 'all online visits remain visible');
 }
-console.log('PASS: explicit per-spot hiddenSections are authoritative over the global section defaults (acropolis expert exposed); online always visible');
+console.log('PASS: test expert entry removed; independent paid videos survive hidden/missing expert config; legacy video restrictions and online visibility preserved');

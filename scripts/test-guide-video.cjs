@@ -1,4 +1,4 @@
-// 游览攻略视频：内容适配 + access 鉴权 + 组件（登录/购买/过期/断点）+ 两页入口；全部离线 fixture。
+// 独立视频讲解：内容适配 + access 鉴权 + 组件（登录/购买/过期/断点）+ 两页入口；全部离线 fixture。
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -250,7 +250,7 @@ async function main() {
   assert.match(audioMarkup, /guide-video-lock/);
   assert.doesNotMatch(audioMarkup, /videoSheet/, 'legacy inline sheet must be fully removed');
 
-  // ===== 景点详情页：expert 板块内的视频入口 =====
+  // ===== 景点详情页：独立视频入口，不依赖已移除的测试攻略栏目 =====
   let spotDefinition;
   vm.runInNewContext(read('pages/attraction/detail.js'), {
     wx, Page(value) { spotDefinition = value; },
@@ -267,20 +267,50 @@ async function main() {
   assert.deepEqual(spotPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
   await flush();
   assert.equal(spotPage.data.guideVideos[0].purchased, true, 'attraction detail also consumes unlockedVideos');
-  assert.equal(spotPage.data.pageCopy.sections.expert.hidden, false, "hiddenSections ['route'] keeps the expert section visible");
+  assert.equal(spotPage.data.pageCopy.sections.expert.hidden, false, 'legacy section config is retained for compatibility');
   assert.equal(spotPage.data.pageCopy.sections.route.hidden, true);
   spotPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-  assert.equal(spotPage.data.videoOpen.id, VIDEO.id, 'expert section opens the shared video sheet');
+  assert.equal(spotPage.data.videoOpen.id, VIDEO.id, 'independent video entry opens the shared video sheet');
   spotPage.onGuideVideoClose();
   assert.equal(spotPage.data.videoOpen, null);
   const spotMarkup = read('pages/attraction/detail.wxml');
-  assert.ok(spotMarkup.includes('id="section-expert"'));
-  const expertBlock = spotMarkup.slice(spotMarkup.indexOf('id="section-expert"'), spotMarkup.indexOf('id="section-video"'));
-  for (const binding of ['onGuideVideoTap', 'guide-video-poster', 'guide-video-lock', 'guide-video-sheet video="{{videoOpen}}"']) {
-    assert.ok(expertBlock.includes(binding) || spotMarkup.includes(binding), 'expert section entry: ' + binding);
+  assert.ok(!spotMarkup.includes('id="section-expert"'), 'test expert section is removed');
+  assert.ok(!spotMarkup.includes('data-category="expert"'), 'test audio collection entry is removed');
+  const videoTag = spotMarkup.match(/<view\b[^>]*\bid="section-guide-videos"[^>]*>/);
+  assert.ok(videoTag, 'videos have an independent section');
+  const visibility = videoTag[0].match(/wx:if="\{\{([\s\S]*?)\}\}"/)[1];
+  const videoBlock = spotMarkup.slice(spotMarkup.indexOf('id="section-guide-videos"'), spotMarkup.indexOf('class="detail-section related-section"'));
+  for (const binding of ['onGuideVideoTap', 'guide-video-poster', 'guide-video-lock']) {
+    assert.ok(videoBlock.includes(binding), 'independent video entry: ' + binding);
   }
   assert.ok(spotMarkup.includes('<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose"'));
-  const posterBlock = spotMarkup.slice(spotMarkup.indexOf('guide-video-poster'), spotMarkup.indexOf('id="section-video"'));
+  // Real loadSpot regressions: hidden/missing legacy expert config cannot remove paid videos.
+  const originalAttractions = metadata.attractions;
+  const originalPageCopy = metadata.attractionDetailPage;
+  for (const missingExpert of [false, true]) {
+    const pageCopy = structuredClone(PAGE_COPY);
+    if (missingExpert) delete pageCopy.sections.expert;
+    metadata.attractions = [{ ...SPOT, hiddenSections: ['route', 'expert'] }];
+    metadata.attractionDetailPage = pageCopy;
+    content.invalidate();
+    const independentPage = { ...spotDefinition, data: structuredClone(spotDefinition.data), setData(next) { Object.assign(this.data, next); } };
+    independentPage.onLoad({ id: 'acropolis' });
+    independentPage.loadSpot();
+    await flush();
+    assert.equal(independentPage.data.loading, false);
+    assert.equal(independentPage.data.contentError, false, 'missing expert copy does not fail the whole detail page');
+    assert.equal(independentPage.data.spot.id, 'acropolis');
+    assert.deepEqual(independentPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
+    assert.ok(vm.runInNewContext(visibility, independentPage.data), 'paid video section remains visible when expert config is hidden or absent');
+    independentPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
+    assert.equal(independentPage.data.videoOpen.id, VIDEO.id, 'loaded paid video can still open its authorization sheet');
+    independentPage.onGuideVideoClose();
+    assert.equal(independentPage.data.videoOpen, null);
+  }
+  metadata.attractions = originalAttractions;
+  metadata.attractionDetailPage = originalPageCopy;
+  content.invalidate();
+  const posterBlock = videoBlock;
   for (const banned of ['item.displayTitle', 'item.displayDescription', 'item.durationSeconds', 'guide-video-bg']) assert.ok(!posterBlock.includes(banned), 'locked poster leaks no media or backdrop: ' + banned);
   assert.match(posterBlock, /\{\{item\.purchased && item\.cover\}\}/, 'cover image renders only after purchase');
   assert.match(posterBlock, /guide-video-lock/);
@@ -295,12 +325,12 @@ async function main() {
   // 三语文案齐全。
   for (const locale of ['zh-CN', 'zh-TW', 'en']) {
     const heritage = i18n.getMessages(locale).heritage;
-    for (const key of ['guideVideos', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
+    for (const key of ['guideVideos', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
   }
   // 分享隔离：视频 sheet/签名 URL 不入分享预览。
   const { pagePreview } = loadModule('utils/share-preview.js');
   const spec = pagePreview('/pages/audio/detail', { data: { i18n: i18n.getMessages(), locale: 'zh-CN', title: '游览攻略', description: '本集介绍', cover: '/cover.jpg', guideVideos: [{ playUrl: 'https://oss.fixture/signed/video.mp4?sig=1' }], videoOpen: { playUrl: 'SECRET' } } });
   assert.ok(!JSON.stringify(spec).includes('SECRET') && !JSON.stringify(spec).includes('sig=1'), 'video sheet/signed URLs never leak into share previews');
-  console.log('PASS: guide videos adapter + shared sheet component (login/purchase/price check/payment with videoId/simulation/resume re-signing/expiry fail-safe) + audio detail & attraction expert-section entries + i18n + share isolation');
+  console.log('PASS: guide videos adapter + shared purchase/authorization sheet + independent video section (hidden/missing expert config) + legacy compatibility + i18n + share isolation');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });
