@@ -54,7 +54,8 @@ Page({
         if (res.statusCode !== 200) return wx.showToast({ title: this.data.i18n.travel.docFailed, icon: 'none' });
         wx.openDocument({
           filePath: res.tempFilePath,
-          showMenu: true,
+          // 指南文档仅在线阅读：不显示系统菜单，无转发/保存到手机等下载入口。
+          showMenu: false,
           fail: () => wx.showToast({ title: this.data.i18n.travel.docFailed, icon: 'none' })
         });
       },

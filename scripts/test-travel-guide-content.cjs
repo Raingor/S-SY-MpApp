@@ -97,7 +97,8 @@ async function main() {
   page.onDocReadTap({ currentTarget: { dataset: { section: section.key, guide: guide.key } } });
   assert.equal(downloads.at(-1).url, guide.docUrl);
   downloads.at(-1).success({ statusCode: 200, tempFilePath: '/tmp/fixture.pdf' });
-  assert.equal(opened.at(-1).filePath, '/tmp/fixture.pdf'); assert.equal(opened.at(-1).showMenu, true);
+  assert.equal(opened.at(-1).filePath, '/tmp/fixture.pdf');
+  assert.equal(opened.at(-1).showMenu, false, 'guide documents open without the system menu: no forward/save-to-phone download path');
   downloads.at(-1).success({ statusCode: 404 }); assert.equal(toasts.at(-1).title, page.data.i18n.travel.docFailed);
   downloads.at(-1).fail(); assert.equal(toasts.at(-1).title, page.data.i18n.travel.docFailed);
   opened.at(-1).fail(); assert.equal(toasts.at(-1).title, page.data.i18n.travel.docFailed);
