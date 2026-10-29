@@ -290,7 +290,7 @@ Page({
       const demoMode = Boolean(track && track.isDemo === true);
       this.setData({ track: track || null, point: point || null, pointTracks: pointTracks.map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale) })), loading: false, unavailable: !track || !track.id, demoMode, demoCategory: this.params.albumId ? 'heritage' : this.params.category });
       // 游览攻略视频按景点挂载：仅当前曲目所属景点有视频时展示入口。
-      this.setData({ guideVideos: content.getGuideVideos(data, (track && track.attractionId) || this.params.attractionId).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale) })) });
+      this.setData({ guideVideos: content.getGuideVideos(data, (track && track.attractionId) || this.params.attractionId).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), displayDuration: item.durationSeconds ? Math.max(1, Math.round(item.durationSeconds / 60)) + ' ' + this.data.i18n.heritage.minutes : '' })) });
       this.markGuideVideoPurchases();
       this.localize();
       if (track && track.previewUrl && !demoMode) this.refreshAccess();
@@ -303,7 +303,7 @@ Page({
   localize() {
     const { track, point, locale } = this.data;
     if (this.data.guideVideos.length) {
-      this.setData({ guideVideos: this.data.guideVideos.map((item) => ({ ...item, displayTitle: localized(item, 'title', locale), displayDescription: localized(item, 'description', locale) })) });
+      this.setData({ guideVideos: this.data.guideVideos.map((item) => ({ ...item, displayTitle: localized(item, 'title', locale), displayDescription: localized(item, 'description', locale), displayDuration: item.durationSeconds ? Math.max(1, Math.round(item.durationSeconds / 60)) + ' ' + this.data.i18n.heritage.minutes : '' })) });
     }
     const location = point && point.location;
     const displayLocation = typeof location === 'string' ? location : [location && location.hall, location && location.floor].filter(Boolean).join(' · ');

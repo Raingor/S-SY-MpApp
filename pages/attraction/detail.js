@@ -74,7 +74,7 @@ Page({
         this.applySpot(fresh);
         // 游览攻略视频按景点挂载：显示在 expert（游览攻略）板块内。
         this.setData({
-          guideVideos: content.getGuideVideos(data, fresh.id).map((item) => ({ ...item, displayTitle: this.localized(item, 'title'), displayDescription: this.localized(item, 'description') })),
+          guideVideos: content.getGuideVideos(data, fresh.id),
           guideVideosMarked: false,
           videoOpen: null
         });

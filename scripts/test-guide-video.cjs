@@ -276,10 +276,16 @@ async function main() {
   const spotMarkup = read('pages/attraction/detail.wxml');
   assert.ok(spotMarkup.includes('id="section-expert"'));
   const expertBlock = spotMarkup.slice(spotMarkup.indexOf('id="section-expert"'), spotMarkup.indexOf('id="section-video"'));
-  for (const binding of ['onGuideVideoTap', 'guide-video-card', 'item.displayTitle', 'guide-video-lock', 'guide-video-sheet video="{{videoOpen}}"']) {
+  for (const binding of ['onGuideVideoTap', 'guide-video-poster', 'guide-video-lock', 'guide-video-sheet video="{{videoOpen}}"']) {
     assert.ok(expertBlock.includes(binding) || spotMarkup.includes(binding), 'expert section entry: ' + binding);
   }
   assert.ok(spotMarkup.includes('<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose"'));
+  const posterBlock = spotMarkup.slice(spotMarkup.indexOf('guide-video-poster'), spotMarkup.indexOf('id="section-video"'));
+  for (const banned of ['item.displayTitle', 'item.displayDescription', 'item.durationSeconds']) assert.ok(!posterBlock.includes(banned), 'poster shows media only: ' + banned);
+  assert.match(posterBlock, /guide-video-bg/, 'blurred backdrop layer');
+  assert.match(posterBlock, /guide-video-lock/);
+  assert.match(read('pages/attraction/detail.wxss'), /guide-video-poster-locked \.guide-video-bg \{ filter: blur/);
+  assert.doesNotMatch(read('pages/audio/detail.wxml'), /durationSeconds \/ 60/, 'audio list minutes are computed in JS, not raw WXML math');
   assert.equal(JSON.parse(read('app.json')).usingComponents['guide-video-sheet'], '/components/guide-video-sheet/guide-video-sheet');
   const sheetMarkup = read('components/guide-video-sheet/guide-video-sheet.wxml');
   assert.match(sheetMarkup, /mode="aspectFill"/);

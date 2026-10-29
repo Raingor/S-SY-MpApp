@@ -34,7 +34,7 @@
           <view class="guide-video-copy">
             <view class="guide-video-name">{{item.displayTitle || item.title}}</view>
             <view wx:if="{{item.displayDescription || item.description}}" class="guide-video-desc">{{item.displayDescription || item.description}}</view>
-            <view wx:if="{{item.durationSeconds}}" class="guide-video-meta">{{i18n.heritage.duration}} {{item.durationSeconds / 60 >= 1 ? (item.durationSeconds / 60) + " " + i18n.heritage.minutes : item.durationSeconds + "s"}}</view>
+            <view wx:if="{{item.displayDuration}}" class="guide-video-meta">{{i18n.heritage.duration}} {{item.displayDuration}}</view>
           </view>
           <view class="guide-video-arrow">›</view>
         </view>
