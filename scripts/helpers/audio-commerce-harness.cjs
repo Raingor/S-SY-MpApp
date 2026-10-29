@@ -72,11 +72,12 @@ function createHarness(initialConfig) {
   h.auth = load('utils/auth.js', { './i18n': h.i18n });
   h.paid = load('utils/paid-content.js', { './auth': h.auth });
   h.access = load('utils/audio-access.js', { './auth': h.auth, './paid-content': h.paid });
+  h.guideVideo = load('utils/guide-video.js', { './auth': h.auth });
   h.content = load('data/content.js', { './mirror-content': { getContent() { throw new Error('No local fallback expected'); } } });
   let pageConfig;
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'pages/audio/detail.js'), 'utf8'), {
     ...globals, Page(config) { pageConfig = config; }, require(id) {
-      const dependencies = { '../../data/content': h.content, '../../utils/i18n': h.i18n, '../../utils/auth': h.auth, '../../utils/paid-content': h.paid, '../../utils/audio-access': h.access, '../../utils/navigation': { goBack() {} }, '../../utils/share': h.share };
+      const dependencies = { '../../data/content': h.content, '../../utils/i18n': h.i18n, '../../utils/auth': h.auth, '../../utils/paid-content': h.paid, '../../utils/audio-access': h.access, '../../utils/guide-video': h.guideVideo, '../../utils/navigation': { goBack() {} }, '../../utils/share': h.share };
       assert.ok(Object.hasOwn(dependencies, id), 'unexpected player dependency ' + id);
       return dependencies[id];
     }

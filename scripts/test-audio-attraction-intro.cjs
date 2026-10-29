@@ -34,6 +34,7 @@ const modules = {
   '../../data/content': {
     loadContent(callback) { callback({}, { source: 'remote', status: 'ready' }); },
     getAttraction() { return spot; },
+    getGuideVideos() { return []; },
     getAudioAlbums() {
       return [{ id: 'album-1', description: '专辑简介。', episodes: [
         { id: 'episode-1', albumId: 'album-1', category: 'heritage', previewUrl: '/episode-preview', title: '节目一', description: '这一集的简介。', descriptionEn: 'Episode introduction.' }

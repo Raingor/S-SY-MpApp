@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, vehicleService: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], guideVideos: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, vehicleService: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -125,6 +125,23 @@ function adaptAudioAlbums(albums) {
         String(episode.albumId) === String(album.id) && !episode.attractionId && episode.isDemo !== true && episode.previewUrl)
       .map((episode) => ({ ...episode, cover: mapManagedImage(episode.cover) }))
   })).filter((album) => album.episodes.length > 0);
+}
+
+// 游览攻略视频：与音轨独立的公开条目；播放鉴权/签名 URL 一律由 accessUrl 服务端决定。
+function adaptGuideVideos(videos) {
+  const clean = (value) => typeof value === 'string' ? value.trim() : '';
+  return (Array.isArray(videos) ? videos : []).filter((item) => isPublicAudioRecord(item) && item.id && item.attractionId && item.accessUrl).map((item) => ({
+    ...item,
+    title: clean(item.title),
+    titleTw: clean(item.titleTw),
+    titleEn: clean(item.titleEn),
+    description: clean(item.description),
+    descriptionTw: clean(item.descriptionTw),
+    descriptionEn: clean(item.descriptionEn),
+    cover: mapManagedImage(item.cover || item.image),
+    durationSeconds: Number(item.durationSeconds) || 0,
+    accessUrl: /^https:\/\//i.test(item.accessUrl) ? item.accessUrl : (item.accessUrl.startsWith('/') ? item.accessUrl : '')
+  })).filter((item) => item.title && item.accessUrl);
 }
 
 function adaptAttractions(remoteAttractions) {
@@ -432,6 +449,7 @@ function fetchContent() {
             cities: adaptCities(res.data.cities),
             attractions: adaptAttractions(res.data.attractions),
             audioAlbums: adaptAudioAlbums(res.data.audioAlbums),
+            guideVideos: adaptGuideVideos(res.data.guideVideos),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
@@ -555,6 +573,12 @@ function getAudioAlbums(source) {
   return getContent(source).audioAlbums || [];
 }
 
+function getGuideVideos(source, attractionId) {
+  const videos = getContent(source).guideVideos || [];
+  if (!attractionId) return [];
+  return videos.filter((item) => String(item.attractionId) === String(attractionId));
+}
+
 // 景点关联条目：带出封面图，供行程页渲染缩略图；找不到的 id 直接丢弃。
 function getAttractionNames(ids, source) {
   if (!Array.isArray(ids)) return [];
@@ -659,6 +683,7 @@ module.exports = {
   getDestinationByCity,
   getAttraction,
   getAudioAlbums,
+  getGuideVideos,
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,

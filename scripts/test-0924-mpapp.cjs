@@ -243,6 +243,7 @@ const audioWx = {
 const content = {
   loadContent(cb) { cb({}, { source: 'remote', status: 'ready' }); },
   getAttraction() { return { id: 'sight-1', exhibits: [{ id: 'point-1', name: 'Point' }], audioGuides: tracks }; },
+  getGuideVideos() { return []; },
   getAudioAlbums() { return []; }
 };
 const source = fs.readFileSync('pages/audio/detail.js', 'utf8');

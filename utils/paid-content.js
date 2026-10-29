@@ -139,35 +139,47 @@ function isUnlocked(entitlements) {
   return Boolean(entitlements && entitlements.member === true && (!entitlements.memberExpiresAt || Date.parse(entitlements.memberExpiresAt) > Date.now()));
 }
 
+function settlePayment(data, res, callback) {
+  // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
+  if (data.simulation) {
+    return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: Boolean(data.order && data.order.status === 'pending') }, res);
+  }
+  if (!data.payment) return callback(false, data, res);
+  wx.requestPayment({
+    ...data.payment,
+    success: () => waitForOrder(data.order && data.order.id, 0, (statusData) => {
+      if (statusData && statusData.order && statusData.order.status === 'paid') return callback(true, { ...data, ...statusData, paymentStatus: 'paid' }, res);
+      if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
+      callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
+    }),
+    fail: (error) => {
+      const errorMessage = String(error && error.errMsg || '');
+      const cancelled = /requestPayment:fail\s+cancel/i.test(errorMessage);
+      callback(false, {
+        ...data,
+        error: errorMessage,
+        code: cancelled ? 'PAYMENT_CANCELLED' : 'PAYMENT_FAILED'
+      }, res);
+    }
+  });
+}
+
 function createOrder(productType, target, callback) {
+  // 游览攻略视频：单篇购买，target 为 videoId；价格/开关由服务端校验。
+  if (productType === 'guideVideo') {
+    if (!target) return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
+    return request('/api/miniprogram/orders', 'POST', { productType, videoId: target }, (ok, data, res) => {
+      if (!ok) return callback(false, data, res);
+      settlePayment(data, res, callback);
+    });
+  }
   // 所有内容统一年会员；旧页面或缓存不能重新发起单篇、城市包或旧会员购买。
   if (productType !== 'annualMembership') return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
   fetchConfig((configured, config) => {
     if (!configured || !annualProductAvailable(config.products && config.products.annualMembership)) return callback(false, { code: 'PAYMENT_PRODUCT_UNAVAILABLE' }, null);
     request('/api/miniprogram/orders', 'POST', { productType }, (ok, data, res) => {
       if (!ok) return callback(false, data, res);
-      // 即使服务端错误附带 payment，模拟订单也绝不能进入真实微信支付。
-      if (data.simulation) {
-        return callback(false, { ...data, code: 'SIMULATION_PAYMENT_PENDING', pendingSimulation: Boolean(data.order && data.order.status === 'pending') }, res);
-      }
-      if (!data.payment) return callback(false, data, res);
-      wx.requestPayment({
-        ...data.payment,
-        success: () => waitForOrder(data.order && data.order.id, 0, (statusData) => {
-          if (statusData && statusData.order && statusData.order.status === 'paid') return callback(true, { ...data, ...statusData, paymentStatus: 'paid' }, res);
-          if (statusData && statusData.order && statusData.order.status === 'failed') return callback(false, { ...data, ...statusData, code: 'PAYMENT_FAILED' }, res);
-          callback(true, { ...data, ...statusData, paymentStatus: 'pending', code: 'PAYMENT_PENDING' }, res);
-        }),
-        fail: (error) => {
-          const errorMessage = String(error && error.errMsg || '');
-          const cancelled = /requestPayment:fail\s+cancel/i.test(errorMessage);
-          callback(false, {
-            ...data,
-            error: errorMessage,
-            code: cancelled ? 'PAYMENT_CANCELLED' : 'PAYMENT_FAILED'
-          }, res);
-        }
-      });
+      settlePayment(data, res, callback);
     });
   });
 }
