@@ -6,7 +6,8 @@
 /* ===== 1. 品牌头图轮播 ===== */
 .hero {
   position: relative;
-  height: 900rpx;
+  /* 需求方要求 banner 为正方形：宽度 750rpx（全屏宽），高度等宽成 1:1。 */
+  height: 750rpx;
 }
 
 .hero-swiper,

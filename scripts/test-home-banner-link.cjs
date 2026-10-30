@@ -54,6 +54,10 @@ async function main() {
   page.setData({ heroCurrent: 2 }); page.onHeroTap();
   page.setData({ heroCurrent: 3 }); page.onHeroTap();
   assert.equal(navigations.length, 1, 'banners without a valid link keep the previous behaviour');
+  const homeStyles = read('pages/index/index.wxss');
+  const heroBox = homeStyles.match(/\.hero \{[^}]*\}/)[0];
+  assert.match(heroBox, /height: 750rpx/, 'home banner renders square (full-width 750rpx height) per the client request');
+  assert.doesNotMatch(heroBox, /900rpx/, 'no leftover oversized hero height');
   const markup = read('pages/index/index.wxml');
   assert.match(markup, /bindtap="onHeroTap"/);
   console.log('PASS: home banner link=attraction:<id> navigates in-app; external/missing links are inert');
