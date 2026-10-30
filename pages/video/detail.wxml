@@ -2,7 +2,7 @@
 <view class="audio-page">
   <view class="audio-album-top-inset" style="height: {{statusBarHeight}}px;"></view>
   <view class="audio-nav">
-    <view class="sy-back-button" bindtap="onBack"><view class="sy-back-chevron"></view></view>
+    <view class="sy-back-button video-back" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view>
     <view class="audio-nav-spacer"></view>
   </view>
   <view wx:if="{{loading && !video}}" class="audio-album-state">{{i18n.loading}}</view>

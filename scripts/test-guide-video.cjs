@@ -450,6 +450,13 @@ async function main() {
     assert.equal(i18n.getMessages(locale).heritage.guideVideoSectionTitle, label);
   }
   assert.match(videoBlock, /detail-heading serif">\{\{i18n\.heritage\.guideVideoSectionTitle\}\}/, 'attraction section has its own tour-guide heading');
+  assert.doesNotMatch(videoBlock, />VIDEO</, 'no leftover English VIDEO eyebrow');
+  assert.equal((videoBlock.match(/detail-heading serif/g) || []).length, 1, 'one tour-guide heading, not two repeated labels');
+  assert.match(introMarkup, /class="sy-back-button video-back"[^>]*hover-class="sy-back-button-hover"/, 'video page keeps the shared back-button color and interaction');
+  const videoStyles = read('pages/video/detail.wxss');
+  assert.match(videoStyles, /\.video-back \{[^}]*width: 72rpx;[^}]*height: 72rpx;/, 'restore shared back-button size after album import');
+  assert.match(videoStyles, /\.video-back \.sy-back-chevron \{[^}]*margin-left: 0;[^}]*border-left: 4rpx solid #FFFFFF;[^}]*border-bottom: 4rpx solid #FFFFFF;/, 'restore shared white arrow instead of album black override');
+  assert.doesNotMatch(videoStyles, /\.video-back \{[^}]*background:/, 'button inherits the shared app gradient, not a new local palette');
   assert.match(introMarkup, /audio-album-kicker">\{\{i18n\.heritage\.guideVideos\}\}/, 'course intro keeps sight-guide naming');
   assert.doesNotMatch(introMarkup, /i18n\.heritage\.(program|episodes)\b/, 'video page uses course-specific labels');
   assert.equal(i18n.getMessages('zh-CN').heritage.program, '节目', 'audio episode copy stays unchanged');
