@@ -14,7 +14,7 @@ function duration(value) {
   return Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : '—';
 }
 Page({
-  data: { i18n: i18n.getMessages(), locale: 'zh-CN', statusBarHeight: 20, video: null, videoOpen: null, loading: true, failed: false, activeTab: 'episodes', scrollIntoView: '' },
+  data: { i18n: i18n.getMessages(), locale: 'zh-CN', statusBarHeight: 20, video: null, videoOpen: null, videoState: 'idle', loading: true, failed: false, activeTab: 'episodes', scrollIntoView: '' },
   onLoad(options) {
     this.videoId = options && options.id || '';
     this.attractionId = options && options.attractionId || '';
@@ -37,7 +37,8 @@ Page({
         return this.setData({ loading: false, failed: true });
       }
       const video = content.getGuideVideos(data, this.attractionId).find((item) => String(item.id) === String(this.videoId)) || null;
-      this.setData({ video, videoOpen: null, loading: false, failed: false });
+      this._spot = content.getAttraction(this.attractionId, data);
+      this.setData({ video, videoOpen: null, videoState: 'idle', loading: false, failed: false });
       this.localize();
       if (video) this.markPurchase(requestId);
     }, true);
@@ -53,7 +54,8 @@ Page({
   localize() {
     const video = this.data.video;
     if (!video) return;
-    this.setData({ video: { ...video, displayTitle: tr(video, 'title', this.data.locale), displayDescription: tr(video, 'description', this.data.locale), displayDuration: duration(video.durationSeconds) } });
+    const subject = this._spot ? (this.data.locale === 'en' ? this._spot.en || this._spot.name : tr(this._spot, 'name', this.data.locale)) : '';
+    this.setData({ video: { ...video, displayTitle: tr(video, 'title', this.data.locale), displaySubject: subject, displayDescription: tr(video, 'description', this.data.locale), displayDuration: duration(video.durationSeconds) } });
   },
   onTabTap(event) {
     const intro = event.currentTarget.dataset.section === 'intro';
@@ -61,12 +63,25 @@ Page({
     this.setData({ scrollIntoView: intro ? 'video-intro' : 'video-program' });
   },
   onPlay() {
-    // 到达介绍页不请求播放权限，用户再点节目/播放按钮才打开服务端鉴权。
-    if (this.data.video && !this.data.videoOpen) this.setData({ videoOpen: this.data.video });
+    if (!this.data.video) return;
+    // 先看课程介绍，再点节目/购买按钮；购买与播放始终在本页展开，不弹浮层。
+    this.setData({ activeTab: 'episodes', scrollIntoView: '' });
+    this.setData({ scrollIntoView: 'video-program' });
+    if (!this.data.videoOpen) return this.setData({ videoOpen: this.data.video, videoState: 'loading' });
+    const player = this.selectComponent && this.selectComponent('#video-player');
+    if (!player) return;
+    const actions = { login: 'onLogin', purchase: 'onBuy', error: 'reload', ready: 'play' };
+    const action = actions[player.data.state];
+    if (action) player[action]();
   },
-  onGuideVideoClose() {
-    this.setData({ videoOpen: null });
-    this.markPurchase(this._loadId);
+  onVideoAccessChange(event) {
+    const state = event.detail && event.detail.state;
+    const video = this.data.video;
+    if (!video || !this.data.videoOpen || String(event.detail.videoId) !== String(video.id)) return;
+    // 仅服务端 access 的 ready / locked 结果刷新锁标，支付回调本身不解锁。
+    const purchased = state === 'ready' ? true : (state === 'login' || state === 'purchase' ? false : video.purchased);
+    this._purchaseId = (this._purchaseId || 0) + 1;
+    this.setData({ videoState: state, video: { ...video, purchased } });
   },
   onBack() { goBack(); },
   onUnload() {

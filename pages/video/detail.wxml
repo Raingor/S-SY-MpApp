@@ -16,6 +16,7 @@
             <view class="audio-album-kicker">{{i18n.heritage.guideVideos}}</view>
             <view class="audio-album-access-note">{{video.purchased ? i18n.paidContent.purchased : i18n.heritage.guideVideoPurchase}}</view>
             <view class="audio-title">{{video.displayTitle}}</view>
+            <view wx:if="{{video.displaySubject}}" class="video-subject">{{i18n.heritage.guideVideoSubject}} · {{video.displaySubject}}</view>
           </view>
         </view>
         <view class="audio-album-stats">
@@ -41,8 +42,9 @@
             <view class="audio-episode-duration">◷ {{video.displayDuration}}</view>
             <view class="audio-episode-access">{{video.purchased ? i18n.paidContent.purchased : i18n.heritage.guideVideoPurchase}}</view>
           </view>
-          <text class="audio-episode-arrow">›</text>
+          <text class="audio-episode-arrow">▶</text>
         </view>
+        <guide-video-sheet id="video-player" video="{{videoOpen}}" bind:accesschange="onVideoAccessChange" />
       </view>
       <view wx:if="{{failed}}" class="audio-album-state" bindtap="refresh">{{i18n.heritage.networkFailed}} · {{i18n.heritage.retry}}</view>
       <view class="audio-album-scroll-end"></view>
@@ -51,7 +53,6 @@
   <view wx:else class="audio-album-state" bindtap="refresh">{{failed ? i18n.heritage.networkFailed : i18n.heritage.guideVideoUnavailable}} · {{i18n.heritage.retry}}</view>
   <view wx:if="{{video}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" data-section="intro" bindtap="onTabTap">{{i18n.heritage.guideVideoIntro}}</button>
-    <button class="audio-album-play-button" bindtap="onPlay">{{i18n.heritage.guideVideoPlay}}</button>
+    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (video.purchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta))}}</button>
   </view>
 </view>
-<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose" />

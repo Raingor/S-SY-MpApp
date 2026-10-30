@@ -28,7 +28,7 @@ const wx = {
   showModal: (o) => modals.push(o),
   requestPayment: (o) => { payments.push(o); o.success(); },
   login: (o) => o.success({ code: 'fixture-code' }),
-  createVideoContext: () => ({ stop() { wx._videoStopped = (wx._videoStopped || 0) + 1; } }),
+  createVideoContext: () => ({ stop() { wx._videoStopped = (wx._videoStopped || 0) + 1; }, play() { wx._videoPlayed = (wx._videoPlayed || 0) + 1; }, pause() { wx._videoPaused = (wx._videoPaused || 0) + 1; } }),
   request(options) {
     requests.push(options.url);
     if (options.url.includes('/api/content')) return contentFailure ? options.fail({ errMsg: 'offline' }) : options.success({ statusCode: 200, data: metadata });
@@ -151,7 +151,7 @@ async function main() {
       ...component.methods, properties: { video: null },
       data: { ...structuredClone(component.data) },
       setData(next) { Object.assign(this.data, next); },
-      _events: [], triggerEvent(name) { this._events.push(name); }
+      _events: [], triggerEvent(name, detail) { this._events.push(name); if (this._onEvent) this._onEvent(name, detail); }
     };
     return instance;
   };
@@ -203,7 +203,7 @@ async function main() {
   await flush();
   assert.equal(sheet.data.state, 'ready');
   sheet.close();
-  assert.deepEqual(sheet._events, ['close']);
+  assert.deepEqual(sheet._events.filter((name) => name === 'close'), ['close']);
   component.lifetimes.detached.call(sheet);
   orderResponses.push({ error: 'backend down' });
   accessResponse = purchaseLocked;
@@ -325,6 +325,9 @@ async function main() {
   assert.ok(!sheetMarkup.includes('<image'), 'locked purchase sheet renders no cover/frame, respecting the no-image requirement');
   assert.match(sheetMarkup, /poster="\{\{cover\}\}"/, 'only authorized video can show its poster');
   assert.doesNotMatch(sheetMarkup, /show-menu-by-longpress="\{\{true\}\}"/);
+  assert.match(sheetMarkup, /class="gvm-inline"/, 'player and purchase gate are in normal document flow');
+  assert.doesNotMatch(sheetMarkup, /gvm-mask|gvm-sheet|catchtouchmove|bindtap="close"/, 'no floating sheet, mask or scroll lock');
+  assert.doesNotMatch(read('components/guide-video-sheet/guide-video-sheet.wxss'), /position:\s*fixed|z-index:/, 'component cannot overlay the introduction');
   // ===== 视频介绍/节目页：先展示介绍，第二次点击才鉴权播放 =====
   let videoDefinition;
   vm.runInNewContext(read('pages/video/detail.js'), {
@@ -339,29 +342,50 @@ async function main() {
   await flush();
   assert.equal(videoPage.data.loading, false);
   assert.equal(videoPage.data.video.displayTitle, VIDEO.title);
+  assert.equal(videoPage.data.video.displaySubject, SPOT.name, 'course topic uses the actual attraction, not invented copy');
   assert.equal(videoPage.data.video.displayDuration, '39:35', 'exact mm:ss, no floating point minutes');
   assert.equal(videoPage.data.video.purchased, false, 'annual membership alone does not unlock cover/playback');
   assert.equal(videoPage.data.videoOpen, null);
   assert.equal(accessCalls, callsBeforeIntro, 'entering introduction never requests playback access');
   const introMarkup = read('pages/video/detail.wxml');
   assert.ok(JSON.parse(read('app.json')).pages.includes('pages/video/detail'));
-  for (const value of ['video.displayTitle', 'video.displayDescription', 'video.displayDuration', 'id="video-program"', 'bindtap="onPlay"', '<guide-video-sheet']) assert.ok(introMarkup.includes(value), 'album-style video page: ' + value);
+  for (const value of ['video.displayTitle', 'video.displaySubject', 'video.displayDescription', 'video.displayDuration', 'id="video-program"', 'bindtap="onPlay"', '<guide-video-sheet']) assert.ok(introMarkup.includes(value), 'album-style video page: ' + value);
+  assert.ok(introMarkup.indexOf('<guide-video-sheet') > introMarkup.indexOf('id="video-program"') && introMarkup.indexOf('<guide-video-sheet') < introMarkup.indexOf('audio-album-scroll-end'), 'player is embedded under the program row, inside the scroll view');
+  const actionCopy = introMarkup.match(/class="audio-album-play-button"[^>]*>\{\{([\s\S]*?)\}\}/)[1];
+  assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '购买观看', 'bottom action invites a purchase, not a misleading free play');
   const coverVisibility = introMarkup.match(/<image wx:if="\{\{([^}]+)\}\}"/)[1];
   assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), false, 'no image on unpurchased introduction');
   videoPage.onPlay();
-  assert.equal(videoPage.data.videoOpen.id, VIDEO.id, 'second tap opens authorization sheet');
+  assert.equal(videoPage.data.videoOpen.id, VIDEO.id, 'second tap expands the inline authorization region');
   accessResponse = purchaseLocked;
   const introSheet = createSheet();
+  videoPage.selectComponent = () => introSheet;
+  introSheet._onEvent = (name, detail) => { if (name === 'accesschange') videoPage.onVideoAccessChange({ detail }); };
   component.properties.video.observer.call(introSheet, videoPage.data.videoOpen);
   await flush();
   assert.equal(introSheet.data.state, 'purchase', 'program tap still requires server access, not local flag');
   assert.equal(introSheet.data.i18n.heritage.guideVideoBuyCta, '购买观看');
-  entitlementsReply = [VIDEO.id];
-  videoPage.onGuideVideoClose();
+  assert.equal(videoPage.data.video.purchased, false, 'locked result never unlocks artwork');
+  assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '购买观看');
+  const ordersBeforePurchase = orderCalls;
+  orderResponses.push({ order: { id: 'order-inline', status: 'pending' }, payment: { timeStamp: '1', nonceStr: 'n', package: 'p', signType: 'RSA', paySign: 's' } });
+  accessResponse = full;
+  videoPage.onPlay();
   await flush();
-  assert.equal(videoPage.data.videoOpen, null);
-  assert.equal(videoPage.data.video.purchased, true, 'closing sheet refreshes server purchase badges');
+  assert.equal(orderCalls, ordersBeforePurchase + 1, 'bottom button calls the embedded purchase action');
+  assert.equal(introSheet.data.state, 'ready');
+  assert.equal(videoPage.data.videoState, 'ready');
+  assert.equal(videoPage.data.video.purchased, true, 'only the full access event refreshes purchase artwork and CTA');
+  assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '播放视频');
   assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), true, 'purchased introduction can render the cover');
+  introSheet.onTimeUpdate({ detail: { currentTime: 77 } });
+  introSheet.data.access.validUntil = Date.now() - 1;
+  accessResponse = full;
+  videoPage.onPlay(); await flush();
+  assert.equal(introSheet.data.position, 77, 'bottom play reauthorizes an expired paused video at its previous position');
+  component.pageLifetimes.hide.call(introSheet);
+  assert.equal(wx._videoPaused, 1, 'page backgrounding pauses the embedded video');
+  entitlementsReply = [VIDEO.id];
   videoPage.onTabTap({ currentTarget: { dataset: { section: 'intro' } } });
   assert.equal(videoPage.data.scrollIntoView, 'video-intro');
   videoPage.onTabTap({ currentTarget: { dataset: { section: 'episodes' } } });
@@ -410,7 +434,7 @@ async function main() {
   // 三语文案齐全。
   for (const locale of ['zh-CN', 'zh-TW', 'en']) {
     const heritage = i18n.getMessages(locale).heritage;
-    for (const key of ['guideVideos', 'guideVideoIntro', 'guideVideoPlay', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
+    for (const key of ['guideVideos', 'guideVideoIntro', 'guideVideoSubject', 'guideVideoPlay', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
   }
   // 分享隔离：视频 sheet/签名 URL 不入分享预览。
   const { pagePreview } = loadModule('utils/share-preview.js');
@@ -420,6 +444,6 @@ async function main() {
   assert.equal(videoSpec.title, VIDEO.titleEn);
   assert.equal(videoSpec.image, '', 'locked video share card reveals no cover');
   assert.ok(!JSON.stringify(videoSpec).includes('SECRET'));
-  console.log('PASS: video introduction/program navigation + server-only playback/payment + i18n CTA + locked-image isolation + offline/deletion/unload + reauthorization lifecycle');
+  console.log('PASS: course introduction/topic/program + inline purchase/player (no overlay) + buy/play CTA + server-only payment/access + i18n + locked-image isolation + offline/deletion/unload/reauthorization');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

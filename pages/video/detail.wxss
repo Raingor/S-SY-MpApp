@@ -1,5 +1,6 @@
 /* 与文史专辑页共用版式，不新增图片素材。 */
 @import "../audio/album.wxss";
+.video-subject { margin-top: 14rpx; color: #77716A; font-size: 21rpx; line-height: 1.6; }
 .video-cover { background: #10141B; }
 .video-lock { position: relative; width: 36rpx; height: 30rpx; border: 2rpx solid #BDA46C; border-radius: 6rpx; }
 .video-lock::before { content: ''; position: absolute; top: -25rpx; left: 7rpx; width: 18rpx; height: 23rpx; border: 2rpx solid #BDA46C; border-bottom: 0; border-radius: 14rpx 14rpx 0 0; }
