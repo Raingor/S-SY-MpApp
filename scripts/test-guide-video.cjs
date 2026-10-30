@@ -436,6 +436,19 @@ async function main() {
     const heritage = i18n.getMessages(locale).heritage;
     for (const key of ['guideVideos', 'guideVideoIntro', 'guideVideoSubject', 'guideVideoPlay', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
   }
+  // 攻略课程单独用词，不能把文史音频页的节目/集数一起改掉。
+  const courseLabels = {
+    'zh-CN': ['景点攻略', '课程', '课程简介', '门课程'],
+    'zh-TW': ['景點攻略', '課程', '課程簡介', '門課程'],
+    en: ['Sight guides', 'Courses', 'About this course', 'course']
+  };
+  for (const [locale, labels] of Object.entries(courseLabels)) {
+    const h = i18n.getMessages(locale).heritage;
+    assert.deepEqual([h.guideVideos, h.guideVideoCourses, h.guideVideoIntro, h.guideVideoCourseUnit], labels);
+  }
+  assert.doesNotMatch(introMarkup, /i18n\.heritage\.(program|episodes)\b/, 'video page uses course-specific labels');
+  assert.equal(i18n.getMessages('zh-CN').heritage.program, '节目', 'audio episode copy stays unchanged');
+  assert.match(read('pages/audio/album.wxml'), /i18n\.heritage\.program/, 'literature audio still uses episode labels');
   // 分享隔离：视频 sheet/签名 URL 不入分享预览。
   const { pagePreview } = loadModule('utils/share-preview.js');
   const spec = pagePreview('/pages/audio/detail', { data: { i18n: i18n.getMessages(), locale: 'zh-CN', title: '游览攻略', description: '本集介绍', cover: '/cover.jpg', guideVideos: [{ playUrl: 'https://oss.fixture/signed/video.mp4?sig=1' }], videoOpen: { playUrl: 'SECRET' } } });

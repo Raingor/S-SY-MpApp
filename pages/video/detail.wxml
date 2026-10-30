@@ -20,7 +20,7 @@
           </view>
         </view>
         <view class="audio-album-stats">
-          <view class="audio-album-stat"><text class="audio-album-stat-value">1</text><text class="audio-album-stat-label">{{i18n.heritage.episodes}}</text></view>
+          <view class="audio-album-stat"><text class="audio-album-stat-value">1</text><text class="audio-album-stat-label">{{i18n.heritage.guideVideoCourseUnit}}</text></view>
           <view class="audio-album-stat-divider"></view>
           <view class="audio-album-stat"><text class="audio-album-stat-value">{{video.displayDuration}}</text><text class="audio-album-stat-label">{{i18n.heritage.duration}}</text></view>
         </view>
@@ -30,11 +30,11 @@
         </view>
       </view>
       <view class="audio-album-tabs">
-        <view class="audio-album-tab {{activeTab === 'episodes' ? 'audio-album-tab-active' : ''}}" data-section="episodes" bindtap="onTabTap">{{i18n.heritage.program}}</view>
+        <view class="audio-album-tab {{activeTab === 'episodes' ? 'audio-album-tab-active' : ''}}" data-section="episodes" bindtap="onTabTap">{{i18n.heritage.guideVideoCourses}}</view>
         <view wx:if="{{video.displayDescription}}" class="audio-album-tab {{activeTab === 'intro' ? 'audio-album-tab-active' : ''}}" data-section="intro" bindtap="onTabTap">{{i18n.heritage.guideVideoIntro}}</view>
       </view>
       <view id="video-program" class="audio-episode-card">
-        <view class="audio-episode-heading"><view class="audio-episode-heading-title">{{i18n.heritage.program}}</view><view class="audio-episode-heading-count">1 / 1</view></view>
+        <view class="audio-episode-heading"><view class="audio-episode-heading-title">{{i18n.heritage.guideVideoCourses}}</view><view class="audio-episode-heading-count">1 / 1</view></view>
         <view class="audio-list-row" bindtap="onPlay">
           <text class="audio-episode-index">1</text>
           <view class="audio-episode-copy">
