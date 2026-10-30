@@ -36,7 +36,7 @@
     </view>
 
     <view wx:if="{{guideVideos.length || spot.videoUrl || (spot.expertVideoUrl && pageCopy.sections.expert && !pageCopy.sections.expert.hidden)}}" id="section-guide-videos" class="detail-section">
-      <view class="detail-section-head"><view><view class="detail-eyebrow">VIDEO</view><view class="detail-heading serif">{{i18n.heritage.guideVideos}}</view></view></view>
+      <view class="detail-section-head"><view><view class="detail-eyebrow">VIDEO</view><view class="detail-heading serif">{{i18n.heritage.guideVideoSectionTitle}}</view></view></view>
       <view wx:for="{{guideVideos}}" wx:key="id" class="guide-video-poster {{item.purchased ? 'guide-video-poster-owned' : 'guide-video-poster-locked'}}" data-id="{{item.id}}" bindtap="onGuideVideoTap" hover-class="guide-video-poster-hover" aria-role="button" aria-label="{{item.purchased ? i18n.heritage.guideVideos : i18n.heritage.guideVideoBuyCta}}">
         <image wx:if="{{item.purchased && item.cover}}" class="guide-video-cover" src="{{item.cover}}" mode="aspectFit" webp="{{true}}" />
         <view wx:if="{{!item.purchased}}" class="guide-video-lock">

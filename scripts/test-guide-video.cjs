@@ -446,6 +446,11 @@ async function main() {
     const h = i18n.getMessages(locale).heritage;
     assert.deepEqual([h.guideVideos, h.guideVideoCourses, h.guideVideoIntro, h.guideVideoCourseUnit], labels);
   }
+  for (const [locale, label] of [['zh-CN', '游览攻略'], ['zh-TW', '遊覽攻略'], ['en', 'Tour guides']]) {
+    assert.equal(i18n.getMessages(locale).heritage.guideVideoSectionTitle, label);
+  }
+  assert.match(videoBlock, /detail-heading serif">\{\{i18n\.heritage\.guideVideoSectionTitle\}\}/, 'attraction section has its own tour-guide heading');
+  assert.match(introMarkup, /audio-album-kicker">\{\{i18n\.heritage\.guideVideos\}\}/, 'course intro keeps sight-guide naming');
   assert.doesNotMatch(introMarkup, /i18n\.heritage\.(program|episodes)\b/, 'video page uses course-specific labels');
   assert.equal(i18n.getMessages('zh-CN').heritage.program, '节目', 'audio episode copy stays unchanged');
   assert.match(read('pages/audio/album.wxml'), /i18n\.heritage\.program/, 'literature audio still uses episode labels');
