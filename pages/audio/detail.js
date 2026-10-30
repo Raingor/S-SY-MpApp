@@ -237,9 +237,9 @@ Page({
     const id = event.currentTarget.dataset.id;
     const video = this.data.guideVideos.find((item) => String(item.id) === String(id));
     if (!video || this.data.videoOpen) return;
-    // 与音频播放互斥：先暂停当前音频再打开视频。
+    // 与音频播放互斥：先暂停当前音频，再进入视频介绍/节目页。
     this.stop(true);
-    this.setData({ videoOpen: video });
+    wx.navigateTo({ url: '/pages/video/detail?id=' + encodeURIComponent(video.id) + '&attractionId=' + encodeURIComponent(video.attractionId) });
   },
 
   onGuideVideoClose() {

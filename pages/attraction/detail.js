@@ -279,7 +279,7 @@ Page({
   onGuideVideoTap(event) {
     const id = event.currentTarget.dataset.id;
     const video = this.data.guideVideos.find((item) => String(item.id) === String(id));
-    if (video && !this.data.videoOpen) this.setData({ videoOpen: video });
+    if (video) wx.navigateTo({ url: '/pages/video/detail?id=' + encodeURIComponent(video.id) + '&attractionId=' + encodeURIComponent(video.attractionId) });
   },
 
   onGuideVideoClose() {

@@ -6,7 +6,6 @@
     </view>
     <video wx:if="{{state === 'ready'}}" id="guide-video" class="gvm-player" src="{{playUrl}}" poster="{{cover}}" controls show-center-play-btn initial-time="{{position || 0}}" object-fit="contain" binderror="onError" bindtimeupdate="onTimeUpdate"></video>
     <view wx:else class="gvm-cover-wrap">
-      <image wx:if="{{cover}}" class="gvm-cover" src="{{cover}}" mode="aspectFill" webp="{{true}}" />
       <view class="gvm-state">
         <view wx:if="{{state === 'loading'}}">{{i18n.loading}}</view>
         <block wx:elif="{{state === 'login'}}">

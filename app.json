@@ -24,6 +24,7 @@
     "pages/audio/route",
     "pages/audio/collection",
     "pages/audio/detail",
+    "pages/video/detail",
     "pages/city/index",
     "pages/city/spots"
   ],

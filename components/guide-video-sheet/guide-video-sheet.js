@@ -10,12 +10,12 @@ Component({
       type: Object,
       value: null,
       observer(value) {
-        if (!value) return this.setData({ state: 'idle', playUrl: '' });
-        this._video = value;
         this._requestId = (this._requestId || 0) + 1;
+        this._video = value;
+        if (!value) return this.setData({ state: 'idle', reloading: false, playUrl: '', access: null });
         this._videoPosition = 0;
         this.setData({
-          state: 'loading', price: '', purchaseLoading: false, authLoading: false, simulationLoading: false,
+          i18n: i18n.getMessages(), state: 'loading', reloading: false, price: '', purchaseLoading: false, authLoading: false, simulationLoading: false,
           playUrl: '', position: 0, order: null,
           displayTitle: value.displayTitle || value.title || '',
           displayDescription: value.displayDescription || value.description || '',
@@ -25,7 +25,7 @@ Component({
       }
     }
   },
-  data: { state: 'idle', price: '', purchaseLoading: false, authLoading: false, simulationLoading: false, playUrl: '', position: 0, order: null, displayTitle: '', displayDescription: '', cover: '' },
+  data: { i18n: i18n.getMessages(), state: 'idle', price: '', purchaseLoading: false, authLoading: false, simulationLoading: false, playUrl: '', position: 0, order: null, displayTitle: '', displayDescription: '', cover: '' },
   lifetimes: {
     detached() { this._requestId = (this._requestId || 0) + 1; }
   },

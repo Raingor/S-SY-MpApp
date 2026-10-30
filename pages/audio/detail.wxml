@@ -78,8 +78,6 @@
     </view>
   </view>
 
-  <guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose" />
-
   <view wx:if="{{showUnlockPaywall}}" class="audio-paywall-mask" bindtap="onUnlockPaywallClose" catchtouchmove="noop">
 
     <view class="audio-paywall-sheet" catchtap="noop">

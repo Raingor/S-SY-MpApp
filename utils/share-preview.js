@@ -79,6 +79,12 @@ function pagePreview(path, page) {
     title = (m.contentPage || {}).referenceTag;
     summary = (d.list || []).slice(0, 3).map((item) => clean(item.title)).filter(Boolean).join(' · ');
     image = d.list && d.list[0] && d.list[0].img;
+  } else if (route === '/pages/video/detail') {
+    const video = d.video || {};
+    title = tr(video, 'title');
+    summary = tr(video, 'description');
+    image = video.purchased ? video.cover : '';
+    label = clean(heritage.guideVideos);
   } else if (route.startsWith('/pages/audio/')) {
     title = d.title || (d.album || {}).displayTitle;
     summary = d.description || (d.album || {}).displayDescription || d.spotName;

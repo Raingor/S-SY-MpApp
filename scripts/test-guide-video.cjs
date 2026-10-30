@@ -10,17 +10,20 @@ const requests = [];
 const payments = [];
 const toasts = [];
 const modals = [];
+const navigation = [];
 let accessResponse = null;
 let accessCalls = 0;
 const orderResponses = [];
 let orderCalls = 0;
 let entitlementsReply = [];
+let contentFailure = false;
 const storage = new Map([['sy_mp_access_token', 'fixture-token']]);
 const wx = {
   getStorageSync: (key) => storage.get(key) || '',
   setStorageSync: (key, value) => storage.set(key, value),
   removeStorageSync: (key) => storage.delete(key),
   getWindowInfo: () => ({ statusBarHeight: 20 }),
+  navigateTo: (options) => navigation.push(options.url),
   showToast: (o) => toasts.push(o),
   showModal: (o) => modals.push(o),
   requestPayment: (o) => { payments.push(o); o.success(); },
@@ -28,7 +31,7 @@ const wx = {
   createVideoContext: () => ({ stop() { wx._videoStopped = (wx._videoStopped || 0) + 1; } }),
   request(options) {
     requests.push(options.url);
-    if (options.url.includes('/api/content')) return options.success({ statusCode: 200, data: metadata });
+    if (options.url.includes('/api/content')) return contentFailure ? options.fail({ errMsg: 'offline' }) : options.success({ statusCode: 200, data: metadata });
     if (options.url.includes('/auth/wx-login')) return options.success({ statusCode: 200, data: { accessToken: 'fixture-token-2', user: { id: 'fixture-user', phoneBound: true } } });
     if (options.url.includes('/access')) {
       accessCalls++;
@@ -165,6 +168,7 @@ async function main() {
   component.properties.video.observer.call(sheet, { ...adapted });
   await flush();
   assert.equal(sheet.data.state, 'purchase', 'after login the access result drives the purchase gate');
+  assert.equal(sheet.data.i18n.heritage.guideVideoBuyCta, '购买观看', 'component explicitly injects i18n so the CTA is not blank');
   assert.equal(sheet.data.price, '¥168.00');
   orderResponses.push({ order: { id: 'order-1', status: 'pending' }, payment: { timeStamp: '1', nonceStr: 'n', package: 'p', signType: 'RSA', paySign: 's' } });
   accessResponse = full;
@@ -241,11 +245,11 @@ async function main() {
   await flush();
   assert.equal(audioPage.data.guideVideos[0].purchased, false, 'without unlockedVideos the entry shows locked');
   audioPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-  assert.equal(audioPage.data.videoOpen.id, VIDEO.id, 'audio detail passes the video object into the shared sheet component');
-  audioPage.onGuideVideoClose();
-  assert.equal(audioPage.data.videoOpen, null);
+  const videoRoute = '/pages/video/detail?id=' + encodeURIComponent(VIDEO.id) + '&attractionId=acropolis';
+  assert.equal(navigation.at(-1), videoRoute, 'audio detail navigates to video introduction before playback');
+  assert.equal(audioPage.data.videoOpen, null, 'source page never opens playback directly');
   const audioMarkup = read('pages/audio/detail.wxml');
-  assert.match(audioMarkup, /<guide-video-sheet video="\{\{videoOpen\}\}" bind:close="onGuideVideoClose"/);
+  assert.ok(!audioMarkup.includes('<guide-video-sheet'), 'playback sheet belongs only to the video detail page');
   assert.match(audioMarkup, /guide-video-section/);
   assert.match(audioMarkup, /guide-video-lock/);
   assert.doesNotMatch(audioMarkup, /videoSheet/, 'legacy inline sheet must be fully removed');
@@ -270,8 +274,7 @@ async function main() {
   assert.equal(spotPage.data.pageCopy.sections.expert.hidden, false, 'legacy section config is retained for compatibility');
   assert.equal(spotPage.data.pageCopy.sections.route.hidden, true);
   spotPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-  assert.equal(spotPage.data.videoOpen.id, VIDEO.id, 'independent video entry opens the shared video sheet');
-  spotPage.onGuideVideoClose();
+  assert.equal(navigation.at(-1), videoRoute, 'attraction entry navigates to video introduction');
   assert.equal(spotPage.data.videoOpen, null);
   const spotMarkup = read('pages/attraction/detail.wxml');
   assert.ok(!spotMarkup.includes('id="section-expert"'), 'test expert section is removed');
@@ -283,7 +286,7 @@ async function main() {
   for (const binding of ['onGuideVideoTap', 'guide-video-poster', 'guide-video-lock']) {
     assert.ok(videoBlock.includes(binding), 'independent video entry: ' + binding);
   }
-  assert.ok(spotMarkup.includes('<guide-video-sheet video="{{videoOpen}}" bind:close="onGuideVideoClose"'));
+  assert.ok(!spotMarkup.includes('<guide-video-sheet'), 'attraction entry does not open a sheet directly');
   // Real loadSpot regressions: hidden/missing legacy expert config cannot remove paid videos.
   const originalAttractions = metadata.attractions;
   const originalPageCopy = metadata.attractionDetailPage;
@@ -303,8 +306,7 @@ async function main() {
     assert.deepEqual(independentPage.data.guideVideos.map((v) => v.id), [VIDEO.id]);
     assert.ok(vm.runInNewContext(visibility, independentPage.data), 'paid video section remains visible when expert config is hidden or absent');
     independentPage.onGuideVideoTap({ currentTarget: { dataset: { id: VIDEO.id } } });
-    assert.equal(independentPage.data.videoOpen.id, VIDEO.id, 'loaded paid video can still open its authorization sheet');
-    independentPage.onGuideVideoClose();
+    assert.equal(navigation.at(-1), videoRoute, 'paid video navigates even when expert config is missing');
     assert.equal(independentPage.data.videoOpen, null);
   }
   metadata.attractions = originalAttractions;
@@ -320,17 +322,104 @@ async function main() {
   assert.doesNotMatch(read('pages/audio/detail.wxml'), /durationSeconds \/ 60/, 'audio list minutes are computed in JS, not raw WXML math');
   assert.equal(JSON.parse(read('app.json')).usingComponents['guide-video-sheet'], '/components/guide-video-sheet/guide-video-sheet');
   const sheetMarkup = read('components/guide-video-sheet/guide-video-sheet.wxml');
-  assert.match(sheetMarkup, /mode="aspectFill"/);
+  assert.ok(!sheetMarkup.includes('<image'), 'locked purchase sheet renders no cover/frame, respecting the no-image requirement');
+  assert.match(sheetMarkup, /poster="\{\{cover\}\}"/, 'only authorized video can show its poster');
   assert.doesNotMatch(sheetMarkup, /show-menu-by-longpress="\{\{true\}\}"/);
+  // ===== 视频介绍/节目页：先展示介绍，第二次点击才鉴权播放 =====
+  let videoDefinition;
+  vm.runInNewContext(read('pages/video/detail.js'), {
+    wx, Page(value) { videoDefinition = value; }, require: pageRequire
+  }, { filename: 'pages/video/detail.js' });
+  const makeVideoPage = () => ({ ...videoDefinition, data: structuredClone(videoDefinition.data), setData(next) { Object.assign(this.data, next); } });
+  const videoPage = makeVideoPage();
+  entitlementsReply = [];
+  const callsBeforeIntro = accessCalls;
+  videoPage.onLoad({ id: VIDEO.id, attractionId: 'acropolis' });
+  videoPage.onShow();
+  await flush();
+  assert.equal(videoPage.data.loading, false);
+  assert.equal(videoPage.data.video.displayTitle, VIDEO.title);
+  assert.equal(videoPage.data.video.displayDuration, '39:35', 'exact mm:ss, no floating point minutes');
+  assert.equal(videoPage.data.video.purchased, false, 'annual membership alone does not unlock cover/playback');
+  assert.equal(videoPage.data.videoOpen, null);
+  assert.equal(accessCalls, callsBeforeIntro, 'entering introduction never requests playback access');
+  const introMarkup = read('pages/video/detail.wxml');
+  assert.ok(JSON.parse(read('app.json')).pages.includes('pages/video/detail'));
+  for (const value of ['video.displayTitle', 'video.displayDescription', 'video.displayDuration', 'id="video-program"', 'bindtap="onPlay"', '<guide-video-sheet']) assert.ok(introMarkup.includes(value), 'album-style video page: ' + value);
+  const coverVisibility = introMarkup.match(/<image wx:if="\{\{([^}]+)\}\}"/)[1];
+  assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), false, 'no image on unpurchased introduction');
+  videoPage.onPlay();
+  assert.equal(videoPage.data.videoOpen.id, VIDEO.id, 'second tap opens authorization sheet');
+  accessResponse = purchaseLocked;
+  const introSheet = createSheet();
+  component.properties.video.observer.call(introSheet, videoPage.data.videoOpen);
+  await flush();
+  assert.equal(introSheet.data.state, 'purchase', 'program tap still requires server access, not local flag');
+  assert.equal(introSheet.data.i18n.heritage.guideVideoBuyCta, '购买观看');
+  entitlementsReply = [VIDEO.id];
+  videoPage.onGuideVideoClose();
+  await flush();
+  assert.equal(videoPage.data.videoOpen, null);
+  assert.equal(videoPage.data.video.purchased, true, 'closing sheet refreshes server purchase badges');
+  assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), true, 'purchased introduction can render the cover');
+  videoPage.onTabTap({ currentTarget: { dataset: { section: 'intro' } } });
+  assert.equal(videoPage.data.scrollIntoView, 'video-intro');
+  videoPage.onTabTap({ currentTarget: { dataset: { section: 'episodes' } } });
+  assert.equal(videoPage.data.scrollIntoView, 'video-program');
+  for (const [locale, title] of [['zh-TW', VIDEO.titleTw], ['en', VIDEO.titleEn], ['zh-CN', VIDEO.title]]) {
+    i18n.setLocale(locale); videoPage.onShow(); await flush();
+    assert.equal(videoPage.data.video.displayTitle, title);
+    assert.ok(videoPage.data.i18n.heritage.guideVideoPlay);
+  }
+  contentFailure = true;
+  videoPage.refresh(); await flush();
+  assert.equal(videoPage.data.failed, true);
+  assert.equal(videoPage.data.video.id, VIDEO.id, 'offline refresh keeps this page last successful public metadata only');
+  contentFailure = false;
+  const originalVideos = metadata.guideVideos;
+  metadata.guideVideos = [];
+  videoPage.refresh(); await flush();
+  assert.equal(videoPage.data.video, null, 'remote deletion removes the program and playback entry');
+  videoPage.onPlay();
+  assert.equal(videoPage.data.videoOpen, null);
+  metadata.guideVideos = originalVideos;
+  const invalidPage = makeVideoPage();
+  invalidPage.onLoad({ id: VIDEO.id, attractionId: 'delphi' });
+  invalidPage.onShow(); await flush();
+  assert.equal(invalidPage.data.video, null, 'wrong sight cannot resolve another sight video');
+  const unloadedPage = makeVideoPage();
+  unloadedPage.onLoad({ id: VIDEO.id, attractionId: 'acropolis' });
+  unloadedPage.onShow(); unloadedPage.onUnload(); await flush();
+  assert.equal(unloadedPage.data.video, null, 'unloaded page ignores pending metadata callbacks');
+  // 关闭播放中的鉴权请求不能复活浮层，重开不被旧 reloading 锁死。
+  const realFetchAccess = guideVideo.fetchAccess;
+  let finishAccess;
+  guideVideo.fetchAccess = (_video, done) => { finishAccess = done; };
+  const closingSheet = createSheet();
+  component.properties.video.observer.call(closingSheet, adapted);
+  const lateCallback = finishAccess;
+  component.properties.video.observer.call(closingSheet, null);
+  lateCallback(true, { access: 'full', playUrl: 'https://oss.fixture/stale.mp4', validUntil: Date.now() + 600000 });
+  assert.equal(closingSheet.data.state, 'idle');
+  assert.equal(closingSheet.data.playUrl, '');
+  component.properties.video.observer.call(closingSheet, adapted);
+  assert.equal(closingSheet.data.state, 'loading');
+  finishAccess(true, { access: 'locked', reason: 'MINIPROGRAM_LOGIN_REQUIRED' });
+  assert.equal(closingSheet.data.state, 'login', 'reopen starts a fresh access request');
+  guideVideo.fetchAccess = realFetchAccess;
   // 三语文案齐全。
   for (const locale of ['zh-CN', 'zh-TW', 'en']) {
     const heritage = i18n.getMessages(locale).heritage;
-    for (const key of ['guideVideos', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
+    for (const key of ['guideVideos', 'guideVideoIntro', 'guideVideoPlay', 'guideVideoUnlockTitle', 'guideVideoLogin', 'guideVideoLoginCta', 'guideVideoPurchase', 'guideVideoBuyCta', 'guideVideoUnavailable']) assert.ok(heritage[key], locale + ':' + key);
   }
   // 分享隔离：视频 sheet/签名 URL 不入分享预览。
   const { pagePreview } = loadModule('utils/share-preview.js');
   const spec = pagePreview('/pages/audio/detail', { data: { i18n: i18n.getMessages(), locale: 'zh-CN', title: '游览攻略', description: '本集介绍', cover: '/cover.jpg', guideVideos: [{ playUrl: 'https://oss.fixture/signed/video.mp4?sig=1' }], videoOpen: { playUrl: 'SECRET' } } });
   assert.ok(!JSON.stringify(spec).includes('SECRET') && !JSON.stringify(spec).includes('sig=1'), 'video sheet/signed URLs never leak into share previews');
-  console.log('PASS: guide videos adapter + shared purchase/authorization sheet + independent video section (hidden/missing expert config) + legacy compatibility + i18n + share isolation');
+  const videoSpec = pagePreview('/pages/video/detail', { data: { locale: 'en', i18n: i18n.getMessages('en'), video: { ...VIDEO, purchased: false }, videoOpen: { playUrl: 'SECRET' } } });
+  assert.equal(videoSpec.title, VIDEO.titleEn);
+  assert.equal(videoSpec.image, '', 'locked video share card reveals no cover');
+  assert.ok(!JSON.stringify(videoSpec).includes('SECRET'));
+  console.log('PASS: video introduction/program navigation + server-only playback/payment + i18n CTA + locked-image isolation + offline/deletion/unload + reauthorization lifecycle');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });
