@@ -314,8 +314,9 @@ Page({
     });
   },
 
-  // Hero 轮播图点击：仅响应后台配置的站内跳转（attraction:<id>），无 link 维持原行为。
+  // Hero 轮播图点击：按需求只让第一张跳景点详情（attraction:<id>），其余轮播图一律不跳转。
   onHeroTap() {
+    if (this.data.heroCurrent !== 0) return;
     const banner = this.data.heroList[this.data.heroCurrent] || {};
     if (!banner.link) return;
     const id = decodeURIComponent(String(banner.link.slice('attraction:'.length)));

@@ -1,4 +1,4 @@
-// 首页 Banner link：仅站内 attraction:<id> 跳转；无 link 维持原行为。离线 fixture。
+// 首页 Banner link：仅站内 attraction:<id> 跳转，且只有第一张可跳；无 link 维持原行为。离线 fixture。
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -49,11 +49,22 @@ async function main() {
   const page = { ...definition, data: structuredClone(definition.data), setData(next) { Object.assign(this.data, next); } };
   page.setData({ heroList: banners, heroCurrent: 0 });
   page.onHeroTap();
-  assert.deepEqual(navigations, ['/pages/attraction/detail?id=acropolis'], 'banner tap navigates to the linked attraction');
+  assert.deepEqual(navigations, ['/pages/attraction/detail?id=acropolis'], 'the first banner navigates to the linked attraction');
   page.setData({ heroCurrent: 1 }); page.onHeroTap();
   page.setData({ heroCurrent: 2 }); page.onHeroTap();
   page.setData({ heroCurrent: 3 }); page.onHeroTap();
   assert.equal(navigations.length, 1, 'banners without a valid link keep the previous behaviour');
+  // 需求方：只有第一张能跳景点详情，其余轮播即使配了合法 link 也不跳。
+  const everyLinked = banners.map((item) => ({ ...item, link: 'attraction:acropolis' }));
+  navigations.length = 0;
+  page.setData({ heroList: everyLinked, heroCurrent: 0 }); page.onHeroTap();
+  assert.deepEqual(navigations, ['/pages/attraction/detail?id=acropolis'], 'first position still navigates');
+  for (const heroCurrent of [1, 2, 3]) {
+    page.setData({ heroList: everyLinked, heroCurrent });
+    page.onHeroTap();
+  }
+  assert.equal(navigations.length, 1, 'only the first banner may navigate, regardless of its configured link');
+  assert.match(read('pages/index/index.js'), /onHeroTap\(\)\s*\{\s*if \(this\.data\.heroCurrent !== 0\) return;/, 'navigation guard is the first-banner check');
   const homeStyles = read('pages/index/index.wxss');
   const heroBox = homeStyles.match(/\.hero \{[^}]*\}/)[0];
   assert.match(heroBox, /height: 750rpx/, 'home banner renders square (full-width 750rpx height) per the client request');
