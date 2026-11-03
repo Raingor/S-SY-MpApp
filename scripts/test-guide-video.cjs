@@ -314,11 +314,19 @@ async function main() {
   content.invalidate();
   const posterBlock = videoBlock;
   for (const banned of ['item.displayTitle', 'item.displayDescription', 'item.durationSeconds', 'guide-video-bg']) assert.ok(!posterBlock.includes(banned), 'locked poster leaks no media or backdrop: ' + banned);
-  assert.match(posterBlock, /\{\{item\.purchased && item\.cover\}\}/, 'cover image renders only after purchase');
+  const posterCoverVisibility = posterBlock.match(/<image wx:if="\{\{([^}]+)\}\}"[^>]*class="guide-video-cover"/)[1];
+  const posterLockVisibility = posterBlock.match(/<view wx:if="\{\{([^}]+)\}\}" class="guide-video-lock"/)[1];
+  for (const purchased of [false, true]) {
+    for (const cover of [adapted.cover, '']) {
+      const context = { item: { purchased, cover } };
+      assert.equal(Boolean(vm.runInNewContext(posterCoverVisibility, context)), Boolean(cover), 'configured cover is visible regardless of purchase status');
+      assert.equal(Boolean(vm.runInNewContext(posterLockVisibility, context)), !cover && !purchased, 'large lock fallback cannot cover the uploaded poster');
+    }
+  }
   assert.match(posterBlock, /guide-video-lock/);
   const posterCss = read('pages/attraction/detail.wxss');
   assert.doesNotMatch(posterCss, /filter: blur/, 'no blurred media backdrop for locked state');
-  assert.match(posterCss, /\.guide-video-poster \{[^}]*background: #10141B/, 'locked poster is a plain dark tile, not a media preview');
+  assert.match(posterCss, /\.guide-video-poster \{[^}]*background: #10141B/, 'missing cover keeps the existing dark fallback');
   assert.doesNotMatch(read('pages/audio/detail.wxml'), /durationSeconds \/ 60/, 'audio list minutes are computed in JS, not raw WXML math');
   assert.equal(JSON.parse(read('app.json')).usingComponents['guide-video-sheet'], '/components/guide-video-sheet/guide-video-sheet');
   const sheetMarkup = read('components/guide-video-sheet/guide-video-sheet.wxml');
@@ -344,7 +352,7 @@ async function main() {
   assert.equal(videoPage.data.video.displayTitle, VIDEO.title);
   assert.equal(videoPage.data.video.displaySubject, SPOT.name, 'course topic uses the actual attraction, not invented copy');
   assert.equal(videoPage.data.video.displayDuration, '39:35', 'exact mm:ss, no floating point minutes');
-  assert.equal(videoPage.data.video.purchased, false, 'annual membership alone does not unlock cover/playback');
+  assert.equal(videoPage.data.video.purchased, false, 'annual membership alone does not unlock playback');
   assert.equal(videoPage.data.videoOpen, null);
   assert.equal(accessCalls, callsBeforeIntro, 'entering introduction never requests playback access');
   const introMarkup = read('pages/video/detail.wxml');
@@ -354,7 +362,8 @@ async function main() {
   const actionCopy = introMarkup.match(/class="audio-album-play-button"[^>]*>\{\{([\s\S]*?)\}\}/)[1];
   assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '购买观看', 'bottom action invites a purchase, not a misleading free play');
   const coverVisibility = introMarkup.match(/<image wx:if="\{\{([^}]+)\}\}"/)[1];
-  assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), false, 'no image on unpurchased introduction');
+  assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), true, 'uploaded cover is visible on unpurchased introduction');
+  assert.equal(Boolean(vm.runInNewContext(coverVisibility, { video: { purchased: false, cover: '' } })), false, 'missing cover keeps the introduction placeholder');
   videoPage.onPlay();
   assert.equal(videoPage.data.videoOpen.id, VIDEO.id, 'second tap expands the inline authorization region');
   accessResponse = purchaseLocked;
@@ -365,7 +374,7 @@ async function main() {
   await flush();
   assert.equal(introSheet.data.state, 'purchase', 'program tap still requires server access, not local flag');
   assert.equal(introSheet.data.i18n.heritage.guideVideoBuyCta, '购买观看');
-  assert.equal(videoPage.data.video.purchased, false, 'locked result never unlocks artwork');
+  assert.equal(videoPage.data.video.purchased, false, 'showing artwork never grants video access');
   assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '购买观看');
   const ordersBeforePurchase = orderCalls;
   orderResponses.push({ order: { id: 'order-inline', status: 'pending' }, payment: { timeStamp: '1', nonceStr: 'n', package: 'p', signType: 'RSA', paySign: 's' } });
@@ -375,7 +384,7 @@ async function main() {
   assert.equal(orderCalls, ordersBeforePurchase + 1, 'bottom button calls the embedded purchase action');
   assert.equal(introSheet.data.state, 'ready');
   assert.equal(videoPage.data.videoState, 'ready');
-  assert.equal(videoPage.data.video.purchased, true, 'only the full access event refreshes purchase artwork and CTA');
+  assert.equal(videoPage.data.video.purchased, true, 'only the full access event refreshes purchase status and CTA');
   assert.equal(vm.runInNewContext(actionCopy, videoPage.data), '播放视频');
   assert.equal(Boolean(vm.runInNewContext(coverVisibility, videoPage.data)), true, 'purchased introduction can render the cover');
   introSheet.onTimeUpdate({ detail: { currentTime: 77 } });

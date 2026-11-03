@@ -120,6 +120,7 @@ function fetchMe(callback) {
     timeout: 15000,
     header: { Authorization: `Bearer ${token}` },
     success: (res) => {
+      if (getAccessToken() !== token) return callback(false, null, copy.validation.loginRequired);
       if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.user) {
         const cached = getCachedUser();
         const user = {
@@ -130,8 +131,11 @@ function fetchMe(callback) {
         const savedUser = saveSession(token, user);
         return persistNicknameIfNeeded(res.data.user.nickname, user.nickname, () => callback(true, savedUser));
       }
-      clearSession();
-      callback(false, null, copy.validation.loginRequired);
+      if (res.statusCode === 401) {
+        clearSession();
+        return callback(false, null, copy.validation.loginRequired);
+      }
+      callback(false, null, copy.networkError);
     },
     fail: () => callback(false, null, copy.networkError)
   });

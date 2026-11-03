@@ -24,6 +24,7 @@ Page({
     i18n: i18n.getMessages(),
     spot: null,
     loading: true,
+    isLoggedIn: false,
     showAllHighlights: false,
     highlightPreview: null,
     guideTabs: [],
@@ -51,6 +52,7 @@ Page({
     i18n.apply(this);
     this.spotId = (options && options.id) || '';
     this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.syncLoginState();
   },
 
   loadSpot() {
@@ -80,11 +82,6 @@ Page({
         });
         this.setData({ loading: false, contentError: false });
         this.loadPaidState();
-        // 未购显示锁标（年会员不自动含视频）；资格最终以 access=full 为准。
-        if (this.data.guideVideos.length) paidContent.fetchEntitlements((ok, entitlements) => {
-          if (!ok || !this.data.guideVideos.length || this.data.guideVideosMarked) return;
-          this.setData({ guideVideosMarked: true, guideVideos: this.data.guideVideos.map((item) => ({ ...item, purchased: guideVideo.isPurchased(entitlements, item.id) })) });
-        });
       } else {
         this.setData({ loading: false, contentError: false, spot: null, guideTabs: [], related: [] });
       }
@@ -93,6 +90,7 @@ Page({
 
   onShow() {
     i18n.apply(this);
+    this.syncLoginState();
     if (this.data.spot) {
       const spot = content.getAttraction(this.spotId, this.contentSource) || this.data.spot;
       this.applyPageCopy(this.contentSource && this.contentSource.attractionDetailPage, spot);
@@ -200,14 +198,38 @@ Page({
   loadPaidState() {
     // These endpoints are only needed by the video-paywall UI. Ordinary attraction details
     // (including local content fixtures) must not call disabled purchase/entitlement APIs.
-    if (!this.data.spot || !(this.data.spot.videoUrl || this.data.spot.expertVideoUrl)) return;
-    paidContent.fetchConfig((ok, config) => {
+    const spot = this.data.spot;
+    if (!spot) return;
+    const hasLegacyVideo = Boolean(spot.videoUrl || spot.expertVideoUrl);
+    if (!hasLegacyVideo && !this.data.guideVideos.length) return;
+    const requestId = this._spotLoadRequestId;
+    if (hasLegacyVideo) paidContent.fetchConfig((ok, config) => {
+      if (requestId !== this._spotLoadRequestId) return;
       const memberTitle = this.data.i18n.paidContent.memberAnnual || this.data.i18n.paidContent.member;
       const product = config.products && config.products.annualMembership;
       const membershipProducts = ok && paidContent.annualProductAvailable(product) ? [{ ...product, productType: 'annualMembership', displayName: memberTitle }] : [];
       this.setData({ paidConfig: config, membershipProducts, simulationMode: Boolean(config.simulation), trialLabel: config.configured ? this.data.i18n.paidContent.trialConfigured.replace('{seconds}', config.trialSeconds) : this.data.i18n.paidContent.trialUnavailable });
     });
-    paidContent.fetchEntitlements((ok, entitlements) => this.setData({ entitlements, isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId), expertVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId) }));
+    // 一个权益请求同时更新旧播放器与攻略视频，避免重复请求失效 Token。
+    paidContent.fetchEntitlements((ok, entitlements) => {
+      if (requestId !== this._spotLoadRequestId) return;
+      this.syncLoginState();
+      this.setData({
+        entitlements,
+        isVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId),
+        expertVideoUnlocked: paidContent.isUnlocked(entitlements, this.spotId),
+        guideVideosMarked: ok,
+        guideVideos: this.data.guideVideos.map((item) => ({ ...item, purchased: ok && guideVideo.isPurchased(entitlements, item.id) }))
+      });
+    });
+  },
+
+  syncLoginState() {
+    this.setData({ isLoggedIn: Boolean(auth.getAccessToken()) });
+  },
+
+  onLoginTap() {
+    wx.switchTab({ url: '/pages/profile/profile' });
   },
 
   localized(item, key) {

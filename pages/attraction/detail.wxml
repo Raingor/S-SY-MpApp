@@ -1,5 +1,5 @@
 <sy-share-preview id="share-preview" />
-<view class="spot-page" wx:if="{{spot}}">
+<view class="spot-page {{!isLoggedIn ? 'spot-page-guest' : ''}}" wx:if="{{spot}}">
   <view class="spot-hero">
     <image wx:if="{{spot.image}}" class="spot-hero-img" src="{{spot.image}}" mode="aspectFill" webp="{{true}}" />
     <view class="spot-hero-shade"></view>
@@ -38,8 +38,8 @@
     <view wx:if="{{guideVideos.length || spot.videoUrl || (spot.expertVideoUrl && pageCopy.sections.expert && !pageCopy.sections.expert.hidden)}}" id="section-guide-videos" class="detail-section">
       <view class="detail-section-head"><view class="detail-heading serif">{{i18n.heritage.guideVideoSectionTitle}}</view></view>
       <view wx:for="{{guideVideos}}" wx:key="id" class="guide-video-poster {{item.purchased ? 'guide-video-poster-owned' : 'guide-video-poster-locked'}}" data-id="{{item.id}}" bindtap="onGuideVideoTap" hover-class="guide-video-poster-hover" aria-role="button" aria-label="{{item.purchased ? i18n.heritage.guideVideos : i18n.heritage.guideVideoBuyCta}}">
-        <image wx:if="{{item.purchased && item.cover}}" class="guide-video-cover" src="{{item.cover}}" mode="aspectFit" webp="{{true}}" />
-        <view wx:if="{{!item.purchased}}" class="guide-video-lock">
+        <image wx:if="{{item.cover}}" class="guide-video-cover" src="{{item.cover}}" mode="aspectFit" webp="{{true}}" />
+        <view wx:if="{{!item.cover && !item.purchased}}" class="guide-video-lock">
           <view class="guide-video-lock-icon" aria-hidden="true"><view class="guide-video-lock-shackle"></view><view class="guide-video-lock-body"><view class="guide-video-lock-keyhole"></view></view></view>
           <view class="guide-video-lock-title">{{i18n.heritage.guideVideoUnlockTitle}}</view>
           <view class="guide-video-lock-note">{{i18n.heritage.guideVideoPurchase}}</view>
@@ -58,3 +58,7 @@
 <view wx:if="{{highlightPreview}}" class="highlight-preview-overlay" bindtap="onCloseHighlightPreview"><view class="highlight-preview-modal" catchtap="onPreviewPanelTap"><view class="highlight-preview-close" catchtap="onCloseHighlightPreview">×</view><scroll-view class="highlight-preview-scroll" scroll-y="true"><image wx:if="{{highlightPreview.image}}" class="highlight-preview-image" src="{{highlightPreview.image}}" mode="aspectFit" data-src="{{highlightPreview.image}}" bindtap="onPreviewHighlightImage" webp="{{true}}" /><view class="highlight-preview-title">{{highlightPreview.displayName}}</view><view wx:if="{{highlightPreview.displayDesc}}" class="highlight-preview-desc">{{highlightPreview.displayDesc}}</view><view wx:if="{{highlightPreview.hasTarget}}" class="highlight-preview-link" catchtap="onHighlightOnlineTap">{{i18n.heritage.online}} ›</view></scroll-view></view></view>
 <view wx:if="{{showPurchaseModal}}" class="purchase-overlay"><view class="purchase-modal"><view class="purchase-close" bindtap="closePurchase">×</view><view class="detail-eyebrow">{{spot.name}}</view><view class="purchase-title serif">{{i18n.paidContent.trialEnded}}</view><view class="purchase-copy">{{i18n.paidContent.trialEndedDesc}}</view><button wx:for="{{membershipProducts}}" wx:key="productType" wx:if="{{!pendingSimulationOrder}}" class="purchase-option" data-product="{{item.productType}}" bindtap="onPurchase" loading="{{purchaseLoading}}">{{item.displayName}} ¥{{item.price}}</button><view wx:if="{{pendingSimulationOrder && simulationMode}}" class="simulation-box"><view class="simulation-label">{{i18n.paidContent.simulationTitle}}</view><button data-outcome="paid" bindtap="onSimulationPay">{{i18n.paidContent.simulationSuccess}}</button><button data-outcome="failed" bindtap="onSimulationPay">{{i18n.paidContent.simulationFailure}}</button></view></view></view>
 <map-zoom open="{{mapZoomOpen}}" image="{{mapZoomImage}}" bind:close="onMapZoomClose" />
+<view wx:if="{{spot && !isLoggedIn && !showPurchaseModal && !highlightPreview && !mapZoomOpen && !videoOpen}}" class="spot-login-bar">
+  <view class="spot-login-status">{{i18n.heritage.notLoggedIn}}</view>
+  <button class="spot-login-button" bindtap="onLoginTap">{{i18n.heritage.loginAction}}</button>
+</view>

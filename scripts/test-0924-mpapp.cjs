@@ -71,6 +71,7 @@ vm.runInNewContext(fs.readFileSync('pages/attraction/detail.js', 'utf8'), {
     if (name.includes('utils/visitor-links')) return visitorLinksModule.exports;
     if (name.includes('data/content')) return detailContent;
     if (name.includes('utils/i18n')) return { getMessages: (locale) => translations.getMessages(locale || 'zh-CN'), apply() {} };
+    if (name.includes('utils/auth')) return { getAccessToken: () => '' };
     if (name.includes('paid-content')) return {
       productPriceDisplay: (p) => '¥' + Number(p.price).toFixed(2),
       annualProductAvailable: (p) => Boolean(p && p.enabled === true && Number(p.price) === 199),

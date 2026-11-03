@@ -10,7 +10,7 @@
     <scroll-view class="audio-album-scroll" scroll-y="true" scroll-into-view="{{scrollIntoView}}">
       <view id="video-intro" class="audio-album-overview">
         <view class="audio-album-head">
-          <image wx:if="{{video.purchased && video.cover}}" class="audio-cover video-cover" src="{{video.cover}}" mode="aspectFit" webp="{{true}}" />
+          <image wx:if="{{video.cover}}" class="audio-cover video-cover" src="{{video.cover}}" mode="aspectFit" webp="{{true}}" />
           <view wx:else class="audio-cover audio-cover-placeholder video-cover"><view class="video-lock"></view></view>
           <view class="audio-album-heading">
             <view class="audio-album-kicker">{{i18n.heritage.guideVideos}}</view>

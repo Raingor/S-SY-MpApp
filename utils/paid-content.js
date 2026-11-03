@@ -15,7 +15,12 @@ function request(path, method, data, callback) {
     timeout: 15000,
     header: headers,
     data,
-    success: (res) => callback(res.statusCode >= 200 && res.statusCode < 300, res.data || {}, res),
+    success: (res) => {
+      // 旧请求不能清除新登录，也不能把旧账号的权益交给当前页面。
+      if (token && auth.getAccessToken() !== token) return callback(false, {}, res);
+      if (res.statusCode === 401 && token) auth.clearSession();
+      callback(res.statusCode >= 200 && res.statusCode < 300, res.data || {}, res);
+    },
     fail: (error) => callback(false, { error: error && error.errMsg }, null)
   });
 }
@@ -97,32 +102,35 @@ function fetchEntitlements(callback) {
     return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, null);
   }
 
-  const requestEntitlements = () => request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
-    if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, res);
-    callback(true, {
-      simulation: Boolean(data.simulation),
-      member: isUnlocked({ member: data.member === true || data.isMember === true || data.membership === true, memberExpiresAt: data.memberExpiresAt }),
-      memberLabel: data.memberLabel || '',
-      memberExpiresAt: data.memberExpiresAt || '',
-      membershipCanRenew: data.membershipCanRenew !== false,
-      purchases: data.purchases || data.unlockedAttractions || [],
-      unlockedAttractions: data.unlockedAttractions || data.purchases || [],
-      unlockedCities: data.unlockedCities || [],
-      unlockedAlbums: data.unlockedAlbums || [],
-      unlockedExpertTracks: data.unlockedExpertTracks || [],
-      unlockedVideos: data.unlockedVideos || [],
-      favorites: data.favorites || [],
-      history: data.history || [],
-      orders: data.orders || []
-    }, res);
-  });
+  const requestEntitlements = () => {
+    if (auth.getAccessToken() !== token) return callback(false, { member: false, purchases: [], unlockedVideos: [] }, null);
+    return request('/api/miniprogram/entitlements', 'GET', null, (ok, data, res) => {
+      if (!ok) return callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, res);
+      callback(true, {
+        simulation: Boolean(data.simulation),
+        member: isUnlocked({ member: data.member === true || data.isMember === true || data.membership === true, memberExpiresAt: data.memberExpiresAt }),
+        memberLabel: data.memberLabel || '',
+        memberExpiresAt: data.memberExpiresAt || '',
+        membershipCanRenew: data.membershipCanRenew !== false,
+        purchases: data.purchases || data.unlockedAttractions || [],
+        unlockedAttractions: data.unlockedAttractions || data.purchases || [],
+        unlockedCities: data.unlockedCities || [],
+        unlockedAlbums: data.unlockedAlbums || [],
+        unlockedExpertTracks: data.unlockedExpertTracks || [],
+        unlockedVideos: data.unlockedVideos || [],
+        favorites: data.favorites || [],
+        history: data.history || [],
+        orders: data.orders || []
+      }, res);
+    });
+  };
 
   // 模拟支付关闭后，旧的本地模拟 Token 不能拿去访问真实支付权益接口。
   // 先读取当前支付配置：模拟环境继续保留模拟会话，真实环境清除旧会话并按游客处理。
   if (auth.isSimulationToken(token)) {
     return fetchConfig((ok, config) => {
       if (ok && config.simulation) return requestEntitlements();
-      auth.clearSession();
+      if (ok && auth.getAccessToken() === token) auth.clearSession();
       callback(false, { simulation: false, member: false, purchases: [], favorites: [], history: [], orders: [] }, null);
     });
   }
