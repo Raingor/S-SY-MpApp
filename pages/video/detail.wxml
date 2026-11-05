@@ -1,5 +1,5 @@
 <sy-share-preview id="share-preview" />
-<view class="audio-page">
+<view class="audio-page {{isHumanities ? 'humanities-detail' : ''}}">
   <view class="audio-album-top-inset" style="height: {{statusBarHeight}}px;"></view>
   <view class="audio-nav">
     <view class="sy-back-button video-back" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view>
@@ -13,8 +13,8 @@
           <image wx:if="{{video.cover}}" class="audio-cover video-cover" src="{{video.cover}}" mode="aspectFit" webp="{{true}}" />
           <view wx:else class="audio-cover audio-cover-placeholder video-cover"><view class="video-lock"></view></view>
           <view class="audio-album-heading">
-            <view class="audio-album-kicker">{{i18n.heritage.guideVideos}}</view>
-            <view class="audio-album-access-note">{{video.purchased ? i18n.paidContent.purchased : i18n.heritage.guideVideoPurchase}}</view>
+            <view class="audio-album-kicker">{{(isHumanities ? i18n.humanitiesFilms.course : i18n.heritage.guideVideos)}}</view>
+            <view class="audio-album-access-note">{{video.purchased ? i18n.paidContent.purchased : (isHumanities ? i18n.humanitiesFilms.purchase : i18n.heritage.guideVideoPurchase)}}</view>
             <view class="audio-title">{{video.displayTitle}}</view>
             <view wx:if="{{video.displaySubject}}" class="video-subject">{{i18n.heritage.guideVideoSubject}} · {{video.displaySubject}}</view>
           </view>
@@ -25,22 +25,22 @@
           <view class="audio-album-stat"><text class="audio-album-stat-value">{{video.displayDuration}}</text><text class="audio-album-stat-label">{{i18n.heritage.duration}}</text></view>
         </view>
         <view wx:if="{{video.displayDescription}}" class="audio-album-description-card">
-          <view class="audio-album-description-label">{{i18n.heritage.guideVideoIntro}}</view>
+          <view class="audio-album-description-label">{{(isHumanities ? i18n.humanitiesFilms.introduction : i18n.heritage.guideVideoIntro)}}</view>
           <view class="audio-description">{{video.displayDescription}}</view>
         </view>
       </view>
       <view class="audio-album-tabs">
-        <view class="audio-album-tab {{activeTab === 'episodes' ? 'audio-album-tab-active' : ''}}" data-section="episodes" bindtap="onTabTap">{{i18n.heritage.guideVideoCourses}}</view>
-        <view wx:if="{{video.displayDescription}}" class="audio-album-tab {{activeTab === 'intro' ? 'audio-album-tab-active' : ''}}" data-section="intro" bindtap="onTabTap">{{i18n.heritage.guideVideoIntro}}</view>
+        <view class="audio-album-tab {{activeTab === 'episodes' ? 'audio-album-tab-active' : ''}}" data-section="episodes" bindtap="onTabTap">{{(isHumanities ? i18n.humanitiesFilms.episodes : i18n.heritage.guideVideoCourses)}}</view>
+        <view wx:if="{{video.displayDescription}}" class="audio-album-tab {{activeTab === 'intro' ? 'audio-album-tab-active' : ''}}" data-section="intro" bindtap="onTabTap">{{(isHumanities ? i18n.humanitiesFilms.introduction : i18n.heritage.guideVideoIntro)}}</view>
       </view>
       <view id="video-program" class="audio-episode-card">
-        <view class="audio-episode-heading"><view class="audio-episode-heading-title">{{i18n.heritage.guideVideoCourses}}</view><view class="audio-episode-heading-count">1 / 1</view></view>
+        <view class="audio-episode-heading"><view class="audio-episode-heading-title">{{(isHumanities ? i18n.humanitiesFilms.episodes : i18n.heritage.guideVideoCourses)}}</view><view class="audio-episode-heading-count">1 / 1</view></view>
         <view class="audio-list-row" bindtap="onPlay">
           <text class="audio-episode-index">1</text>
           <view class="audio-episode-copy">
             <view class="audio-episode-title">{{video.displayTitle}}</view>
             <view class="audio-episode-duration">◷ {{video.displayDuration}}</view>
-            <view class="audio-episode-access">{{video.purchased ? i18n.paidContent.purchased : i18n.heritage.guideVideoPurchase}}</view>
+            <view class="audio-episode-access">{{video.purchased ? i18n.paidContent.purchased : (isHumanities ? i18n.humanitiesFilms.purchase : i18n.heritage.guideVideoPurchase)}}</view>
           </view>
           <text class="audio-episode-arrow">▶</text>
         </view>
@@ -50,9 +50,9 @@
       <view class="audio-album-scroll-end"></view>
     </scroll-view>
   </view>
-  <view wx:else class="audio-album-state" bindtap="refresh">{{failed ? i18n.heritage.networkFailed : i18n.heritage.guideVideoUnavailable}} · {{i18n.heritage.retry}}</view>
+  <view wx:else class="audio-album-state" bindtap="refresh">{{failed ? i18n.heritage.networkFailed : (isHumanities ? i18n.humanitiesFilms.unavailable : i18n.heritage.guideVideoUnavailable)}} · {{i18n.heritage.retry}}</view>
   <view wx:if="{{video}}" class="audio-album-bottom-actions">
-    <button class="audio-album-about-button" data-section="intro" bindtap="onTabTap">{{i18n.heritage.guideVideoIntro}}</button>
+    <button class="audio-album-about-button" data-section="intro" bindtap="onTabTap">{{(isHumanities ? i18n.humanitiesFilms.introduction : i18n.heritage.guideVideoIntro)}}</button>
     <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (video.purchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta))}}</button>
   </view>
 </view>

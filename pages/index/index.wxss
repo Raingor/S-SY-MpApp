@@ -1,3 +1,4 @@
+@import "../../styles/films.wxss";
 /* ============ P1 首页 ============ */
 .page {
   padding-bottom: var(--tabbar-safe-bottom); /* 给悬浮 TabBar 留空间 */

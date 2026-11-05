@@ -466,7 +466,8 @@ async function main() {
   assert.match(videoStyles, /\.video-back \{[^}]*width: 72rpx;[^}]*height: 72rpx;/, 'restore shared back-button size after album import');
   assert.match(videoStyles, /\.video-back \.sy-back-chevron \{[^}]*margin-left: 0;[^}]*border-left: 4rpx solid #FFFFFF;[^}]*border-bottom: 4rpx solid #FFFFFF;/, 'restore shared white arrow instead of album black override');
   assert.doesNotMatch(videoStyles, /\.video-back \{[^}]*background:/, 'button inherits the shared app gradient, not a new local palette');
-  assert.match(introMarkup, /audio-album-kicker">\{\{i18n\.heritage\.guideVideos\}\}/, 'course intro keeps sight-guide naming');
+  const kicker = introMarkup.match(/audio-album-kicker">\{\{([\s\S]*?)\}\}/)[1];
+  assert.equal(vm.runInNewContext(kicker, videoPage.data), videoPage.data.i18n.heritage.guideVideos, 'attraction course keeps sight-guide naming');
   assert.doesNotMatch(introMarkup, /i18n\.heritage\.(program|episodes)\b/, 'video page uses course-specific labels');
   assert.equal(i18n.getMessages('zh-CN').heritage.program, '节目', 'audio episode copy stays unchanged');
   assert.match(read('pages/audio/album.wxml'), /i18n\.heritage\.program/, 'literature audio still uses episode labels');

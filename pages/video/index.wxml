@@ -1,0 +1,26 @@
+<sy-share-preview id="share-preview" />
+<view class="films-page">
+  <view class="films-header">
+    <view style="height: {{statusBarHeight}}px;"></view>
+    <view class="films-nav"><view class="sy-back-button" bindtap="onBack" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view></view>
+    <view class="film-eyebrow">{{i18n.humanitiesFilms.eyebrow}}</view>
+    <view class="films-title serif">{{i18n.humanitiesFilms.title}}</view>
+    <view class="films-subtitle">{{i18n.humanitiesFilms.subtitle}}</view>
+  </view>
+  <view class="films-body">
+    <view class="films-search"><text aria-hidden="true">⌕</text><input value="{{query}}" bindinput="onSearch" placeholder="{{i18n.humanitiesFilms.search}}" confirm-type="search" /></view>
+    <view wx:if="{{loading}}" class="films-state">{{i18n.loading}}</view>
+    <view wx:elif="{{failed}}" class="films-state"><view>{{i18n.humanitiesFilms.failed}}</view><button class="films-retry" bindtap="refresh">{{i18n.humanitiesFilms.retry}}</button></view>
+    <block wx:else>
+      <view class="films-total">{{total}} {{i18n.humanitiesFilms.count}}</view>
+      <view wx:if="{{films.length}}" class="film-more-grid films-grid">
+        <view wx:for="{{films}}" wx:key="id" class="film-small" data-id="{{item.id}}" bindtap="onFilmTap" hover-class="card-press" aria-role="button" aria-label="{{item.displayTitle}}">
+          <view class="film-small-poster"><image wx:if="{{item.cover}}" class="film-poster-image" src="{{item.cover}}" mode="aspectFill" webp="{{true}}" lazy-load="{{true}}" /><view class="film-poster-shade"></view><view class="film-small-play" aria-hidden="true">▷</view><view wx:if="{{item.displayDuration}}" class="film-duration">{{item.displayDuration}}</view></view>
+          <view class="film-small-title">{{item.displayTitle}}</view>
+          <view wx:if="{{item.displayDescription}}" class="films-description">{{item.displayDescription}}</view>
+        </view>
+      </view>
+      <view wx:else class="films-state">{{query ? i18n.humanitiesFilms.noResults : i18n.humanitiesFilms.empty}}</view>
+    </block>
+  </view>
+</view>

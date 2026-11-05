@@ -14,7 +14,7 @@ function duration(value) {
   return Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : '—';
 }
 Page({
-  data: { i18n: i18n.getMessages(), locale: 'zh-CN', statusBarHeight: 20, video: null, videoOpen: null, videoState: 'idle', loading: true, failed: false, activeTab: 'episodes', scrollIntoView: '' },
+  data: { i18n: i18n.getMessages(), locale: 'zh-CN', statusBarHeight: 20, video: null, isHumanities: false, videoOpen: null, videoState: 'idle', loading: true, failed: false, activeTab: 'episodes', scrollIntoView: '' },
   onLoad(options) {
     this.videoId = options && options.id || '';
     this.attractionId = options && options.attractionId || '';
@@ -29,16 +29,18 @@ Page({
   refresh() {
     const requestId = (this._loadId || 0) + 1;
     this._loadId = requestId;
-    if (!this.videoId || !this.attractionId) return this.setData({ loading: false, video: null });
-    this.setData({ loading: true, failed: false });
+    if (!this.videoId) return this.setData({ loading: false, video: null });
+    this.setData({ loading: true, failed: false, videoOpen: null });
     content.loadContent((data, state) => {
       if (requestId !== this._loadId) return;
       if (!state || state.source !== 'remote' || state.status !== 'ready') {
-        return this.setData({ loading: false, failed: true });
+        return this.setData({ videoOpen: null, loading: false, failed: true });
       }
-      const video = content.getGuideVideos(data, this.attractionId).find((item) => String(item.id) === String(this.videoId)) || null;
-      this._spot = content.getAttraction(this.attractionId, data);
-      this.setData({ video, videoOpen: null, videoState: 'idle', loading: false, failed: false });
+      const films = content.getHumanitiesFilms(data, this.data.locale);
+      const candidates = this.attractionId ? content.getGuideVideos(data, this.attractionId).concat(films) : films;
+      const video = candidates.find((item) => String(item.id) === String(this.videoId)) || null;
+      this._spot = video && video.attractionId ? content.getAttraction(video.attractionId, data) : null;
+      this.setData({ video, isHumanities: Boolean(video && video.category === 'humanities'), videoOpen: null, videoState: 'idle', loading: false, failed: false });
       this.localize();
       if (video) this.markPurchase(requestId);
     }, true);
@@ -64,6 +66,7 @@ Page({
   },
   onPlay() {
     if (!this.data.video) return;
+    if (this.data.failed || this.data.loading) return wx.showToast({ title: this.data.i18n.heritage.networkFailed, icon: 'none' });
     // 先看课程介绍，再点节目/购买按钮；购买与播放始终在本页展开，不弹浮层。
     this.setData({ activeTab: 'episodes', scrollIntoView: '' });
     this.setData({ scrollIntoView: 'video-program' });
@@ -89,6 +92,6 @@ Page({
     this.setData({ videoOpen: null });
   },
   onShareAppMessage() {
-    return buildShareCard('/pages/video/detail?id=' + encodeURIComponent(this.videoId || '') + '&attractionId=' + encodeURIComponent(this.attractionId || ''), this);
+    return buildShareCard('/pages/video/detail?id=' + encodeURIComponent(this.videoId || '') + (this.attractionId ? '&attractionId=' + encodeURIComponent(this.attractionId) : ''), this);
   }
 });

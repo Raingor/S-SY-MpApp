@@ -130,8 +130,10 @@ function adaptAudioAlbums(albums) {
 // 游览攻略视频：与音轨独立的公开条目；播放鉴权/签名 URL 一律由 accessUrl 服务端决定。
 function adaptGuideVideos(videos) {
   const clean = (value) => typeof value === 'string' ? value.trim() : '';
-  return (Array.isArray(videos) ? videos : []).filter((item) => isPublicAudioRecord(item) && item.id && item.attractionId && item.accessUrl).map((item) => ({
+  return (Array.isArray(videos) ? videos : []).filter((item) => isPublicAudioRecord(item) && item.id && (item.category === 'humanities' || item.attractionId) && item.accessUrl).map((item) => ({
     ...item,
+    category: item.category === 'humanities' ? 'humanities' : 'attraction',
+    sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : 0,
     title: clean(item.title),
     titleTw: clean(item.titleTw),
     titleEn: clean(item.titleEn),
@@ -578,7 +580,24 @@ function getAudioAlbums(source) {
 function getGuideVideos(source, attractionId) {
   const videos = getContent(source).guideVideos || [];
   if (!attractionId) return [];
-  return videos.filter((item) => String(item.attractionId) === String(attractionId));
+  return videos.filter((item) => item.category !== 'humanities' && String(item.attractionId) === String(attractionId));
+}
+
+function getHumanitiesFilms(source, locale = 'zh-CN') {
+  const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
+  const text = (item, key) => item[key + suffix] || item[key] || '';
+  return (getContent(source).guideVideos || [])
+    .filter((item) => item.category === 'humanities')
+    .slice().sort((a, b) => a.sort - b.sort)
+    .map((item) => {
+      const seconds = Math.floor(Number(item.durationSeconds));
+      return {
+        ...item,
+        displayTitle: text(item, 'title'),
+        displayDescription: text(item, 'description'),
+        displayDuration: seconds > 0 ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : ''
+      };
+    });
 }
 
 // 景点关联条目：带出封面图，供行程页渲染缩略图；找不到的 id 直接丢弃。
@@ -686,6 +705,7 @@ module.exports = {
   getAttraction,
   getAudioAlbums,
   getGuideVideos,
+  getHumanitiesFilms,
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,

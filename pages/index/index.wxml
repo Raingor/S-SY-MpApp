@@ -83,6 +83,42 @@
     <view class="home-channels-arrow" aria-hidden="true">›</view>
   </view>
 
+  <!-- 希腊人文影集：只展示后台发布的独立人文影片。 -->
+  <view class="film-section section">
+    <view class="film-section-head">
+      <view class="film-section-heading">
+        <view class="film-eyebrow">{{i18n.humanitiesFilms.eyebrow}}</view>
+        <view class="film-section-title serif">{{i18n.humanitiesFilms.title}}</view>
+      </view>
+      <view class="film-all" bindtap="onFilmsTap" aria-role="button">{{i18n.humanitiesFilms.all}} <text>↗</text></view>
+    </view>
+    <view class="film-section-subtitle">{{i18n.humanitiesFilms.subtitle}}</view>
+    <view wx:if="{{humanitiesFilms.length}}" class="film-feature" data-id="{{humanitiesFilms[0].id}}" bindtap="onFilmTap" hover-class="card-press" aria-role="button" aria-label="{{humanitiesFilms[0].displayTitle}}">
+      <view class="film-feature-poster">
+        <image wx:if="{{humanitiesFilms[0].cover}}" class="film-poster-image" src="{{humanitiesFilms[0].cover}}" mode="aspectFill" lazy-load="{{true}}" webp="{{true}}" />
+        <view class="film-poster-shade"></view>
+        <view class="film-feature-label">{{i18n.humanitiesFilms.course}}</view>
+        <view class="film-play-mark" aria-hidden="true"><view></view></view>
+        <view wx:if="{{humanitiesFilms[0].displayDuration}}" class="film-duration">{{humanitiesFilms[0].displayDuration}}</view>
+      </view>
+      <view class="film-feature-copy">
+        <view class="film-feature-number">01 <text>/ {{filmCount}}</text></view>
+        <view class="film-feature-title">{{humanitiesFilms[0].displayTitle}}</view>
+        <view wx:if="{{humanitiesFilms[0].displayDescription}}" class="film-feature-description">{{humanitiesFilms[0].displayDescription}}</view>
+        <view class="film-feature-cta">{{i18n.humanitiesFilms.watch}} <text>→</text></view>
+      </view>
+    </view>
+    <view wx:else class="film-empty" bindtap="onFilmsTap"><view class="film-empty-symbol" aria-hidden="true">▷</view><view>{{i18n.humanitiesFilms.empty}}</view></view>
+    <view wx:if="{{humanitiesFilms.length > 1}}" class="film-more-grid">
+      <block wx:for="{{humanitiesFilms}}" wx:key="id">
+        <view wx:if="{{index > 0}}" class="film-small" data-id="{{item.id}}" bindtap="onFilmTap" hover-class="card-press" aria-role="button" aria-label="{{item.displayTitle}}">
+          <view class="film-small-poster"><image wx:if="{{item.cover}}" class="film-poster-image" src="{{item.cover}}" mode="aspectFill" lazy-load="{{true}}" webp="{{true}}" /><view class="film-poster-shade"></view><view class="film-small-play" aria-hidden="true">▷</view><view wx:if="{{item.displayDuration}}" class="film-duration">{{item.displayDuration}}</view></view>
+          <view class="film-small-title">{{item.displayTitle}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
   <!-- ===== 3. 导游名片（单卡，不走轮播） ===== -->
   <!-- ===== 3. 导游名片：暂时整体隐藏（2026-10-15 用户要求，保留代码便于恢复） ===== -->
   <block wx:if="{{false && guides.length}}">

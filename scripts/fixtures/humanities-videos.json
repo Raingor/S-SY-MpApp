@@ -1,0 +1,18 @@
+{
+  "guideVideos": [
+    {
+      "id": "attraction-fixture", "category": "attraction", "sort": 0, "attractionId": "acropolis",
+      "title": "景点视频", "titleTw": "景點影片", "titleEn": "Attraction guide",
+      "description": "合成简介", "descriptionTw": "合成簡介", "descriptionEn": "Synthetic guide",
+      "cover": "/images/attraction-fixture.webp", "durationSeconds": 120,
+      "accessUrl": "/api/miniprogram/video/attraction-fixture/access"
+    },
+    {
+      "id": "humanities-fixture", "category": "humanities", "sort": 10, "attractionId": "",
+      "title": "人文课程", "titleTw": "人文課程", "titleEn": "Humanities course",
+      "description": "合成简介", "descriptionTw": "合成簡介", "descriptionEn": "Synthetic course",
+      "cover": "/images/humanities-fixture.webp", "durationSeconds": 3600,
+      "accessUrl": "/api/miniprogram/video/humanities-fixture/access"
+    }
+  ]
+}

@@ -79,12 +79,17 @@ function pagePreview(path, page) {
     title = (m.contentPage || {}).referenceTag;
     summary = (d.list || []).slice(0, 3).map((item) => clean(item.title)).filter(Boolean).join(' · ');
     image = d.list && d.list[0] && d.list[0].img;
+  } else if (route === '/pages/video/index') {
+    title = (m.humanitiesFilms || {}).title;
+    summary = (m.humanitiesFilms || {}).subtitle;
+    image = d.films && d.films[0] && d.films[0].cover;
+    label = (m.humanitiesFilms || {}).eyebrow;
   } else if (route === '/pages/video/detail') {
     const video = d.video || {};
     title = tr(video, 'title');
     summary = tr(video, 'description');
-    image = video.purchased ? video.cover : '';
-    label = clean(heritage.guideVideos);
+    image = video.purchased || video.category === 'humanities' ? video.cover : '';
+    label = video.category === 'humanities' ? clean((m.humanitiesFilms || {}).title) : clean(heritage.guideVideos);
   } else if (route.startsWith('/pages/audio/')) {
     title = d.title || (d.album || {}).displayTitle;
     summary = d.description || (d.album || {}).displayDescription || d.spotName;

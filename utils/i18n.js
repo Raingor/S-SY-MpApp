@@ -472,6 +472,34 @@ messages.en.homeChannels = {
   unsupported: 'Update WeChat to view this channel', openFailed: 'Could not open the channel. Please try again.'
 };
 
+const humanitiesFilmCopy = {
+  'zh-CN': {
+    title: '希腊人文影集', eyebrow: 'GREECE ON FILM',
+    subtitle: '从一帧风景，走进千年文明', all: '全部影集',
+    watch: '探索这部影集', course: '人文影集', introduction: '影集简介', episodes: '影集内容',
+    empty: '人文影集即将上新，敬请期待', unavailable: '这部影集暂不可用',
+    purchase: '本影集需单独购买', search: '搜索影集', noResults: '暂无匹配的影集',
+    duration: '片长', count: '部影集', retry: '重新加载', failed: '影集暂时加载失败，请重试'
+  },
+  'zh-TW': {
+    title: '希臘人文影集', eyebrow: 'GREECE ON FILM',
+    subtitle: '從一幀風景，走進千年文明', all: '全部影集',
+    watch: '探索這部影集', course: '人文影集', introduction: '影集簡介', episodes: '影集內容',
+    empty: '人文影集即將上新，敬請期待', unavailable: '這部影集暫不可用',
+    purchase: '本影集需單獨購買', search: '搜尋影集', noResults: '暫無相符的影集',
+    duration: '片長', count: '部影集', retry: '重新載入', failed: '影集暫時載入失敗，請重試'
+  },
+  en: {
+    title: 'Greece · Culture on Film', eyebrow: 'GREECE ON FILM',
+    subtitle: 'A closer look at a timeless civilization', all: 'All films',
+    watch: 'Explore this film', course: 'Culture on film', introduction: 'About this film', episodes: 'Film',
+    empty: 'New cultural films are coming soon', unavailable: 'This film is currently unavailable',
+    purchase: 'This film is sold separately', search: 'Search films', noResults: 'No matching films',
+    duration: 'Duration', count: 'films', retry: 'Reload', failed: 'Films could not load. Please try again.'
+  }
+};
+Object.keys(humanitiesFilmCopy).forEach((locale) => { messages[locale].humanitiesFilms = humanitiesFilmCopy[locale]; });
+
 function getLocale() {
   const stored = wx.getStorageSync(STORAGE_KEY);
   return SUPPORTED_LOCALES.includes(stored) ? stored : 'zh-CN';

@@ -124,6 +124,15 @@ MpApp/
 - 服务时长、出行人数、路线需求、微信/手机号二选一联系方式。
 - 支持日期选择、微信复制和「提交预约 · 获取专属报价」真实提交，预约数据 POST 至 `${apiBase}/api/leads`。
 
+### 希腊人文影集 `pages/video/*`
+
+- 首页在视频号卡片之后、精选目的地之前展示「希腊人文影集」：按后台排序展示首部大卡和后两部双列卡片，提供「全部影集」入口。
+- `pages/video/index` 展示全部已发布人文影集，支持当前语言下的标题/简介搜索；`pages/video/detail?id=<视频ID>` 展示公开封面、简介、片长及课程列表，购买/播放沿用现有视频鉴权组件。
+- 内容来自 `GET /api/content` 的 `guideVideos`，以 `category: 'humanities'` 区分人文影集，允许没有 `attractionId`。旧记录缺少分类时仍为景点攻略；人文影集不会出现在景点攻略视频区。`sort` 默认为 0，升序且同序稳定。
+- 公共字段包括 `id`、`title/titleTw/titleEn`、`description/descriptionTw/descriptionEn`、`cover`、`durationSeconds`、`accessUrl`；只展示已发布内容，离线镜像不提供人文影集。没有已发布影集时展示待上新状态，不自动挪用景点视频。
+- 独立视频仍沿用 `guideVideo + videoId` 购买与服务端鉴权，价格契约为 ¥168，年会员不自动包含视频。此功能需配套 Website 后台/API 分类支持；未部署及发布内容前首页显示空状态。
+- 离线回归：`node scripts/test-humanities-films.cjs`，以及原有 `node scripts/test-guide-video.cjs`。
+
 ## 设计系统
 
 | 角色 | 色值 |

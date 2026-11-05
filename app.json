@@ -25,6 +25,7 @@
     "pages/audio/collection",
     "pages/audio/detail",
     "pages/video/detail",
+    "pages/video/index",
     "pages/city/index",
     "pages/city/spots"
   ],
