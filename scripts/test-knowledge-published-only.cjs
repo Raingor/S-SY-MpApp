@@ -36,9 +36,10 @@ const page = { ...pageDefinition, data: { ...pageDefinition.data }, setData(next
 page.refresh();
 assert.deepEqual(page.data.allHotSpots.map((spot) => spot.id), ['public-1', 'public-enabled-false']);
 assert.deepEqual(page.data.hotSpots.map((spot) => spot.id), ['public-1', 'public-enabled-false']);
-page.onCategoryTap({ currentTarget: { dataset: { id: 'delphi' } } });
+page.onSearchInput({ detail: { value: 'delphi' } });
 assert.deepEqual(page.data.hotSpots, []);
-page.onCategoryTap({ currentTarget: { dataset: { id: 'delphi' } } });
+page.onSearchInput({ detail: { value: '' } });
+assert.deepEqual(page.data.hotSpots.map((spot) => spot.id), ['public-1', 'public-enabled-false']);
 page.onSearchInput({ detail: { value: 'Secret Draft' } });
 assert.deepEqual(page.data.hotSpots, []);
 page.onSearchInput({ detail: { value: 'Removed Delphi' } });

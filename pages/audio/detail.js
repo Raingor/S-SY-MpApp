@@ -147,7 +147,7 @@ Page({
     this._clearPlaybackStartTimer();
     if (this.audio) { this._stopAudio(); this.audio.destroy(); }
   },
-  stop(preservePreviewTime) { this._clearPreviewTimer(); this._clearPlaybackStartTimer(); if (!preservePreviewTime) this._previewRemainingMs = null; this._stopAudio(); this.setData({ playing: false, audioLoading: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0 }); },
+  stop(preservePreviewTime) { this._clearPreviewTimer(); this._clearPlaybackStartTimer(); if (!preservePreviewTime) this._previewRemainingMs = null; this._stopAudio(); const clearAccess = this.data.fullPlayback; this.setData({ playing: false, audioLoading: false, fullPlayback: false, currentSeconds: 0, currentTime: '0:00', remainingTime: formatTime(this.data.durationSeconds), progressPercent: 0, access: clearAccess ? null : this.data.access }); },
   stopPreview() {
     if (this.data.previewEnded) return;
     this._clearPreviewTimer();
@@ -293,7 +293,6 @@ Page({
       this.setData({ guideVideos: content.getGuideVideos(data, (track && track.attractionId) || this.params.attractionId).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), displayDuration: item.durationSeconds ? Math.max(1, Math.round(item.durationSeconds / 60)) + ' ' + this.data.i18n.heritage.minutes : '' })) });
       this.markGuideVideoPurchases();
       this.localize();
-      if (track && track.previewUrl && !demoMode) this.refreshAccess();
       if (this.autoPlayRequested) {
         this.autoPlayRequested = false;
         if (track && track.previewUrl && !demoMode) this.playPreview();

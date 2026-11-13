@@ -192,7 +192,7 @@
     </block>
   </view>
 
-  <!-- 甄选路线语音导览 -->
+  <!-- 雅典卫城讲解试听 -->
   <view class="route-audio card">
     <view class="route-audio-head">
       <view>
@@ -203,15 +203,15 @@
       <view class="route-audio-mark">♫</view>
     </view>
     <view class="route-audio-controls">
-      <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
+      <view class="route-audio-main-control" hover-class="route-audio-control-press" bindtap="onRouteAudioToggle" aria-label="{{routeAudioLoading ? i18n.routeAudio.loading : routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}">
         <view class="route-audio-icon {{routeAudioPlaying ? 'route-audio-icon-pause' : 'route-audio-icon-play'}}"></view>
-        <view class="route-audio-control-label">{{routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}</view>
+        <view class="route-audio-control-label">{{routeAudioLoading ? i18n.routeAudio.loading : routeAudioPlaying ? i18n.routeAudio.pause : i18n.routeAudio.play}}</view>
       </view>
-      <view class="route-audio-time">{{routeAudioCurrentTime}} <text>/ 1:00</text></view>
+      <view class="route-audio-time">{{routeAudioCurrentTime}} <text>/ {{routeAudioDuration}}</text></view>
       <view class="route-audio-restart" hover-class="route-audio-control-press" bindtap="onRouteAudioRestart" aria-label="{{i18n.routeAudio.restart}}">↺</view>
     </view>
     <view class="route-audio-progress"><view class="route-audio-progress-bar" style="width: {{routeAudioProgress}}%;"></view></view>
-    <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : i18n.routeAudio.preview}}</view>
+    <view class="route-audio-note">{{routeAudioPreviewEnded ? i18n.routeAudio.ended : routeAudioPreviewNote}}</view>
     <view class="route-audio-more" bindtap="onRouteAudioMore">{{i18n.routeAudio.more}} ›</view>
   </view>
 

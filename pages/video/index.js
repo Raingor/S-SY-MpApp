@@ -26,15 +26,22 @@ Page({
     }, true);
   },
   renderFilms() {
-    const films = this._content ? content.getHumanitiesFilms(this._content, this.data.locale) : [];
+    const albums = this._content ? content.getHumanitiesAlbums(this._content, this.data.locale) : [];
     const query = this.data.query.trim().toLowerCase();
-    this.setData({ total: films.length, films: films.filter((film) => !query || (film.displayTitle + ' ' + film.displayDescription).toLowerCase().includes(query)) });
+    this.setData({
+      total: albums.length,
+      films: albums.filter((album) => {
+        if (!query) return true;
+        const text = album.searchText || [album.displayTitle, album.displayDescription].concat((album.sections || []).map((section) => section.displayTitle)).join(' ');
+        return String(text).toLowerCase().includes(query);
+      })
+    });
   },
   onSearch(event) { this.setData({ query: event.detail.value }); this.renderFilms(); },
   onFilmTap(event) {
     const id = event.currentTarget.dataset.id;
     if (!this.data.films.some((film) => String(film.id) === String(id))) return;
-    wx.navigateTo({ url: '/pages/video/detail?id=' + encodeURIComponent(id) });
+    wx.navigateTo({ url: '/pages/video/detail?album=' + encodeURIComponent(id) });
   },
   onBack() { goBack('/pages/index/index'); },
   onUnload() { this._loadId = (this._loadId || 0) + 1; },

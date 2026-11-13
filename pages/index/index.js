@@ -4,6 +4,7 @@ const content = require('../../data/content');
 const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getLuxuryCards } = require('../../data/luxury');
+const { getHomeAudioPreview } = require('../../utils/home-audio');
 const CHANNELS_USER_NAME = 'sphh8gpNu8tw4yv';
 
 Page({
@@ -30,7 +31,11 @@ Page({
       src: 'https://sy-greece.com/audio/selected-routes-intro.m4a'
     },
     routeAudioPlaying: false,
+    routeAudioLoading: false,
     routeAudioCurrentTime: '0:00',
+    routeAudioPreviewSeconds: 60,
+    routeAudioDuration: '1:00',
+    routeAudioPreviewNote: '',
     routeAudioProgress: 0,
     routeAudioPreviewEnded: false,
     // 甄选路线（id 对齐后端 sampleItineraries，点击进入简版参考行程页）
@@ -84,7 +89,7 @@ Page({
   getRouteAudioContext() {
     if (!this.routeAudioContext) {
       const audio = wx.createInnerAudioContext();
-      audio.src = this.data.homeAudio.src;
+      audio.autoplay = false;
       // 语音导览是用户主动点击播放的内容，不受 iOS 静音拨片影响。
       audio.obeyMuteSwitch = false;
       audio.onPlay(() => this.onRouteAudioPlay());
@@ -92,62 +97,120 @@ Page({
       audio.onStop(() => this.onRouteAudioPause());
       audio.onTimeUpdate(() => this.onRouteAudioTimeUpdate());
       audio.onEnded(() => this.onRouteAudioEnded());
-      audio.onError(() => {
-        this.setData({ routeAudioPlaying: false });
-        wx.showToast({ title: this.data.i18n.routeAudio.error, icon: 'none' });
-      });
+      audio.onError(() => this.onRouteAudioError());
       this.routeAudioContext = audio;
     }
     return this.routeAudioContext;
   },
 
   onRouteAudioToggle() {
+    if (this.data.routeAudioLoading) return;
     if (this.data.routeAudioPreviewEnded) {
       return wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
     }
-    const audio = this.getRouteAudioContext();
-    if (this.data.routeAudioPlaying) audio.pause();
-    else audio.play();
+    if (this.data.routeAudioPlaying) return this.getRouteAudioContext().pause();
+    if (this.routeAudioSource) return this.playRouteAudio();
+    this.loadRouteAudio();
+  },
+
+  loadRouteAudio() {
+    this.routeAudioIgnoringStopErrors = false;
+    const requestId = this.routeAudioRequestId = (this.routeAudioRequestId || 0) + 1;
+    this.setData({ routeAudioLoading: true });
+    content.loadContent((data, state) => {
+      if (requestId !== this.routeAudioRequestId) return;
+      const preview = state && state.source === 'remote' && state.status === 'ready' ? getHomeAudioPreview(data, app.globalData.apiBase) : null;
+      if (!preview) return this.onRouteAudioError(this.data.i18n.routeAudio.unavailable);
+      this.routeAudioSource = preview.previewUrl;
+      const audio = this.getRouteAudioContext();
+      audio.src = this.routeAudioSource;
+      this.setData({ routeAudioPreviewSeconds: preview.previewSeconds, routeAudioDuration: this.formatAudioTime(preview.previewSeconds) });
+      this.updateRouteAudioCopy();
+      this.playRouteAudio();
+    }, true);
+  },
+
+  playRouteAudio() {
+    this.routeAudioIgnoringStopErrors = false;
+    this.setData({ routeAudioLoading: true });
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    this.routeAudioStartTimer = setTimeout(() => this.onRouteAudioError(), 10000);
+    this.getRouteAudioContext().play();
+  },
+
+  onRouteAudioError(message) {
+    if (this.routeAudioHidden || this.routeAudioIgnoringStopErrors) return;
+    this.cancelRouteAudioPending();
+    this.routeAudioSource = '';
+    this.routeAudioIgnoringStopErrors = true;
+    if (this.routeAudioContext) this.routeAudioContext.stop();
+    this.setData({ routeAudioPlaying: false, routeAudioLoading: false, routeAudioCurrentTime: '0:00', routeAudioProgress: 0 });
+    wx.showToast({ title: message || this.data.i18n.routeAudio.error, icon: 'none' });
+  },
+
+  cancelRouteAudioPending() {
+    this.routeAudioRequestId = (this.routeAudioRequestId || 0) + 1;
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    if (this.routeAudioRestartTimer) clearTimeout(this.routeAudioRestartTimer);
+    this.routeAudioStartTimer = null;
+    this.routeAudioRestartTimer = null;
+    this.setData({ routeAudioLoading: false });
+  },
+
+  updateRouteAudioCopy() {
+    this.setData({ routeAudioPreviewNote: this.data.i18n.routeAudio.preview.replace('{duration}', this.data.routeAudioDuration) });
   },
 
   onRouteAudioPlay() {
-    if (this.data.routeAudioPreviewEnded) {
-      this.getRouteAudioContext().pause();
+    if (this.routeAudioHidden || this.data.routeAudioPreviewEnded) {
+      if (this.routeAudioContext) this.routeAudioContext.pause();
       return;
     }
     if (this.routeAudioRestartTimer) {
       clearTimeout(this.routeAudioRestartTimer);
       this.routeAudioRestartTimer = null;
     }
-    this.setData({ routeAudioPlaying: true });
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    this.routeAudioStartTimer = null;
+    this.setData({ routeAudioPlaying: true, routeAudioLoading: false });
   },
 
   onRouteAudioPause() {
-    this.setData({ routeAudioPlaying: false });
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    this.routeAudioStartTimer = null;
+    this.setData({ routeAudioPlaying: false, routeAudioLoading: false });
   },
 
   onRouteAudioTimeUpdate() {
+    if (this.routeAudioHidden) return;
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    this.routeAudioStartTimer = null;
     const audio = this.routeAudioContext;
     const currentTime = Number(audio && audio.currentTime) || 0;
     if (this.data.routeAudioPreviewEnded) return;
-    if (currentTime < 60) {
+    const limit = this.data.routeAudioPreviewSeconds;
+    if (currentTime < limit) {
       return this.setData({
+        routeAudioPlaying: true,
+        routeAudioLoading: false,
         routeAudioCurrentTime: this.formatAudioTime(currentTime),
-        routeAudioProgress: Math.min(100, currentTime / 60 * 100)
+        routeAudioProgress: Math.min(100, currentTime / limit * 100)
       });
     }
     this.getRouteAudioContext().pause();
     this.setData({
       routeAudioPreviewEnded: true,
       routeAudioPlaying: false,
-      routeAudioCurrentTime: '1:00',
+      routeAudioCurrentTime: this.data.routeAudioDuration,
       routeAudioProgress: 100
     });
     wx.showToast({ title: this.data.i18n.routeAudio.ended, icon: 'none' });
   },
 
   onRouteAudioEnded() {
-    this.setData({ routeAudioPlaying: false });
+    if (this.routeAudioStartTimer) clearTimeout(this.routeAudioStartTimer);
+    this.routeAudioStartTimer = null;
+    this.setData({ routeAudioPlaying: false, routeAudioLoading: false, routeAudioPreviewEnded: true, routeAudioCurrentTime: this.data.routeAudioDuration, routeAudioProgress: 100 });
   },
 
   onRouteAudioMore() {
@@ -155,8 +218,9 @@ Page({
   },
 
   onRouteAudioRestart() {
+    this.cancelRouteAudioPending();
     const audio = this.getRouteAudioContext();
-    if (this.routeAudioRestartTimer) clearTimeout(this.routeAudioRestartTimer);
+    this.routeAudioIgnoringStopErrors = true;
     audio.stop();
     this.setData({
       routeAudioPlaying: false,
@@ -166,13 +230,17 @@ Page({
     }, () => {
       this.routeAudioRestartTimer = setTimeout(() => {
         this.routeAudioRestartTimer = null;
-        audio.play();
+        this.routeAudioIgnoringStopErrors = false;
+        if (this.routeAudioSource) this.playRouteAudio();
+        else this.loadRouteAudio();
       }, 100);
     });
   },
 
   onUnload() {
-    if (this.routeAudioRestartTimer) clearTimeout(this.routeAudioRestartTimer);
+    this.routeAudioHidden = true;
+    this.cancelRouteAudioPending();
+    this.routeAudioIgnoringStopErrors = true;
     if (this.routeAudioContext) {
       this.routeAudioContext.destroy();
       this.routeAudioContext = null;
@@ -180,9 +248,12 @@ Page({
   },
 
   onHide() {
-    if (this.routeAudioContext && this.data.routeAudioPlaying) {
+    this.routeAudioHidden = true;
+    this.cancelRouteAudioPending();
+    if (this.routeAudioContext) {
       this.routeAudioContext.pause();
     }
+    this.setData({ routeAudioPlaying: false });
   },
 
   formatAudioTime(seconds) {
@@ -202,6 +273,7 @@ Page({
   },
 
   onShow() {
+    this.routeAudioHidden = false;
     this.applyLocale();
     this.applyRemoteContent();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
@@ -217,6 +289,7 @@ Page({
 
   applyLocale() {
     const copy = i18n.apply(this);
+    this.updateRouteAudioCopy();
     const locale = i18n.getLocale();
     const fallbackLabels = {
       culture: copy.civilization,
@@ -227,7 +300,7 @@ Page({
       : null;
     this.setData({
       entries: content.getMiniProgramServiceEntries(this.destinationContent, locale),
-      ...(this.filmContent ? { humanitiesFilms: content.getHumanitiesFilms(this.filmContent, locale).slice(0, 3) } : {}),
+      ...(this.filmContent ? { humanitiesFilms: content.getHumanitiesAlbums(this.filmContent, locale).slice(0, 3) } : {}),
       ...(localizedDestinations
         ? {
             destinations: localizedDestinations,
@@ -256,7 +329,7 @@ Page({
       if (data.countryId && data.countryId !== content.getSelectedCountryId()) return;
       this.destinationContent = data;
       this.filmContent = state && state.source === 'remote' && state.status === 'ready' ? data : null;
-      const films = this.filmContent ? content.getHumanitiesFilms(data, this.data.locale) : [];
+      const albums = this.filmContent ? content.getHumanitiesAlbums(data, this.data.locale) : [];
       const home = data.home || { eyebrow: '', title: '', description: '', banners: [] };
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
@@ -273,8 +346,8 @@ Page({
         selectedCountryLabel: content.countryName(selectedCountry, this.data.locale),
         guides: guides,
         entries,
-        humanitiesFilms: films.slice(0, 3),
-        filmCount: films.length,
+        humanitiesFilms: albums.slice(0, 3),
+        filmCount: albums.length,
         guideCarouselEnabled: guides.length > 1,
         routes: content.getReferenceList(data).slice(0, 4),
         destTabs: destinations.map((group) => group.tab),
@@ -322,13 +395,34 @@ Page({
     });
   },
 
-  // Hero 轮播图点击：按需求只让第一张跳景点详情（attraction:<id>），其余轮播图一律不跳转。
+  // Hero 轮播图点击：首页第一张支持后端 link 前缀；attraction/guide-video/guide-video-album/video 都由 Website 下发。
   onHeroTap() {
     if (this.data.heroCurrent !== 0) return;
     const banner = this.data.heroList[this.data.heroCurrent] || {};
-    if (!banner.link) return;
-    const id = decodeURIComponent(String(banner.link.slice('attraction:'.length)));
-    if (id) wx.navigateTo({ url: '/pages/attraction/detail?id=' + encodeURIComponent(id) });
+    const link = String(banner.link || '');
+    if (!link) return;
+    const go = (url) => wx.navigateTo({ url });
+    if (link.indexOf('attraction:') === 0) {
+      const id = decodeURIComponent(link.slice('attraction:'.length));
+      if (id) go('/pages/attraction/detail?id=' + encodeURIComponent(id));
+      return;
+    }
+    if (link.indexOf('guide-video-album:') === 0) {
+      const id = decodeURIComponent(link.slice('guide-video-album:'.length));
+      if (id) go('/pages/video/detail?album=' + encodeURIComponent(id));
+      return;
+    }
+    if (link.indexOf('guide-video:') === 0) {
+      const id = decodeURIComponent(link.slice('guide-video:'.length));
+      if (id) go('/pages/video/detail?id=' + encodeURIComponent(id));
+      return;
+    }
+    if (link.indexOf('video:') === 0) {
+      const parts = link.slice('video:'.length).split(':');
+      const id = decodeURIComponent(parts[0] || '');
+      const attractionId = decodeURIComponent(parts[1] || '');
+      if (id) go('/pages/video/detail?id=' + encodeURIComponent(id) + (attractionId ? '&attractionId=' + encodeURIComponent(attractionId) : ''));
+    }
   },
 
   // 六大服务入口
@@ -350,7 +444,7 @@ Page({
   onFilmTap(event) {
     const id = event.currentTarget.dataset.id;
     if (!(this.data.humanitiesFilms || []).some((film) => String(film.id) === String(id))) return;
-    wx.navigateTo({ url: '/pages/video/detail?id=' + encodeURIComponent(id) });
+    wx.navigateTo({ url: '/pages/video/detail?album=' + encodeURIComponent(id) });
   },
 
   onChannelsTap() {

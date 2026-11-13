@@ -300,9 +300,9 @@ Object.assign(messages.en, {
   liveBooking: { title: 'Book a live humanities session', subtitle: 'Submit your request and a consultant will confirm the time and fee on WeChat.', complianceTitle: 'Compliance notice', compliance: 'No live-session fee is collected inside the mini program. All communication and payment happen offline on WeChat.', name: 'Name', namePlaceholder: 'Your name', phone: 'Phone', phonePlaceholder: 'For consultant contact', attraction: 'Sight of interest', chooseAttraction: 'Choose a sight', time: 'Preferred time', chooseTime: 'Choose a time', note: 'Note', notePlaceholder: 'For example: focus on mythology or architecture', required: 'Please fill in name, phone, sight and time', submit: 'Submit request', successTitle: 'Request submitted', successCopy: 'A consultant will contact you on WeChat within 24 hours to confirm the session and fee.', wechat: 'Consultant WeChat', copy: 'Copy ID', copied: 'WeChat ID copied', done: 'Done', footer: 'Greece Travel Butler · Cultural consulting and knowledge content only; no travel products.' }
 });
 
-Object.assign(messages['zh-CN'].routeAudio, { more: '更多精彩内容' });
-Object.assign(messages['zh-TW'].routeAudio, { more: '更多精彩內容' });
-Object.assign(messages.en.routeAudio, { more: 'More cultural content' });
+Object.assign(messages['zh-CN'].routeAudio, { kicker: 'ACROPOLIS AUDIO', title: '雅典卫城真人讲解', name: '雅典卫城真人讲解', desc: '试听卫城真人讲解视频的原声，开启你的文化之旅。', preview: '免费试听 · 播放到 {duration} 自动停止', ended: '试听已结束', loading: '加载中…', unavailable: '卫城真人讲解暂不可用，请稍后重试', more: '更多精彩内容' });
+Object.assign(messages['zh-TW'].routeAudio, { kicker: 'ACROPOLIS AUDIO', title: '雅典衛城真人講解', name: '雅典衛城真人講解', desc: '試聽衛城真人講解影片的原聲，開啟你的文化之旅。', preview: '免費試聽 · 播放到 {duration} 自動停止', ended: '試聽已結束', loading: '載入中…', unavailable: '衛城真人講解暫不可用，請稍後重試', more: '更多精彩內容' });
+Object.assign(messages.en.routeAudio, { kicker: 'ACROPOLIS AUDIO', title: 'Acropolis guide narration', name: 'Acropolis guide narration', desc: 'Hear the original narration from the Acropolis guide video before your cultural journey.', preview: 'Free preview · stops at {duration}', ended: 'Preview ended', loading: 'Loading…', unavailable: 'The Acropolis narration is unavailable. Please try again later.', more: 'More cultural content' });
 Object.assign(messages['zh-CN'].guide, {
   services: { title: '古迹讲解，两种方式读懂希腊', offlineTitle: '线下陪同讲解', offlineDesc: '提交意向日期与路线，由顾问确认线下陪同安排。', offlineCta: '填写日期，预约陪同', liveTitle: '线上实时直播', liveDesc: '到达景点后通过手机与顾问实时连线，提交预约后确认安排。', liveCta: '预约线上直播', trialTitle: '名师景点讲解试听', trialDesc: '先免费试听，再进入深度景点讲解。', trialCta: '免费试听更多内容' }
 });
@@ -479,7 +479,7 @@ const humanitiesFilmCopy = {
     watch: '探索这部影集', course: '人文影集', introduction: '影集简介', episodes: '影集内容',
     empty: '人文影集即将上新，敬请期待', unavailable: '这部影集暂不可用',
     purchase: '本影集需单独购买', search: '搜索影集', noResults: '暂无匹配的影集',
-    duration: '片长', count: '部影集', retry: '重新加载', failed: '影集暂时加载失败，请重试'
+    duration: '片长', count: '部影集', episodeUnit: '集', sectionUnit: '个分类', allSections: '全部章节', retry: '重新加载', failed: '影集暂时加载失败，请重试'
   },
   'zh-TW': {
     title: '希臘人文影集', eyebrow: 'GREECE ON FILM',
@@ -487,7 +487,7 @@ const humanitiesFilmCopy = {
     watch: '探索這部影集', course: '人文影集', introduction: '影集簡介', episodes: '影集內容',
     empty: '人文影集即將上新，敬請期待', unavailable: '這部影集暫不可用',
     purchase: '本影集需單獨購買', search: '搜尋影集', noResults: '暫無相符的影集',
-    duration: '片長', count: '部影集', retry: '重新載入', failed: '影集暫時載入失敗，請重試'
+    duration: '片長', count: '部影集', episodeUnit: '集', sectionUnit: '個分類', allSections: '全部章節', retry: '重新載入', failed: '影集暫時載入失敗，請重試'
   },
   en: {
     title: 'Greece · Culture on Film', eyebrow: 'GREECE ON FILM',
@@ -495,7 +495,7 @@ const humanitiesFilmCopy = {
     watch: 'Explore this film', course: 'Culture on film', introduction: 'About this film', episodes: 'Film',
     empty: 'New cultural films are coming soon', unavailable: 'This film is currently unavailable',
     purchase: 'This film is sold separately', search: 'Search films', noResults: 'No matching films',
-    duration: 'Duration', count: 'films', retry: 'Reload', failed: 'Films could not load. Please try again.'
+    duration: 'Duration', count: 'films', episodeUnit: 'episodes', sectionUnit: 'sections', allSections: 'All sections', retry: 'Reload', failed: 'Films could not load. Please try again.'
   }
 };
 Object.keys(humanitiesFilmCopy).forEach((locale) => { messages[locale].humanitiesFilms = humanitiesFilmCopy[locale]; });

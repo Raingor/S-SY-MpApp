@@ -15,3 +15,12 @@
 .video-lock { position: relative; width: 36rpx; height: 30rpx; border: 2rpx solid #BDA46C; border-radius: 6rpx; }
 .video-lock::before { content: ''; position: absolute; top: -25rpx; left: 7rpx; width: 18rpx; height: 23rpx; border: 2rpx solid #BDA46C; border-bottom: 0; border-radius: 14rpx 14rpx 0 0; }
 .video-lock::after { content: ''; position: absolute; top: 10rpx; left: 16rpx; width: 3rpx; height: 9rpx; background: #BDA46C; }
+.album-section-scroll { width: 100%; white-space: nowrap; }
+.album-section-chips { display: inline-flex; align-items: center; padding: 8rpx 24rpx 18rpx; }
+.album-section-chip { flex: 0 0 auto; margin-right: 14rpx; padding: 10rpx 22rpx; border: 1rpx solid #D9D2C4; border-radius: 999rpx; color: #5F5A52; font-size: 22rpx; line-height: 1.4; background: #FFFFFF; }
+.album-section-chip-active { color: #0B3C5D; border-color: #B79656; background: #F4F0E7; }
+.album-section-heading { display: flex; align-items: center; justify-content: space-between; margin: 22rpx 24rpx 10rpx; color: #0B3C5D; font-size: 24rpx; font-weight: 600; }
+.album-section-heading-count { color: #8B857C; font-size: 20rpx; font-weight: 400; }
+.episode-item { margin: 0 24rpx 14rpx; }
+.episode-item-active { margin-bottom: 18rpx; }
+.episode-item .audio-list-row { margin: 0; }

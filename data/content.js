@@ -133,6 +133,22 @@ function adaptGuideVideos(videos) {
   return (Array.isArray(videos) ? videos : []).filter((item) => isPublicAudioRecord(item) && item.id && (item.category === 'humanities' || item.attractionId) && item.accessUrl).map((item) => ({
     ...item,
     category: item.category === 'humanities' ? 'humanities' : 'attraction',
+    albumId: clean(item.albumId || item.album || ''),
+    albumTitle: clean(item.albumTitle || item.albumName || ''),
+    albumTitleTw: clean(item.albumTitleTw || item.albumNameTw || ''),
+    albumTitleEn: clean(item.albumTitleEn || item.albumNameEn || ''),
+    albumDescription: clean(item.albumDescription || item.albumSummary || ''),
+    albumDescriptionTw: clean(item.albumDescriptionTw || item.albumSummaryTw || ''),
+    albumDescriptionEn: clean(item.albumDescriptionEn || item.albumSummaryEn || ''),
+    albumCover: mapManagedImage(item.albumCover || item.albumImage || ''),
+    albumSort: Number.isFinite(Number(item.albumSort)) ? Number(item.albumSort) : 0,
+    section: clean(item.section || item.sectionId || item.sectionKey || ''),
+    sectionTitle: clean(item.sectionTitle || item.sectionName || ''),
+    sectionTitleTw: clean(item.sectionTitleTw || item.sectionNameTw || ''),
+    sectionTitleEn: clean(item.sectionTitleEn || item.sectionNameEn || ''),
+    sectionSort: Number.isFinite(Number(item.sectionSort)) ? Number(item.sectionSort) : 0,
+    episode: Number.isFinite(Number(item.episode)) ? Number(item.episode) : 0,
+    episodeSort: Number.isFinite(Number(item.episodeSort)) ? Number(item.episodeSort) : 0,
     sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : 0,
     title: clean(item.title),
     titleTw: clean(item.titleTw),
@@ -144,6 +160,32 @@ function adaptGuideVideos(videos) {
     durationSeconds: Number(item.durationSeconds) || 0,
     accessUrl: /^https:\/\//i.test(item.accessUrl) ? item.accessUrl : (item.accessUrl.startsWith('/') ? item.accessUrl : '')
   })).filter((item) => item.title && item.accessUrl);
+}
+
+function adaptGuideVideoAlbums(albums) {
+  const clean = (value) => typeof value === 'string' ? value.trim() : '';
+  const text = (value) => clean(value);
+  return (Array.isArray(albums) ? albums : []).filter((item) => isPublicAudioRecord(item) && item.id).map((album) => ({
+    ...album,
+    id: clean(album.id || album.albumId),
+    sort: Number.isFinite(Number(album.sort ?? album.albumSort)) ? Number(album.sort ?? album.albumSort) : 0,
+    status: clean(album.status || 'published'),
+    cover: mapManagedImage(album.cover || album.image || album.albumCover || ''),
+    title: text(album.title || album.name || album.albumTitle || ''),
+    titleTw: text(album.titleTw || album.nameTw || album.albumTitleTw || ''),
+    titleEn: text(album.titleEn || album.nameEn || album.albumTitleEn || ''),
+    description: text(album.description || album.summary || album.albumDescription || ''),
+    descriptionTw: text(album.descriptionTw || album.summaryTw || album.albumDescriptionTw || ''),
+    descriptionEn: text(album.descriptionEn || album.summaryEn || album.albumDescriptionEn || ''),
+    sections: (Array.isArray(album.sections) ? album.sections : []).map((section, index) => ({
+      key: clean(section && (section.key || section.id || section.section || section.sectionId)),
+      title: text(section && (section.title || section.name || '')),
+      titleTw: text(section && (section.titleTw || section.nameTw || '')),
+      titleEn: text(section && (section.titleEn || section.nameEn || '')),
+      sort: Number.isFinite(Number(section && section.sort)) ? Number(section.sort) : index
+    })).filter((section) => section.key),
+    videos: adaptGuideVideos(album.videos || [])
+  })).filter((album) => album.id && album.title);
 }
 
 function adaptAttractions(remoteAttractions) {
@@ -232,7 +274,18 @@ function adaptDestinationCategories(remoteCategories) {
 function adaptHome(remoteHome) {
   const home = remoteHome && typeof remoteHome === 'object' ? remoteHome : {};
   const banners = Array.isArray(home.banners) ? home.banners : [];
+  const audioPreview = home.audioPreview && typeof home.audioPreview === 'object' && !Array.isArray(home.audioPreview) ? home.audioPreview : null;
+  const audioText = (key) => audioPreview && typeof audioPreview[key] === 'string' ? audioPreview[key].trim() : '';
   return {
+    // 只保留公开试听元数据，不透传完整原视频或私有签名字段。
+    audioPreview: audioPreview ? {
+      enabled: audioPreview.enabled !== false,
+      kind: audioText('kind'),
+      sourceVideoId: audioText('sourceVideoId'),
+      attractionId: audioText('attractionId'),
+      previewUrl: audioText('previewUrl'),
+      previewSeconds: Number.isFinite(Number(audioPreview.previewSeconds)) ? Number(audioPreview.previewSeconds) : 0
+    } : null,
     eyebrow: typeof home.eyebrow === 'string' ? home.eyebrow.trim() : '',
     title: typeof home.title === 'string' ? home.title.trim() : '',
     description: typeof home.description === 'string' ? home.description.trim() : '',
@@ -244,8 +297,8 @@ function adaptHome(remoteHome) {
         title: typeof item.title === 'string' ? item.title.trim() : '',
         description: typeof item.description === 'string' ? item.description.trim() : '',
         alt: typeof item.alt === 'string' ? item.alt.trim() : '',
-        // 仅支持站内 attraction:<id> 跳转；其他 link 一律忽略，不外链。
-        link: /^attraction:[\w-]+$/.test(typeof item.link === 'string' ? item.link.trim() : '') ? item.link.trim() : '',
+        // 仅支持站内 attraction:/guide-video:/guide-video-album:/video:/album: 跳转；其他 link 一律忽略，不外链。
+        link: /^(attraction:[\w-]+|guide-video-album:[\w-]+|guide-video:[\w-]+|video:[\w-]+:[\w-]+|album:[\w-]+)$/.test(typeof item.link === 'string' ? item.link.trim() : '') ? item.link.trim() : '',
         sort: Number.isFinite(Number(item.sort)) ? Number(item.sort) : index
       }))
       .filter((item) => item.img)
@@ -454,6 +507,7 @@ function fetchContent() {
             attractions: adaptAttractions(res.data.attractions),
             audioAlbums: adaptAudioAlbums(res.data.audioAlbums),
             guideVideos: adaptGuideVideos(res.data.guideVideos),
+            guideVideoAlbums: adaptGuideVideoAlbums(res.data.guideVideoAlbums || res.data.guideVideoAlbumList || []),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
@@ -583,21 +637,204 @@ function getGuideVideos(source, attractionId) {
   return videos.filter((item) => item.category !== 'humanities' && String(item.attractionId) === String(attractionId));
 }
 
-function getHumanitiesFilms(source, locale = 'zh-CN') {
-  const suffix = locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
-  const text = (item, key) => item[key + suffix] || item[key] || '';
-  return (getContent(source).guideVideos || [])
-    .filter((item) => item.category === 'humanities')
-    .slice().sort((a, b) => a.sort - b.sort)
-    .map((item) => {
-      const seconds = Math.floor(Number(item.durationSeconds));
+function guideVideoLocaleSuffix(locale) {
+  return locale === 'en' ? 'En' : locale === 'zh-TW' ? 'Tw' : '';
+}
+
+function guideVideoText(item, key, locale = 'zh-CN') {
+  if (!item) return '';
+  const suffix = guideVideoLocaleSuffix(locale);
+  return item[key + suffix] || item[key] || '';
+}
+
+function guideVideoDisplayDuration(seconds) {
+  const total = Math.floor(Number(seconds));
+  return total > 0 ? Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0') : '';
+}
+
+function localizeGuideVideo(item, locale = 'zh-CN') {
+  return {
+    ...item,
+    displayTitle: guideVideoText(item, 'title', locale),
+    displayDescription: guideVideoText(item, 'description', locale),
+    displayDuration: guideVideoDisplayDuration(item.durationSeconds)
+  };
+}
+
+function humanitiesGuideVideos(source) {
+  return (getContent(source).guideVideos || []).filter((item) => item.category === 'humanities');
+}
+
+function guideVideoAlbumKey(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function guideVideoNumber(value) {
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function buildHumanitiesAlbum(source, albumId, locale = 'zh-CN') {
+  const content = getContent(source);
+  const key = guideVideoAlbumKey(albumId) || 'humanities';
+  const meta = (content.guideVideoAlbums || []).find((album) => String(album.id) === key) || {};
+  const explicitAlbum = Boolean(meta.id);
+  const albumMember = (video) => {
+    if (!video) return false;
+    const memberId = guideVideoAlbumKey(video.albumId) || 'humanities';
+    if (memberId !== key) return false;
+    return explicitAlbum || video.category === 'humanities';
+  };
+  const topVideos = (content.guideVideos || []).filter(albumMember);
+  const fallbackVideos = explicitAlbum ? (meta.videos || []).filter(Boolean) : (meta.videos || []).filter(albumMember);
+  const merged = new Map();
+  fallbackVideos.forEach((video) => merged.set(String(video.id), video));
+  topVideos.forEach((video) => merged.set(String(video.id), video));
+  const videos = Array.from(merged.values()).map((video) => localizeGuideVideo(video, locale));
+  if (!videos.length && !meta.id) return null;
+
+  const sectionDefs = (Array.isArray(meta.sections) ? meta.sections : []).map((section, index) => ({
+    key: guideVideoAlbumKey(section && section.key),
+    raw: section || {},
+    sort: guideVideoNumber(section && section.sort) || index
+  })).filter((section) => section.key);
+  const sectionIndex = new Map(sectionDefs.map((section, index) => [section.key, index]));
+  const rawBySection = new Map();
+  videos.forEach((video) => {
+    const sectionKey = guideVideoAlbumKey(video.section);
+    if (sectionKey && !rawBySection.has(sectionKey)) {
+      rawBySection.set(sectionKey, { title: video.sectionTitle || '', titleTw: video.sectionTitleTw || '', titleEn: video.sectionTitleEn || '' });
+    }
+  });
+  const keyedSections = Array.from(new Set(videos.map((video) => guideVideoAlbumKey(video.section)).filter(Boolean)));
+  if (keyedSections.length) {
+    if (videos.some((video) => !guideVideoAlbumKey(video.section)) && !sectionIndex.has('')) {
+      sectionDefs.unshift({ key: '', raw: { title: '' }, sort: -1 });
+      sectionIndex.clear();
+      sectionDefs.forEach((section, index) => sectionIndex.set(section.key, index));
+    }
+    keyedSections.forEach((sectionKey) => {
+      if (!sectionIndex.has(sectionKey)) {
+        sectionIndex.set(sectionKey, sectionDefs.length);
+        sectionDefs.push({ key: sectionKey, raw: rawBySection.get(sectionKey) || { title: sectionKey }, sort: sectionDefs.length });
+      }
+    });
+  }
+
+  videos.sort((a, b) => {
+    const sectionA = sectionIndex.has(guideVideoAlbumKey(a.section)) ? sectionIndex.get(guideVideoAlbumKey(a.section)) : sectionDefs.length;
+    const sectionB = sectionIndex.has(guideVideoAlbumKey(b.section)) ? sectionIndex.get(guideVideoAlbumKey(b.section)) : sectionDefs.length;
+    if (sectionA !== sectionB) return sectionA - sectionB;
+    const episodeA = guideVideoNumber(a.episode);
+    const episodeB = guideVideoNumber(b.episode);
+    if (episodeA !== episodeB) return episodeA - episodeB;
+    const episodeSortA = guideVideoNumber(a.episodeSort);
+    const episodeSortB = guideVideoNumber(b.episodeSort);
+    if (episodeSortA !== episodeSortB) return episodeSortA - episodeSortB;
+    const sectionSortA = guideVideoNumber(a.sectionSort);
+    const sectionSortB = guideVideoNumber(b.sectionSort);
+    if (sectionSortA !== sectionSortB) return sectionSortA - sectionSortB;
+    const sortA = guideVideoNumber(a.sort);
+    const sortB = guideVideoNumber(b.sort);
+    if (sortA !== sortB) return sortA - sortB;
+    return String(a.displayTitle || '').localeCompare(String(b.displayTitle || ''));
+  });
+
+  const sections = sectionDefs.map((section) => {
+    const episodes = videos.filter((video) => guideVideoAlbumKey(video.section) === section.key);
+    return {
+      key: section.key,
+      title: section.raw.title || '',
+      titleTw: section.raw.titleTw || '',
+      titleEn: section.raw.titleEn || '',
+      sort: section.sort,
+      displayTitle: guideVideoText(section.raw, 'title', locale) || (section.key || ''),
+      episodes
+    };
+  }).filter((section) => section.key !== '' || section.episodes.length);
+
+  const durationSeconds = videos.reduce((sum, video) => sum + guideVideoNumber(video.durationSeconds), 0);
+  const firstVideo = videos[0] || {};
+  const title = guideVideoText(meta, 'title', locale) || guideVideoText(firstVideo, 'albumTitle', locale) || guideVideoText(firstVideo, 'title', locale) || '';
+  const description = guideVideoText(meta, 'description', locale) || guideVideoText(firstVideo, 'albumDescription', locale) || guideVideoText(firstVideo, 'description', locale) || '';
+  return {
+    id: key,
+    albumId: key,
+    sort: guideVideoNumber(meta.sort) || guideVideoNumber(firstVideo.albumSort),
+    status: meta.status || 'published',
+    cover: meta.cover || firstVideo.albumCover || firstVideo.cover || '',
+    title: meta.title || firstVideo.albumTitle || '',
+    titleTw: meta.titleTw || firstVideo.albumTitleTw || '',
+    titleEn: meta.titleEn || firstVideo.albumTitleEn || '',
+    description: meta.description || firstVideo.albumDescription || '',
+    descriptionTw: meta.descriptionTw || firstVideo.albumDescriptionTw || '',
+    descriptionEn: meta.descriptionEn || firstVideo.albumDescriptionEn || '',
+    displayTitle: title,
+    displayDescription: description,
+    episodeCount: videos.length,
+    sectionCount: sections.filter((section) => section.episodes.length).length,
+    durationSeconds,
+    displayDuration: guideVideoDisplayDuration(durationSeconds),
+    sections,
+    episodes: videos
+  };
+}
+
+function getHumanitiesAlbums(source, locale = 'zh-CN') {
+  const content = getContent(source);
+  const ids = [];
+  const seen = new Set();
+  const add = (value) => {
+    const id = guideVideoAlbumKey(value) || 'humanities';
+    if (!seen.has(id)) {
+      seen.add(id);
+      ids.push(id);
+    }
+  };
+  (content.guideVideoAlbums || []).forEach((album) => album && album.id && add(album.id));
+  humanitiesGuideVideos(source).forEach((video) => add(video.albumId));
+  return ids
+    .map((id) => buildHumanitiesAlbum(source, id, locale))
+    .filter(Boolean)
+    .sort((a, b) => (guideVideoNumber(a.sort) - guideVideoNumber(b.sort)) || String(a.displayTitle || '').localeCompare(String(b.displayTitle || '')))
+    .map((album) => {
+      const { episodes, sections, ...summary } = album;
+      const searchText = [album.displayTitle, album.displayDescription]
+        .concat((sections || []).map((section) => section.displayTitle))
+        .concat((episodes || []).reduce((list, video) => list.concat([video.displayTitle, video.displayDescription]), []))
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
       return {
-        ...item,
-        displayTitle: text(item, 'title'),
-        displayDescription: text(item, 'description'),
-        displayDuration: seconds > 0 ? Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') : ''
+        ...summary,
+        searchText,
+        sections: (sections || []).map((section) => ({
+          key: section.key,
+          title: section.title,
+          titleTw: section.titleTw,
+          titleEn: section.titleEn,
+          sort: section.sort,
+          displayTitle: section.displayTitle,
+          episodeCount: (section.episodes || []).length
+        }))
       };
     });
+}
+
+function getGuideVideoAlbum(source, albumIdOrVideoId, locale = 'zh-CN') {
+  const content = getContent(source);
+  const key = guideVideoAlbumKey(albumIdOrVideoId);
+  if (!key) return null;
+  const hasAlbumMeta = (content.guideVideoAlbums || []).some((album) => String(album.id) === key);
+  if (hasAlbumMeta) return buildHumanitiesAlbum(source, key, locale);
+  const video = humanitiesGuideVideos(source).find((item) => String(item.id) === key);
+  if (video) return buildHumanitiesAlbum(source, guideVideoAlbumKey(video.albumId) || 'humanities', locale);
+  return buildHumanitiesAlbum(source, key, locale);
+}
+
+function getHumanitiesFilms(source, locale = 'zh-CN') {
+  return humanitiesGuideVideos(source)
+    .slice().sort((a, b) => guideVideoNumber(a.sort) - guideVideoNumber(b.sort))
+    .map((item) => localizeGuideVideo(item, locale));
 }
 
 // 景点关联条目：带出封面图，供行程页渲染缩略图；找不到的 id 直接丢弃。
@@ -706,6 +943,8 @@ module.exports = {
   getAudioAlbums,
   getGuideVideos,
   getHumanitiesFilms,
+  getHumanitiesAlbums,
+  getGuideVideoAlbum,
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,

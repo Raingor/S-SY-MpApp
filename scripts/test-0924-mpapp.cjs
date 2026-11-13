@@ -233,6 +233,7 @@ let showToastCount = 0;
 let showModalCount = 0;
 const orderAttempts = [];
 let nextTimerId = 1;
+let previewNow = 1000000;
 const timers = new Map();
 let backCalled = false;
 const audioWx = {
@@ -264,6 +265,7 @@ vm.runInNewContext(source, {
     if (name.includes('utils/navigation')) return { goBack() { assert(audio.stopped, 'audio stops before back navigation'); backCalled = true; } };
     return {};
   }, wx: audioWx,
+  Date: { now: () => previewNow },
   setTimeout(fn, delay) { const id = nextTimerId++; timers.set(id, { fn, delay }); return id; },
   clearTimeout(id) { timers.delete(id); }
 });
@@ -271,7 +273,9 @@ const instance = { ...pageConfig, data: structuredClone(pageConfig.data), setDat
 instance.onLoad({ attractionId: 'sight-1', pointId: 'point-1' });
 assert.deepEqual(Array.from(instance.data.pointTracks, (track) => track.id), ['track-1'], 'online visit player does not expose hidden expert/route tracks from the same point');
 assert.equal(instance.data.statusBarHeight, 44);
-assert(instance.data.track && instance.data.access.access === 'preview' && !audio);
+assert(instance.data.track && !instance.data.access && !audio, 'page load defers audio access and creates no audio context');
+instance.refreshAccess();
+assert(instance.data.access && instance.data.access.access === 'preview' && !audio, 'access can be checked without starting audio');
 instance.playPreview();
 audio.timeUpdate();
 assert(audio.played && !instance.data.fullPlayback);

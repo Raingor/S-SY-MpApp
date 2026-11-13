@@ -49,13 +49,13 @@ global.wx = {
       options.success({ statusCode: 200, data: { access: accessReply, unlockMode: 'free',
         previewUrl: `/api/miniprogram/audio/${id}/preview`,
         fullUrl: accessReply === 'full' ? `/api/miniprogram/audio/${id}/full?token=fixture-${requests.length}` : null,
-        previewSeconds: 60 } });
+        expiresIn: accessReply === 'full' ? 300 : 0, previewSeconds: 60 } });
     } else throw new Error(`unexpected fixture request: ${options.url}`);
   },
   createInnerAudioContext() {
     playback.created++;
     return { autoplay: false, currentTime: 0,
-      onTimeUpdate() {}, onSeeking() {}, onEnded() {}, onError() {},
+      onPlay() {}, onWaiting() {}, onTimeUpdate() {}, onSeeking() {}, onEnded() {}, onError() {},
       play() { playback.played++; }, pause() {}, stop() {}, destroy() { playback.destroyed++; } };
   }
 };
@@ -72,12 +72,30 @@ function pageFrom(relative) {
       if (id.includes('utils/i18n')) return i18n;
       if (id.includes('utils/audio-access')) return loadModule(path.resolve(__dirname, '../utils/audio-access.js'), {
         './auth': { getAccessToken: () => '', isSimulationToken: () => false },
-        './paid-content': {}
+        './paid-content': {
+          fetchEntitlements(callback) { callback(true, { member: true }); },
+          isUnlocked: (entitlements) => Boolean(entitlements && entitlements.member === true)
+        }
       });
-      if (id.includes('utils/auth')) return { getAccessToken: () => '' };
+      if (id.includes('utils/guide-video')) return { isPurchased: () => false };
+      if (id.includes('utils/auth')) return {
+        getAccessToken: () => '',
+        getUserState: (callback) => callback(false, null),
+        login: (callback) => callback(false, null, ''),
+        bindPhone: (code, callback) => callback(false, null, '')
+      };
       if (id.includes('utils/share')) return { buildShareCard: () => ({}) };
       if (id.includes('utils/navigation')) return { goBack() {} };
-      if (id.includes('utils/paid-content')) return { fetchConfig(callback) { callback(false, { products: {} }); } };
+      if (id.includes('utils/visitor-links')) return { httpsLink: () => '', getRichLinks: () => [], copyVisitorLink() {} };
+      if (id.includes('utils/map-source')) return { isPrivateMapUrl: () => false };
+      if (id.includes('utils/paid-content')) return {
+        fetchConfig(callback) { callback(false, { products: {} }); },
+        fetchEntitlements(callback) { callback(true, { member: false, unlockedVideos: [] }); },
+        annualProductAvailable() { return false; },
+        productPriceDisplay() { return ''; },
+        createOrder(product, target, callback) { callback(false, null); },
+        simulateOrderResult(id, outcome, callback) { callback(false); }
+      };
       throw new Error(`unexpected module: ${id}`);
     }
   }, { filename: relative });

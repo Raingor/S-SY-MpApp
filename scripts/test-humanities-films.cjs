@@ -50,6 +50,7 @@ const dependencies = {
   '../../data/content': content, '../../utils/i18n': i18n,
   '../../utils/paid-content': { fetchEntitlements(cb) { entitlementReads++; cb(true, { member: true, unlockedVideos: [] }); } },
   '../../utils/guide-video': require('../utils/guide-video'),
+  '../../utils/home-audio': require('../utils/home-audio'),
   '../../utils/navigation': { goBack() {} },
   '../../utils/share': require('../utils/share'),
   '../../data/luxury': { getLuxuryCards: () => [] }
@@ -75,23 +76,31 @@ async function main() {
   }
   const home = page('pages/index/index.js');
   home.applyRemoteContent(); await flush();
-  assert.equal(home.data.humanitiesFilms.length, 3);
-  assert.equal(home.data.filmCount, 4);
+  assert.equal(home.data.humanitiesFilms.length, 1, 'published humanities videos share one fallback album');
+  assert.equal(home.data.filmCount, 1);
+  assert.equal(home.data.humanitiesFilms[0].episodeCount, 4);
+  const albumId = home.data.humanitiesFilms[0].id;
+  const beforeAlbumTap = navigation.length;
   home.onFilmTap({ currentTarget: { dataset: { id: film.id } } });
+  assert.equal(navigation.length, beforeAlbumTap, 'standalone film id is not an album card');
+  home.onFilmTap({ currentTarget: { dataset: { id: albumId } } });
+  const albumRoute = '/pages/video/detail?album=' + encodeURIComponent(albumId);
+  assert.equal(navigation.at(-1), albumRoute, 'homepage opens the humanities album');
   const route = '/pages/video/detail?id=culture%20%26%201';
-  assert.equal(navigation.at(-1), route, 'homepage encodes standalone ID, no fabricated sight');
   home.onFilmsTap(); assert.equal(navigation.at(-1), '/pages/video/index');
   const list = page('pages/video/index.js');
   list.onLoad(); list.onShow(); await flush();
-  assert.equal(list.data.films.length, 4);
+  assert.equal(list.data.films.length, 1);
+  assert.equal(list.data.films[0].episodeCount, 4);
   i18n.setLocale('en'); list.onShow(); await flush();
   list.onSearch({ detail: { value: ' MYTHS ' } });
-  assert.equal(list.data.films.length, 4, 'localized search trims and ignores case');
+  assert.equal(list.data.films.length, 1, 'album search trims, ignores case and matches episode titles');
+  assert.equal(list.data.films[0].episodeCount, 4);
   list.onSearch({ detail: { value: 'not found' } });
   assert.equal(list.data.films.length, 0);
   list.onSearch({ detail: { value: '' } });
-  list.onFilmTap({ currentTarget: { dataset: { id: film.id } } });
-  assert.equal(navigation.at(-1), route);
+  list.onFilmTap({ currentTarget: { dataset: { id: albumId } } });
+  assert.equal(navigation.at(-1), albumRoute);
   const detail = page('pages/video/detail.js');
   detail.onLoad({ id: film.id }); detail.onShow(); await flush();
   assert.equal(detail.data.isHumanities, true);
@@ -126,11 +135,39 @@ async function main() {
   const contract = await new Promise((resolve) => content.loadContent(resolve, true));
   const publishedFilms = content.getHumanitiesFilms(contract, 'en');
   assert.equal(publishedFilms.length, 1);
+  const contractAlbums = content.getHumanitiesAlbums(contract, 'en');
+  assert.equal(contractAlbums.length, 1);
+  assert.equal(contractAlbums[0].episodeCount, 1);
+  assert.equal(contractAlbums[0].displayTitle, 'Humanities course');
   assert.equal(publishedFilms[0].attractionId, '');
   assert.equal(publishedFilms[0].displayTitle, 'Humanities course');
   assert.equal(publishedFilms[0].displayDuration, '60:00');
   assert.equal(publishedFilms[0].cover, 'https://fixture.invalid/images/humanities-fixture.webp');
   assert.equal(content.getGuideVideos(contract, 'acropolis')[0].id, 'attraction-fixture');
+  // Explicit guideVideoAlbums curate episodes by albumId across categories; the
+  // fallback humanities album must still exclude attraction videos.
+  const mixedFilm = { ...film, id: 'mixed-attraction', category: 'attraction', attractionId: 'acropolis',
+    albumId: 'album-mixed', section: 'monuments', episode: 1, title: '卫城遗迹', titleEn: 'Acropolis ruins',
+    accessUrl: '/api/miniprogram/video/mixed-attraction/access' };
+  const mixedHumanities = { ...film, id: 'mixed-humanities', category: 'humanities', albumId: 'album-mixed',
+    section: 'stories', episode: 1, title: '旅途人文', titleEn: 'Travel humanities',
+    accessUrl: '/api/miniprogram/video/mixed-humanities/access' };
+  metadata.guideVideos = [mixedFilm, mixedHumanities];
+  metadata.guideVideoAlbums = [{ id: 'album-mixed', title: '漫游希腊', titleEn: 'Roaming Greece', status: 'published', sort: 1, cover: '',
+    sections: [{ key: 'monuments', title: '文明遗迹', sort: 0 }, { key: 'stories', title: '旅途人文', sort: 1 }],
+    videos: [mixedFilm, mixedHumanities] }];
+  const mixed = await new Promise((resolve) => content.loadContent(resolve, true));
+  const mixedAlbums = content.getHumanitiesAlbums(mixed, 'en');
+  assert.equal(mixedAlbums.length, 1);
+  assert.equal(mixedAlbums[0].id, 'album-mixed');
+  assert.equal(mixedAlbums[0].episodeCount, 2);
+  assert.equal(mixedAlbums[0].sectionCount, 2);
+  assert.deepEqual(mixedAlbums[0].sections.map((section) => section.key), ['monuments', 'stories']);
+  assert.equal(mixedAlbums[0].cover, '/assets/images/dest/dest-athens.jpg');
+  assert.deepEqual(plain(content.getHumanitiesFilms(mixed, 'en').map((video) => video.id)), ['mixed-humanities']);
+  const mixedDetail = content.getGuideVideoAlbum(mixed, 'album-mixed', 'en');
+  assert.equal(mixedDetail.episodeCount, 2);
+  assert.equal(mixedDetail.sections[0].episodes[0].id, 'mixed-attraction');
   const markup = read('pages/index/index.wxml');
   assert(markup.indexOf('class="film-section section"') > markup.indexOf('home-channels-card'));
   assert(markup.indexOf('class="film-section section"') < markup.indexOf('DESTINATIONS'));

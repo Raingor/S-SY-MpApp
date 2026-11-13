@@ -8,7 +8,11 @@ const calls = [];
 const toasts = [];
 global.wx = { getStorageSync: () => 'zh-CN', showToast: (options) => toasts.push(options) };
 global.getApp = () => ({ globalData: {} });
-const i18n = require('../utils/i18n');
+const i18nModule = { exports: {} };
+vm.runInNewContext(fs.readFileSync(path.join(root, 'utils/i18n.js'), 'utf8'), {
+  module: i18nModule, wx: global.wx, getApp: global.getApp
+});
+const i18n = i18nModule.exports;
 let definition;
 vm.runInNewContext(fs.readFileSync(path.join(root, 'pages/index/index.js'), 'utf8'), {
   Page(config) { definition = config; },
@@ -17,7 +21,7 @@ vm.runInNewContext(fs.readFileSync(path.join(root, 'pages/index/index.js'), 'utf
   require(id) {
     if (id === '../../utils/i18n') return i18n;
     if (id === '../../data/luxury') return { getLuxuryCards: () => [] };
-    if (id === '../../data/content' || id === '../../utils/share') return {};
+    if (id === '../../data/content' || id === '../../utils/share' || id === '../../utils/home-audio' || id === '../../utils/audio-access') return {};
     throw new Error(`Unexpected module: ${id}`);
   }
 });

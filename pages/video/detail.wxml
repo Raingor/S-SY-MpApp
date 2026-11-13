@@ -5,8 +5,8 @@
     <view class="sy-back-button video-back" bindtap="onBack" hover-class="sy-back-button-hover" aria-label="{{i18n.back}}"><view class="sy-back-chevron"></view></view>
     <view class="audio-nav-spacer"></view>
   </view>
-  <view wx:if="{{loading && !video}}" class="audio-album-state">{{i18n.loading}}</view>
-  <view wx:elif="{{video}}" class="audio-album-body">
+  <view wx:if="{{loading && !album && !video}}" class="audio-album-state">{{i18n.loading}}</view>
+  <view wx:elif="{{video && !isAlbum}}" class="audio-album-body">
     <scroll-view class="audio-album-scroll" scroll-y="true" scroll-into-view="{{scrollIntoView}}">
       <view id="video-intro" class="audio-album-overview">
         <view class="audio-album-head">
@@ -50,9 +50,65 @@
       <view class="audio-album-scroll-end"></view>
     </scroll-view>
   </view>
+  <view wx:elif="{{isAlbum && album}}" class="audio-album-body">
+    <scroll-view class="audio-album-scroll" scroll-y="true" scroll-into-view="{{scrollIntoView}}">
+      <view id="video-intro" class="audio-album-overview">
+        <view class="audio-album-head">
+          <image wx:if="{{album.cover}}" class="audio-cover video-cover" src="{{album.cover}}" mode="aspectFit" webp="{{true}}" />
+          <view wx:else class="audio-cover audio-cover-placeholder video-cover"><view class="video-lock"></view></view>
+          <view class="audio-album-heading">
+            <view class="audio-album-kicker">{{i18n.humanitiesFilms.course}}</view>
+            <view class="audio-album-access-note">{{i18n.humanitiesFilms.purchase}}</view>
+            <view class="audio-title">{{album.displayTitle}}</view>
+          </view>
+        </view>
+        <view class="audio-album-stats">
+          <view class="audio-album-stat"><text class="audio-album-stat-value">{{album.episodeCount}}</text><text class="audio-album-stat-label">{{i18n.humanitiesFilms.episodeUnit}}</text></view>
+          <view class="audio-album-stat-divider"></view>
+          <view class="audio-album-stat"><text class="audio-album-stat-value">{{album.sectionCount}}</text><text class="audio-album-stat-label">{{i18n.humanitiesFilms.sectionUnit}}</text></view>
+          <view class="audio-album-stat-divider"></view>
+          <view class="audio-album-stat"><text class="audio-album-stat-value">{{album.displayDuration}}</text><text class="audio-album-stat-label">{{i18n.heritage.duration}}</text></view>
+        </view>
+        <view wx:if="{{album.displayDescription}}" class="audio-album-description-card">
+          <view class="audio-album-description-label">{{i18n.humanitiesFilms.introduction}}</view>
+          <view class="audio-description">{{album.displayDescription}}</view>
+        </view>
+      </view>
+      <scroll-view scroll-x="true" class="album-section-scroll" enhanced show-scrollbar="{{false}}">
+        <view class="album-section-chips">
+          <view wx:for="{{sectionTabs}}" wx:key="key" class="album-section-chip {{activeSection === item.key ? 'album-section-chip-active' : ''}}" data-key="{{item.key}}" bindtap="onSectionTap">{{item.displayTitle}}</view>
+        </view>
+      </scroll-view>
+      <view id="video-program" class="audio-episode-card">
+        <view class="audio-episode-heading"><view class="audio-episode-heading-title">{{i18n.humanitiesFilms.episodes}}</view><view class="audio-episode-heading-count">{{visibleEpisodeCount}} / {{album.episodeCount}}</view></view>
+        <block wx:for="{{visibleSections}}" wx:for-item="section" wx:for-index="sectionIndex" wx:key="key">
+          <view class="album-section-heading"><text class="album-section-heading-title">{{section.displayTitle || i18n.humanitiesFilms.episodes}}</text><text class="album-section-heading-count">{{section.episodes.length}}</text></view>
+          <view wx:for="{{section.episodes}}" wx:for-item="episode" wx:for-index="episodeIndex" wx:key="id" class="episode-item {{episode.active ? 'episode-item-active' : ''}}">
+            <view class="audio-list-row" data-id="{{episode.id}}" bindtap="onEpisodeTap" hover-class="card-press">
+              <text class="audio-episode-index">{{episode.episode || episodeIndex + 1}}</text>
+              <view class="audio-episode-copy">
+                <view class="audio-episode-title">{{episode.displayTitle}}</view>
+                <view class="audio-episode-duration">◷ {{episode.displayDuration}}</view>
+                <view class="audio-episode-access">{{episode.purchased ? i18n.paidContent.purchased : i18n.humanitiesFilms.purchase}}</view>
+              </view>
+              <text class="audio-episode-arrow">▶</text>
+            </view>
+            <guide-video-sheet wx:if="{{episode.active}}" id="video-player" video="{{videoOpen}}" bind:accesschange="onVideoAccessChange" />
+          </view>
+        </block>
+        <view wx:if="{{!visibleSections.length}}" class="audio-album-state">{{i18n.humanitiesFilms.empty}}</view>
+      </view>
+      <view wx:if="{{failed}}" class="audio-album-state" bindtap="refresh">{{i18n.heritage.networkFailed}} · {{i18n.heritage.retry}}</view>
+      <view class="audio-album-scroll-end"></view>
+    </scroll-view>
+  </view>
   <view wx:else class="audio-album-state" bindtap="refresh">{{failed ? i18n.heritage.networkFailed : (isHumanities ? i18n.humanitiesFilms.unavailable : i18n.heritage.guideVideoUnavailable)}} · {{i18n.heritage.retry}}</view>
-  <view wx:if="{{video}}" class="audio-album-bottom-actions">
+  <view wx:if="{{video && !isAlbum}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" data-section="intro" bindtap="onTabTap">{{(isHumanities ? i18n.humanitiesFilms.introduction : i18n.heritage.guideVideoIntro)}}</button>
     <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (video.purchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta))}}</button>
+  </view>
+  <view wx:if="{{isAlbum && album}}" class="audio-album-bottom-actions">
+    <button class="audio-album-about-button" bindtap="onAlbumAbout">{{i18n.humanitiesFilms.introduction}}</button>
+    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (activeEpisodePurchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta))}}</button>
   </view>
 </view>

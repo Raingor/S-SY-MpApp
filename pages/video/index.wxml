@@ -17,6 +17,7 @@
         <view wx:for="{{films}}" wx:key="id" class="film-small" data-id="{{item.id}}" bindtap="onFilmTap" hover-class="card-press" aria-role="button" aria-label="{{item.displayTitle}}">
           <view class="film-small-poster"><image wx:if="{{item.cover}}" class="film-poster-image" src="{{item.cover}}" mode="aspectFill" webp="{{true}}" lazy-load="{{true}}" /><view class="film-poster-shade"></view><view class="film-small-play" aria-hidden="true">▷</view><view wx:if="{{item.displayDuration}}" class="film-duration">{{item.displayDuration}}</view></view>
           <view class="film-small-title">{{item.displayTitle}}</view>
+          <view wx:if="{{item.episodeCount || item.sectionCount}}" class="films-description">{{item.episodeCount}} {{i18n.humanitiesFilms.episodeUnit}} · {{item.sectionCount}} {{i18n.humanitiesFilms.sectionUnit}}</view>
           <view wx:if="{{item.displayDescription}}" class="films-description">{{item.displayDescription}}</view>
         </view>
       </view>
