@@ -42,7 +42,7 @@ const i18n = require('../utils/i18n');
 const contentModule = { exports: {} };
 vm.runInNewContext(read('data/content.js'), {
   module: contentModule, exports: contentModule.exports, wx, getApp: () => app,
-  require: () => ({ getContent: () => ({ guideVideos: [film], attractions: [] }) })
+  require: () => ({ getContent: () => ({ guideVideos: [film], attractions: [], cities: [], sampleItineraries: [] }) })
 });
 const content = contentModule.exports;
 let entitlementReads = 0;
@@ -74,20 +74,31 @@ async function main() {
     const expected = locale === 'en' ? film.titleEn : locale === 'zh-TW' ? film.titleTw : film.title;
     assert.equal(content.getHumanitiesFilms(data, locale)[1].displayTitle, expected);
   }
+  // 首页不再承载漫游希腊：影集入口移到文史知识库第 3 个面板。
   const home = page('pages/index/index.js');
   home.applyRemoteContent(); await flush();
-  assert.equal(home.data.humanitiesFilms.length, 1, 'published humanities videos share one fallback album');
-  assert.equal(home.data.filmCount, 1);
-  assert.equal(home.data.humanitiesFilms[0].episodeCount, 4);
-  const albumId = home.data.humanitiesFilms[0].id;
+  assert.equal(home.data.humanitiesFilms, undefined, 'home no longer renders the film section');
+  assert.equal(typeof home.onFilmsTap, 'undefined');
+  assert.equal(typeof home.onFilmTap, 'undefined');
+  const knowledge = page('pages/knowledge/knowledge.js');
+  knowledge.onLoad({ panel: '2' }); await flush(); await flush();
+  assert.deepEqual(plain(knowledge.data.panelTabs), ['景点讲解', '希腊文史', '漫游希腊']);
+  assert.equal(knowledge.data.activePanel, 2, 'deep link opens Roaming Greece');
+  assert.equal(knowledge.data.visibleRoaming.length, 1, 'published humanities videos share one fallback album');
+  assert.equal(knowledge.data.visibleRoaming[0].episodeCount, 4);
+  const albumId = knowledge.data.visibleRoaming[0].id;
   const beforeAlbumTap = navigation.length;
-  home.onFilmTap({ currentTarget: { dataset: { id: film.id } } });
+  knowledge.onRoamingTap({ currentTarget: { dataset: { id: film.id } } });
   assert.equal(navigation.length, beforeAlbumTap, 'standalone film id is not an album card');
-  home.onFilmTap({ currentTarget: { dataset: { id: albumId } } });
+  knowledge.onRoamingTap({ currentTarget: { dataset: { id: albumId } } });
   const albumRoute = '/pages/video/detail?album=' + encodeURIComponent(albumId);
-  assert.equal(navigation.at(-1), albumRoute, 'homepage opens the humanities album');
+  assert.equal(navigation.at(-1), albumRoute, 'knowledge base opens the roaming album');
+  knowledge.onSearchInput({ detail: { value: '神话' } });
+  assert.equal(knowledge.data.visibleRoaming.length, 1, 'roaming search matches album titles');
+  knowledge.onSearchInput({ detail: { value: 'no such film' } });
+  assert.equal(knowledge.data.visibleRoaming.length, 0);
+  knowledge.onSearchInput({ detail: { value: '' } });
   const route = '/pages/video/detail?id=culture%20%26%201';
-  home.onFilmsTap(); assert.equal(navigation.at(-1), '/pages/video/index');
   const list = page('pages/video/index.js');
   list.onLoad(); list.onShow(); await flush();
   assert.equal(list.data.films.length, 1);
@@ -121,7 +132,8 @@ async function main() {
   assert.equal(detail.data.videoOpen, null);
   detail.onPlay(); assert.equal(detail.data.videoOpen, null, 'failed refresh cannot re-open stale playback');
   assert.equal(list.data.failed, true); assert.equal(list.data.films.length, 0);
-  assert.equal(home.data.humanitiesFilms.length, 0, 'offline mirror never impersonates published films');
+  knowledge.refresh(); await flush(); await flush();
+  assert.equal(knowledge.data.visibleRoaming.length, 0, 'offline mirror never impersonates published films');
   offline = false; metadata.guideVideos = [];
   detail.refresh(); list.refresh(); await flush();
   assert.equal(detail.data.video, null, 'unpublished film removes purchase and play');
@@ -168,10 +180,15 @@ async function main() {
   const mixedDetail = content.getGuideVideoAlbum(mixed, 'album-mixed', 'en');
   assert.equal(mixedDetail.episodeCount, 2);
   assert.equal(mixedDetail.sections[0].episodes[0].id, 'mixed-attraction');
-  const markup = read('pages/index/index.wxml');
-  assert(markup.indexOf('class="film-section section"') > markup.indexOf('home-channels-card'));
-  assert(markup.indexOf('class="film-section section"') < markup.indexOf('DESTINATIONS'));
+  const homeMarkup = read('pages/index/index.wxml');
+  assert.equal(homeMarkup.indexOf('film-section'), -1, 'home markup has no film section');
+  assert.equal(homeMarkup.indexOf('onFilmsTap'), -1);
+  const knowledgeMarkup = read('pages/knowledge/knowledge.wxml');
+  assert(knowledgeMarkup.indexOf('activePanel === 2') > 0);
+  assert(knowledgeMarkup.indexOf('bindtap="onRoamingTap"') > 0);
+  assert(knowledgeMarkup.indexOf('i18n.heritage.roaming') > 0);
   assert(JSON.parse(read('app.json')).pages.includes('pages/video/index'));
+  assert(JSON.parse(read('app.json')).pages.includes('pages/knowledge/knowledge'));
   console.log('PASS: humanities film publishing/category isolation, stable order, 3 locales, home/list/detail navigation, search, offline/deletion/unload and public share metadata; 0 real requests/payments');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

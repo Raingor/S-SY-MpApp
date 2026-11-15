@@ -25,8 +25,6 @@ Page({
     // 导游名片轮播：数据来自后台 /api/content，不再内嵌旧文案，避免后台修改后前台不同步。
     guides: [],
     guideCarouselEnabled: false,
-    humanitiesFilms: [],
-    filmCount: 0,
     homeAudio: {
       src: 'https://sy-greece.com/audio/selected-routes-intro.m4a'
     },
@@ -300,7 +298,6 @@ Page({
       : null;
     this.setData({
       entries: content.getMiniProgramServiceEntries(this.destinationContent, locale),
-      ...(this.filmContent ? { humanitiesFilms: content.getHumanitiesAlbums(this.filmContent, locale).slice(0, 3) } : {}),
       ...(localizedDestinations
         ? {
             destinations: localizedDestinations,
@@ -322,14 +319,11 @@ Page({
     content.loadContent((data, state) => {
       // 网络离线时不使用硬编码 Hero 冒充后台内容。
       if (state && state.reason === 'offline') {
-        this.filmContent = null;
-        this.setData({ heroList: [], heroCopy: { eyebrow: '', title: '', description: '' }, heroStatus: 'empty', humanitiesFilms: [], filmCount: 0 });
+        this.setData({ heroList: [], heroCopy: { eyebrow: '', title: '', description: '' }, heroStatus: 'empty' });
         return;
       }
       if (data.countryId && data.countryId !== content.getSelectedCountryId()) return;
       this.destinationContent = data;
-      this.filmContent = state && state.source === 'remote' && state.status === 'ready' ? data : null;
-      const albums = this.filmContent ? content.getHumanitiesAlbums(data, this.data.locale) : [];
       const home = data.home || { eyebrow: '', title: '', description: '', banners: [] };
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
@@ -346,8 +340,6 @@ Page({
         selectedCountryLabel: content.countryName(selectedCountry, this.data.locale),
         guides: guides,
         entries,
-        humanitiesFilms: albums.slice(0, 3),
-        filmCount: albums.length,
         guideCarouselEnabled: guides.length > 1,
         routes: content.getReferenceList(data).slice(0, 4),
         destTabs: destinations.map((group) => group.tab),
@@ -437,14 +429,6 @@ Page({
       'travel-guide': () => wx.navigateTo({ url: '/pages/travel-guide/travel-guide' })
     };
     if (routes[key]) routes[key]();
-  },
-
-  onFilmsTap() { wx.navigateTo({ url: '/pages/video/index' }); },
-
-  onFilmTap(event) {
-    const id = event.currentTarget.dataset.id;
-    if (!(this.data.humanitiesFilms || []).some((film) => String(film.id) === String(id))) return;
-    wx.navigateTo({ url: '/pages/video/detail?album=' + encodeURIComponent(id) });
   },
 
   onChannelsTap() {

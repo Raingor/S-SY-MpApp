@@ -25,18 +25,18 @@ Page({
   data: {
     statusBarHeight: 20, menuRightSpace: 112, locale: 'zh-CN', i18n: i18n.getMessages(), activePanel: 0,
     panelTabs: [], cities: [], sampleTrips: [], allHotSpots: [], hotSpots: [],
-    albums: [], visibleAlbums: [], searchQuery: '', audioOnly: false,
+    albums: [], visibleAlbums: [], visibleRoaming: [], searchQuery: '', audioOnly: false,
     loading: true, contentError: false, offline: false
   },
   onShareAppMessage() {
-    return buildShareCard('/pages/knowledge/knowledge?panel=' + (this.data.activePanel === 1 ? '1' : '0') + (this.data.audioOnly ? '&audioOnly=1' : ''), this);
+    return buildShareCard('/pages/knowledge/knowledge?panel=' + (this.data.activePanel === 2 ? '2' : this.data.activePanel === 1 ? '1' : '0') + (this.data.audioOnly ? '&audioOnly=1' : ''), this);
   },
   onLoad(options) {
     const sys = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
     const menu = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
     const windowWidth = sys.windowWidth || (wx.getSystemInfoSync && wx.getSystemInfoSync().windowWidth) || 375;
     const menuRightSpace = menu ? Math.max(88, windowWidth - menu.left + 12) : 112;
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20, menuRightSpace, activePanel: options && options.panel === '1' ? 1 : 0, audioOnly: Boolean(options && options.audioOnly === '1') });
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20, menuRightSpace, activePanel: options && options.panel === '2' ? 2 : options && options.panel === '1' ? 1 : 0, audioOnly: Boolean(options && options.audioOnly === '1') });
     this.applyLocale();
     this.refresh();
   },
@@ -46,11 +46,13 @@ Page({
     this.applyLocale();
   },
   refresh() {
-    this.setData({ loading: true, allHotSpots: [], hotSpots: [], albums: [], visibleAlbums: [] });
+    this.setData({ loading: true, allHotSpots: [], hotSpots: [], albums: [], visibleAlbums: [], visibleRoaming: [] });
     content.loadContent((data, state) => {
       // Website public contract: only status='published' attractions are visible.
       const spots = content.getAttractions(data).filter((spot) => spot && spot.status === 'published');
       const albums = state && state.source === 'remote' ? content.getAudioAlbums(data) : [];
+      // 漫游希腊只来自后台上传的博主视频专辑，与景点讲解（真人出镜）分属性展示。
+      this._roamingContent = state && state.source === 'remote' ? data : null;
       this.setData({
         cities: content.getCities(data), sampleTrips: content.getReferenceList(data),
         allHotSpots: spots, albums,
@@ -62,18 +64,24 @@ Page({
   },
   applyLocale() {
     const copy = i18n.apply(this);
-    this.setData({ panelTabs: [copy.heritage.sights, copy.heritage.history] });
+    this.setData({ panelTabs: [copy.heritage.sights, copy.heritage.history, copy.heritage.roaming] });
     this.filterItems();
   },
   filterItems() {
     const { allHotSpots, albums, searchQuery, locale, audioOnly } = this.data;
+    const word = String(searchQuery || '').trim().toLowerCase();
+    // 按当前语言重建专辑标题/简介/分辑名，切语言无需重新请求内容。
+    const roaming = this._roamingContent ? content.getHumanitiesAlbums(this._roamingContent, locale) : [];
     this.setData({
       hotSpots: displaySpots(allHotSpots, searchQuery, locale, audioOnly),
       visibleAlbums: (albums || []).map((album) => ({ ...album,
         displayTitle: translated(album, 'title', locale),
         displayDescription: translated(album, 'description', locale),
         durationMinutes: Math.ceil((album.episodes || []).reduce((sum, episode) => sum + (Number(episode.durationSeconds) || 0), 0) / 60)
-      })).filter((album) => !searchQuery || [album.title, album.displayTitle, album.displayDescription, ...(album.episodes || []).map((episode) => translated(episode, 'title', locale))].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase()))
+      })).filter((album) => !searchQuery || [album.title, album.displayTitle, album.displayDescription, ...(album.episodes || []).map((episode) => translated(episode, 'title', locale))].join(' ').toLowerCase().includes(searchQuery.trim().toLowerCase())),
+      visibleRoaming: roaming.filter((album) => !word || [album.displayTitle, album.displayDescription]
+        .concat((album.sections || []).map((section) => section.displayTitle))
+        .join(' ').toLowerCase().includes(word))
     });
   },
   onPanelTap(e) { this.setData({ activePanel: Number(e.currentTarget.dataset.index) || 0, searchQuery: '' }); this.filterItems(); },
@@ -95,6 +103,13 @@ Page({
       // Keep the cover already rendered in the list available while the detail page refreshes content.
       app.globalData.pendingAudioAlbum = { id: String(album.id), album };
       wx.navigateTo({ url: '/pages/audio/album?id=' + encodeURIComponent(id) });
+    }
+  },
+  onRoamingTap(e) {
+    const id = e.currentTarget.dataset.id;
+    const album = this.data.visibleRoaming.find((item) => String(item.id) === String(id));
+    if (!this.data.loading && album) {
+      wx.navigateTo({ url: '/pages/video/detail?album=' + encodeURIComponent(id) });
     }
   },
   onBack() { goBack(); },

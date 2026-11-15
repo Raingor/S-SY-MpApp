@@ -17,7 +17,8 @@ const content = {
   getAttractions(data) { return data.attractions; },
   getCities() { return []; },
   getReferenceList() { return []; },
-  getAudioAlbums() { return []; }
+  getAudioAlbums() { return []; },
+  getHumanitiesAlbums() { return []; }
 };
 global.getApp = () => ({ globalData: {} });
 global.Page = (config) => { pageDefinition = config; };
