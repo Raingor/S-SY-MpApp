@@ -416,6 +416,14 @@ async function main() {
   videoPage.onPlay();
   assert.equal(videoPage.data.videoOpen, null);
   metadata.guideVideos = originalVideos;
+  const bannerPage = makeVideoPage();
+  bannerPage.onLoad({ id: VIDEO.id });
+  const callsBeforeBanner = accessCalls;
+  bannerPage.onShow(); await flush();
+  assert.equal(bannerPage.data.video.id, VIDEO.id, 'ID-only banner resolves published attraction video');
+  assert.equal(bannerPage.data.video.displaySubject, SPOT.name, 'ID-only entry resolves the actual attraction');
+  assert.equal(bannerPage.data.videoOpen, null, 'banner first opens introduction, not playback');
+  assert.equal(accessCalls, callsBeforeBanner, 'banner introduction does not bypass access checks');
   const invalidPage = makeVideoPage();
   invalidPage.onLoad({ id: VIDEO.id, attractionId: 'delphi' });
   invalidPage.onShow(); await flush();

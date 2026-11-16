@@ -679,18 +679,20 @@ function buildHumanitiesAlbum(source, albumId, locale = 'zh-CN') {
   const meta = (content.guideVideoAlbums || []).find((album) => String(album.id) === key) || {};
   const explicitAlbum = Boolean(meta.id);
   const albumMember = (video) => {
-    if (!video) return false;
+    if (!video || video.category !== 'humanities') return false;
     const memberId = guideVideoAlbumKey(video.albumId) || 'humanities';
-    if (memberId !== key) return false;
-    return explicitAlbum || video.category === 'humanities';
+    return memberId === key;
   };
   const topVideos = (content.guideVideos || []).filter(albumMember);
-  const fallbackVideos = explicitAlbum ? (meta.videos || []).filter(Boolean) : (meta.videos || []).filter(albumMember);
+  // 漫游希腊只承载博主人文视频；显式专辑也不能混入真人景点讲解。
+  const fallbackVideos = (meta.videos || []).filter((video) => explicitAlbum
+    ? video && video.category === 'humanities'
+    : albumMember(video));
   const merged = new Map();
   fallbackVideos.forEach((video) => merged.set(String(video.id), video));
   topVideos.forEach((video) => merged.set(String(video.id), video));
   const videos = Array.from(merged.values()).map((video) => localizeGuideVideo(video, locale));
-  if (!videos.length && !meta.id) return null;
+  if (!videos.length) return null;
 
   const sectionDefs = (Array.isArray(meta.sections) ? meta.sections : []).map((section, index) => ({
     key: guideVideoAlbumKey(section && section.key),
@@ -750,7 +752,7 @@ function buildHumanitiesAlbum(source, albumId, locale = 'zh-CN') {
       displayTitle: guideVideoText(section.raw, 'title', locale) || (section.key || ''),
       episodes
     };
-  }).filter((section) => section.key !== '' || section.episodes.length);
+  }).filter((section) => section.episodes.length);
 
   const durationSeconds = videos.reduce((sum, video) => sum + guideVideoNumber(video.durationSeconds), 0);
   const firstVideo = videos[0] || {};

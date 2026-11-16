@@ -156,8 +156,7 @@ async function main() {
   assert.equal(publishedFilms[0].displayDuration, '60:00');
   assert.equal(publishedFilms[0].cover, 'https://fixture.invalid/images/humanities-fixture.webp');
   assert.equal(content.getGuideVideos(contract, 'acropolis')[0].id, 'attraction-fixture');
-  // Explicit guideVideoAlbums curate episodes by albumId across categories; the
-  // fallback humanities album must still exclude attraction videos.
+  // 真人景点讲解和博主人文视频独立：同 albumId / 嵌套 videos 也不能混入。
   const mixedFilm = { ...film, id: 'mixed-attraction', category: 'attraction', attractionId: 'acropolis',
     albumId: 'album-mixed', section: 'monuments', episode: 1, title: '卫城遗迹', titleEn: 'Acropolis ruins',
     accessUrl: '/api/miniprogram/video/mixed-attraction/access' };
@@ -172,14 +171,20 @@ async function main() {
   const mixedAlbums = content.getHumanitiesAlbums(mixed, 'en');
   assert.equal(mixedAlbums.length, 1);
   assert.equal(mixedAlbums[0].id, 'album-mixed');
-  assert.equal(mixedAlbums[0].episodeCount, 2);
-  assert.equal(mixedAlbums[0].sectionCount, 2);
-  assert.deepEqual(mixedAlbums[0].sections.map((section) => section.key), ['monuments', 'stories']);
+  assert.equal(mixedAlbums[0].episodeCount, 1);
+  assert.equal(mixedAlbums[0].sectionCount, 1);
+  assert.deepEqual(mixedAlbums[0].sections.map((section) => section.key), ['stories']);
+  assert.equal(mixedAlbums[0].searchText.includes('acropolis ruins'), false, 'roaming search excludes attraction videos');
+  assert.equal(content.getGuideVideos(mixed, 'acropolis')[0].id, 'mixed-attraction', 'sight video stays available in its own category');
   assert.equal(mixedAlbums[0].cover, '/assets/images/dest/dest-athens.jpg');
   assert.deepEqual(plain(content.getHumanitiesFilms(mixed, 'en').map((video) => video.id)), ['mixed-humanities']);
   const mixedDetail = content.getGuideVideoAlbum(mixed, 'album-mixed', 'en');
-  assert.equal(mixedDetail.episodeCount, 2);
-  assert.equal(mixedDetail.sections[0].episodes[0].id, 'mixed-attraction');
+  assert.equal(mixedDetail.episodeCount, 1);
+  assert.equal(mixedDetail.sections[0].episodes[0].id, 'mixed-humanities');
+  assert.equal(mixedDetail.durationSeconds, Number(mixedHumanities.durationSeconds), 'duration excludes attraction video');
+  const attractionOnly = { ...mixed, guideVideos: [mixedFilm], guideVideoAlbums: [{ ...mixed.guideVideoAlbums[0], videos: [mixedFilm] }] };
+  assert.equal(content.getGuideVideoAlbum(attractionOnly, 'album-mixed'), null, 'attraction-only album is not a roaming album');
+  assert.equal(content.getHumanitiesAlbums(attractionOnly).length, 0);
   const homeMarkup = read('pages/index/index.wxml');
   assert.equal(homeMarkup.indexOf('film-section'), -1, 'home markup has no film section');
   assert.equal(homeMarkup.indexOf('onFilmsTap'), -1);

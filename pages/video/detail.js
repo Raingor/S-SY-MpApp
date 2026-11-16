@@ -76,7 +76,9 @@ Page({
         return;
       }
       const films = content.getHumanitiesFilms(data, this.data.locale);
-      const candidates = this.attractionId ? content.getGuideVideos(data, this.attractionId).concat(films) : films;
+      const candidates = this.attractionId
+        ? content.getGuideVideos(data, this.attractionId).concat(films)
+        : (data.guideVideos || []).concat(films);
       const video = candidates.find((item) => String(item.id) === String(this.videoId)) || null;
       this._spot = video && video.attractionId ? content.getAttraction(video.attractionId, data) : null;
       this.setData({
