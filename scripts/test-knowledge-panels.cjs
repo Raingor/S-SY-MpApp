@@ -24,7 +24,8 @@ assert.match(knowledgeJs, /getAudioAlbums/);
 assert.match(knowledgeJs, /onAlbumTap\(e\)/);
 assert.doesNotMatch(knowledgeJs, /onCategoryTap/);
 assert.match(i18n, /heritageTranslations/);
-assert.match(i18n, /sights: '景点讲解'/);
-assert.match(i18n, /history: '希腊文史'/);
+assert.match(i18n, /sights: '景点精讲'/);
+assert.match(i18n, /history: '文史溯源'/);
+assert.match(i18n, /roaming: '实景漫游'/);
 
 console.log('PASS: knowledge library has two user-facing panels, published audio albums, search and honest empty states');

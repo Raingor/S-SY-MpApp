@@ -125,6 +125,8 @@ Page({
 
   applySpot(spot, statusBarHeight) {
     const labels = (this.data.i18n && this.data.i18n.contentPage && this.data.i18n.contentPage.guideLabels) || GUIDE_LABELS;
+    // 地图卡片统一叫「游览动线」：游览顺序比一张静态地图更贴近实际用途，后台旧标题不再覆盖。
+    const routeLabel = (this.data.i18n && this.data.i18n.heritage && this.data.i18n.heritage.map) || labels.map;
     const info = spot.visitorInfo || {};
     const guide = spot.guide || {};
     const visitorIcons = { hours: '◷', tickets: '◇', transport: '↗', map: '⌖' };
@@ -145,7 +147,7 @@ Page({
       if (kind === 'map' && !hasRichContent(richNodes)) richNodes = this.localized(map, 'description') || this.localized(info, 'map') || this.localized(guide, 'map');
       return {
         ...source, kind, icon: visitorIcons[kind], isDemo: source.isDemo === true,
-        displayTitle: this.localized(source, 'title') || labels[kind],
+        displayTitle: kind === 'map' ? routeLabel : (this.localized(source, 'title') || labels[kind]),
         richNodes: richNodes || '',
         hasContent: hasRichContent(richNodes),
         mapImage: kind === 'map' ? (map.image || info.mapImage || guide.mapImage || '') : '',

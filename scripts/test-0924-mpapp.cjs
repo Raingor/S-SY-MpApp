@@ -154,7 +154,7 @@ assert.equal(visitorDetailInstance.data.activeKind, 'transport');
 assert.equal(visitorDetailInstance.data.activeSection.kind, 'transport');
 visitorDetailInstance.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
 assert.equal(visitorDetailInstance.data.activeKind, 'map');
-assert.equal(visitorDetailInstance.data.activeSection.displayTitle, '景點地圖');
+assert.equal(visitorDetailInstance.data.activeSection.displayTitle, '遊覽動線', 'map tab is renamed to the tour route wording');
 assert.equal(visitorDetailInstance.data.activeSection.hasContent, false);
 assert.equal(visitorDetailInstance.data.sections.find((section) => section.kind === 'transport').hasContent, false);
 assert.deepEqual(Array.from(visitorDetailInstance.data.customSections, (section) => section.id), ['custom-first', 'custom-late']);

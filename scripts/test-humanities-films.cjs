@@ -82,7 +82,7 @@ async function main() {
   assert.equal(typeof home.onFilmTap, 'undefined');
   const knowledge = page('pages/knowledge/knowledge.js');
   knowledge.onLoad({ panel: '2' }); await flush(); await flush();
-  assert.deepEqual(plain(knowledge.data.panelTabs), ['景点讲解', '希腊文史', '漫游希腊']);
+  assert.deepEqual(plain(knowledge.data.panelTabs), ['景点精讲', '文史溯源', '实景漫游']);
   assert.equal(knowledge.data.activePanel, 2, 'deep link opens Roaming Greece');
   assert.equal(knowledge.data.visibleRoaming.length, 1, 'published humanities videos share one fallback album');
   assert.equal(knowledge.data.visibleRoaming[0].episodeCount, 4);
