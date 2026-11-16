@@ -105,10 +105,10 @@
   <view wx:else class="audio-album-state" bindtap="refresh">{{failed ? i18n.heritage.networkFailed : (isHumanities ? i18n.humanitiesFilms.unavailable : i18n.heritage.guideVideoUnavailable)}} · {{i18n.heritage.retry}}</view>
   <view wx:if="{{video && !isAlbum}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" data-section="intro" bindtap="onTabTap">{{(isHumanities ? i18n.humanitiesFilms.introduction : i18n.heritage.guideVideoIntro)}}</button>
-    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (isHumanities || video.purchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta))}}</button>
+    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (videoState === 'member' ? i18n.humanitiesFilms.memberCta : (isHumanities || video.purchased ? i18n.heritage.guideVideoPlay : i18n.heritage.guideVideoBuyCta)))}}</button>
   </view>
   <view wx:if="{{isAlbum && album}}" class="audio-album-bottom-actions">
     <button class="audio-album-about-button" bindtap="onAlbumAbout">{{i18n.humanitiesFilms.introduction}}</button>
-    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : i18n.heritage.guideVideoPlay)}}</button>
+    <button class="audio-album-play-button" disabled="{{videoState === 'loading'}}" bindtap="onPlay">{{videoState === 'loading' ? i18n.loading : (videoState === 'login' ? i18n.heritage.guideVideoLoginCta : (videoState === 'member' ? i18n.humanitiesFilms.memberCta : i18n.heritage.guideVideoPlay))}}</button>
   </view>
 </view>

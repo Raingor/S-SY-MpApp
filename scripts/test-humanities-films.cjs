@@ -205,9 +205,11 @@ async function main() {
   const albumPlay = albumAbout.slice(albumPlayStart, albumAbout.indexOf('</button>', albumPlayStart));
   assert.equal(albumPlay.includes('guideVideoBuyCta'), false, 'album bottom action never offers a purchase');
   assert(albumPlay.includes('guideVideoPlay'), 'album bottom action plays once access is granted');
+  assert(albumPlay.includes('humanitiesFilms.memberCta'), 'album bottom action offers annual membership when the server locks the film');
   for (const locale of ['zh-CN', 'zh-TW', 'en']) {
     const copy = i18n.getMessages(locale).humanitiesFilms;
     assert.ok(copy.memberAccess, locale + ':memberAccess');
+    assert.ok(copy.memberRequired && copy.memberCta, locale + ':member gate copy');
     assert.equal(/单独购买|單獨購買|sold separately/.test(JSON.stringify(copy)), false, locale + ' keeps no separate-purchase copy');
   }
   // 同一集回写不能造成 loading→ready 死循环（页面频闪 + 一直“正在加载”）。
@@ -227,6 +229,11 @@ async function main() {
   albumPage.handleAlbumAccess('login', 'mixed-humanities');
   assert.equal(writes, writesAfterLogin, 'repeated login gate events do not loop');
   assert.equal(albumPage.data.videoState, 'login');
+  // 仅年会员口径：服务端 locked(MEMBER) 时页面进入会员开通态，而不是错误态或可播放态。
+  albumPage.handleAlbumAccess('member', 'mixed-humanities');
+  assert.equal(albumPage.data.videoState, 'member');
+  assert.equal(Boolean(albumPage._purchased['mixed-humanities']), false, 'membership lock is not treated as purchased');
+  assert.equal(typeof albumPage.onMember, 'function', 'page exposes the annual-membership CTA handler');
   console.log('PASS: humanities film publishing/category isolation, stable order, 3 locales, home/list/detail navigation, search, offline/deletion/unload and public share metadata; 0 real requests/payments');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

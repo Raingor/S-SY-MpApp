@@ -238,7 +238,7 @@ Page({
   },
   handleAlbumAccess(state, videoId) {
     if (!this.data.album || !videoId) return;
-    if (state !== 'ready' && state !== 'login' && state !== 'purchase') return;
+    if (state !== 'ready' && state !== 'login' && state !== 'purchase' && state !== 'member') return;
     this._purchased = this._purchased || {};
     const purchased = state === 'ready';
     const changed = Boolean(this._purchased[videoId]) !== purchased;
@@ -301,7 +301,7 @@ Page({
     const player = this.selectComponent && this.selectComponent('#video-player');
     if (!player) return;
     // 人文影集不提供单独购买入口；只有景点讲解才走购买。
-    const actions = { login: 'onLogin', error: 'reload', ready: 'play' };
+    const actions = { login: 'onLogin', error: 'reload', ready: 'play', member: 'onMember' };
     if (!this.data.isHumanities) actions.purchase = 'onBuy';
     const action = actions[player.data.state];
     if (action) player[action]();
@@ -322,7 +322,7 @@ Page({
     const player = this.selectComponent && this.selectComponent('#video-player');
     if (!player) return;
     // 专辑模式只承载人文影集：不展示也不触发单独购买。
-    const actions = { login: 'onLogin', error: 'reload', ready: 'play' };
+    const actions = { login: 'onLogin', error: 'reload', ready: 'play', member: 'onMember' };
     const action = actions[player.data.state];
     if (action) player[action]();
   },
@@ -333,9 +333,17 @@ Page({
     const video = this.data.video;
     if (!video || !this.data.videoOpen || String(videoId) !== String(video.id)) return;
     // 仅服务端 access 的 ready / locked 结果刷新锁标，支付回调本身不解锁。
-    const purchased = state === 'ready' ? true : (state === 'login' || state === 'purchase' ? false : video.purchased);
+    const purchased = state === 'ready' ? true : (state === 'login' || state === 'purchase' || state === 'member' ? false : video.purchased);
     this._purchaseId = (this._purchaseId || 0) + 1;
     this.setData({ videoState: state, video: { ...video, purchased } });
+  },
+  onLogin() {
+    const player = this.selectComponent && this.selectComponent('#video-player');
+    if (player && player.onLogin) player.onLogin();
+  },
+  // 年会员专属影集：跳到会员购买页，不在本页出现单独购买入口。
+  onMember() {
+    wx.navigateTo({ url: '/pages/membership/shop' });
   },
   onBack() { goBack(); },
   onUnload() {

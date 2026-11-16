@@ -4,6 +4,11 @@ const paid = require('../../utils/paid-content');
 const guideVideo = require('../../utils/guide-video');
 const i18n = require('../../utils/i18n');
 
+// 年会员专属内容：服务端用 ANNUAL_MEMBERSHIP_REQUIRED / MEMBERSHIP_REQUIRED 等 reason 拒绝播放，统一按 MEMBER 识别。
+function isMemberLock(reason) {
+  return /MEMBER/i.test(String(reason || ''));
+}
+
 Component({
   properties: {
     video: {
@@ -69,6 +74,10 @@ Component({
         if (result.access === 'locked' && result.reason === 'MINIPROGRAM_LOGIN_REQUIRED') {
           return this.setAccessState({ state: 'login', reloading: false, access: result });
         }
+        // 人文影集（漫游希腊）为年会员权益：锁定且非登录/单独购买原因时给出开通入口，绝不提示购买。
+        if (result.access === 'locked' && (isMemberLock(result.reason) || (this.properties.purchaseAllowed === false && result.reason === 'VIDEO_PURCHASE_REQUIRED'))) {
+          return this.setAccessState({ state: 'member', reloading: false, access: result });
+        }
         if (result.access === 'locked' && result.reason === 'VIDEO_PURCHASE_REQUIRED' && result.product && this.properties.purchaseAllowed !== false) {
           return this.setAccessState({ state: 'purchase', reloading: false, access: result, price: guideVideo.priceDisplay(result.product) });
         }
@@ -84,6 +93,9 @@ Component({
         this.setData({ authLoading: false });
         if (loggedIn) this.reload();
       });
+    },
+    onMember() {
+      wx.navigateTo({ url: '/pages/membership/shop' });
     },
     onBuy() {
       const video = this._video || this.properties.video;

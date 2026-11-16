@@ -214,14 +214,26 @@ async function main() {
   assert.equal(sheet.data.state, 'purchase', 'failed order returns to purchase state with a modal');
   assert.equal(modals.length, 1);
   assert.equal(JSON.stringify(component.data).includes('SECRET'), false);
-  // 人文影集（漫游希臘）随年会员：不提供单独购买门禁，绝不回退到购买状态。
+  // 人文影集（漫游希臘）随年会员：不提供单独购买门禁，绝不回退到购买状态，改为会员开通提示。
   sheet.properties.purchaseAllowed = false;
   accessResponse = purchaseLocked;
   component.properties.video.observer.call(sheet, { ...adapted });
   await flush();
-  assert.equal(sheet.data.state, 'error', 'no-purchase content never renders a buy gate');
+  assert.equal(sheet.data.state, 'member', 'no-purchase content never renders a buy gate');
   assert.equal(sheet.data.price, '');
+  // 服务端仅年会员口径：locked + MEMBER reason 同样是会员开通态，不是错误态。
+  accessResponse = { statusCode: 200, data: { access: 'locked', reason: 'ANNUAL_MEMBERSHIP_REQUIRED' } };
+  component.properties.video.observer.call(sheet, { ...adapted });
+  await flush();
+  assert.equal(sheet.data.state, 'member');
+  const memberNavigations = [];
+  const previousNavigateTo = wx.navigateTo;
+  wx.navigateTo = (options) => memberNavigations.push(options.url);
+  sheet.onMember();
+  assert.deepEqual(memberNavigations, ['/pages/membership/shop'], 'member CTA opens the annual-membership shop');
+  wx.navigateTo = previousNavigateTo;
   sheet.properties.purchaseAllowed = true;
+  accessResponse = full;
 
   // 已购标记：unlockedVideos 命中 → purchased；年会员不含视频。
   entitlementsReply = [VIDEO.id];

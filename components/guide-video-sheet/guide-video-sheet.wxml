@@ -16,6 +16,10 @@
       <button class="gvm-action" disabled="{{simulationLoading}}" data-outcome="paid" bindtap="onSimulation">{{i18n.paidContent.simulationSuccess}}</button>
       <button class="gvm-action gvm-action-muted" disabled="{{simulationLoading}}" data-outcome="failed" bindtap="onSimulation">{{i18n.paidContent.simulationFailure}}</button>
     </block>
+    <block wx:elif="{{state === 'member'}}">
+      <view class="gvm-state-copy">{{i18n.humanitiesFilms.memberRequired}}</view>
+      <button class="gvm-action" bindtap="onMember">{{i18n.humanitiesFilms.memberCta}}</button>
+    </block>
     <view wx:else class="gvm-state-copy">{{i18n.heritage.guideVideoUnavailable}} <text class="gvm-retry" bindtap="reload">{{i18n.heritage.retry}} ›</text></view>
   </view>
 </view>
