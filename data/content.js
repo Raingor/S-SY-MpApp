@@ -282,6 +282,8 @@ function adaptHome(remoteHome) {
       enabled: audioPreview.enabled !== false,
       kind: audioText('kind'),
       sourceVideoId: audioText('sourceVideoId'),
+      // 录制类试听用 sourceAudioId；不透传就只剩空 id，首页会判定为无音源。
+      sourceAudioId: audioText('sourceAudioId'),
       attractionId: audioText('attractionId'),
       previewUrl: audioText('previewUrl'),
       previewSeconds: Number.isFinite(Number(audioPreview.previewSeconds)) ? Number(audioPreview.previewSeconds) : 0

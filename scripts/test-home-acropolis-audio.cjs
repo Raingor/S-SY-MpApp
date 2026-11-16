@@ -209,6 +209,10 @@ async function verifyAdapter() {
   assert.equal(adapted.home.audioPreview.previewSeconds, 60);
   assert.equal(adapted.home.audioPreview.fullUrl, undefined);
   assert.equal(adapted.home.audioPreview.accessUrl, undefined);
+  raw.home.audioPreview = { kind: 'guide-audio', attractionId: 'acropolis', sourceAudioId: 'acropolis-guide-30min', previewUrl: 'https://oss.invalid/public/audio/acropolis-guide-preview-60s-74cb88c5.m4a', previewSeconds: 60 };
+  const guideAdapted = await new Promise((resolve) => module.exports.loadContent(resolve, true));
+  assert.equal(guideAdapted.home.audioPreview.sourceAudioId, 'acropolis-guide-30min', 'adapter keeps the recorded audio id');
+  assert.equal(getHomeAudioPreview(guideAdapted, app.globalData.apiBase).previewUrl, 'https://oss.invalid/public/audio/acropolis-guide-preview-60s-74cb88c5.m4a', 'recorded audio survives the content adapter');
   delete raw.home.audioPreview;
   const missing = await new Promise((resolve) => module.exports.loadContent(resolve, true));
   assert.equal(missing.home.audioPreview, null, 'adapter preserves the missing-preview state');
