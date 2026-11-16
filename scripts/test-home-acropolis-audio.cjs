@@ -22,10 +22,14 @@ const payload = (extra = {}) => ({
 });
 assert.equal(getHomeAudioPreview(payload()).sourceVideoId, preview.sourceVideoId);
 assert.equal(getHomeAudioPreview(payload()).previewUrl, preview.previewUrl);
+const guideAudio = { kind: 'guide-audio', attractionId: 'acropolis', sourceAudioId: 'acropolis-guide-30min', previewUrl: 'https://fixture.invalid/audio/acropolis-guide-preview-60s-74cb88c5.m4a', previewSeconds: 60 };
+assert.equal(getHomeAudioPreview({ home: { audioPreview: guideAudio } }).sourceAudioId, 'acropolis-guide-30min', 'recorded guide audio uses sourceAudioId');
+assert.equal(getHomeAudioPreview({ home: { audioPreview: { ...guideAudio, sourceAudioId: '' } } }), null, 'missing recorded audio id is rejected');
+assert.equal(getHomeAudioPreview({ home: { audioPreview: { ...guideAudio, sourceAudioId: '', sourceVideoId: 'guide-video-acropolis' } } }).sourceVideoId, 'guide-video-acropolis');
 assert.equal(getHomeAudioPreview(payload()).fullUrl, undefined, 'private original is never retained');
 assert.equal(getHomeAudioPreview({ attractions: payload().attractions }), null, 'no AI or expert audio fallback');
 for (const extra of [
-  { kind: 'online' }, { attractionId: 'delphi' }, { enabled: false }, { sourceVideoId: '' },
+  { kind: 'online' }, { kind: 'expert-narration' }, { attractionId: 'delphi' }, { enabled: false }, { sourceVideoId: '' },
   { previewUrl: '' }, { previewUrl: preview.fullUrl }, { previewUrl: 'http://fixture.invalid/p.mp3' },
   { previewUrl: '//fixture.invalid/p.mp3' }, { previewSeconds: 0 }, { previewSeconds: 'invalid' }
 ]) assert.equal(getHomeAudioPreview(payload(extra)), null);

@@ -1,8 +1,15 @@
-// 首页播放真人卫城视频提取的试听音频，不从景点音轨列表猜选音源。
+// 首页播放后台配置的卫城试听音频：真人讲解视频原声或人工录制的游览攻略，不从景点音轨列表猜选音源。
+const HOME_AUDIO_KINDS = ['human-video-audio', 'guide-audio'];
+
 function getHomeAudioPreview(data, base) {
   const item = data && data.home && data.home.audioPreview;
-  if (!item || item.enabled === false || item.kind !== 'human-video-audio' ||
-    item.attractionId !== 'acropolis' || typeof item.sourceVideoId !== 'string' || !item.sourceVideoId.trim()) return null;
+  if (!item || item.enabled === false || HOME_AUDIO_KINDS.indexOf(item.kind) < 0 ||
+    item.attractionId !== 'acropolis') return null;
+  // guide-audio 用 sourceAudioId（录制音频），human-video-audio 用 sourceVideoId（视频提取原声）。
+  const source = typeof item.sourceAudioId === 'string' && item.sourceAudioId.trim()
+    ? item.sourceAudioId.trim()
+    : (typeof item.sourceVideoId === 'string' ? item.sourceVideoId.trim() : '');
+  if (!source) return null;
   const value = typeof item.previewUrl === 'string' ? item.previewUrl.trim() : '';
   const url = value.startsWith('/') && !value.startsWith('//') ? String(base || '').replace(/\/$/, '') + value : value;
   const path = url.split(/[?#]/)[0];
@@ -12,9 +19,10 @@ function getHomeAudioPreview(data, base) {
   const seconds = Number(item.previewSeconds);
   if (!Number.isFinite(seconds) || seconds <= 0) return null;
   return {
-    kind: 'human-video-audio',
+    kind: item.kind,
     attractionId: 'acropolis',
-    sourceVideoId: item.sourceVideoId.trim(),
+    sourceAudioId: source,
+    sourceVideoId: source,
     previewUrl: url,
     previewSeconds: Math.min(60, seconds)
   };
