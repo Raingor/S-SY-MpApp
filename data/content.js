@@ -10,7 +10,7 @@ let remoteLoaded = false;
 let loadState = { source: 'local', status: 'initial', reason: '' };
 let fallbackNoticeShown = false;
 
-const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], guideVideos: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, vehicleService: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
+const EMPTY_CONTENT = { settings: {}, countries: [], guides: [], cities: [], attractions: [], audioAlbums: [], guideVideos: [], shareCards: [], sampleItineraries: [], destinations: [], destinationCategories: [], heritageGuideBanners: [], miniprogramServiceEntries: [], attractionDetailPage: null, vehicleService: null, home: { eyebrow: '', title: '', description: '', banners: [] } };
 const DEFAULT_COUNTRY = { id: DEFAULT_COUNTRY_ID, name: '希腊', nameTw: '希臘', nameEn: 'Greece', enabled: true, sort: 1 };
 const FALLBACK_DESTINATION_CATEGORIES = [
   { key: 'culture', name: '文明溯源', nameTw: '文明溯源', nameEn: 'Heritage' },
@@ -485,6 +485,40 @@ function countryName(country, locale) {
   return country.name || country.nameTw || country.nameEn || country.id;
 }
 
+function adaptShareCards(list) {
+  if (!Array.isArray(list)) return [];
+  // 后台按页面路径配置转发卡；route 只保留路径部分，忽略查询串和末尾斜杠。
+  return list.filter((item) => item && typeof item === 'object').map((item) => ({
+    route: String(item.route || item.page || '').split('?')[0].replace(/\/+$/, ''),
+    title: typeof item.title === 'string' ? item.title.trim() : '',
+    titleTw: typeof item.titleTw === 'string' ? item.titleTw.trim() : '',
+    titleEn: typeof item.titleEn === 'string' ? item.titleEn.trim() : '',
+    description: typeof item.description === 'string' ? item.description.trim() : '',
+    descriptionTw: typeof item.descriptionTw === 'string' ? item.descriptionTw.trim() : '',
+    descriptionEn: typeof item.descriptionEn === 'string' ? item.descriptionEn.trim() : '',
+    image: mapManagedImage(item.image || item.cover || ''),
+    sort: Number(item.sort) || 0,
+    status: item.status || 'published'
+  })).filter((item) => item.route.indexOf('/') === 0 && item.status !== 'draft').sort((a, b) => a.sort - b.sort);
+}
+
+function getShareCard(list, route) {
+  const target = String(route || '').split('?')[0].replace(/\/+$/, '');
+  const cards = Array.isArray(list) ? list : [];
+  return cards.find((card) => card.route === target) || null;
+}
+
+function localizeShareCard(card, locale = 'zh-CN') {
+  if (!card) return null;
+  const suffix = guideVideoLocaleSuffix(locale);
+  return {
+    route: card.route,
+    title: card['title' + suffix] || card.title || '',
+    description: card['description' + suffix] || card.description || '',
+    image: card.image || ''
+  };
+}
+
 function fetchContent() {
   if (fetching) return fetching;
   const app = getApp();
@@ -508,6 +542,7 @@ function fetchContent() {
             audioAlbums: adaptAudioAlbums(res.data.audioAlbums),
             guideVideos: adaptGuideVideos(res.data.guideVideos),
             guideVideoAlbums: adaptGuideVideoAlbums(res.data.guideVideoAlbums || res.data.guideVideoAlbumList || []),
+            shareCards: adaptShareCards(res.data.shareCards || (res.data.settings && res.data.settings.shareCards) || []),
             sampleItineraries: adaptSampleTrips(res.data.sampleItineraries),
             destinations: adaptDestinations(res.data.destinations),
             destinationCategories: adaptDestinationCategories(res.data.destinationCategories),
@@ -518,6 +553,8 @@ function fetchContent() {
             home: adaptHome(res.data.home)
           };
           if (app && app.globalData) app.globalData.contentSettings = res.data.settings || {};
+          // 分享卡在页面事件里同步读取，不依赖页面是否已缓存内容。
+          if (app && app.globalData) app.globalData.shareCards = cache.shareCards;
           remoteLoaded = true;
           loadState = { source: 'remote', status: 'ready', reason: '' };
           resolve({ data: cache, state: loadState });
@@ -947,6 +984,8 @@ module.exports = {
   getHumanitiesFilms,
   getHumanitiesAlbums,
   getGuideVideoAlbum,
+  getShareCard,
+  localizeShareCard,
   getAttractionNames,
   getReferenceList,
   getHomeDestinations,

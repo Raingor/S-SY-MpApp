@@ -89,7 +89,7 @@ const visitorFixture = {
     { id: 'hours', kind: 'hours', title: '开放时间', titleTw: '開放時間', titleEn: 'Opening hours', nodes: [{ type: 'text', text: '简体开放内容' }], nodesTw: [{ type: 'text', text: '繁體開放內容' }], nodesEn: [{ type: 'text', text: 'English hours' }], bodyHtml: '简体开放内容', bodyHtmlTw: '繁體開放內容', bodyHtmlEn: 'English hours', sort: 1, status: 'published' },
     { id: 'tickets', kind: 'tickets', title: '门票信息', titleTw: '門票資訊', titleEn: 'Tickets', nodes: [], nodesTw: [], nodesEn: [], bodyHtml: '', bodyHtmlTw: '', bodyHtmlEn: '', sort: 2, status: 'published' },
     { id: 'transport', kind: 'transport', title: '交通信息', titleTw: '交通資訊', titleEn: 'Transport', nodes: [], nodesTw: [], nodesEn: [], bodyHtml: '', bodyHtmlTw: '', bodyHtmlEn: '', sort: 3, status: 'published' },
-    { id: 'map', kind: 'map', title: '景点地图', titleTw: '景點地圖', titleEn: 'Map', nodes: [], nodesTw: [], nodesEn: [], bodyHtml: '', bodyHtmlTw: '', bodyHtmlEn: '', map: {}, sort: 4, status: 'published' }
+    { id: 'map', kind: 'map', title: '游览动线', titleTw: '遊覽動線', titleEn: 'Route map', nodes: [], nodesTw: [], nodesEn: [], bodyHtml: '', bodyHtmlTw: '', bodyHtmlEn: '', map: {}, sort: 4, status: 'published' }
   ],
   customSections: [
     { id: 'custom-late', status: 'published', sort: 2, title: '后置', titleTw: '後置', titleEn: 'Later', nodes: [{ type: 'text', text: 'custom rich content' }], bodyHtml: 'custom rich content' },
@@ -154,7 +154,14 @@ assert.equal(visitorDetailInstance.data.activeKind, 'transport');
 assert.equal(visitorDetailInstance.data.activeSection.kind, 'transport');
 visitorDetailInstance.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
 assert.equal(visitorDetailInstance.data.activeKind, 'map');
-assert.equal(visitorDetailInstance.data.activeSection.displayTitle, '遊覽動線', 'map tab is renamed to the tour route wording');
+assert.equal(visitorDetailInstance.data.activeSection.displayTitle, '遊覽動線', 'map tab uses the backend section title');
+const blankMapFixture = structuredClone(visitorFixture);
+blankMapFixture.visitorInfoSections = blankMapFixture.visitorInfoSections.map((section) => section.kind === 'map' ? { ...section, title: '', titleTw: '', titleEn: '' } : section);
+visitorDetailInstance.applySpot(blankMapFixture);
+visitorDetailInstance.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
+assert.equal(visitorDetailInstance.data.activeSection.displayTitle, '遊覽動線', 'blank backend title falls back to the local route wording');
+visitorDetailInstance.applySpot(visitorFixture);
+visitorDetailInstance.onTabTap({ currentTarget: { dataset: { kind: 'map' } } });
 assert.equal(visitorDetailInstance.data.activeSection.hasContent, false);
 assert.equal(visitorDetailInstance.data.sections.find((section) => section.kind === 'transport').hasContent, false);
 assert.deepEqual(Array.from(visitorDetailInstance.data.customSections, (section) => section.id), ['custom-first', 'custom-late']);

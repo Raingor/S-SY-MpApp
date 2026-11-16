@@ -1,14 +1,38 @@
 const i18n = require('./i18n');
+const content = require('../data/content');
 const { pagePreview } = require('./share-preview');
 const SHARE_IMAGE = '/assets/images/hero/hero-santorini.jpg';
+
+// 后台按页面路径配置的转发卡：标题/图片优先，缺失字段回落页面首图与页面标题。
+function configuredCard(route, locale) {
+  const app = typeof getApp === 'function' ? getApp() : null;
+  const cards = app && app.globalData ? app.globalData.shareCards : null;
+  return content.localizeShareCard(content.getShareCard(cards, route), locale);
+}
 
 function buildShareCard(path, page) {
   let target = path || '/pages/index/index';
   // 账户与旅客资料页分享公共入口，不截取个人屏幕；定制行程保留原有主动分享链接。
   if (/^\/pages\/profile\//.test(target)) target = '/pages/index/index';
   const spec = pagePreview(target, target === path ? page : { data: { i18n: i18n.getMessages() } });
+  const locale = (target === path && page && page.data && page.data.locale) || i18n.getLocale();
+  const configured = configuredCard(target, locale);
+  if (configured) {
+    if (configured.title) {
+      spec.title = configured.title;
+      spec.overrideTitle = configured.title;
+    }
+    if (configured.description) spec.summary = configured.description;
+    if (configured.image) {
+      spec.image = configured.image;
+      spec.overrideImage = configured.image;
+    }
+  }
   const card = {
-    title: spec.overrideTitle || Array.from(spec.title + (spec.summary ? '｜' + spec.summary : '')).slice(0, 120).join(''),
+    // 后台标题（含景点级 shareTitle）直接使用，不再拼接页面摘要；否则沿用页面标题+摘要。
+    title: spec.overrideTitle
+      ? Array.from(spec.overrideTitle).slice(0, 120).join('')
+      : Array.from(spec.title + (spec.summary ? '｜' + spec.summary : '')).slice(0, 120).join(''),
     path: target,
     imageUrl: spec.overrideImage || spec.image || SHARE_IMAGE
   };

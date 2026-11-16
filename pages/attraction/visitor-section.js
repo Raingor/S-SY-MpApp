@@ -100,7 +100,7 @@ Page({
     const rawSections = Array.isArray(spot.visitorInfoSections) ? spot.visitorInfoSections : [];
     const byKind = new Map(rawSections.map((section) => [section.kind || section.id, section]));
     const labels = (this.data.i18n.contentPage && this.data.i18n.contentPage.guideLabels) || {};
-    // 与景点详情的参观指南卡片一致：地图分区叫「游览动线」。
+    // 与景点详情一致：地图卡片标题以后台下发的全局标签为准，空值才回退本地「游览动线」。
     const routeLabel = (this.data.i18n.heritage && this.data.i18n.heritage.map) || labels.map;
     const sections = REQUIRED_KINDS.map((kind) => {
       const source = byKind.get(kind) || { kind };
@@ -121,7 +121,7 @@ Page({
         ...source,
         kind,
         icon: SECTION_ICONS[kind],
-        displayTitle: kind === 'map' ? (routeLabel || kind) : (localized(source, 'title', locale) || labels[kind] || kind),
+        displayTitle: localized(source, 'title', locale) || (kind === 'map' ? (routeLabel || kind) : (labels[kind] || kind)),
         richNodes,
         links: getRichLinks(richNodes || hoursText, sourceHtml),
         hoursText,
