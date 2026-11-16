@@ -194,6 +194,39 @@ async function main() {
   assert(knowledgeMarkup.indexOf('i18n.heritage.roaming') > 0);
   assert(JSON.parse(read('app.json')).pages.includes('pages/video/index'));
   assert(JSON.parse(read('app.json')).pages.includes('pages/knowledge/knowledge'));
+  // 漫游希臘（人文影集）随年会员观看：不再出现单独购买文案/入口；景点讲解仍保留 ¥168 购买。
+  const videoMarkup = read('pages/video/detail.wxml');
+  assert.equal(videoMarkup.includes('humanitiesFilms.purchase'), false, 'roaming films never advertise a separate purchase');
+  assert(videoMarkup.includes('i18n.humanitiesFilms.memberAccess'), 'roaming films state the annual-member benefit');
+  assert(videoMarkup.includes('purchase-allowed="{{false}}"'), 'album player never renders a purchase gate');
+  assert(videoMarkup.includes('purchase-allowed="{{!isHumanities}}"'), 'only sight-guide videos keep the purchase gate');
+  const albumAbout = videoMarkup.slice(videoMarkup.indexOf('bindtap="onAlbumAbout"'));
+  const albumPlayStart = albumAbout.indexOf('audio-album-play-button');
+  const albumPlay = albumAbout.slice(albumPlayStart, albumAbout.indexOf('</button>', albumPlayStart));
+  assert.equal(albumPlay.includes('guideVideoBuyCta'), false, 'album bottom action never offers a purchase');
+  assert(albumPlay.includes('guideVideoPlay'), 'album bottom action plays once access is granted');
+  for (const locale of ['zh-CN', 'zh-TW', 'en']) {
+    const copy = i18n.getMessages(locale).humanitiesFilms;
+    assert.ok(copy.memberAccess, locale + ':memberAccess');
+    assert.equal(/单独购买|單獨購買|sold separately/.test(JSON.stringify(copy)), false, locale + ' keeps no separate-purchase copy');
+  }
+  // 同一集回写不能造成 loading→ready 死循环（页面频闪 + 一直“正在加载”）。
+  const albumPage = page('pages/video/detail.js');
+  albumPage.data = { ...structuredClone(albumPage.data), locale: 'zh-CN', isAlbum: true, isHumanities: true };
+  albumPage.data.album = { id: 'album-mixed', episodeCount: 1, sections: [], episodes: [{ id: 'mixed-humanities', title: '旅途人文' }] };
+  let writes = 0;
+  albumPage.setData = function setData(next) { writes += 1; Object.assign(this.data, next); };
+  albumPage.selectEpisode('mixed-humanities');
+  albumPage.handleAlbumAccess('ready', 'mixed-humanities');
+  const writesAfterReady = writes;
+  albumPage.handleAlbumAccess('ready', 'mixed-humanities');
+  assert.equal(writes, writesAfterReady, 'repeated ready events with an unchanged purchase flag stop writing to data');
+  assert.equal(albumPage.data.videoState, 'ready');
+  albumPage.handleAlbumAccess('login', 'mixed-humanities');
+  const writesAfterLogin = writes;
+  albumPage.handleAlbumAccess('login', 'mixed-humanities');
+  assert.equal(writes, writesAfterLogin, 'repeated login gate events do not loop');
+  assert.equal(albumPage.data.videoState, 'login');
   console.log('PASS: humanities film publishing/category isolation, stable order, 3 locales, home/list/detail navigation, search, offline/deletion/unload and public share metadata; 0 real requests/payments');
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

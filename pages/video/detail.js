@@ -238,11 +238,18 @@ Page({
   },
   handleAlbumAccess(state, videoId) {
     if (!this.data.album || !videoId) return;
+    if (state !== 'ready' && state !== 'login' && state !== 'purchase') return;
     this._purchased = this._purchased || {};
-    if (state === 'ready') this._purchased[videoId] = true;
-    else if (state === 'login' || state === 'purchase') this._purchased[videoId] = false;
-    else return;
-    const purchased = Boolean(this._purchased[videoId]);
+    const purchased = state === 'ready';
+    const changed = Boolean(this._purchased[videoId]) !== purchased;
+    this._purchased[videoId] = purchased;
+    const activeId = this.data.activeEpisodeId;
+    const nextState = String(activeId) === String(videoId) ? state : this.data.videoState;
+    // 父页把同一个 episode 对象回写给组件会再次触发鉴权；已购状态没变时必须停下，否则 loading→ready 无限循环（页面频闪）。
+    if (!changed) {
+      if (nextState !== this.data.videoState) this.setData({ videoState: nextState });
+      return;
+    }
     const sections = this.buildSections(this.data.album);
     const marked = this.markActive(sections, this.data.activeEpisodeId);
     const visibleSections = this.filterSections(marked, this.data.activeSection);
@@ -259,7 +266,7 @@ Page({
       activeEpisode,
       activeEpisodePurchased: activeEpisode ? activeEpisode.purchased : this.data.activeEpisodePurchased,
       videoOpen,
-      videoState: this.data.activeEpisodeId === videoId ? state : this.data.videoState
+      videoState: nextState
     });
   },
 
@@ -293,7 +300,9 @@ Page({
     if (!this.data.videoOpen) return this.setData({ videoOpen: this.data.video, videoState: 'loading' });
     const player = this.selectComponent && this.selectComponent('#video-player');
     if (!player) return;
-    const actions = { login: 'onLogin', purchase: 'onBuy', error: 'reload', ready: 'play' };
+    // 人文影集不提供单独购买入口；只有景点讲解才走购买。
+    const actions = { login: 'onLogin', error: 'reload', ready: 'play' };
+    if (!this.data.isHumanities) actions.purchase = 'onBuy';
     const action = actions[player.data.state];
     if (action) player[action]();
   },
@@ -312,7 +321,8 @@ Page({
     this.setData({ scrollIntoView: 'video-program' });
     const player = this.selectComponent && this.selectComponent('#video-player');
     if (!player) return;
-    const actions = { login: 'onLogin', purchase: 'onBuy', error: 'reload', ready: 'play' };
+    // 专辑模式只承载人文影集：不展示也不触发单独购买。
+    const actions = { login: 'onLogin', error: 'reload', ready: 'play' };
     const action = actions[player.data.state];
     if (action) player[action]();
   },

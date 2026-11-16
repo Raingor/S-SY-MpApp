@@ -214,6 +214,14 @@ async function main() {
   assert.equal(sheet.data.state, 'purchase', 'failed order returns to purchase state with a modal');
   assert.equal(modals.length, 1);
   assert.equal(JSON.stringify(component.data).includes('SECRET'), false);
+  // 人文影集（漫游希臘）随年会员：不提供单独购买门禁，绝不回退到购买状态。
+  sheet.properties.purchaseAllowed = false;
+  accessResponse = purchaseLocked;
+  component.properties.video.observer.call(sheet, { ...adapted });
+  await flush();
+  assert.equal(sheet.data.state, 'error', 'no-purchase content never renders a buy gate');
+  assert.equal(sheet.data.price, '');
+  sheet.properties.purchaseAllowed = true;
 
   // 已购标记：unlockedVideos 命中 → purchased；年会员不含视频。
   entitlementsReply = [VIDEO.id];

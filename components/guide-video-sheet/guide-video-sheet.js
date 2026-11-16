@@ -23,6 +23,11 @@ Component({
         });
         this.reload();
       }
+    },
+    // 景区讲解可单独购买；人文影集（漫游希腊）随年会员观看，不出现购买入口。
+    purchaseAllowed: {
+      type: Boolean,
+      value: true
     }
   },
   data: { i18n: i18n.getMessages(), state: 'idle', price: '', purchaseLoading: false, authLoading: false, simulationLoading: false, playUrl: '', position: 0, order: null, displayTitle: '', displayDescription: '', cover: '' },
@@ -64,7 +69,7 @@ Component({
         if (result.access === 'locked' && result.reason === 'MINIPROGRAM_LOGIN_REQUIRED') {
           return this.setAccessState({ state: 'login', reloading: false, access: result });
         }
-        if (result.access === 'locked' && result.reason === 'VIDEO_PURCHASE_REQUIRED' && result.product) {
+        if (result.access === 'locked' && result.reason === 'VIDEO_PURCHASE_REQUIRED' && result.product && this.properties.purchaseAllowed !== false) {
           return this.setAccessState({ state: 'purchase', reloading: false, access: result, price: guideVideo.priceDisplay(result.product) });
         }
         this.setAccessState({ state: 'error', reloading: false });
