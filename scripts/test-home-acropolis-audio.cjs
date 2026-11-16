@@ -178,6 +178,12 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   for (const key of ['title', 'desc', 'loading', 'unavailable', 'preview', 'ended']) assert(copy[key].trim());
   assert.equal(copy.kicker, 'ACROPOLIS AUDIO');
 }
+const guidePage = makePage(); guidePage.onRouteAudioToggle();
+contentCallback(payload({ kind: 'guide-audio', sourceVideoId: '', sourceAudioId: 'acropolis-guide-30min', previewUrl: 'https://fixture.invalid/audio/acropolis-guide-preview-60s-74cb88c5.m4a' }), ready);
+assert.equal(guidePage.routeAudioContext.src, 'https://fixture.invalid/audio/acropolis-guide-preview-60s-74cb88c5.m4a', 'recorded guide audio is played on the home card');
+assert.equal(guidePage.routeAudioContext.playCalls, 1);
+assert.equal(guidePage.data.routeAudioDuration, '1:00');
+guidePage.onUnload();
 page.onUnload(); assert.equal(audio.destroyed, true);
 
 // Exercise the actual /api/content adapter with a synthetic response.
@@ -206,6 +212,6 @@ async function verifyAdapter() {
   delete raw.home.audioPreview;
   const missing = await new Promise((resolve) => module.exports.loadContent(resolve, true));
   assert.equal(missing.home.audioPreview, null, 'adapter preserves the missing-preview state');
-  console.log('PASS: original human-video narration only, real content adapter, no AI/track fallback, pause/restart, expiry, retries and lifecycle cancellation; 0 real requests');
+  console.log('PASS: configured Acropolis preview (video narration or recorded guide audio), real content adapter, no AI/track fallback, pause/restart, expiry, retries and lifecycle cancellation; 0 real requests');
 }
 verifyAdapter().catch((error) => { console.error(error); process.exitCode = 1; });
