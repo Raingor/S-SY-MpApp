@@ -25,9 +25,6 @@ Page({
     // 导游名片轮播：数据来自后台 /api/content，不再内嵌旧文案，避免后台修改后前台不同步。
     guides: [],
     guideCarouselEnabled: false,
-    homeAudio: {
-      src: 'https://sy-greece.com/audio/selected-routes-intro.m4a'
-    },
     routeAudioPlaying: false,
     routeAudioLoading: false,
     routeAudioCurrentTime: '0:00',
