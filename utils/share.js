@@ -37,7 +37,9 @@ function buildShareCard(path, page) {
     imageUrl: spec.overrideImage || spec.image || SHARE_IMAGE
   };
   if (!spec.title) card.title = `${i18n.getMessages().brandEn} · ${i18n.getMessages().commonSlogan}`;
-  // 后台分享标题仍优先；配置图作为卡片主图，叠加当前页摘要，不再只发一张无内容封面。
+  // 后台配置的转发卡必须原样上屏；本地 Canvas 预览仅用于未配置图的页面兜底。
+  if (spec.overrideImage) return card;
+  // 未配置图的页面仍叠加当前页摘要，生成一张有内容的预览；失败/超时用当前主图兜底。
   const preview = target === path && page && typeof page.selectComponent === 'function' && page.selectComponent('#share-preview');
   if (!preview || typeof preview.render !== 'function') return card;
   // 微信分享 promise 有时间上限；失败/超时用当前主图兜底，不截取可能含个人资料的屏幕。

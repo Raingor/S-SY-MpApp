@@ -58,10 +58,8 @@ async function main() {
   const configured = buildShareCard('/pages/index/index?from=menu', home);
   assert.equal(configured.title, '后台首页标题', 'backend title is used verbatim, no page summary appended');
   assert.equal(configured.imageUrl, 'https://sy-greece.com/images/share-home.jpg', 'backend image wins over the page hero');
-  assert.equal((await configured.promise).imageUrl, '/tmp/share.jpg');
-  assert.equal(rendered.title, '后台首页标题');
-  assert.equal(rendered.summary, '后台首页摘要');
-  assert.equal(rendered.image, 'https://sy-greece.com/images/share-home.jpg');
+  assert.equal(configured.promise, undefined, 'backend image is used directly for the WeChat share card');
+  assert.equal(rendered, undefined, 'backend image bypasses local preview rendering');
 
   const fallback = page('zh-CN', { heroCopy: { title: '页面标题', description: '页面摘要' }, heroList: [{ img: '/assets/images/hero/home.jpg' }] });
   const plain = buildShareCard('/pages/travel-guide/travel-guide', fallback);

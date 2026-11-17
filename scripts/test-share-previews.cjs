@@ -39,8 +39,8 @@ async function main() {
     p.data.spot.shareTitle = '管理员指定标题'; p.data.spot.shareImage = 'https://fixture.invalid/custom.jpg';
     const override = buildShareCard('/pages/attraction/detail?id=a', p);
     assert.equal(override.title, '管理员指定标题'); assert.equal(override.imageUrl, p.data.spot.shareImage);
-    assert.equal((await override.promise).imageUrl, '/tmp/rendered.jpg');
-    assert.equal(rendered.image, p.data.spot.shareImage, 'configured cover is composed with page summary, not a bypass');
+    assert.equal(override.promise, undefined, 'configured image is used directly, not replaced by a local canvas preview');
+    assert.equal(rendered.image, p.data.spot.image, 'configured image bypasses canvas rendering');
     delete p.selectComponent;
     assert.equal(buildShareCard('/pages/attraction/detail?id=a', p).imageUrl, p.data.spot.shareImage, 'configured image remains safe fallback');
   }
