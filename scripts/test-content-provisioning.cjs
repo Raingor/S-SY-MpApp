@@ -140,6 +140,7 @@ function resolveModule(id) {
   };
   if (id.includes('utils/price')) return { formatCnyPrice: (c) => c && String(c.currency || '').toUpperCase() === 'CNY' && c.priceCny !== undefined && c.priceCny !== null && c.priceCny !== '' ? (String(c.priceCny).startsWith('¥') ? String(c.priceCny) : `¥${c.priceCny}`) : '' };
   if (id.includes('utils/lead-api')) return { submitLead: () => {} };
+  if (id.includes('utils/asset-url')) return loadModule(path.join(ROOT, 'utils/asset-url.js'));
   if (id.includes('data/mirror-itineraries')) return { SERVICE_KEYS: [], getItinerary: () => NEW_TRIP, getReferenceList: () => [] };
   if (id.includes('data/luxury')) return { getLuxuryCards: () => [] };
   return {};

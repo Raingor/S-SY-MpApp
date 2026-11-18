@@ -1,5 +1,7 @@
 // 奢享体验（私人包机 / 游艇租赁）内容与首页卡片文案。
 // 三种语言的 sections 结构、条目数保持一致，避免切换语言后信息量缩水。
+const { asset } = require('../utils/asset-url');
+
 const details = {
   'zh-CN': {
     jet: {
@@ -93,11 +95,12 @@ const cards = {
 
 function getLuxuryDetail(type, locale) {
   const group = details[locale] || details['zh-CN'];
-  return group[type] || group.jet;
+  const detail = group[type] || group.jet;
+  return { ...detail, image: asset(detail.image) };
 }
 
 function getLuxuryCards(locale) {
-  return cards[locale] || cards['zh-CN'];
+  return (cards[locale] || cards['zh-CN']).map((item) => ({ ...item, img: asset(item.img) }));
 }
 
 module.exports = { getLuxuryDetail, getLuxuryCards };

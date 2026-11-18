@@ -41,7 +41,7 @@ async function main() {
   vm.runInNewContext(read('pages/index/index.js'), {
     wx, Page(value) { definition = value; },
     getApp: () => ({ globalData: { apiBase: 'https://fixture.invalid', contentSettings: {} } }),
-    require: (id) => id.endsWith('data/content') ? content : id.endsWith('utils/i18n') ? i18n : id.endsWith('data/luxury') ? loadModule('data/luxury.js') : {}
+    require: (id) => id.endsWith('data/content') ? content : id.endsWith('utils/i18n') ? i18n : id.endsWith('data/luxury') ? loadModule('data/luxury.js') : id.endsWith('utils/asset-url') ? loadModule('utils/asset-url.js') : {}
   }, { filename: 'pages/index/index.js' });
   const data = await new Promise((resolve) => content.loadContent(resolve, true)).then((r) => r.data || r);
   const banners = data.home.banners;

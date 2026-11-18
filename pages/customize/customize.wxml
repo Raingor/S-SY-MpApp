@@ -178,7 +178,7 @@
       </view>
     </view>
     <view class="trip-link-sample" bindtap="onViewSampleTrip">
-      <image class="trip-link-img" src="/assets/images/hero/hero-santorini.jpg" mode="aspectFill" webp="{{true}}" />
+      <image class="trip-link-img" src="{{sampleTripImage}}" mode="aspectFill" webp="{{true}}" />
       <view class="trip-link-info">
         <view class="trip-link-name">{{i18n.forms.sampleTripTitle}}</view>
         <view class="trip-link-copy">{{i18n.forms.sampleTripDesc}}</view>

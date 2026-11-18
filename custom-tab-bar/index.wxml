@@ -1,4 +1,4 @@
-<view class="tabbar">
+<view class="tabbar" hidden="{{hidden}}">
   <view class="tabbar-inner">
     <block wx:for="{{list}}" wx:key="pagePath">
       <!-- 中间凸起「立即联系」主按钮 -->

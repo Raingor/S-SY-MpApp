@@ -62,10 +62,8 @@
       bindtap="onEntryTap"
     >
       <view class="entry-icon entry-icon-{{item.key}}">
-        <view wx:if="{{item.key === 'travel-guide'}}" class="entry-compass" aria-label="出行指南图标">
-          <view class="entry-compass-needle"></view>
-        </view>
-        <image wx:else class="entry-icon-img" src="{{item.iconImage}}" mode="aspectFit" webp="{{true}}" />
+        <image wx:if="{{item.localIcon}}" class="entry-icon-img" src="{{item.localIcon}}" mode="aspectFit" aria-label="{{item.label}}" />
+        <image wx:elif="{{item.iconImage}}" class="entry-icon-img" src="{{item.iconImage}}" mode="aspectFit" webp="{{true}}" aria-label="{{item.label}}" />
       </view>
       <view class="entry-label">{{item.label}}</view>
       <view class="entry-desc">{{item.desc}}</view>
@@ -74,7 +72,7 @@
 
   <!-- 视频号入口：六大服务下方，精选目的地上方。 -->
   <view class="home-channels-card card" hover-class="card-press" bindtap="onChannelsTap" aria-role="button" aria-label="{{i18n.homeChannels.action}}">
-    <view class="home-channels-icon" aria-hidden="true"><view class="home-channels-play"></view></view>
+    <view class="home-channels-icon" aria-hidden="true"><image class="home-channels-play" src="/assets/images/icons/ui-play-tan.png" mode="aspectFit" /></view>
     <view class="home-channels-copy">
       <view class="home-channels-label">{{i18n.homeChannels.label}}</view>
       <view class="home-channels-title">{{i18n.homeChannels.title}}</view>

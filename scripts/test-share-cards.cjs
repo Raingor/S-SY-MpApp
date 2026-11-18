@@ -34,6 +34,7 @@ function load(rel) {
 const content = load('data/content');
 const i18n = load('utils/i18n');
 const { buildShareCard } = load('utils/share');
+const { asset } = load('utils/asset-url');
 const page = (locale, data = {}) => ({ data: { i18n: i18n.getMessages(locale), locale, ...data } });
 
 async function main() {
@@ -66,7 +67,7 @@ async function main() {
   assert.ok(plain.title.indexOf('｜') > 0, 'unconfigured page keeps page title + summary');
   const configuredNoImage = buildShareCard('/pages/vehicle/vehicle', page('zh-CN', { service: { title: '用车服务', description: '用车重点' } }));
   assert.equal(configuredNoImage.title, '用车转发标题');
-  assert.equal(configuredNoImage.imageUrl, '/assets/images/hero/hero-santorini.jpg', 'missing backend image and page image uses the brand default');
+  assert.equal(configuredNoImage.imageUrl, asset('/assets/images/hero/hero-santorini.jpg'), 'missing backend image and page image uses the brand default');
   const pageFirstImage = buildShareCard('/pages/knowledge/knowledge', page('zh-TW', { activePanel: 1, visibleAlbums: [{ cover: '/album.jpg' }] }));
   assert.equal(pageFirstImage.title, '後台知識庫');
   assert.equal(pageFirstImage.imageUrl, 'https://cdn.invalid/share-knowledge.webp', 'configured image still wins');

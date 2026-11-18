@@ -206,7 +206,11 @@ async function replayWebsiteFixture() {
   const app = { globalData: { apiBase: 'https://fixture.invalid' } };
   vm.runInNewContext(read('data/content.js'), {
     module: adapterModule,
-    require: (id) => { assert.equal(id, './mirror-content'); return { getContent: () => ({}) }; },
+    require: (id) => {
+      if (id === '../utils/asset-url') return { asset: (value) => value };
+      assert.equal(id, './mirror-content');
+      return { getContent: () => ({}) };
+    },
     getApp: () => app,
     wx: { ...wx, getStorageSync: () => '', request: (options) => {
       assert(options.url.startsWith('https://fixture.invalid/api/content?'), 'all requests are intercepted offline');

@@ -47,7 +47,7 @@ async function runContent() {
   vm.runInNewContext(contentSource, {
     module,
     exports: module.exports,
-    require: () => ({ getContent: () => ({}) }),
+    require: (id) => id === '../utils/asset-url' ? { asset: (value) => value } : { getContent: () => ({}) },
     getApp: () => app,
     wx
   }, { filename: 'data/content.js' });

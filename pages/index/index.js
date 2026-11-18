@@ -5,7 +5,24 @@ const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getLuxuryCards } = require('../../data/luxury');
 const { getHomeAudioPreview } = require('../../utils/home-audio');
+const { asset } = require('../../utils/asset-url');
 const CHANNELS_USER_NAME = 'sphh8gpNu8tw4yv';
+// 六大服务入口统一使用 iconfont 线性图标；后台新增的自定义入口仍回退 iconImage。
+const ENTRY_ICONS = {
+  customization: '/assets/images/icons/entry-customization.png',
+  guide: '/assets/images/icons/entry-guide.png',
+  vehicle: '/assets/images/icons/entry-vehicle.png',
+  knowledge: '/assets/images/icons/entry-knowledge.png',
+  business: '/assets/images/icons/entry-business.png',
+  'travel-guide': '/assets/images/icons/entry-travel-guide.png'
+};
+
+function withEntryIcons(entries) {
+  return (entries || []).map((item) => ({
+    ...item,
+    localIcon: ENTRY_ICONS[item.key] || ''
+  }));
+}
 
 Page({
   data: {
@@ -37,7 +54,7 @@ Page({
     routes: [
       {
         id: 'sample-athens-3d',
-        img: '/assets/images/route/route-athens.jpg',
+        img: asset('/assets/images/route/route-athens.jpg'),
         name: '3天2晚 · 雅典市区精华',
         tag: '短途 · 中转',
         highlights: '卫城日出 / 普拉卡老城漫步 / 国家考古博物馆',
@@ -45,7 +62,7 @@ Page({
       },
       {
         id: 'sample-ae-5d',
-        img: '/assets/images/route/route-santorini.jpg',
+        img: asset('/assets/images/route/route-santorini.jpg'),
         name: '5天4晚 · 雅典+圣托里尼',
         tag: '蜜月 · 情侣',
         highlights: '伊亚落日 / 蓝顶教堂 / 悬崖海景餐厅',
@@ -53,7 +70,7 @@ Page({
       },
       {
         id: 'sample-family-7d',
-        img: '/assets/images/route/route-peloponnese.jpg',
+        img: asset('/assets/images/route/route-peloponnese.jpg'),
         name: '7天6晚 · 经典三城家庭游',
         tag: '亲子 · 家庭',
         highlights: '纳夫普利翁小镇 / 埃皮达鲁斯古剧场 / 科林斯运河',
@@ -61,7 +78,7 @@ Page({
       },
       {
         id: 'sample-heritage-9d',
-        img: '/assets/images/route/route-heritage.jpg',
+        img: asset('/assets/images/route/route-heritage.jpg'),
         name: '9天8晚 · 全遗产环游',
         tag: '深度 · 定制',
         highlights: '德尔斐神庙 / 梅黛奥拉修道院 / 四大世遗一网打尽',
@@ -294,7 +311,7 @@ Page({
       ? content.getHomeDestinations(this.destinationContent, locale, fallbackLabels)
       : null;
     this.setData({
-      entries: content.getMiniProgramServiceEntries(this.destinationContent, locale),
+      entries: withEntryIcons(content.getMiniProgramServiceEntries(this.destinationContent, locale)),
       ...(localizedDestinations
         ? {
             destinations: localizedDestinations,
@@ -325,7 +342,7 @@ Page({
       const countries = content.getCountries(data);
       const selectedCountry = countries.find((item) => item.id === content.getSelectedCountryId()) || countries[0] || null;
       const guides = content.getGuides(data);
-      const entries = content.getMiniProgramServiceEntries(data, this.data.locale);
+      const entries = withEntryIcons(content.getMiniProgramServiceEntries(data, this.data.locale));
       const destinations = content.getHomeDestinations(data, this.data.locale, {
         culture: this.data.locale === 'en' ? 'Heritage' : this.data.locale === 'zh-TW' ? '文明溯源' : '文明溯源',
         island: this.data.locale === 'en' ? 'Island escapes' : this.data.locale === 'zh-TW' ? '海島度假' : '海岛度假'

@@ -4,6 +4,7 @@ const i18n = require('../utils/i18n');
 Component({
   data: {
     selected: 0,
+    hidden: false,
     list: []
   },
   lifetimes: {

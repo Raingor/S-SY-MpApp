@@ -1,7 +1,8 @@
 const i18n = require('./i18n');
 const content = require('../data/content');
 const { pagePreview } = require('./share-preview');
-const SHARE_IMAGE = '/assets/images/hero/hero-santorini.jpg';
+const { asset } = require('./asset-url');
+const SHARE_IMAGE = asset('/assets/images/hero/hero-santorini.jpg');
 
 // 后台按页面路径配置的转发卡：标题/图片优先，缺失字段回落页面首图与页面标题。
 function configuredCard(route, locale) {

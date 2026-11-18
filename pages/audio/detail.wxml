@@ -29,7 +29,7 @@
         <view class="guide-video-heading">{{i18n.heritage.guideVideos}}</view>
         <view wx:for="{{guideVideos}}" wx:key="id" class="guide-video-card" data-id="{{item.id}}" bindtap="onGuideVideoTap" hover-class="guide-video-card-hover">
           <image wx:if="{{item.cover}}" class="guide-video-thumb" src="{{item.cover}}" mode="aspectFill" webp="{{true}}" />
-          <view wx:else class="guide-video-thumb guide-video-thumb-empty">▶</view>
+          <view wx:else class="guide-video-thumb guide-video-thumb-empty"><image class="guide-video-thumb-play" src="/assets/images/icons/ui-play-white.png" mode="aspectFit" aria-hidden="true" /></view>
           <view wx:if="{{!item.purchased}}" class="guide-video-lock">🔒</view>
           <view class="guide-video-copy">
             <view class="guide-video-name">{{item.displayTitle || item.title}}</view>
@@ -66,7 +66,7 @@
     <view class="audio-player-controls">
       <view class="audio-skip-control" data-offset="-15" bindtap="onSeekOffset"><text class="audio-skip-icon">↶</text><text class="audio-skip-seconds">15</text></view>
       <view class="audio-track-step audio-track-step-disabled"><text>◀|</text></view>
-      <view class="audio-round-control" bindtap="onPlayerToggle"><text>{{audioLoading ? '…' : (playing ? 'Ⅱ' : '▶')}}</text></view>
+      <view class="audio-round-control" bindtap="onPlayerToggle"><text wx:if="{{audioLoading}}">…</text><image wx:elif="{{playing}}" class="audio-round-icon" src="/assets/images/icons/ui-pause-dark.png" mode="aspectFit" aria-hidden="true" /><image wx:else class="audio-round-icon" src="/assets/images/icons/ui-play-dark.png" mode="aspectFit" aria-hidden="true" /></view>
       <view class="audio-track-step audio-track-step-disabled"><text>|▶</text></view>
       <view class="audio-skip-control" data-offset="30" bindtap="onSeekOffset"><text class="audio-skip-icon">↷</text><text class="audio-skip-seconds">30</text></view>
     </view>

@@ -42,7 +42,7 @@ const i18n = require('../utils/i18n');
 const contentModule = { exports: {} };
 vm.runInNewContext(read('data/content.js'), {
   module: contentModule, exports: contentModule.exports, wx, getApp: () => app,
-  require: () => ({ getContent: () => ({ guideVideos: [film], attractions: [], cities: [], sampleItineraries: [] }) })
+  require: (id) => id === '../utils/asset-url' ? { asset: (value) => value } : { getContent: () => ({ guideVideos: [film], attractions: [], cities: [], sampleItineraries: [] }) }
 });
 const content = contentModule.exports;
 let entitlementReads = 0;
@@ -53,6 +53,7 @@ const dependencies = {
   '../../utils/home-audio': require('../utils/home-audio'),
   '../../utils/navigation': { goBack() {} },
   '../../utils/share': require('../utils/share'),
+  '../../utils/asset-url': require('../utils/asset-url'),
   '../../data/luxury': { getLuxuryCards: () => [] }
 };
 function page(file) {

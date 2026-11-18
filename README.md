@@ -200,10 +200,20 @@ MpApp/
 **`.gitignore` 与打包排除是两套独立机制**：`.gitignore` 只影响 Git 提交，微信开发者工具打包依据的是 `project.config.json` 的 `packOptions.ignore`。两者需各自维护。
 
 - `packOptions.ignore` 已排除 `scripts/`、`.kilo/`、`.pi/`、`.gitignore`、`README.md`、`env.md`、`project.private.config.json`。新增开发用目录时必须同步加到这里，否则会被打进主包导致上传失败。
-- **主包体积余量紧张（约 49KB）**：当前打包 2,046,585 字节（上限 2,097,152 字节），余量约 49.4KB。新增图片前须先压缩素材，否则会触发 `80051 source size exceed max limit 2MB`。
-- **素材已无冗余可回收**：`assets/images/icons/` 下 5 个入口图标（36KB）由首页 `entry-{{item.key}}.png` **动态拼接引用**，静态检索文件名会误判为未引用，切勿删除。
+- **主包体积（1.16MB 余量）**：`1.0.20261118-photos-cdn` 打包 878,323 字节（上限 2,097,152 字节），照片已改走官网 CDN。新增本地素材仍应先压缩，否则可能再次触发 `80051 source size exceed max limit 2MB`。
+- **图标资源**：六大服务入口与「我的旅程」四宫格改用 `assets/images/icons/` 下的 iconfont 线性图标（96/80px PNG8，单枚 0.2–0.8KB），分别由 `pages/index/index.js` 的 `ENTRY_ICONS` 与 `pages/profile/profile.js` 的 `SERVICE_ICONS` 映射引用；后台新增的自定义入口仍回退 `iconImage`。播放/暂停图标为 `ui-play-*.png`、`ui-pause-dark.png`。返回箭头保留原 WXSS 绘制：16–18rpx 下 iconfont 线性箭头笔画明显更细，实测后不替换。
 - **WebP 收益有限**：实测 JPG 已按质量 72 压缩，转 WebP 仅省约 3%（56KB）；图标 PNG 转 WebP 仅省 8KB。收益不足以承担改动风险，故未启用。
 - **`jenny-wechat-qr.png`（72KB）不可有损压缩**，二维码需保持清晰以保证可扫描。
+
+### 照片远程化（已完成）
+
+17 张照片（hero 3 / route 4 / dest 8 / lux 2）已迁到官网媒体库，本地 JPG 已删除，主包从 2.08MB 降到 858KB。开关仍是 `utils/asset-url.js` 的 `REMOTE_IMAGES`，键保留原本地路径，便于对照与回滚：
+
+- 地址形如 `https://www.sy-greece.com/images/<name>.webp`（官网 `public/images`，各 release 目录 symlink 到同一运行时目录）。
+- 微信 `<image>` 加载 https 图片**不需要** downloadFile 合法域名，但地址必须返回 `image/*` 本体；`sy-greece.com` 对未知路径会 200 返回 SPA HTML，不能当作图片地址。
+- 新增照片的步骤：原图放进官网媒体库 → 在 `REMOTE_IMAGES` 加一条 → 不要放进包内。
+- 解析层接入点：镜像城市/景点/行程（`data/mirror-content.js`）、后端 content 适配（`data/content.js`）、奢享卡与详情（`data/luxury.js`）、首页甄选路线、行程详情首图与镜像兜底、`utils/share.js` 默认分享图、定制页 `sampleTripImage`。
+- 校验脚本：`node scripts/test-remote-images.cjs`（映射格式、引用死链、解析层贯通）。
 - 后续若需扩容，优先考虑**分包**（`subpackages`）把 `pages/profile/*`、`pages/city/*` 拆出，或将大图改由 CDN 加载。
 - 命令行上传（需先在开发者工具「设置 → 安全设置」中开启服务端口）：
 

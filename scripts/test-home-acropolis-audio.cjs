@@ -83,6 +83,7 @@ vm.runInNewContext(fs.readFileSync('pages/index/index.js', 'utf8'), {
     if (id.endsWith('/audio-access')) return { getAccess() { accessCalls++; } };
     if (id.endsWith('/content')) return { loadContent(callback, forceRefresh) { assert.equal(forceRefresh, true); contentCalls++; contentCallback = callback; } };
     if (id.endsWith('/luxury')) return { getLuxuryCards: () => [] };
+    if (id.endsWith('/asset-url')) return { asset: (value) => value };
     return {};
   }
 });
@@ -199,6 +200,7 @@ async function verifyAdapter() {
     require(id) {
       if (id === './mirror-content') return { getContent: () => ({}) };
       if (id === '../utils/home-audio') return { getHomeAudioPreview };
+      if (id === '../utils/asset-url') return { asset: (value) => value };
       throw new Error('Unexpected adapter dependency: ' + id);
     }
   });

@@ -68,8 +68,9 @@ function createHarness(initialConfig) {
   }
   h.load = load;
   h.i18n = load('utils/i18n.js', {});
-  h.content = load('data/content.js', { './mirror-content': { getContent() { throw new Error('No local fallback expected'); } } });
-  h.share = load('utils/share.js', { './i18n': h.i18n, '../data/content': h.content, './share-preview': load('utils/share-preview.js', {}) });
+  h.asset = load('utils/asset-url.js', {});
+  h.content = load('data/content.js', { './mirror-content': { getContent() { throw new Error('No local fallback expected'); } }, '../utils/asset-url': h.asset });
+  h.share = load('utils/share.js', { './i18n': h.i18n, '../data/content': h.content, './share-preview': load('utils/share-preview.js', {}), './asset-url': h.asset });
   h.auth = load('utils/auth.js', { './i18n': h.i18n });
   h.paid = load('utils/paid-content.js', { './auth': h.auth });
   h.access = load('utils/audio-access.js', { './auth': h.auth, './paid-content': h.paid });

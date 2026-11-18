@@ -8,6 +8,7 @@ const mirror = require('../../data/mirror-itineraries');
 const { SERVICE_KEYS } = require('../../data/mirror-itineraries');
 const { buildShareCard } = require('../../utils/share');
 const { goBack } = require('../../utils/navigation');
+const { asset } = require('../../utils/asset-url');
 
 // 统一后端 customTrips 结构 → 页面结构
 // 后端字段：orderNo/period/travelers/language/vehicle/guide/totalFee/days[{date,city,slots}] /notices
@@ -37,7 +38,7 @@ function adaptCustomTrip(trip) {
     id: trip.id,
     token: trip.token || '',
     title: trip.title,
-    img: '/assets/images/hero/hero-santorini.jpg',
+    img: asset('/assets/images/hero/hero-santorini.jpg'),
     period: trip.period,
     days: (trip.days || []).length,
     header,
@@ -116,7 +117,8 @@ Page({
     // id：先展示本地镜像避免空白，但接口内容成功后必须以服务端数据为准。
     // force=true：后台补录/修改参考行程后，再次进入详情必须拉取最新内容。
     this.itineraryId = id;
-    const local = mirror.getItinerary(id);
+    const mirrorTrip = mirror.getItinerary(id);
+    const local = mirrorTrip ? { ...mirrorTrip, img: asset(mirrorTrip.img) } : mirrorTrip;
     applyItinerary.call(this, local, statusBarHeight);
     content.loadContent((data, state) => {
       const remote = (data.sampleItineraries || []).find((item) => item.id === id);

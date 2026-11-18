@@ -22,6 +22,7 @@ vm.runInNewContext(fs.readFileSync(path.join(root, 'pages/index/index.js'), 'utf
     if (id === '../../utils/i18n') return i18n;
     if (id === '../../data/luxury') return { getLuxuryCards: () => [] };
     if (id === '../../data/content' || id === '../../utils/share' || id === '../../utils/home-audio' || id === '../../utils/audio-access') return {};
+    if (id === '../../utils/asset-url') return { asset: (value) => value };
     throw new Error(`Unexpected module: ${id}`);
   }
 });

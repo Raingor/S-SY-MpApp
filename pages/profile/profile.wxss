@@ -193,28 +193,94 @@
   font-size: 22rpx;
 }
 
-.language-options {
+.language-entry {
   display: flex;
-  gap: 14rpx;
-  padding: 0 28rpx;
-}
-
-.language-option {
-  flex: 1;
-  padding: 16rpx 8rpx;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 28rpx;
+  padding: 20rpx 24rpx;
   border: 1rpx solid #DDE7EE;
   border-radius: 18rpx;
-  color: var(--c-sub);
-  font-size: 22rpx;
-  text-align: center;
   background: #FFFFFF;
 }
 
-.language-option-on {
-  border-color: var(--c-primary);
-  color: var(--c-primary);
-  background: #EEF6FB;
+.language-entry-value {
+  color: var(--c-text);
+  font-size: 26rpx;
   font-weight: 600;
+}
+
+.language-entry-arrow {
+  color: var(--c-weak);
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+/* 语言选择弹窗：底部抽屉，点遮罩或「关闭」收起 */
+.language-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(12, 24, 34, .45);
+}
+
+.language-sheet {
+  width: 100%;
+  padding: 12rpx 28rpx calc(24rpx + env(safe-area-inset-bottom));
+  border-radius: 28rpx 28rpx 0 0;
+  background: #FFFFFF;
+  animation: language-sheet-in .18s ease-out;
+}
+
+.language-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 4rpx 16rpx;
+}
+
+.language-sheet-title {
+  color: var(--c-text);
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.language-sheet-close {
+  padding: 8rpx;
+  color: var(--c-weak);
+  font-size: 24rpx;
+}
+
+.language-sheet-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26rpx 20rpx;
+  border-top: 1rpx solid #EFF3F6;
+  color: var(--c-sub);
+  font-size: 28rpx;
+}
+
+.language-sheet-item-on {
+  border-radius: 14rpx;
+  color: var(--c-primary);
+  background: #F4F9FC;
+  font-weight: 600;
+}
+
+.language-sheet-check {
+  color: var(--c-primary);
+  font-size: 26rpx;
+}
+
+@keyframes language-sheet-in {
+  from { opacity: 0; transform: translateY(40rpx); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .nick-row {
@@ -419,63 +485,8 @@
   bottom: 16rpx;
 }
 
-/* 图标：订单 */
-.i-order { position: relative; width: 40rpx; height: 44rpx; }
-.i-order-line {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 6rpx;
-  border-radius: 3rpx;
-  background: #1567A8;
-}
-.i-order-line.l1 { top: 8rpx; width: 34rpx; }
-.i-order-line.l2 { top: 24rpx; width: 22rpx; }
-
-/* 图标：行程（定位点+虚线） */
-.i-trip { position: relative; width: 40rpx; height: 44rpx; }
-.i-trip-pin {
-  position: absolute;
-  top: 2rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 18rpx;
-  height: 18rpx;
-  border-radius: 50% 50% 50% 0;
-  background: #2E7D5B;
-  transform: translateX(-50%) rotate(45deg);
-}
-.i-trip-line {
-  position: absolute;
-  bottom: 4rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4rpx;
-  height: 16rpx;
-  background: #2E7D5B;
-  border-radius: 2rpx;
-}
-
-/* 图标：优惠券 */
-.i-coupon { position: relative; width: 44rpx; height: 34rpx; }
-.i-coupon-body {
-  width: 44rpx;
-  height: 34rpx;
-  border-radius: 8rpx;
-  background: #C6A15B;
-  position: relative;
-}
-.i-coupon-hole {
-  position: absolute;
-  top: 50%;
-  width: 12rpx;
-  height: 12rpx;
-  border-radius: 50%;
-  background: #F3E5CB;
-  transform: translateY(-50%);
-}
-.i-coupon-hole.h1 { left: -6rpx; }
-.i-coupon-hole.h2 { right: -6rpx; }
+/* 图标：服务格子（iconfont 线性图标） */
+.cell-icon-img { width: 40rpx; height: 40rpx; }
 
 /* 帮助卡小圆点 */
 .cell-dot {

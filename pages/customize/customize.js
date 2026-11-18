@@ -6,6 +6,7 @@ const { buildShareCard } = require('../../utils/share');
 const i18n = require('../../utils/i18n');
 const { getThemeCategories } = require('../../data/customization-themes');
 const content = require('../../data/content');
+const { asset } = require('../../utils/asset-url');
 
 function buildThemeCategories(locale, selectedThemes) {
   const selected = selectedThemes || [];
@@ -40,6 +41,7 @@ Page({
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     themeCategories: [],
+    sampleTripImage: asset('/assets/images/hero/hero-santorini.jpg'),
     form: {
       destination: '',       // 出行目的地
       date: '',              // 出行时间

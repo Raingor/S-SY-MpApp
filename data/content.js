@@ -1,6 +1,7 @@
 // 景点、国家与导游内容服务：优先从后端 /api/content 拉取，仅网络离线时回退本地镜像数据
 // 后端字段与本地镜像存在差异，本模块统一适配为页面所需结构
 const local = require('./mirror-content');
+const { asset } = require('../utils/asset-url');
 
 const COUNTRY_STORAGE_KEY = 'sy_mp_country_id';
 const DEFAULT_COUNTRY_ID = 'greece';
@@ -59,17 +60,19 @@ const IMAGE_FALLBACK = {
 
 function mapImage(path) {
   if (!path) return '';
-  if (path.indexOf('/assets/') === 0) return path; // 已是小程序本地路径
+  if (path.indexOf('/assets/') === 0) return asset(path); // 已是小程序本地路径
   const file = path.split('/').pop();
-  return IMAGE_FALLBACK[file] || mapManagedImage(path);
+  const fallback = IMAGE_FALLBACK[file];
+  return fallback ? asset(fallback) : mapManagedImage(path);
 }
 
 function mapGuideImage(path, fallback) {
-  if (!path) return fallback || '';
-  if (path.indexOf('/assets/') === 0 || /^https?:\/\//.test(path)) return path;
+  if (!path) return asset(fallback);
+  if (path.indexOf('/assets/') === 0) return asset(path);
+  if (/^https?:\/\//.test(path)) return path;
   const file = path.split('/').pop();
-  if (file === 'richard-avatar.webp') return '/assets/images/guide/richard-avatar.jpg';
-  if (file === 'richard-full.webp') return '/assets/images/guide/richard-full.jpg';
+  if (file === 'richard-avatar.webp') return asset('/assets/images/guide/richard-avatar.jpg');
+  if (file === 'richard-full.webp') return asset('/assets/images/guide/richard-full.jpg');
   const app = getApp();
   const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
   return base.replace(/\/$/, '') + '/images/' + file;
@@ -79,7 +82,8 @@ function mapGuideImage(path, fallback) {
 function mapManagedImage(path) {
   if (typeof path !== 'string' || !path.trim()) return '';
   const value = path.trim();
-  if (/^https?:\/\//i.test(value) || value.indexOf('/assets/') === 0) return value;
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.indexOf('/assets/') === 0) return asset(value);
   const app = getApp();
   const base = (app && app.globalData && app.globalData.apiBase) || 'https://sy-greece.com';
   // 私有地图等受控接口路径必须原样拼接；不能塞进 /images/ 前缀。

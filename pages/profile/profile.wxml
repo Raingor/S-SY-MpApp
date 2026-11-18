@@ -80,19 +80,7 @@
         bindtap="onServiceTap"
       >
         <view class="cell-icon cell-icon-{{item.key}}">
-          <view wx:if="{{item.key === 'payment-orders' || item.key === 'appointments'}}" class="i-order">
-            <view class="i-order-line l1"></view>
-            <view class="i-order-line l2"></view>
-          </view>
-          <view wx:elif="{{item.key === 'trips'}}" class="i-trip">
-            <view class="i-trip-pin"></view>
-            <view class="i-trip-line"></view>
-          </view>
-          <view wx:else class="i-coupon">
-            <view class="i-coupon-body"></view>
-            <view class="i-coupon-hole h1"></view>
-            <view class="i-coupon-hole h2"></view>
-          </view>
+          <image wx:if="{{item.icon}}" class="cell-icon-img" src="{{item.icon}}" mode="aspectFit" aria-label="{{item.label}}" />
         </view>
         <view class="cell-label">{{item.label}}</view>
         <view wx:if="{{item.badge}}" class="cell-badge">{{item.badge}}</view>
@@ -127,8 +115,9 @@
       <view class="panel-heading-title serif">{{i18n.language}}</view>
     </view>
     <view class="language-hint">{{i18n.languageHint}}</view>
-    <view class="language-options">
-      <view wx:for="{{languageOptions}}" wx:key="value" class="language-option {{locale === item.value ? 'language-option-on' : ''}}" data-locale="{{item.value}}" bindtap="onLanguageTap">{{item.label}}</view>
+    <view class="language-entry" hover-class="cell-press" aria-role="button" aria-label="{{i18n.language}}" bindtap="onLanguageOpen">
+      <text class="language-entry-value">{{languageLabel}}</text>
+      <text class="language-entry-arrow">›</text>
     </view>
   </view>
 
@@ -137,6 +126,25 @@
     <view class="foot-en eyebrow">{{i18n.brandEn}}</view>
     <view class="foot-site">sy-greece.com</view>
     <view class="foot-slogan">{{i18n.commonSlogan}}</view>
+  </view>
+
+  <view wx:if="{{languageSheetOpen}}" class="language-mask" bindtap="onLanguageClose" catchtouchmove="onLanguageSheetTap">
+    <view class="language-sheet" catchtap="onLanguageSheetTap">
+      <view class="language-sheet-head">
+        <text class="language-sheet-title">{{i18n.language}}</text>
+        <text class="language-sheet-close" bindtap="onLanguageClose">{{i18n.profile.close}}</text>
+      </view>
+      <view
+        wx:for="{{languageOptions}}"
+        wx:key="value"
+        class="language-sheet-item {{locale === item.value ? 'language-sheet-item-on' : ''}}"
+        data-locale="{{item.value}}"
+        bindtap="onLanguageTap"
+      >
+        <text class="language-sheet-label">{{item.label}}</text>
+        <text wx:if="{{locale === item.value}}" class="language-sheet-check">✓</text>
+      </view>
+    </view>
   </view>
 
 </view>

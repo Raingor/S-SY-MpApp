@@ -42,7 +42,7 @@
             <view class="audio-episode-duration">◷ {{video.displayDuration}}</view>
             <view class="audio-episode-access">{{isHumanities ? i18n.humanitiesFilms.memberAccess : (video.purchased ? i18n.paidContent.purchased : i18n.heritage.guideVideoPurchase)}}</view>
           </view>
-          <text class="audio-episode-arrow">▶</text>
+          <image class="audio-episode-arrow" src="/assets/images/icons/ui-play-gray.png" mode="aspectFit" aria-hidden="true" />
         </view>
         <guide-video-sheet id="video-player" video="{{videoOpen}}" purchase-allowed="{{!isHumanities}}" bind:accesschange="onVideoAccessChange" />
       </view>
@@ -91,7 +91,7 @@
                 <view class="audio-episode-duration">◷ {{episode.displayDuration}}</view>
                 <view class="audio-episode-access">{{i18n.humanitiesFilms.memberAccess}}</view>
               </view>
-              <text class="audio-episode-arrow">▶</text>
+              <image class="audio-episode-arrow" src="/assets/images/icons/ui-play-gray.png" mode="aspectFit" aria-hidden="true" />
             </view>
             <guide-video-sheet wx:if="{{episode.active}}" id="video-player" video="{{videoOpen}}" purchase-allowed="{{false}}" bind:accesschange="onVideoAccessChange" />
           </view>

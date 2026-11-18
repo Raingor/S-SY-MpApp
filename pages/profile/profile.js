@@ -5,6 +5,20 @@ const i18n = require('../../utils/i18n');
 const app = getApp();
 const paidContent = require('../../utils/paid-content');
 const content = require('../../data/content');
+// 「我的旅程」四宫格图标，与首页服务入口同一套 iconfont 线性风格。
+const SERVICE_ICONS = {
+  'payment-orders': '/assets/images/icons/cell-payment-orders.png',
+  appointments: '/assets/images/icons/cell-appointments.png',
+  trips: '/assets/images/icons/cell-trips.png',
+  coupons: '/assets/images/icons/cell-coupons.png'
+};
+
+function withServiceIcons(services) {
+  return (services || []).map((item) => ({
+    ...item,
+    icon: SERVICE_ICONS[item.key] || ''
+  }));
+}
 
 Page({
   data: {
@@ -27,6 +41,8 @@ Page({
     locale: 'zh-CN',
     i18n: i18n.getMessages(),
     languageOptions: i18n.languageOptions(),
+    languageLabel: '',
+    languageSheetOpen: false,
     user: {
       nickname: '希腊旅人',
       avatar: '/assets/images/misc/consultant-avatar.png',
@@ -40,10 +56,10 @@ Page({
     ],
     // 服务单元格卡
     services: [
-      { key: 'payment-orders', label: '我的订单', badge: '' },
-      { key: 'appointments', label: '我的预约', badge: '' },
-      { key: 'trips', label: '我的行程', badge: '' },
-      { key: 'coupons', label: '优惠券', badge: '' }
+      { key: 'payment-orders', label: '我的订单', badge: '', icon: SERVICE_ICONS['payment-orders'] },
+      { key: 'appointments', label: '我的预约', badge: '', icon: SERVICE_ICONS.appointments },
+      { key: 'trips', label: '我的行程', badge: '', icon: SERVICE_ICONS.trips },
+      { key: 'coupons', label: '优惠券', badge: '', icon: SERVICE_ICONS.coupons }
     ],
     // 资料与帮助卡
     helps: [
@@ -66,21 +82,24 @@ Page({
 
   refreshLocale() {
     const copy = i18n.apply(this);
+    const languageOptions = i18n.languageOptions();
+    const currentLocale = i18n.getLocale();
     const stats = this.data.stats || [];
     this.setData({
-      languageOptions: i18n.languageOptions(),
+      languageOptions,
+      languageLabel: ((languageOptions.find((item) => item.value === currentLocale) || {}).label) || '',
       stats: [
         { label: copy.profile.appointments, value: Number(stats[0] && stats[0].value) || 0 },
         { label: copy.profile.trips, value: Number(stats[1] && stats[1].value) || 0 },
         { label: copy.profile.coupons, value: Number(stats[2] && stats[2].value) || 0 },
         { label: copy.profile.records, value: Number(stats[3] && stats[3].value) || 0 }
       ],
-      services: [
+      services: withServiceIcons([
         { key: 'payment-orders', label: copy.profileDetail.myOrders, badge: this.data.knowledgeOrders.length ? String(this.data.knowledgeOrders.length) : '' },
         { key: 'appointments', label: copy.profile.appointments, badge: '' },
         { key: 'trips', label: copy.profile.trips, badge: '' },
         { key: 'coupons', label: copy.profile.coupons, badge: '' }
-      ],
+      ]),
       helps: [
         { key: 'travelers', label: copy.profile.travelers },
         { key: 'visa', label: copy.profile.visa },
@@ -94,7 +113,7 @@ Page({
   onShow() {
     this.refreshLocale();
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2 });
+      this.getTabBar().setData({ selected: 2, hidden: this.data.languageSheetOpen });
     }
     // tab 切换进入时回到顶部（从子页返回不触发）
     if (app.globalData.pendingTabReset) {
@@ -221,9 +240,38 @@ Page({
 
   onLanguageTap(e) {
     const locale = e.currentTarget.dataset.locale;
-    if (!locale || locale === i18n.getLocale()) return;
+    if (!locale) return;
+    this.setData({ languageSheetOpen: false });
+    this.setTabBarHidden(false);
+    if (locale === i18n.getLocale()) return;
+    // setLocale 写入本地存储，下次启动沿用；reLaunch 让 tabBar 与已打开页面统一换语言。
     i18n.setLocale(locale);
     wx.reLaunch({ url: '/pages/profile/profile' });
+  },
+
+  onLanguageOpen() {
+    this.setData({ languageSheetOpen: true });
+    this.setTabBarHidden(true);
+  },
+
+  onLanguageClose() {
+    this.setData({ languageSheetOpen: false });
+    this.setTabBarHidden(false);
+  },
+
+  onLanguageSheetTap() {},
+
+  onHide() {
+    if (!this.data.languageSheetOpen) return;
+    this.setData({ languageSheetOpen: false });
+    this.setTabBarHidden(false);
+  },
+
+  // 自定义 tabBar 是独立渲染层，弹窗打开时需主动隐藏，否则会浮在抽屉上方。
+  setTabBarHidden(hidden) {
+    if (typeof this.getTabBar !== 'function') return;
+    const tabBar = this.getTabBar();
+    if (tabBar && tabBar.setData) tabBar.setData({ hidden });
   },
 
   onGetPhoneNumber(e) {
