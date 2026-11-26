@@ -58,7 +58,8 @@ Page({
   },
   localize() {
     if (!this.spot) return;
-    const title = this.category === 'expert' ? this.data.i18n.heritage.expert : this.data.i18n.heritage.online;
+    const title = this.data.i18n.heritage.collectionTitle ||
+      (this.category === 'expert' ? this.data.i18n.heritage.expert : this.data.i18n.heritage.online);
     const items = (this.data.items || []).map((item) => ({ ...item, displayTitle: localized(item, 'title', this.data.locale), displayDescription: localized(item, 'description', this.data.locale), accessLabel: audioAccessLabel(item, this.data.i18n.heritage, this.data.locale) }));
     this.setData({ title, spotName: localized(this.spot, 'name', this.data.locale), items });
     this.applyFilter();

@@ -95,6 +95,18 @@ function pagePreview(path, page) {
     summary = d.description || (d.album || {}).displayDescription || d.spotName;
     image = d.cover || d.coverImage || (d.album || {}).cover;
     label = clean(heritage.history);
+    if (route === '/pages/audio/collection') {
+      // 客户要求：分享标题把景点名带上，例：【雅典卫城】精选讲解合集；无景点时回退称呼本身。
+      const collectionTitle = clean(heritage.collectionTitle);
+      const spotName = clean(d.spotName);
+      if (collectionTitle) {
+        title = spotName ? '【' + spotName + '】' + collectionTitle : collectionTitle;
+        overrideTitle = title;
+        // 标题已是完整卡片文案，summary 留空避免 buildShareCard 再拼「｜合集名」；
+        // 但页内预览仍显示一段摘要，沿用景点名或当前描述，不透出空行。
+        summary = clean(d.description) || clean(spotName) || summary;
+      }
+    }
   } else if (route === '/pages/membership/shop') {
     title = (m.paidContent || {}).memberAnnual;
     summary = (m.paidContent || {}).memberDesc;
