@@ -41,7 +41,7 @@ for (const locale of ['zh-CN', 'zh-TW', 'en']) {
   assert.ok(flow, locale + ' serviceFlow copy exists');
   assert.equal(flow.steps.length, 8, locale + ': eight flow steps');
   assert.equal(flow.feeList.length, 4, locale + ': four planner fee tiers');
-  assert.deepEqual(Array.from(flow.feeList, (fee) => fee[1]), ['¥188', '¥288', '¥288', '¥388'], locale + ': planner fees match the service chart');
+  assert.deepEqual(Array.from(flow.feeList, (fee) => fee[1]), ['¥188', '¥288', '¥388', '¥488'], locale + ': planner fees match the service chart');
   assert.ok(flow.cta && flow.ctaHint && flow.laneYou && flow.laneCrew && flow.laneGreece, locale + ': CTA and lane copy present');
   assert.match(flow.title, /定制旅行服务流程|定製旅行服務流程|service flow/i);
   // 分组语义：1-3 沟通规划、4-6 确认付款、7-8 行前与行程
