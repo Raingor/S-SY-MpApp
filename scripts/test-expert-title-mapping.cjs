@@ -17,7 +17,7 @@ vm.runInNewContext(source, {
   getApp: () => ({ globalData: {} })
 });
 const messages = {
-  heritage: { expert: '名师讲解', highlights: '古迹点位' },
+  heritage: { expert: '名师讲解' },
   contentPage: { guideLabels: {} }
 };
 const page = { ...pageConfig, data: structuredClone(pageConfig.data), setData(next) { Object.assign(this.data, next); } };
@@ -39,15 +39,19 @@ page.data.locale = 'zh-CN';
 page.applyPageCopy({ sections: { expert: { label: { zh: '专家导览' } } }, audioHow: { steps: [] } });
 assert.equal(page.data.pageCopy.sections.expert.title, '专家导览', 'custom backend expert titles are respected');
 
-// 后台仍是旧文案「必看亮点 / 必看亮點」时，小程序端显示为「古迹点位」。
+// 必看亮点区块标题以后台下发的「必看亮点」为准，客户端不再改写。
 page.data.locale = 'zh-CN';
 page.applyPageCopy({ sections: { highlights: { label: { zh: '必看亮点' }, subtitle: { zh: '值得关注的内容' } } }, audioHow: { steps: [] } });
-assert.equal(page.data.pageCopy.sections.highlights.title, '古迹点位', 'legacy backend label 必看亮点 displays as 古迹点位');
+assert.equal(page.data.pageCopy.sections.highlights.title, '必看亮点', 'backend 必看亮点 label displays unchanged');
+page.data.locale = 'zh-TW';
 page.applyPageCopy({ sections: { highlights: { label: { zh: '必看亮點' } } }, audioHow: { steps: [] } });
-assert.equal(page.data.pageCopy.sections.highlights.title, '古迹点位', 'legacy traditional label 必看亮點 displays as 古迹点位');
+assert.equal(page.data.pageCopy.sections.highlights.title, '必看亮點', 'backend 必看亮點 label displays unchanged');
 
 // 后台自定义的其他标题不被覆盖。
+page.data.locale = 'zh-CN';
 page.applyPageCopy({ sections: { highlights: { label: { zh: '现场看点' } } }, audioHow: { steps: [] } });
 assert.equal(page.data.pageCopy.sections.highlights.title, '现场看点', 'custom backend highlights titles are respected');
 
-console.log('PASS: legacy 名导讲解/名導講解 and 必看亮点/必看亮點 display as 名师讲解/古迹点位; custom titles pass through');
+assert.doesNotMatch(source, /legacyHighlightTitle/, 'detail.js no longer remaps the highlights title');
+
+console.log('PASS: legacy 名导讲解/名導講解 display as 名师讲解; 必看亮点 titles and custom titles pass through unchanged');

@@ -111,11 +111,8 @@ Page({
       const title = read(value.label);
       const legacyExpertTitle = key === 'expert' && ['名导讲解', '名導講解'].includes(title.trim());
       const expertLabel = this.data.i18n && this.data.i18n.heritage && this.data.i18n.heritage.expert;
-      // 后台仍是旧版「必看亮点」标签时，按本地新文案重映射为「古迹点位」，避免与板块实际内容不一致。
-      const legacyHighlightTitle = key === 'highlights' && ['必看亮点', '必看亮點'].includes(title.trim());
-      const highlightLabel = this.data.i18n && this.data.i18n.heritage && this.data.i18n.heritage.highlights;
       sections[key] = {
-        title: legacyHighlightTitle && highlightLabel ? highlightLabel : (legacyExpertTitle && expertLabel ? expertLabel : title),
+        title: legacyExpertTitle && expertLabel ? expertLabel : title,
         subtitle: read(value.subtitle),
         notice: read(value.notice),
         hidden: key === 'online' ? false : (authoritative ? overrides.includes(key) : (value && value.hidden === true) || overrides.includes(key))
